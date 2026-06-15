@@ -1,0 +1,119 @@
+- id: "12.1"
+  question: "In CDS, protection buyer:"
+  options:
+    A: "Receives premium"
+    B: "Makes periodic payments to seller"
+    C: "Has no counterparty risk"
+    D: "Must own the underlying bond"
+  answer: B
+  explanation: "Protection buyer pays periodic premium (CDS spread) to seller. In return, seller compensates if credit event occurs."
+  difficulty: 1
+  tags: [terminology, cds]
+
+- id: "12.2"
+  question: "Standard running coupon for IG CDS is:"
+  options:
+    A: "50bp"
+    B: "100bp"
+    C: "500bp"
+    D: "1000bp"
+  answer: B
+  explanation: "IG standard coupon = 100bp. HY = 500bp. Upfront payment adjusts for difference vs market spread."
+  difficulty: 1
+  tags: [terminology, cds]
+
+- id: "12.3"
+  question: "Which ISDA credit event applies only to corporates?"
+  options:
+    A: "Failure to pay"
+    B: "Restructuring"
+    C: "Bankruptcy"
+    D: "Repudiation"
+  answer: C
+  explanation: "Bankruptcy is corporate-specific. Repudiation/moratorium is sovereign-specific. Failure to pay and restructuring apply to both."
+  difficulty: 2
+  tags: [terminology, credit-events]
+
+- id: "12.4"
+  question: "Recovery = 30%, PD = 3%. Fair CDS spread estimate?"
+  options:
+    A: "90bp"
+    B: "180bp"
+    C: "210bp"
+    D: "300bp"
+  answer: C
+  explanation: "Spread ≈ (1-0.30) × 3% = 0.70 × 3% = 2.1% = 210bp"
+  difficulty: 2
+  tags: [calculation, cds]
+
+- id: "12.5"
+  question: "CDS basis = -40bp means:"
+  options:
+    A: "CDS spread > bond spread by 40bp"
+    B: "CDS spread < bond spread by 40bp"
+    C: "Bond is trading at discount"
+    D: "CDS has no value"
+  answer: B
+  explanation: "Basis = CDS - bond spread. Negative: CDS cheaper than cash bond. Buy bond, buy CDS → arb profit."
+  difficulty: 2
+  tags: [terminology, basis]
+
+- id: "12.6"
+  question: "CDX.NA.IG contains how many North American IG entities?"
+  options:
+    A: "50"
+    B: "100"
+    C: "125"
+    D: "250"
+  answer: C
+  explanation: "CDX.NA.IG = 125 IG names. CDX.NA.HY = 100 HY names. iTraxx Europe = 125 names."
+  difficulty: 2
+  tags: [terminology, indices]
+
+- id: "12.7"
+  question: "What happens to CDS if reference entity defaults?"
+  options:
+    A: "CDS expires worthless"
+    B: "Protection seller pays protection buyer (par - recovery)"
+    C: "Both parties terminate"
+    D: "CDS continues with different entity"
+  answer: B
+  explanation: "Credit event → auction determines recovery price. Seller pays buyer (par - recovery) × notional."
+  difficulty: 2
+  tags: [scenario, cds]
+
+- id: "12.8"
+  question: "Negative basis trade:"
+  options:
+    A: "Short bond, sell CDS"
+    B: "Buy bond, buy CDS"
+    C: "Buy bond, sell CDS"
+    D: "Short bond, buy CDS"
+  answer: B
+  explanation: "Negative basis = CDS cheap vs cash. Buy bond (earn spread), buy CDS (pay cheap premium). Net positive carry + hedged."
+  difficulty: 3
+  tags: [scenario, basis]
+
+- id: "12.9"
+  question: "Private bank client wants to hedge credit risk without selling bonds. Best tool?"
+  options:
+    A: "Treasury future"
+    B: "CDS"
+    C: "Interest rate swap"
+    D: "Equity put"
+  answer: B
+  description: "CDS hedges credit risk directly. Treasury future hedges interest rate risk. CDS preserves bond position while removing credit exposure."
+  difficulty: 2
+  tags: [scenario, private-bank]
+
+- id: "12.10"
+  question: "CDS indices roll every:"
+  options:
+    A: "Monthly"
+    B: "Quarterly"
+    C: "Every 6 months"
+    D: "Annually"
+  answer: C
+  explanation: "CDX and iTraxx roll every 6 months (March/September). New series issued with updated constituent list."
+  difficulty: 2
+  tags: [terminology, indices]

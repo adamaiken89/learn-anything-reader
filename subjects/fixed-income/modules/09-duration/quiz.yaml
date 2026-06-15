@@ -1,0 +1,119 @@
+- id: "9.1"
+  question: "Macaulay duration of a zero-coupon bond equals:"
+  options:
+    A: "Half its maturity"
+    B: "Its maturity"
+    C: "Zero"
+    D: "Its modified duration"
+  answer: B
+  explanation: "Zero-coupon: single cash flow at maturity. Weighted avg time = maturity."
+  difficulty: 1
+  tags: [terminology, duration]
+
+- id: "9.2"
+  question: "Modified duration 6.5, yield +0.25%. Approximate price change?"
+  options:
+    A: "+1.63%"
+    B: "-1.63%"
+    C: "-0.16%"
+    D: "+0.16%"
+  answer: B
+  explanation: "ΔP ≈ -Modified D × Δyield = -6.5 × 0.0025 = -0.01625 = -1.63%"
+  difficulty: 1
+  tags: [calculation, duration]
+
+- id: "9.3"
+  question: "Two bonds same maturity. Bond A: 5% coupon. Bond B: 2% coupon. Which has higher duration?"
+  options:
+    A: "Bond A"
+    B: "Bond B"
+    C: "Equal"
+    D: "Cannot determine"
+  answer: B
+  explanation: "Lower coupon → more weight on distant principal → higher duration. Bond B has higher duration."
+  difficulty: 2
+  tags: [scenario, duration]
+
+- id: "9.4"
+  question: "DV01 (PVBP) = $450. Yield +5bp. Approximate dollar loss?"
+  options:
+    A: "$450"
+    B: "$900"
+    C: "$2,250"
+    D: "$90"
+  answer: C
+  explanation: "$450 per bp × 5bp = $2,250"
+  difficulty: 2
+  tags: [calculation, pvbp]
+
+- id: "9.5"
+  question: "Key-rate duration used for:"
+  options:
+    A: "Measuring credit risk"
+    B: "Analyzing sensitivity to specific maturity points on curve"
+    C: "Calculating YTM"
+    D: "Measuring convexity"
+  answer: B
+  explanation: "Key-rate D measures sensitivity to 1bp change at specific maturity (e.g., 2yr, 10yr). Useful for non-parallel shifts."
+  difficulty: 2
+  tags: [terminology, key-rate]
+
+- id: "9.6"
+  question: "Barbell portfolio: 50% in 2yr (D=1.9), 50% in 30yr (D=18). Portfolio D?"
+  options:
+    A: "9.95"
+    B: "10.50"
+    C: "19.90"
+    D: "15.00"
+  answer: A
+  explanation: "Portfolio D = 0.5 × 1.9 + 0.5 × 18 = 0.95 + 9 = 9.95"
+  difficulty: 2
+  tags: [calculation, portfolio]
+
+- id: "9.7"
+  question: "Private bank client holds $10M bonds, D=7.0. Rates rise 30bp. Expected P&L?"
+  options:
+    A: "+$210,000"
+    B: "-$210,000"
+    C: "-$70,000"
+    D: "+$70,000"
+  answer: B
+  explanation: "ΔP ≈ -D × Δy × P = -7.0 × 0.003 × $10M = -$210,000"
+  difficulty: 2
+  tags: [scenario, private-bank]
+
+- id: "9.8"
+  question: "Modified D = Macaulay D / (1 + YTM/k). k stands for:"
+  options:
+    A: "Coupon rate"
+    B: "Periods per year"
+    C: "Years to maturity"
+    D: "Face value"
+  answer: B
+  explanation: "k = payment periods per year (2 for semi-annual). Adjusts Macaulay D to periodic yield."
+  difficulty: 2
+  tags: [terminology, calculation]
+
+- id: "9.9"
+  question: "Duration assumes which yield curve shift?"
+  options:
+    A: "Non-parallel"
+    B: "Parallel"
+    C: "Curve flattening"
+    D: "Curve steepening"
+  answer: B
+  explanation: "Duration is linear approximation for parallel yield shifts. For non-parallel, key-rate duration needed."
+  difficulty: 2
+  tags: [terminology, limitation]
+
+- id: "9.10"
+  question: "Bond with high duration benefits most from:"
+  options:
+    A: "Rising interest rates"
+    B: "Falling interest rates"
+    C: "Rising inflation"
+    D: "Credit downgrade"
+  answer: B
+  explanation: "High duration → greater sensitivity to rate moves. Rates fall → price rises more for high-duration bond."
+  difficulty: 1
+  tags: [scenario, duration]

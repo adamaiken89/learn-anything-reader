@@ -1,0 +1,119 @@
+- id: "16.1"
+  question: "Bond issuer right to redeem before maturity at predetermined price describes:"
+  options:
+    A: Put option
+    B: Call option
+    C: Cap option
+    D: Floor option
+  answer: B
+  explanation: "Callable bond gives issuer right to call (redeem early). Put option gives investor right to sell back."
+  difficulty: 1
+  tags: [options, terminology]
+
+- id: "16.2"
+  question: "Investor buys putable bond. Interest rates rise sharply. What happens?"
+  options:
+    A: Investor likely exercises put, sells bond back at par
+    B: Issuer calls bond away from investor
+    C: Bond price stays at par regardless of rate move
+    D: Conversion ratio adjusts automatically
+  answer: A
+  explanation: "Putable bond lets investor sell back at par when rates rise and bond price falls — puts floor on price."
+  difficulty: 2
+  tags: [options, putable bonds]
+
+- id: "16.3"
+  question: "Convertible bond with par $1,000, conversion ratio 25 shares. Stock trades at $30. What is conversion value?"
+  options:
+    A: $600
+    B: $750
+    C: $1,000
+    D: $1,250
+  answer: B
+  explanation: "Conversion value = stock price × conversion ratio = $30 × 25 = $750"
+  difficulty: 2
+  tags: [options, convertible, calculation]
+
+- id: "16.4"
+  question: "Interest rate cap payoff formula given rate R and strike K:"
+  options:
+    A: max(K - R, 0) × notional × period
+    B: max(R - K, 0) × notional × period
+    C: |R - K| × notional × period
+    D: (R - K) × notional × period
+  answer: B
+  explanation: "Cap = call on rates. Pays when reference rate exceeds strike: max(R - K, 0) × notional × period."
+  difficulty: 1
+  tags: [options, caps, floors]
+
+- id: "16.5"
+  question: "Callable bond exhibits negative convexity primarily because:"
+  options:
+    A: Coupon payments decline over time
+    B: Duration increases as rates rise
+    C: Price appreciation capped as rates fall due to call risk
+    D: Credit spread widens automatically
+  answer: C
+  explanation: "As rates fall, probability of call increases, capping price upside — creates negative convexity."
+  difficulty: 2
+  tags: [options, convexity, callable]
+
+- id: "16.6"
+  question: "Option to enter interest rate swap where you pay fixed and receive floating:"
+  options:
+    A: Receiver swaption
+    B: Payer swaption
+    C: Cap option
+    D: Floor option
+  answer: B
+  explanation: "Payer swaption = right to enter swap where you pay fixed (like having fixed-rate liability hedged)."
+  difficulty: 2
+  tags: [options, swaptions]
+
+- id: "16.7"
+  question: "Private bank client wants to protect floating-rate mortgage from rising rates. Which instrument?"
+  options:
+    A: Interest rate floor
+    B: Interest rate cap
+    C: Payer swaption on receiving fixed
+    D: Short put on bond futures
+  answer: B
+  explanation: "Cap sets ceiling on floating rate payments. Protects borrower from rising rates."
+  difficulty: 2
+  tags: [options, private bank, hedging]
+
+- id: "16.8"
+  question: "Black model limitation for bond option pricing:"
+  options:
+    A: Assumes zero coupon bonds only
+    B: Bond price does not converge to par at maturity
+    C: Ignores credit risk completely
+    D: Only works for European exercise
+  answer: B
+  explanation: "Black model treats bond price as lognormal, but bond price actually converges to par at maturity (pull-to-par), violating assumption."
+  difficulty: 3
+  tags: [options, pricing, limitations]
+
+- id: "16.9"
+  question: "Range accrual note pays coupon when:"
+  options:
+    A: Issuer exercises call option
+    B: Reference rate stays within predetermined range
+    C: Stock price exceeds conversion price
+    D: Credit rating is upgraded
+  answer: B
+  explanation: "Range accrual notes pay coupon for each day reference rate (e.g., SOFR) stays within specified range."
+  difficulty: 2
+  tags: [options, structured products]
+
+- id: "16.10"
+  question: "Sinking fund provision with option to accelerate payments describes:"
+  options:
+    A: Callable bond
+    B: Putable bond
+    C: Sinkable bond
+    D: Convertible bond
+  answer: C
+  explanation: "Sinkable bond requires partial redemptions via sinking fund; some allow issuer to accelerate payments."
+  difficulty: 1
+  tags: [options, sinkable]

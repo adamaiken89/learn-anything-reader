@@ -1,0 +1,119 @@
+- id: "3.1"
+  question: "T-Bill with 180 days to maturity, discount rate 3.5%. Price per $1M face?"
+  options:
+    A: "$982,500"
+    B: "$965,000"
+    C: "$990,000"
+    D: "$1,000,000"
+  answer: A
+  explanation: "Price = 1,000,000 × (1 - 0.035 × 180/360) = 1,000,000 × 0.9825 = $982,500"
+  difficulty: 1
+  tags: [calculation, treasuries]
+
+- id: "3.2"
+  question: "Which Treasury type pays semi-annual coupon and has 10-year maturity?"
+  options:
+    A: "T-Bill"
+    B: "T-Note"
+    C: "T-Bond"
+    D: "STRIPS"
+  answer: B
+  explanation: "T-Notes: 2-10yr, semi-annual coupon. T-Bills ≤1yr zero. T-Bonds 20-30yr. STRIPS are zero-coupon."
+  difficulty: 1
+  tags: [terminology, treasuries]
+
+- id: "3.3"
+  question: "On-the-run Treasury yield is typically ___ off-the-run Treasury yield."
+  options:
+    A: "higher than"
+    B: "lower than"
+    C: "equal to"
+    D: "unrelated to"
+  answer: B
+  explanation: "On-the-run most liquid → investors accept lower yield (higher price). Off-the-run less liquid → higher yield compensation."
+  difficulty: 2
+  tags: [terminology, liquidity]
+
+- id: "3.4"
+  question: "How many STRIPS securities can be created from one 10yr Treasury with 4% semi-annual coupon?"
+  options:
+    A: "1"
+    B: "10"
+    C: "20"
+    D: "21"
+  answer: D
+  explanation: "20 semi-annual coupons + 1 principal repayment = 21 separate zero-coupon securities."
+  difficulty: 2
+  tags: [terminology, strips]
+
+- id: "3.5"
+  question: "STRIPS appeal to investors seeking:"
+  options:
+    A: "Maximum current income"
+    B: "Inflation protection"
+    C: "Known future value with no reinvestment risk"
+    D: "Short-term liquidity"
+  answer: C
+  explanation: "STRIPS = zero-coupon → known maturity value. No coupon reinvestment risk. Price volatile (long duration)."
+  difficulty: 2
+  tags: [scenario, strips]
+
+- id: "3.6"
+  question: "Fannie Mae bonds yield more than Treasuries because:"
+  options:
+    A: "Longer maturity"
+    B: "Credit risk premium (no explicit government guarantee)"
+    C: "Higher coupon rate"
+    D: "Lower liquidity only"
+  answer: B
+  explanation: "Agencies have implicit but not explicit government backing → credit premium over Treasuries. Also liquidity premium."
+  difficulty: 2
+  tags: [terminology, agencies]
+
+- id: "3.7"
+  question: "Private bank client asks: why does 10yr Treasury yield affect my corporate bond portfolio?"
+  options:
+    A: "It doesn't"
+    B: "Corporate bonds priced as spread over Treasury benchmark"
+    C: "Treasury yields are unrelated to corporate credit"
+    D: "Only stock market affects corporate bonds"
+  answer: B
+  explanation: "Corporate bond yield = Treasury benchmark + credit spread. Treasury move directly impacts corporate yields even if spread unchanged."
+  difficulty: 2
+  tags: [scenario, private-bank]
+
+- id: "3.8"
+  question: "Client calls: 'my TIPS principal adjusted up 2% with CPI. Did I earn 2%?'"
+  options:
+    A: "Yes, 2% total return"
+    B: "No, total return = coupon + inflation adjustment. Nominal return includes both"
+    C: "Only if held in taxable account"
+    D: "TIPS don't pay coupons"
+  answer: B
+  explanation: "TIPS total return = real coupon + inflation adjustment to principal. The 2% CPI adjustment is part of return, not total return."
+  difficulty: 3
+  tags: [scenario, tips]
+
+- id: "3.9"
+  question: "Which is NOT a risk for Treasury bond investors?"
+  options:
+    A: "Interest rate risk"
+    B: "Reinvestment risk"
+    C: "Credit default risk"
+    D: "Inflation risk"
+  answer: C
+  explanation: "Treasuries considered free of credit/default risk (full faith of US govt). Interest rate, reinvestment, and inflation risks remain."
+  difficulty: 1
+  tags: [terminology, risk]
+
+- id: "3.10"
+  question: "Bond equivalent yield of 180-day T-Bill priced at $980,000 per $1M face?"
+  options:
+    A: "3.50%"
+    B: "4.08%"
+    C: "2.00%"
+    D: "4.00%"
+  answer: B
+  explanation: "BEY = (1,000,000-980,000)/980,000 × 365/180 = 20,000/980,000 × 2.028 = 2.04% × 2.028 = 4.08%"
+  difficulty: 3
+  tags: [calculation, treasuries]

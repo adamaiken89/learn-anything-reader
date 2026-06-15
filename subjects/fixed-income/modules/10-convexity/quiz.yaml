@@ -1,0 +1,119 @@
+- id: "10.1"
+  question: "Convexity improves price change estimate by adding:"
+  options:
+    A: "A linear term"
+    B: "A squared term (Δy)^2"
+    C: "A cubic term"
+    D: "A constant"
+  answer: B
+  explanation: "Convexity adjustment = 0.5 × C × (Δy)^2. Squared term corrects duration's linear approximation."
+  difficulty: 1
+  tags: [terminology, convexity]
+
+- id: "10.2"
+  question: "For non-callable bond, convexity is:"
+  options:
+    A: "Negative"
+    B: "Zero"
+    C: "Positive"
+    D: "Infinite"
+  answer: C
+  explanation: "Straight bonds: positive convexity. Price-yield curve curved upward. Convexity benefits holder."
+  difficulty: 1
+  tags: [terminology, convexity]
+
+- id: "10.3"
+  question: "D = 7.0, C = 40, yield +2%. Duration-only estimate vs with convexity?"
+  options:
+    A: "-14.0% vs -13.2%"
+    B: "-14.0% vs -14.8%"
+    C: "+14.0% vs +13.2%"
+    D: "-7.0% vs -6.2%"
+  answer: A
+  explanation: "Duration: -7 × 0.02 = -14%. Convexity: 0.5 × 40 × 0.0004 = 0.8%. Total: -13.2%. Convexity reduces loss."
+  difficulty: 2
+  tags: [calculation, convexity]
+
+- id: "10.4"
+  question: "Which has negative convexity?"
+  options:
+    A: "10yr Treasury"
+    B: "Zero-coupon bond"
+    C: "Callable corporate bond"
+    D: "Municipal GO bond"
+  answer: C
+  explanation: "Callable bond: price capped near call price → negative convexity. Rates fall → price appreciation limited."
+  difficulty: 2
+  tags: [terminology, convexity]
+
+- id: "10.5"
+  question: "Barbell vs bullet (same duration): barbell has:"
+  options:
+    A: "Lower convexity"
+    B: "Higher convexity"
+    C: "Same convexity"
+    D: "Negative convexity"
+  answer: B
+  explanation: "Barbell (short + long) has higher convexity than bullet (intermediate) at same duration. You pay for convexity via lower yield."
+  difficulty: 2
+  tags: [terminology, barbell-bullet]
+
+- id: "10.6"
+  question: "MBS negative convexity caused by:"
+  options:
+    A: "Credit risk"
+    B: "Prepayment risk (borrowers refinance when rates fall)"
+    C: "Default risk"
+    D: "Interest rate risk"
+  answer: B
+  explanation: "Rates fall → prepayments rise → principal returned early → duration shortens → price gain limited. Negative convexity."
+  difficulty: 2
+  tags: [scenario, mbs]
+
+- id: "10.7"
+  question: "Large rate move: convexity effect becomes ___ relative to duration effect."
+  options:
+    A: "Smaller"
+    B: "Larger"
+    C: "Negligible"
+    D: "Zero"
+  answer: B
+  explanation: "Convexity term uses (Δy)^2. Large Δy → squared term grows faster. More important for big moves."
+  difficulty: 2
+  tags: [terminology, convexity]
+
+- id: "10.8"
+  question: "D = 5.0, C = 30, yield -1.5%. Estimate price change with convexity?"
+  options:
+    A: "+7.50%"
+    B: "+7.84%"
+    C: "+6.75%"
+    D: "+8.25%"
+  answer: B
+  explanation: "Duration: -5 × (-0.015) = +7.5%. Convexity: 0.5 × 30 × 0.000225 = 0.34%. Total: +7.84%"
+  difficulty: 3
+  tags: [calculation, convexity]
+
+- id: "10.9"
+  question: "Private bank client: 'My callable bond fund underperformed the Treasury index in a rate rally.' Likely cause?"
+  options:
+    A: "Credit downgrade"
+    B: "Negative convexity from callable bonds limits upside"
+    C: "Fund fees increased"
+    D: "Maturity too short"
+  answer: B
+  explanation: "Callable bonds: negative convexity. Rates fall → price capped at call price → gains less than non-callable bonds."
+  difficulty: 2
+  tags: [scenario, private-bank]
+
+- id: "10.10"
+  question: "When is convexity least important for price estimation?"
+  options:
+    A: "200bp rate move"
+    B: "10bp rate move"
+    C: "Bond with 20yr maturity"
+    D: "Bond with embedded options"
+  answer: B
+  explanation: "Small rate moves (10bp): duration approximation accurate enough. Convexity matters for large moves (>50-100bp)."
+  difficulty: 3
+  tags: [scenario, convexity]

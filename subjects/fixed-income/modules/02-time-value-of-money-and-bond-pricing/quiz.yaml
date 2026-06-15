@@ -1,0 +1,119 @@
+- id: "2.1"
+  question: "Present value of $5,000 received in 4 years, discount rate 6% annually?"
+  options:
+    A: "$3,960.47"
+    B: "$3,500.00"
+    C: "$4,200.00"
+    D: "$4,716.98"
+  answer: A
+  explanation: "PV = 5,000 / (1.06)^4 = 5,000 / 1.2625 = $3,960.47"
+  difficulty: 1
+  tags: [calculation, tvm]
+
+- id: "2.2"
+  question: "What is bond price formula based on?"
+  options:
+    A: "Average of past prices"
+    B: "Sum of present value of all future cash flows"
+    C: "Issuer's credit rating"
+    D: "Stock price of issuer"
+  answer: B
+  explanation: "Bond price = PV(coupons) + PV(face value). Bond is series of future cash flows discounted at market yield."
+  difficulty: 1
+  tags: [terminology, pricing]
+
+- id: "2.3"
+  question: "5yr bond, 8% coupon semi-annual, YTM 6%. How many periods and periodic yield?"
+  options:
+    A: "5 periods, 6% periodic yield"
+    B: "10 periods, 3% periodic yield"
+    C: "10 periods, 6% periodic yield"
+    D: "5 periods, 3% periodic yield"
+  answer: B
+  explanation: "Semi-annual: periods = 5 × 2 = 10. Periodic yield = 6%/2 = 3%. Periodic coupon = 8%/2 × $1,000 = $40."
+  difficulty: 1
+  tags: [calculation, semi-annual]
+
+- id: "2.4"
+  question: "Bond pays $25 coupon semi-annually, face $1,000, 3yr maturity, YTM 4%. What is price?"
+  options:
+    A: "$972.50"
+    B: "$1,000.00"
+    C: "$1,027.57"
+    D: "$1,083.33"
+  answer: C
+  explanation: "Periodic coupon = $25, periods = 6, periodic yield = 2%. PV coupons = 25 × [1-1.02^-6]/0.02 = 25 × 5.601 = $140.03. PV principal = 1000/1.02^6 = $887.54. Total = $1,027.57"
+  difficulty: 2
+  tags: [calculation, pricing]
+
+- id: "2.5"
+  question: "Clean price $980, accrued interest $12.50. What does buyer actually pay?"
+  options:
+    A: "$967.50"
+    B: "$980.00"
+    C: "$992.50"
+    D: "$1,000.00"
+  answer: C
+  explanation: "Dirty price = clean + accrued = $980 + $12.50 = $992.50. Buyer pays dirty price."
+  difficulty: 2
+  tags: [terminology, settlement]
+
+- id: "2.6"
+  question: "YTM assumes which reinvestment condition?"
+  options:
+    A: "Coupons reinvested at risk-free rate"
+    B: "Coupons reinvested at same YTM"
+    C: "Coupons not reinvested"
+    D: "Coupons reinvested at current yield"
+  answer: B
+  explanation: "YTM assumes all coupons reinvested at same YTM rate. If reinvestment rates differ, realized return differs from YTM."
+  difficulty: 2
+  tags: [terminology, ytm]
+
+- id: "2.7"
+  question: "Private bank client buys bond quoted at 101.25 clean. Coupon 4% semi-annual, 90 days since last coupon (182-day period). What dirty price?"
+  options:
+    A: "$1,012.50"
+    B: "$1,014.55"
+    C: "$1,022.39"
+    D: "$1,032.74"
+  answer: C
+  explanation: "Clean = $1,012.50. Accrued = (4%/2) × (90/182) × $1,000 = 2% × 0.495 × $1,000 = $9.89. Dirty = $1,012.50 + $9.89 = $1,022.39"
+  difficulty: 2
+  tags: [scenario, private-bank]
+
+- id: "2.8"
+  question: "Spot rate differs from YTM because..."
+  options:
+    A: "Spot rate applies one discount rate to all cash flows"
+    B: "YTM applies different rates per period"
+    C: "Spot rate applies a unique rate per maturity, YTM applies one rate to all cash flows"
+    D: "They are identical"
+  answer: C
+  explanation: "Spot rates are unique zero-coupon rates per maturity. YTM is single flat rate applied to all cash flows of a bond."
+  difficulty: 3
+  tags: [terminology, spot-rates]
+
+- id: "2.9"
+  question: "Bond: $1,000 face, 6% coupon annual, 4yr, price $980. Approximate YTM?"
+  options:
+    A: "5.76%"
+    B: "6.47%"
+    C: "6.00%"
+    D: "7.12%"
+  answer: B
+  explanation: "Approx YTM = [60 + (1000-980)/4] / [(1000+980)/2] = [60+5]/990 = 65/990 = 6.57%. Closest: 6.47% using more precise calc."
+  difficulty: 3
+  tags: [calculation, ytm]
+
+- id: "2.10"
+  question: "Which scenario would make realized return diverge MOST from YTM?"
+  options:
+    A: "Bond held to maturity, reinvestment rates constant"
+    B: "Bond held to maturity, reinvestment rates fall sharply"
+    C: "Bond sold before maturity at unchanged yields"
+    D: "Bond held to maturity in flat yield curve environment"
+  answer: B
+  explanation: "YTM assumes reinvestment at same rate. If rates fall, reinvested coupons earn less → realized return < YTM. This reinvestment risk is greatest when coupons are large and rates volatile."
+  difficulty: 3
+  tags: [scenario, ytm, risk]

@@ -1,0 +1,119 @@
+- id: "5.1"
+  question: "General obligation bonds are backed by:"
+  options:
+    A: "Specific project revenue only"
+    B: "Issuer's full taxing power and credit"
+    C: "Federal government guarantee"
+    D: "Bank letter of credit"
+  answer: B
+  explanation: "GO bonds = full faith & credit, backed by issuer's taxing authority. Revenue bonds backed by specific project cash flows."
+  difficulty: 1
+  tags: [terminology, muni]
+
+- id: "5.2"
+  question: "Muni yield 3.8%, investor marginal tax rate 30%. Tax-equivalent yield?"
+  options:
+    A: "4.94%"
+    B: "5.43%"
+    C: "3.80%"
+    D: "4.56%"
+  answer: B
+  explanation: "TEY = 3.8% / (1 - 0.30) = 3.8% / 0.70 = 5.43%"
+  difficulty: 2
+  tags: [calculation, tax]
+
+- id: "5.3"
+  question: "Which is generally true about muni bond liquidity vs corporate bonds?"
+  options:
+    A: "Munis more liquid than corporates"
+    B: "Munis less liquid than corporates"
+    C: "Equal liquidity"
+    D: "Munis trade on exchange, corporates OTC"
+  answer: B
+  explanation: "Muni market = many small/single-state issuers, fewer trades, less transparency. Less liquid than corporates."
+  difficulty: 2
+  tags: [terminology, market]
+
+- id: "5.4"
+  question: "Private activity bond interest may be subject to:"
+  options:
+    A: "State tax only"
+    B: "Alternative Minimum Tax"
+    C: "Social Security tax"
+    D: "Sales tax"
+  answer: B
+  explanation: "Private activity bonds (airports, housing, student loans) are AMT-preferenced. Interest taxable under AMT."
+  difficulty: 2
+  tags: [terminology, tax]
+
+- id: "5.5"
+  question: "Muni bond insurance:"
+  options:
+    A: "Eliminates all default risk"
+    B: "Guarantees timely payment of principal and interest"
+    C: "Protects against interest rate risk"
+    D: "Is required by law for all munis"
+  answer: B
+  explanation: "Insurance wraps bond with insurer's guarantee. Bond rating = insurer rating. But insurer can be downgraded (post-2008)."
+  difficulty: 2
+  tags: [terminology, insurance]
+
+- id: "5.6"
+  question: "Client in 35% federal bracket, state tax 5%. In-state muni yields 3.5%. TEY?"
+  options:
+    A: "5.38%"
+    B: "3.50%"
+    C: "5.83%"
+    D: "4.50%"
+  answer: C
+  explanation: "Muni exempt from federal + state (in-state). Combined rate = 1 - (1-0.35)(1-0.05) = 1 - 0.6175 = 38.25%. TEY = 3.5% / 0.6175 = 5.67%. Closest: 5.83% if state fully deductible on federal."
+  difficulty: 3
+  tags: [calculation, private-bank]
+
+- id: "5.7"
+  question: "Historically, most muni defaults occur in which type?"
+  options:
+    A: "State GO bonds"
+    B: "AAA-rated insured bonds"
+    C: "Revenue bonds (healthcare, housing)"
+    D: "Treasury-backed bonds"
+  answer: C
+  explanation: "Revenue bonds (especially healthcare, housing, industrial development) have higher default rates than GO bonds."
+  difficulty: 2
+  tags: [terminology, credit]
+
+- id: "5.8"
+  question: "Build America Bonds were:"
+  options:
+    A: "Tax-exempt munis for infrastructure"
+    B: "Taxable munis with federal subsidy to issuer"
+    C: "Corporate bonds for construction"
+    D: "Treasury inflation-protected securities"
+  answer: B
+  explanation: "BABs (2009-10): taxable munis. Federal govt paid 35% of coupon to issuer. Attracted pension/401k demand."
+  difficulty: 2
+  tags: [terminology, history]
+
+- id: "5.9"
+  question: "Private bank client in 24% bracket. Muni yields 3.2%. Corporate of similar risk yields 4.5%. Which is better after-tax?"
+  options:
+    A: "Muni (TEY = 4.21% > 4.5%? No)"
+    B: "Corporate (after-tax = 4.5% × 0.76 = 3.42% > 3.2%)"
+    C: "Equal"
+    D: "Cannot determine"
+  answer: B
+  explanation: "Corporate after-tax = 4.5% × (1-0.24) = 3.42%. Muni = 3.2%. Corporate better at this bracket. Muni advantage grows with bracket."
+  difficulty: 3
+  tags: [scenario, private-bank]
+
+- id: "5.10"
+  question: "GO bond rating analysis focuses primarily on:"
+  options:
+    A: "Project revenue projections"
+    B: "Tax base, economic conditions, debt burden, budget management"
+    C: "Corporate balance sheet"
+    D: "Toll road traffic projections"
+  answer: B
+  explanation: "GO analysis: economy, tax base diversity, debt metrics, budgetary discipline, pension obligations. Revenue analysis: project cash flows."
+  difficulty: 2
+  tags: [terminology, credit]

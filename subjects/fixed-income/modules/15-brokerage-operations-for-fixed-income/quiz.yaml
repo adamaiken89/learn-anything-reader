@@ -1,0 +1,119 @@
+- id: "15.1"
+  question: "Which phase follows trade execution in the trade life cycle?"
+  options:
+    A: "Settlement"
+    B: "Trade capture and confirmation"
+    C: "Margin call"
+    D: "Reporting"
+  answer: B
+  explanation: "Execution → capture → confirmation/affirmation → clearing → settlement."
+  difficulty: 1
+  tags: [terminology, trade-life-cycle]
+
+- id: "15.2"
+  question: "Prime brokerage provides all EXCEPT:"
+  options:
+    A: "Financing (repo)"
+    B: "Securities lending"
+    C: "Credit rating"
+    D: "Custody and settlement"
+  answer: C
+  explanation: "Prime brokers provide financing, lending, custody, execution. Credit ratings are from rating agencies."
+  difficulty: 1
+  tags: [terminology, prime-brokerage]
+
+- id: "15.3"
+  question: "Typical initial margin requirement for Treasury bonds:"
+  options:
+    A: "50%"
+    B: "2-10%"
+    C: "20-30%"
+    D: "0%"
+  answer: B
+  explanation: "Treasuries: low volatility, high liquidity → low margin (2-10%). HY corporates: 10-30%."
+  difficulty: 2
+  tags: [terminology, margin]
+
+- id: "15.4"
+  question: "Margin call triggers when:"
+  options:
+    A: "Interest rates fall"
+    B: "Equity falls below maintenance margin requirement"
+    C: "Bond matures"
+    D: "Client requests withdrawal"
+  answer: B
+  explanation: "If equity/position value drops below maintenance requirement → broker demands more cash/securities."
+  difficulty: 2
+  tags: [scenario, margin]
+
+- id: "15.5"
+  question: "TRACE requires corporate bond trade reporting within:"
+  options:
+    A: "1 hour"
+    B: "15 minutes"
+    C: "End of day"
+    D: "Next business day"
+  answer: B
+  explanation: "TRACE: report within 15 minutes of trade execution. Dramatically increased post-trade transparency."
+  difficulty: 2
+  tags: [terminology, reporting]
+
+- id: "15.6"
+  question: "SSI fraud involves:"
+  options:
+    A: "Trading fake bonds"
+    B: "Criminals changing settlement instructions to divert payments"
+    C: "Insider trading"
+    D: "Market manipulation"
+  answer: B
+  explanation: "SSI fraud: hackers send fake instructions → settlement payment goes to attacker's account. Major operational risk."
+  difficulty: 2
+  tags: [terminology, risk]
+
+- id: "15.7"
+  question: "Private bank client: $50M bonds, $10M equity. Current leverage?"
+  options:
+    A: "2x"
+    B: "5x"
+    C: "10x"
+    D: "50x"
+  answer: B
+  explanation: "Leverage = total position / equity = $50M / $10M = 5x"
+  difficulty: 1
+  tags: [calculation, leverage]
+
+- id: "15.8"
+  question: "If bond position falls 5% and equity was $10M on $50M position, new leverage?"
+  options:
+    A: "4.75x"
+    B: "5.26x"
+    C: "5.0x"
+    D: "6.0x"
+  answer: B
+  explanation: "New position = $47.5M. Loss = $2.5M. Equity = $10M - $2.5M = $7.5M. Leverage = $47.5M / $7.5M = 5.26x"
+  difficulty: 2
+  tags: [calculation, leverage]
+
+- id: "15.9"
+  question: "STP (Straight-Through Processing) reduces:"
+  options:
+    A: "Credit risk"
+    B: "Operational risk (manual errors, delays)"
+    C: "Interest rate risk"
+    D: "Market risk"
+  answer: B
+  explanation: "STP automates trade processing end-to-end. Reduces manual intervention, errors, settlement fails."
+  difficulty: 2
+  tags: [terminology, operations]
+
+- id: "15.10"
+  question: "Archegos 2021 collapse highlighted risk of:"
+  options:
+    A: "Sovereign default"
+    B: "Concentrated leverage through prime brokers without proper risk controls"
+    C: "Treasury settlement fails"
+    D: "Muni bond default"
+  answer: B
+  explanation: "Archegos: concentrated, levered total return swaps. Prime brokers failed to monitor aggregate exposure → forced liquidation."
+  difficulty: 3
+  tags: [scenario, risk]
