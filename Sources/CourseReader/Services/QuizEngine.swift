@@ -48,7 +48,7 @@ final class QuizEngine: ObservableObject {
 
   func isCorrect(_ questionId: String) -> Bool? {
     guard let selected = selectedAnswers[questionId],
-          let q = questions.first(where: { $0.id == questionId })
+      let q = questions.first(where: { $0.id == questionId })
     else { return nil }
     return selected == q.correctOption
   }

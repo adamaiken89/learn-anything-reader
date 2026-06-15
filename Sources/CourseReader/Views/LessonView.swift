@@ -175,12 +175,12 @@ struct LessonMarkdownView: NSViewRepresentable {
         tableLines.append(cells)
         continue
       } else if inTable {
-      appendTable(result, tableLines, baseFont)
-      tableLines = []
-      inTable = false
-    }
+        appendTable(result, tableLines, baseFont)
+        tableLines = []
+        inTable = false
+      }
 
-    if trimmed.hasPrefix("---") { continue }
+      if trimmed.hasPrefix("---") { continue }
 
       if trimmed.hasPrefix("### ") {
         let text = String(trimmed.dropFirst(4))
@@ -213,7 +213,8 @@ struct LessonMarkdownView: NSViewRepresentable {
           .font: baseFont,
           .foregroundColor: NSColor.labelColor,
         ]
-        result.append(NSAttributedString(string: "  \(trimmed.prefix(2)) \(text)\n", attributes: attrs))
+        result.append(
+          NSAttributedString(string: "  \(trimmed.prefix(2)) \(text)\n", attributes: attrs))
       } else if trimmed.hasPrefix("|") {
         let parts = trimmed.components(separatedBy: "|")
           .map { $0.trimmingCharacters(in: .whitespaces) }
@@ -266,24 +267,39 @@ struct LessonMarkdownView: NSViewRepresentable {
     var pos = 0
 
     while pos < remaining.length {
-      let boldRange = remaining.range(of: "**", options: [], range: NSRange(location: pos, length: remaining.length - pos))
+      let boldRange = remaining.range(
+        of: "**", options: [], range: NSRange(location: pos, length: remaining.length - pos))
 
       if boldRange.location != NSNotFound {
         if boldRange.location > pos {
-          let plain = remaining.substring(with: NSRange(location: pos, length: boldRange.location - pos))
-          result.append(NSAttributedString(string: plain, attributes: [.font: baseFont, .foregroundColor: NSColor.labelColor]))
+          let plain = remaining.substring(
+            with: NSRange(location: pos, length: boldRange.location - pos))
+          result.append(
+            NSAttributedString(
+              string: plain, attributes: [.font: baseFont, .foregroundColor: NSColor.labelColor]))
         }
-        let closeRange = remaining.range(of: "**", options: [], range: NSRange(location: boldRange.upperBound, length: remaining.length - boldRange.upperBound))
+        let closeRange = remaining.range(
+          of: "**", options: [],
+          range: NSRange(
+            location: boldRange.upperBound, length: remaining.length - boldRange.upperBound))
         if closeRange.location != NSNotFound {
-          let boldText = remaining.substring(with: NSRange(location: boldRange.upperBound, length: closeRange.location - boldRange.upperBound))
-          result.append(NSAttributedString(string: boldText, attributes: [.font: boldFont, .foregroundColor: NSColor.labelColor]))
+          let boldText = remaining.substring(
+            with: NSRange(
+              location: boldRange.upperBound, length: closeRange.location - boldRange.upperBound))
+          result.append(
+            NSAttributedString(
+              string: boldText, attributes: [.font: boldFont, .foregroundColor: NSColor.labelColor])
+          )
           pos = closeRange.upperBound
         } else {
           pos = boldRange.upperBound
         }
       } else {
         let remainingText = remaining.substring(from: pos)
-        result.append(NSAttributedString(string: remainingText, attributes: [.font: baseFont, .foregroundColor: NSColor.labelColor]))
+        result.append(
+          NSAttributedString(
+            string: remainingText,
+            attributes: [.font: baseFont, .foregroundColor: NSColor.labelColor]))
         break
       }
     }

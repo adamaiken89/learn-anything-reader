@@ -30,11 +30,14 @@ final class CourseLoader {
   }
 
   func loadSubjects(from directory: URL) -> [Subject] {
-    guard let entries = try? FileManager.default.contentsOfDirectory(
-      at: directory, includingPropertiesForKeys: nil
-    ) else { return [] }
+    guard
+      let entries = try? FileManager.default.contentsOfDirectory(
+        at: directory, includingPropertiesForKeys: nil
+      )
+    else { return [] }
 
-    return entries
+    return
+      entries
       .filter { $0.hasDirectoryPath }
       .compactMap { url -> Subject? in
         let dirName = url.lastPathComponent
@@ -46,21 +49,23 @@ final class CourseLoader {
 
   func loadLesson(subject: Subject, module: ModuleMeta) -> String {
     guard let subjectsDir else { return "" }
-    let lessonURL = subjectsDir
+    let lessonURL =
+      subjectsDir
       .appendingPathComponent(subject.directoryName)
       .appendingPathComponent("modules")
       .appendingPathComponent(module.directoryName)
       .appendingPathComponent("lesson.md")
 
     guard let data = try? Data(contentsOf: lessonURL),
-          let content = String(data: data, encoding: .utf8)
+      let content = String(data: data, encoding: .utf8)
     else { return "" }
     return content
   }
 
   func loadQuiz(subject: Subject, module: ModuleMeta) -> [QuizQuestion] {
     guard let subjectsDir else { return [] }
-    let quizURL = subjectsDir
+    let quizURL =
+      subjectsDir
       .appendingPathComponent(subject.directoryName)
       .appendingPathComponent("modules")
       .appendingPathComponent(module.directoryName)
@@ -71,13 +76,15 @@ final class CourseLoader {
 
   func loadSRSDeck(subjectId: String) -> SRSDeck {
     guard let subjectsDir else { return SRSDeck(cards: [:]) }
-    let srsURL = subjectsDir
+    let srsURL =
+      subjectsDir
       .appendingPathComponent(subjectId)
       .appendingPathComponent("srs")
       .appendingPathComponent("deck.json")
 
     if let data = try? Data(contentsOf: srsURL),
-       let deck = try? JSONDecoder().decode(SRSDeck.self, from: data) {
+      let deck = try? JSONDecoder().decode(SRSDeck.self, from: data)
+    {
       return deck
     }
     return SRSDeck(cards: [:])
@@ -85,7 +92,8 @@ final class CourseLoader {
 
   func saveSRSDeck(_ deck: SRSDeck, subjectId: String) {
     guard let subjectsDir else { return }
-    let srsDir = subjectsDir
+    let srsDir =
+      subjectsDir
       .appendingPathComponent(subjectId)
       .appendingPathComponent("srs")
 

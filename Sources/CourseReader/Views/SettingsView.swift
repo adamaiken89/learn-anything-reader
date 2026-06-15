@@ -20,7 +20,9 @@ struct SettingsView: View {
             .textFieldStyle(.roundedBorder)
             .font(.body)
             .onAppear {
-              apiKey = viewModel.gemini.hasAPIKey ? UserDefaults.standard.string(forKey: "geminiAPIKey") ?? "" : ""
+              apiKey =
+                viewModel.gemini.hasAPIKey
+                ? UserDefaults.standard.string(forKey: "geminiAPIKey") ?? "" : ""
             }
 
           HStack {

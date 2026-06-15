@@ -22,11 +22,14 @@ struct QuizView: View {
 
   private var quizResults: some View {
     VStack(spacing: DesignConstants.Spacing.pageWide) {
-      Image(systemName: viewModel.quizEngine.percentage >= 70
-        ? "checkmark.circle.fill"
-        : "xmark.circle.fill")
-        .font(.system(size: 64))
-        .foregroundStyle(viewModel.quizEngine.percentage >= 70
+      Image(
+        systemName: viewModel.quizEngine.percentage >= 70
+          ? "checkmark.circle.fill"
+          : "xmark.circle.fill"
+      )
+      .font(.system(size: 64))
+      .foregroundStyle(
+        viewModel.quizEngine.percentage >= 70
           ? AppColors.correctGreen
           : AppColors.incorrectRed)
 
@@ -41,15 +44,17 @@ struct QuizView: View {
         Text(String(format: "%.0f%%", viewModel.quizEngine.percentage))
           .font(.largeTitle)
           .fontWeight(.bold)
-          .foregroundStyle(viewModel.quizEngine.percentage >= 70
-            ? AppColors.correctGreen
-            : AppColors.incorrectRed)
+          .foregroundStyle(
+            viewModel.quizEngine.percentage >= 70
+              ? AppColors.correctGreen
+              : AppColors.incorrectRed)
       }
 
       ScrollView {
         VStack(alignment: .leading, spacing: DesignConstants.Spacing.progressContent) {
           ForEach(viewModel.quizEngine.questions) { question in
-            QuestionReviewCard(question: question, selected: viewModel.quizEngine.selectedAnswers[question.id] ?? "")
+            QuestionReviewCard(
+              question: question, selected: viewModel.quizEngine.selectedAnswers[question.id] ?? "")
           }
         }
         .padding()
@@ -139,7 +144,8 @@ extension QuizView {
       }
 
       if let selected = viewModel.quizEngine.selectedAnswers[question.id],
-         !viewModel.quizEngine.isCompleted {
+        !viewModel.quizEngine.isCompleted
+      {
         VStack(spacing: DesignConstants.Spacing.sectionGroup) {
           Text(question.explanation)
             .font(.subheadline)
@@ -165,7 +171,9 @@ extension QuizView {
   }
 
   func difficultyBadge(_ level: Int) -> some View {
-    let colors: [Color] = [AppColors.correctGreen, AppColors.secondaryLabel, AppColors.incorrectRed]
+    let colors: [Color] = [
+      AppColors.correctGreen, AppColors.secondaryLabel, AppColors.incorrectRed,
+    ]
     let labels = ["Easy", "Medium", "Hard"]
     let idx = min(level - 1, 2)
     return Text(labels[idx])
@@ -253,10 +261,13 @@ struct QuestionReviewCard: View {
   var body: some View {
     VStack(alignment: .leading, spacing: DesignConstants.Spacing.sectionHeader) {
       HStack {
-        Image(systemName: selected == question.correctOption
-          ? "checkmark.circle.fill"
-          : "xmark.circle.fill")
-          .foregroundStyle(selected == question.correctOption
+        Image(
+          systemName: selected == question.correctOption
+            ? "checkmark.circle.fill"
+            : "xmark.circle.fill"
+        )
+        .foregroundStyle(
+          selected == question.correctOption
             ? AppColors.correctGreen
             : AppColors.incorrectRed)
 

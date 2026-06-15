@@ -4,7 +4,8 @@ import Foundation
 final class GeminiService {
   static let shared = GeminiService()
 
-  private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+  private let baseURL =
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
   private var apiKey: String {
     UserDefaults.standard.string(forKey: "geminiAPIKey") ?? ""
@@ -48,16 +49,16 @@ final class GeminiService {
     }
 
     let prompt = """
-    You are a tutor helping understand course material.
+      You are a tutor helping understand course material.
 
-    Context from the course:
-    \(context)
+      Context from the course:
+      \(context)
 
-    Question from the student:
-    \(question)
+      Question from the student:
+      \(question)
 
-    Provide a clear, concise explanation. Use examples where helpful.
-    """
+      Provide a clear, concise explanation. Use examples where helpful.
+      """
 
     var request = URLRequest(url: URL(string: "\(baseURL)?key=\(apiKey)")!)
     request.httpMethod = "POST"
