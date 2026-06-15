@@ -53,6 +53,8 @@ Haircut = (Collateral value - Cash lent) / Collateral value
 
 Protects lender from collateral price decline.
 
+Why different haircuts by asset? Higher volatility → larger potential price gap between margin calls → more protection needed. Treasury barely moves intraday; HY bond can gap 5% on earnings miss.
+
 | Collateral | Typical Haircut |
 |------------|-----------------|
 | Treasury | 0.5-2% |
@@ -102,7 +104,11 @@ Reduces operational burden. Dominant form of US repo.
 
 2019: repo rates spiked to 10% (reserves shortage, quarter-end constraints).
 
+How likely? Repo stress events are rare but systemic — ~1-2 major events per decade. SOFR spiked above 5% only 3 times in 2020-2025. Quarter-end spikes more common (~monthly pattern of 10-50bp).
+
 Secured Overnight Financing Rate (SOFR): benchmark replacing LIBOR.
+
+Question: Repo is collateralized — why was it a problem in 2008? Answer: Collateral was MBS whose value crashed. Lenders demanded higher haircuts → forced selling → more price drops → higher haircuts. Liquidity spiral.
 
 ---
 
@@ -139,6 +145,10 @@ Leverage magnifies return: $10M equity + $40M repo = $50M MBS → net return = [
 But leverage magnifies losses too.
 
 ---
+
+## Common Misconception
+
+"Repo is collateralized so no risk." Counterparty risk exists if collateral drops suddenly (2008 MBS). Also operational risk (2019 settlement fails). Haircut protects but isn't perfect.
 
 ## Key Takeaways
 - Repo = collateralized short-term loan. Reverse repo = lending cash

@@ -52,6 +52,8 @@
 
 ### Basel III — Bank Capital and Liquidity
 
+Why Basel III? Pre-2008 banks held too little capital vs risk. A $100B trading book needed only ~$1B capital. When markets crashed, losses exceeded capital → bailouts. Basel III raised capital requirements by 3-5x for trading books.
+
 **Capital requirements for bond inventory**:
 | Metric | Requirement | Impact |
 |--------|-------------|--------|
@@ -121,6 +123,10 @@ Regulatory compliance affects private banking bond operations:
 - Know-your-customer (KYC) documentation for bond account opening
 - Capital charges on structured note inventory
 - Liquidation of client US bond holdings must comply with US/EU cross-border rules (e.g., reverse solicitation)
+
+## Common Misconception
+
+"More regulation = safer markets." Regulation reduces systemic risk but creates unintended consequences. Basel III → less dealer inventory → wider bid-ask spreads → lower liquidity for clients in stress. Trade-off between stability and market function.
 
 ## Key Takeaways
 

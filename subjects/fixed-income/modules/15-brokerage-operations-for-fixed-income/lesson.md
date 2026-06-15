@@ -26,6 +26,8 @@ Est. study time: 2.5h
 | **Settlement** | Exchange securities for cash | Back office |
 | **Clearing** | CCP guarantees | Clearing house |
 
+Question: Why separate confirmation and affirmation? They sound similar. Answer: Confirmation = match trade details (price, quantity, counterparty). Affirmation = both sides explicitly agree matched details correct. Two-step catch errors before settlement.
+
 ### Prime brokerage
 
 Services for hedge funds and professional clients:
@@ -139,6 +141,10 @@ Client receives monthly statement:
 - Performance (total return, duration, yield)
 
 ---
+
+## Common Misconception
+
+"Straight-through processing eliminates operational risk." STP reduces manual errors but introduces technology risk (system outage, incorrect auto-matching rules). Hybrid approach (auto-STP with exception queue for human review) is safer.
 
 ## Key Takeaways
 - Trade life cycle: execution → confirmation → settlement

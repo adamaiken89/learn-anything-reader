@@ -30,6 +30,10 @@ Normal shape: upward sloping (longer maturity = higher yield).
 
 Inverted curve = strongest recession predictor (past 8 US recessions preceded by inversion).
 
+How often does inversion happen? ~15% of months since 1960s. Typical inversion lasts 6-18 months. Lead time to recession: 6-24 months (average ~12 months). Not all inversions lead to recession (false positives: 1966, 1998 inverted briefly with no recession).
+
+Question: If expectations theory alone explained curve, what shape would dominate? Answer: Flat (since expected future rates should be flat on average). Reality: upward-sloping most of time → term premium exists (liquidity preference).
+
 ### Three theories
 
 **1. Expectations Theory**
@@ -121,6 +125,10 @@ Client asks: "Should I extend duration now? Curve is flat."
 Analysis: flat curve → little term premium. Extra yield for going 10yr vs 2yr is small. If recession comes, rates fall → longer bonds rally. Extension might pay off, but near-term volatility high.
 
 ---
+
+## Common Misconception
+
+"Inversion means recession tomorrow." Typical lead time 6-24 months. Curve can invert then re-steepen without recession (1966 false positive). Inversion signals higher recession probability, not certainty.
 
 ## Key Takeaways
 - Normal = up. Inverted = down → recession signal

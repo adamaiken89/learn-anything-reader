@@ -33,6 +33,8 @@ Bond = loan from investor to issuer. Issuer pays periodic interest, repays princ
 
 Reason: fixed coupon. If market rates rise, existing bonds with lower coupons become less valuable → price falls to match new yield.
 
+Question: Why is price quoted as % of $1,000 par instead of dollar amount? Answer: % convention lets you compare bonds with different face values instantly. 95 across all of them means same thing relative to par.
+
 ### Premium, par, discount
 
 | Price vs Par | Bond type | Yield vs Coupon |
@@ -40,6 +42,14 @@ Reason: fixed coupon. If market rates rise, existing bonds with lower coupons be
 | Price = Par | Par bond | Yield = Coupon |
 | Price > Par | Premium bond | Yield < Coupon |
 | Price < Par | Discount bond | Yield > Coupon |
+
+### Pull-to-par intuition
+
+Discount bond price rises toward par as maturity nears.
+
+Reason: not driven by rates — purely mechanical. Shorter time horizon means PV of principal dominates, and PV of $1,000 at any positive yield converges to $1,000 as maturity shrinks.
+
+Question: If you buy discount bond at $950 and hold to maturity, is gain from rates or just mechanics? Answer: mechanical. Price must converge to par at maturity regardless of rate path.
 
 ### Current yield
 
@@ -81,6 +91,10 @@ What happens to client's bond value? Price falls. Old 4% bonds less attractive �
 As broker, you explain: "Paper loss if marked to market, but if held to maturity full principal returned."
 
 ---
+
+## Common Misconception
+
+"Higher coupon bond is always better." No. Discount bond (low coupon) has built-in price gain at maturity (accretion). Total return from YTM perspective may be same for bond with low coupon + price gain vs high coupon + stable price.
 
 ## Key Takeaways
 - Bonds = loans with fixed coupons, defined maturity

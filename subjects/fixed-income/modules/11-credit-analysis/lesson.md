@@ -49,6 +49,8 @@ Credit analyst focuses on: EBITDA, FFO, FCF, capex, dividends.
 | **Bankruptcy filing** | Chapter 11 (reorg) or Chapter 7 (liquidation) | Bondholder recovery process |
 | **Distressed exchange** | Bond swap at terms worse than original | Technical default |
 
+Question: Cross-default sounds harsh — does it apply automatically? Answer: Usually requires acceleration vote by bondholders. Not automatic. Gives creditors negotiating leverage.
+
 ### Downgrade risk
 
 Rating migration matrix: probability of moving from one rating to another.
@@ -74,6 +76,8 @@ Different industries have different credit metrics:
 | Healthcare | 4-6x | Patent cliff, regulation |
 | Retail | 3-5x | Competition, margins |
 | Financials | N/A (different metrics) | Capital, NPLs |
+
+Default rate varies by sector: utilities ~0.2%/yr, technology ~0.5%/yr, energy ~2-8%/yr (commodity cycle dependent), retail ~3-6%/yr (structural decline). Sector matters as much as rating.
 
 ### Recovery analysis
 
@@ -112,6 +116,10 @@ Client holds $3M of BBB telecom bonds. Analyst reports showing leverage increasi
 Action: monitor covenant headroom. Consider hedging with CDS or reducing position before potential downgrade.
 
 ---
+
+## Common Misconception
+
+"Strong ratios = safe bond." Enron had healthy ratios pre-collapse. Ratios measure capacity, not character or accounting quality. Qualitative factors (management, competitive moat, accounting policies) matter as much.
 
 ## Key Takeaways
 - Four Cs: Capacity, Collateral, Covenants, Character

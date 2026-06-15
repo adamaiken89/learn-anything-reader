@@ -42,6 +42,8 @@ Convexity always positive for straight bonds (no options):
 
 Investors profit from convexity in volatile markets.
 
+Why is this mechanical? Pull-to-par: as time passes, price-yield relationship becomes less curved (shorter maturity → less convex). This convergence is not driven by rates — pure math of discounting.
+
 ### Positive vs negative convexity
 
 | Type | Description | Examples |
@@ -88,6 +90,8 @@ Investor pays for convexity (barbell yields slightly less).
 - Portfolio hedging: convexity mismatch creates risk
 - Negative convexity: embedded options hurt performance in rally
 
+Question: How large must a rate move be for convexity to matter? Answer: For IG bonds (C=50-100), 100bp move adds ~0.25-0.5% to price estimate. Below 25bp, convexity adjustment <0.03% — negligible. Rule of thumb: convexity matters when |Δy| > 50bp.
+
 ---
 
 ## Examples
@@ -124,6 +128,10 @@ Client disappointed: "My bond didn't rally as much as Treasuries."
 Explain: "Bond is callable. Issuer can refinance at lower rate → price appreciation capped. You received higher yield initially but sacrificed upside."
 
 ---
+
+## Common Misconception
+
+"Convexity always benefits bondholders." True for straight bonds. But you pay for convexity — barbell yields less than bullet at same duration. Negative convexity (MBS, callables) hurts holders in rallies, benefits them in selloffs.
 
 ## Key Takeaways
 - Convexity corrects duration's linear approximation

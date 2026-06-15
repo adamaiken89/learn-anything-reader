@@ -36,6 +36,8 @@
 - Direct participation in bond syndications
 - Collateralized lending against bond portfolios
 
+Question: Why do UHNW clients hold bonds directly instead of funds? Answer: Control over maturity (avoid forced selling), tax-loss harvesting at individual bond level, customization of cash flows, and no management fees.
+
 ### Tax-Aware Bond Investing
 
 | Bond Type | Federal Tax | State/Local Tax | Best Account Location |
@@ -119,6 +121,10 @@ TEY = Municipal Yield / (1 - Federal Tax Rate - State Tax Rate)
 - **Multi-jurisdiction**: Clients with residency in multiple countries face cross-border tax/reg issues
 - **Art/collectibles as collateral**: Alternative asset-backed lending within bond portfolio context
 - **Inheritance planning**: Step-up in cost basis for bonds held at death, bond gifts to family
+
+## Common Misconception
+
+"Bonds = safe, stocks = risky for all clients." For long horizon clients, stocks may be safer (inflation protection, growth). Bonds can be riskier in real terms when yields below inflation. Risk is situational — depends on goals, not asset class label.
 
 ## Key Takeaways
 

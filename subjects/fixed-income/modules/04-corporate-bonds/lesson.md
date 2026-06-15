@@ -70,11 +70,20 @@ Drivers:
 
 Spread widens in recession, narrows in expansion.
 
+Question: Spread widens even though company fundamentals unchanged — why? Answer: Market risk aversion (investors demand higher premium for bearing any risk). This is why credit spreads are called "risk premium" not just "default premium."
+
 ### Default & recovery
 
 Historical default rates (1970-2023):
-- IG: ~0.1% annual
-- HY: ~2-4% annual (varies with cycle)
+- AAA: ~0% annual
+- AA: ~0.02% annual
+- A: ~0.05% annual
+- BBB: ~0.2% annual
+- BB: ~0.8% annual
+- B: ~2.5% annual
+- CCC: ~12% annual
+
+IG (BBB+ and above): ~0.1% annual. HY: ~2-4% annual (varies with cycle).
 
 Recovery rate: % of face value recovered after default.
 - Senior secured: ~50-70%
@@ -117,6 +126,10 @@ Client holds $2M of BBB-rated telecom bonds. Upgrade to A- happens.
 - Client benefits from price appreciation + tighter yield
 
 ---
+
+## Common Misconception
+
+"IG bonds won't default." BBB-rated bonds default ~0.2%/yr — rare but real. "Fallen angels" (IG→HY) happen during stress (2008 saw 10% of IG universe downgraded to HY).
 
 ## Key Takeaways
 - IG (BBB-/Baa3+) vs HY (BB+/Ba1+): default risk spectrum

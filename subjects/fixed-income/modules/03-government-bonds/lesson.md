@@ -24,7 +24,9 @@ Est. study time: 2h
 
 ### T-Bill pricing
 
-Discount instrument. Price quoted on discount yield basis:
+Discount instrument. Price quoted on discount yield basis.
+
+Why 360-day convention? Historical banking practice (pre-computer era) — 360 simplifies interest calc (12 months × 30 days). T-Bill uses discount yield where return is expressed as % of face, not % of price. BEY converts to bond-equivalent for comparison with coupon bonds.
 
 ```
 Price = Face × (1 - discount_rate × days/360)
@@ -70,6 +72,8 @@ Agency status: implicit government backing (not explicit). Historically bailed o
 
 Agency yields: between Treasuries and corporate bonds.
 
+Question: If agencies have implicit backing, why yield more than Treasuries? Answer: No explicit guarantee. During 2008 crisis, agencies placed into conservatorship — bondholders made whole but equity wiped out. Market prices this tail risk.
+
 ### Benchmark yield curve
 
 Treasury curve = risk-free benchmark for all fixed income.
@@ -113,6 +117,10 @@ Corporate yield = 4.20% + 1.35% = 5.55%.
 If Treasury yield rises to 4.50%, corporate bond likely yields 5.85% (spread stable) or adjusts if risk perception changes.
 
 ---
+
+## Common Misconception
+
+"Treasuries have zero risk." No. Interest rate risk, inflation risk, reinvestment risk, and (for foreign holders) currency risk remain. Only credit/default risk is zero.
 
 ## Key Takeaways
 - T-Bills: discount, ≤1yr. T-Notes/Bonds: coupon, semi-annual

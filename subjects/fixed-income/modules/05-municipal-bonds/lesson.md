@@ -27,6 +27,8 @@ Two main types:
 
 Key feature: interest exempt from federal income tax.
 
+Why exempt? Constitutional doctrine of intergovernmental tax immunity (states/feds can't tax each other's debt). Also policy: lower borrowing cost for public infrastructure.
+
 Also exempt from state/local tax if investor lives in issuing state.
 
 Tax-equivalent yield (TEY):
@@ -39,6 +41,8 @@ Example: Muni yields 3.5%, investor in 37% federal bracket.
 TEY = 3.5% / (1 - 0.37) = 3.5% / 0.63 = 5.56%
 ```
 Tax-equivalent yield ~5.56% — competitive with taxable bonds.
+
+Question: At what tax bracket does muni become better than corporate of same risk? Answer: Breakeven bracket = 1 - (muni_yield / corporate_yield). If muni=3.5%, corporate=5%, breakeven=30%. Above 30%, muni wins after-tax.
 
 ### Alternative Minimum Tax (AMT)
 
@@ -57,6 +61,8 @@ Important for high-income clients subject to AMT.
 ### Credit quality
 
 Historically high. Defaults rare vs corporates.
+
+Muni 10-year cumulative default rate: ~0.1% for A-rated, ~0.5% for BBB-rated (vs corporate ~0.5% and ~2.5% respectively). GO defaults virtually zero for general-purpose states. Revenue bonds (healthcare, housing, industrial development) have higher default rates comparable to HY corporates.
 
 Muni defaults concentrated in:
 - Revenue bonds (especially healthcare, housing)
@@ -100,6 +106,10 @@ Rating: GO = AA, airport revenue = A. Revenue bond higher yield due to lower sec
 During pandemic: GO stable (property tax collected). Airport revenue fell sharply (travel dropped), spread widened.
 
 ---
+
+## Common Misconception
+
+"All munis are tax-free." Private activity bonds (airports, stadiums, housing) may trigger AMT. Out-of-state munis taxed at state level. Some munis (BABs) are taxable.
 
 ## Key Takeaways
 - GO bonds: full faith & credit. Revenue: specific project revenue

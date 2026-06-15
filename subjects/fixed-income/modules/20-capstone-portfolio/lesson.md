@@ -36,6 +36,8 @@
 
 ### Step 3: Duration Positioning
 
+Question: Why short duration if rates may rise only 50-75bp? Answer: Duration 4.5 → 75bp rise → -3.4% loss. For $5M portfolio, -$170K. Short duration tilts reduce to ~-$100K. Small rate views → large P&L through duration leverage.
+
 **Rate view**: Moderately bearish (yields may rise 50-75bps over next 12 months)
 **Strategy**: Short-to-intermediate duration bias
 

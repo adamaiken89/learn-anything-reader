@@ -19,6 +19,8 @@ Credit Default Swap = insurance against default.
 - **Protection buyer**: pays periodic premium (spread)
 - **Protection seller**: makes payment if credit event occurs
 
+Key difference from insurance: CDS can be bought without owning underlying bond ("naked CDS"). Insurance requires insurable interest.
+
 Contract terms:
 - **Reference entity**: company or sovereign
 - **Notional**: amount protected
@@ -48,6 +50,8 @@ Example: Recovery = 40%, PD = 2% annually
 CDS spread ≈ (1 - 0.40) × 2% = 1.2% = 120bp
 
 Market CDS spread reflects market's view of credit risk.
+
+Why standard coupons 100bp and 500bp? Standardization makes CDS tradeable like bonds. Instead of negotiating spread per trade, market quotes upfront payment to adjust — same efficiency as bond price vs coupon.
 
 ### Upfront payment
 
@@ -137,6 +141,10 @@ Instead of selling bonds (tax, transaction cost): buy CDS protection on bank ind
 Synthetic hedge. Remove when comfortable.
 
 ---
+
+## Common Misconception
+
+"CDS = insurance, always pays out." Protection seller can fail (AIG 2008). Auction determines recovery — may be less than expected. Legal disputes over credit events common. Counterparty risk matters.
 
 ## Key Takeaways
 - CDS = credit insurance. Protection buyer pays spread

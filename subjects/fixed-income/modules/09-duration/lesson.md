@@ -27,9 +27,13 @@ Higher coupon → lower duration. Longer maturity → higher duration.
 
 Zero-coupon bond: Macaulay duration = maturity.
 
+Question: Why use duration instead of just maturity? Answer: Maturity ignores coupon timing. Two 10yr bonds — one 6% coupon, one zero-coupon — have same maturity but very different rate sensitivity. Duration captures this.
+
 ### Modified Duration
 
 Price sensitivity to yield changes.
+
+Why Macaulay → Modified? Macaulay in years is intuitive but not directly useful for P&L. Modified D converts to % price change per 1% yield move — practical for risk reporting, limits, hedging.
 
 ```
 Modified D = Macaulay D / (1 + YTM / periods_per_year)
@@ -146,6 +150,10 @@ Expected loss ≈ -8.5 × 0.0025 × $5M = -$106,250.
 Advise: reduce duration (sell 10yr, buy 2yr) or hedge with futures/swap.
 
 ---
+
+## Common Misconception
+
+"Duration 5 = I get my money back in 5 years." No. Duration is weighted avg time of cash flows, not payback period. For coupon bond, duration < maturity because early coupons pull avg forward.
 
 ## Key Takeaways
 - Macaulay D = weighted avg time to cash flows. Modified D = price sensitivity

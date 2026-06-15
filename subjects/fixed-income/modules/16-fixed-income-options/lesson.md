@@ -19,6 +19,8 @@
 - Investor receives call premium + principal
 - Negative convexity near call date
 
+Question: Why would any investor buy a callable bond if upside is capped? Answer: Higher coupon vs non-callable. Callable bond yield = non-callable yield + option premium. Investor gets paid for taking call risk.
+
 **Putable Bond**: Investor right to sell back before maturity at par
 - Investor exercises when rates rise (reinvest higher)
 - Puts a floor on bond price
@@ -86,6 +88,10 @@ Private banks structure bespoke OTC options for clients, including:
 - Range accrual notes: Coupon paid only when reference rate stays within range
 - Callable / putable structured notes: Customized strike and tenor
 - Yield enhancement via option writing against bond portfolios
+
+## Common Misconception
+
+"Callable bond = higher yield = always better." Higher yield compensates for capped upside. In rate rally, callable bond underperforms. Investor must decide: get paid for call risk or avoid it with non-callable at lower yield.
 
 ## Key Takeaways
 

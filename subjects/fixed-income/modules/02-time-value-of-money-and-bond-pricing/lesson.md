@@ -64,6 +64,10 @@ Where:
 
 Most bonds pay coupons semi-annually (2x per year).
 
+Why semi-annual? Historically aligned with corporate earnings cycles (6-month reporting). Also gives investors more frequent cash flow vs annual. European bonds often annual — convention varies by region.
+
+Question: If bond is semi-annual and you halve yield to 2.5%, does this assume compounding? Answer: Yes. Effective annual yield = (1.025)^2 - 1 = 5.0625%, slightly above stated 5% YTM. Semi-annual convention understates effective yield vs annual.
+
 Example: 5yr bond, 6% coupon, YTM 5%, semi-annual
 
 ```
@@ -100,6 +104,8 @@ Cannot solve directly (iterative). Use financial calculator or `=YIELD()` in Exc
 Price = Σ C/(1+YTM/2)^t + FV/(1+YTM/2)^n
 ```
 
+Common misconception: "YTM = actual return if held to maturity." No. YTM assumes every coupon reinvested at same YTM. If reinvestment rates differ, realized return differs. For high-coupon bonds in falling-rate environment, realized return < YTM.
+
 ### Spot rates vs YTM
 
 | Concept | Definition |
@@ -109,6 +115,8 @@ Price = Σ C/(1+YTM/2)^t + FV/(1+YTM/2)^n
 | **Implication** | YTM assumes constant reinvestment rate across time — unrealistic |
 
 Bootstrapping: derive spot rates from coupon bonds.
+
+Question: If spot curve is upward sloping, what does YTM overstate or understate? Answer: YTM (single rate) understates yield on distant cash flows and overstates yield on near cash flows. Spot rates give truer picture.
 
 ### Accrued interest & clean/dirty price
 
@@ -156,6 +164,10 @@ YTM ≈ [50 + 8] / 980 = 58/980 = 5.92%
 Check: actual YTM ≈ 5.95% (close).
 
 ---
+
+## Common Misconception
+
+"YTM = total return if held to maturity." Only if every coupon reinvested at same YTM. In falling-rate world, realized return < YTM. In rising-rate world, realized return > YTM.
 
 ## Key Takeaways
 - Bond price = sum of PV of future cash flows

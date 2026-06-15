@@ -41,6 +41,8 @@
 | Credit allocation | Over/underweight credit quality buckets | Risk-on vs risk-off |
 | Security selection | Pick individual bonds with mispriced risk | Bottom-up credit analysis |
 
+Question: Which strategy wins in steepening, flattening, and stable environments? Answer: Bullet wins steepening (concentrated at long end benefits from rising long rates). Barbell wins flattening (short end stable, long end rallies). Ladder wins stable (constant reinvestment, no timing risk).
+
 **Bullet Strategy**: Concentrate maturities in single range
 - Used when curve expected to steepen
 - Reduces reinvestment risk horizon
@@ -108,6 +110,10 @@ Portfolio construction considerations for HNW clients:
 - Direct bond ownership vs bond funds/ETFs (fee efficiency)
 - ESG/sustainable bond integration per client preferences
 - Duration management aligned with spending horizon
+
+## Common Misconception
+
+"Immunization eliminates interest rate risk." Only true for parallel shifts. Non-parallel shifts (steepening/flattening) break immunization. Requires convexity matching or key-rate hedging for true rate risk elimination.
 
 ## Key Takeaways
 

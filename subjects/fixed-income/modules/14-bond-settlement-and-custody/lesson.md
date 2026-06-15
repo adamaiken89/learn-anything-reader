@@ -33,6 +33,8 @@ Simultaneous exchange: bonds delivered ↔ cash paid.
 
 Eliminates principal risk (one party delivers, other doesn't pay).
 
+Why DVP instead of trust? Before DVP, settlement required trust or letters of credit. DVP makes settlement atomic — like an escrow. Fedwire Securities Service moves bonds and cash simultaneously.
+
 DVP Model 1: gross settlement, trade-by-trade.
 DVP Model 2: net cash, gross securities.
 DVP Model 3: net securities, net cash.
@@ -50,6 +52,8 @@ Penalties:
 - Treasury fails: charged at spread below Fed funds (since 2009)
 - Corporate bonds: contractual, varies
 - Fails in high-demand securities: special repo rates
+
+Question: What happens if both sides fail simultaneously? Answer: "Link" or "daisy chain" fails cascade — one fail causes another. FICC netting reduces this. In 2020, Treasury fails briefly spiked to ~$1T before penalty regime kicked in.
 
 ### Clearing houses
 

@@ -17,6 +17,8 @@ Est. study time: 2h
 
 Bonds trade over-the-counter (OTC), not on exchanges.
 
+Why OTC, not exchange? Bonds are heterogeneous — thousands of unique issues per issuer (different coupons, maturities, seniority, covenants). Exchange needs standardized product. Stocks: one ticker per company. Bonds: dozens per company.
+
 Dealer vs customer trades. No centralized order book.
 
 Market participants:
@@ -71,6 +73,8 @@ Bond market liquidity: episodic, not constant.
 
 **Good times**: tight spreads, easy execution.
 **Stress times**: spreads blow out, dealers step back.
+
+How likely are liquidity crises? Major episodes: 2008 (MBS/corporate freeze), 2020 (COVID dash-for-cash). Minor events every 2-3 years. IG corporate spreads widened ~200bp in 3 weeks during March 2020, then recovered after Fed intervention.
 
 Liquidity providers: dealers (risk capital), electronic platforms (limit orders).
 
@@ -129,6 +133,10 @@ Dealers withdrew. Fed intervened (SMCCF) to restore liquidity.
 Client trying to sell: could not get price without large concession.
 
 ---
+
+## Common Misconception
+
+"Bonds trade like stocks — visible price, easy execution." No. OTC market means negotiated prices, wide spreads for small issues, and liquidity that disappears in stress. TRACE helps but covers only executed trades, not quotes.
 
 ## Key Takeaways
 - Bonds trade OTC. Dealer-intermediated.

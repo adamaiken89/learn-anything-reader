@@ -37,6 +37,8 @@ Monthly cash flow = scheduled principal + interest + prepayments.
 
 Borrowers can prepay mortgages anytime (US). This creates uncertainty.
 
+Why US-only? Most countries have prepayment penalties or fixed-rate mortgages that don't prepay easily. US has non-recourse, no-penalty prepayment — unique globally.
+
 Prepayment speed measures:
 - **CPR** (Conditional Prepayment Rate): annualized prepayment rate
 - **PSA** (Public Securities Association): benchmark curve
@@ -46,9 +48,13 @@ Prepayment speed measures:
 SMM = 1 - (1 - CPR)^(1/12)
 ```
 
+Question: What happens to MBS price when rates rise? Answer: Prepayment slows (extension risk) → average life lengthens → duration extends. MBS has negative convexity: rates rise → duration rises (bad), rates fall → duration falls (also bad).
+
 ### CPR vs PSA
 
 100% PSA = prepayment ramps up from 0.2% CPR at month 1 to 6% CPR at month 30, then stays at 6%.
+
+How likely are different prepayment speeds? In normal rate environment, 100-200% PSA typical. During refinancing boom (2020-2021), speeds hit 300-400% PSA as rates hit record lows. In rising-rate environment, speeds can fall to 50% PSA or lower.
 
 150% PSA = 1.5x the benchmark.
 
@@ -130,6 +136,10 @@ Client asks: "Why did my MBS fund pay out so much principal this month?"
 Answer: "Prepayments increased as homeowners refinance at lower rates. You received principal earlier — must reinvest at current lower yields."
 
 ---
+
+## Common Misconception
+
+"Agency MBS = risk-free." Credit risk near-zero (government backing), but prepayment risk is real. Negative convexity means MBS underperforms Treasuries in both rallies and selloffs.
 
 ## Key Takeaways
 - Agency MBS: government-guaranteed. Non-agency: credit tranching
