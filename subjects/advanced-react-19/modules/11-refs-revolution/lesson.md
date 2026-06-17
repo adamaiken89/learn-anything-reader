@@ -121,7 +121,7 @@ function Counter({ ref }: CounterProps) {
 
 > **Think**: Why did `ForwardedRef<T>` exist in React 18 but not React 19? What was that type hiding?
 >
-> *Answer: ForwardedRef<T> was `RefCallback<T> | RefObject<T> | null` — identical to React.Ref<T>. It existed only to signal "this ref came through forwardRef." React 19 removes the distinction: all refs are just refs. Same type, fewer names to learn.*
+> *Answer: `ForwardedRef<T>` was `RefCallback<T> | RefObject<T> | null` — identical to `React.Ref<T>`. It existed only to signal "this ref came through forwardRef." React 19 removes the distinction: all refs are just refs. Same type, fewer names to learn.*
 
 ### Ref Cleanup in React 19 — Callback Refs Return Cleanup Functions
 

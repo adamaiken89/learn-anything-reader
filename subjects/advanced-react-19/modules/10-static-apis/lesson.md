@@ -298,7 +298,7 @@ Where `prerender` wins: pages with any Suspense boundaries, multiple data source
 
 > **Think**: Your build generates 5000 product pages, each with a Suspense-wrapped recommendations component. What's the prerender build time likely to be vs renderToString?
 >
-> *Answer: renderToString produces incorrect HTML (shows loading spinners in final output) so it is not a valid option. prerender with Promise.all(allProducts.map(p => prerender(<Page p={p} />))) takes ~5-15s depending on data fetch speed. renderToString would be faster but wrong — speed without correctness is worse than slow.*
+> *Answer: renderToString produces incorrect HTML (shows loading spinners in final output) so it is not a valid option. prerender with Promise.all(allProducts.map(p => prerender(`<Page p={p} />`))) takes ~5-15s depending on data fetch speed. renderToString would be faster but wrong — speed without correctness is worse than slow.*
 
 ### Hydration Mismatch Prevention
 
