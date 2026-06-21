@@ -1,14 +1,18 @@
 # CourseReader
 
-macOS SwiftUI study app for structured curricula with quizzes, spaced repetition, and AI-powered Q&A.
+macOS SwiftUI study app for structured curricula with quizzes, spaced repetition, AI-powered Q&A, syntax-highlighted code, and persistent annotations.
 
 ## Features
 
-- **Course browser** — subjects split into modules, each with markdown lessons
+- **Course browser** — subjects split into modules, each with markdown lessons (h1–h6 headings)
 - **Quizzes** — MCQ per module, instant scoring
-- **Spaced repetition** — SM-2 algorithm via SRS deck (JSON)
+- **Spaced repetition** — SM-2 algorithm via SRS deck (JSON), star cards, filter by due/starred/all
 - **AI assistant** — select text in lesson → ask Gemini 2.0 Flash in sidebar
-- **Glassmorphism UI** — `NSVisualEffectView` + design tokens
+- **Annotations** — highlights, notes, and bookmarks per module via SwiftData persistence
+- **Syntax highlighting** — code blocks rendered via HighlighterSwift (github-dark theme)
+- **Reader navigation** — prev/next module and section buttons, font size controls
+- **Localization** — all user-facing strings via `loc("key")` (Localizable.xcstrings)
+- **Glassmorphism UI** — `NSVisualEffectView` + design token system
 
 ## Subjects
 
@@ -31,7 +35,8 @@ View → ViewModel (@Observable @MainActor singleton) → Service
 
 - **MVVM** + Swift 6 strict concurrency
 - **macOS 15+** only
-- **No external dependencies** — manual YAML parser, no frameworks
+- **Dependencies**: [HighlighterSwift](https://github.com/smittytone/HighlighterSwift) (syntax highlighting)
+- **Persistence**: SwiftData (highlights, notes, bookmarks)
 
 ## Quick start
 
@@ -47,12 +52,12 @@ make check          # format-check → build → test
 
 ```
 Sources/CourseReader/
-├── App/               # @main entry
-├── Helpers/           # DesignConstants, AppColors, ButtonStyles, …
-├── Models/            # Subject, QuizQuestion, SRSCard/SRSDeck
-├── Services/          # CourseLoader, GeminiService, QuizEngine
-├── ViewModels/        # CourseViewModel
-└── Views/             # ContentView, SubjectListView, ReaderView, …
+├── App/               # @main entry, Scene config
+├── Helpers/           # DesignConstants, AppColors, ButtonStyles, VisualEffectBackground, Loc
+├── Models/            # Subject, QuizQuestion, SRSCard/SRSDeck, ModuleSection, UserAnnotation
+├── Services/          # CourseLoader, GeminiService, QuizEngine, StorageService, HighlighterService
+├── ViewModels/        # CourseViewModel (singleton)
+└── Views/             # ContentView, SubjectListView, ReaderView, LessonView, QuizView, ReviewView, AskAIView, SettingsView, BookmarksView
 ```
 
 ## License
