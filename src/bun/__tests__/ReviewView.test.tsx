@@ -7,7 +7,7 @@ const mockCard = {
   id: "test-1-q1",
   questionId: "q1",
   moduleId: 1,
-  subjectId: "test",
+  courseId: "test",
   question: "What is 2+2?",
   answer: "B. 4",
   explanation: "Basic addition",
@@ -21,7 +21,7 @@ const mockCard = {
 
 const mockDeck = { cards: { "test-1-q1": mockCard } };
 
-const defaultProps = { subjectId: "test", onBack: () => {} };
+const defaultProps = { courseId: "test", onBack: () => {} };
 
 afterEach(restoreFetch);
 

@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { getDueCards, getStarredCards, getAllCards, getCardsForSubject, getDueCardsForSubject, getStarredCardsForSubject, toggleStar } from "../srs";
+import { getDueCards, getStarredCards, getAllCards, getCardsForCourse, getDueCardsForCourse, getStarredCardsForCourse, toggleStar } from "../srs";
 import type { SRSDeck, SRSCard } from "../types";
 
 function makeCard(overrides: Partial<SRSCard> & { id: string }): SRSCard {
   return {
     questionId: "q1",
     moduleId: 1,
-    subjectId: "test",
+    courseId: "test",
     question: "Q?",
     answer: "A",
     explanation: "E",
@@ -97,42 +97,42 @@ describe("getAllCards", () => {
   });
 });
 
-describe("getCardsForSubject", () => {
-  test("filters by subjectId", () => {
+describe("getCardsForCourse", () => {
+  test("filters by courseId", () => {
     const deck = makeDeck([
-      makeCard({ id: "a", subjectId: "math" }),
-      makeCard({ id: "b", subjectId: "physics" }),
-      makeCard({ id: "c", subjectId: "math" }),
+      makeCard({ id: "a", courseId: "math" }),
+      makeCard({ id: "b", courseId: "physics" }),
+      makeCard({ id: "c", courseId: "math" }),
     ]);
-    const cards = getCardsForSubject(deck, "math");
+    const cards = getCardsForCourse(deck, "math");
     expect(cards).toHaveLength(2);
     expect(cards.map((c) => c.id)).toEqual(["a", "c"]);
   });
 });
 
-describe("getDueCardsForSubject", () => {
+describe("getDueCardsForCourse", () => {
   const now = new Date("2024-06-15T12:00:00Z");
 
-  test("filters due cards by subject", () => {
+  test("filters due cards by course", () => {
     const deck = makeDeck([
-      makeCard({ id: "a", subjectId: "math", nextReviewDate: "2024-06-10T00:00:00Z" }),
-      makeCard({ id: "b", subjectId: "physics", nextReviewDate: "2024-06-10T00:00:00Z" }),
-      makeCard({ id: "c", subjectId: "math", nextReviewDate: "2024-06-20T00:00:00Z" }),
+      makeCard({ id: "a", courseId: "math", nextReviewDate: "2024-06-10T00:00:00Z" }),
+      makeCard({ id: "b", courseId: "physics", nextReviewDate: "2024-06-10T00:00:00Z" }),
+      makeCard({ id: "c", courseId: "math", nextReviewDate: "2024-06-20T00:00:00Z" }),
     ]);
-    const due = getDueCardsForSubject(deck, "math", now);
+    const due = getDueCardsForCourse(deck, "math", now);
     expect(due).toHaveLength(1);
     expect(due[0].id).toBe("a");
   });
 });
 
-describe("getStarredCardsForSubject", () => {
-  test("filters starred cards by subject", () => {
+describe("getStarredCardsForCourse", () => {
+  test("filters starred cards by course", () => {
     const deck = makeDeck([
-      makeCard({ id: "a", subjectId: "math", isStarred: true }),
-      makeCard({ id: "b", subjectId: "physics", isStarred: true }),
-      makeCard({ id: "c", subjectId: "math", isStarred: false }),
+      makeCard({ id: "a", courseId: "math", isStarred: true }),
+      makeCard({ id: "b", courseId: "physics", isStarred: true }),
+      makeCard({ id: "c", courseId: "math", isStarred: false }),
     ]);
-    const starred = getStarredCardsForSubject(deck, "math");
+    const starred = getStarredCardsForCourse(deck, "math");
     expect(starred).toHaveLength(1);
     expect(starred[0].id).toBe("a");
   });

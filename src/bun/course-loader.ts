@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import * as yaml from "js-yaml";
-import type { Subject, ModuleMeta, QuizQuestion, SRSDeck } from "./types";
+import type { Course, ModuleMeta, QuizQuestion, SRSDeck } from "./types";
 
 const POSSIBLE_PATHS = [
   join(import.meta.dir, "..", "..", "subjects"),
@@ -9,14 +9,14 @@ const POSSIBLE_PATHS = [
   join(process.env.HOME || "", "Desktop", "courses", "subjects"),
 ];
 
-function findSubjectsDir(): string | null {
+function findCoursesDir(): string | null {
   for (const p of POSSIBLE_PATHS) {
     if (existsSync(p)) return p;
   }
   return null;
 }
 
-export function parseSubject(yamlStr: string, directory: string): Subject | null {
+export function parseCourse(yamlStr: string, directory: string): Course | null {
   const raw = yaml.load(yamlStr) as Record<string, unknown>;
   if (!raw || typeof raw.subject !== "string" || !raw.subject) return null;
 
@@ -36,7 +36,7 @@ export function parseSubject(yamlStr: string, directory: string): Subject | null
 
   return {
     id: directory,
-    subject: String(raw.subject),
+    course: String(raw.subject),
     timeBudgetHours: Number(raw.time_budget_hours) || 40,
     targetLevel: String(raw.target_level || "intermediate"),
     domain: String(raw.domain || ""),
@@ -62,8 +62,8 @@ export function parseQuiz(yamlStr: string): QuizQuestion[] {
   }));
 }
 
-export function findModuleDir(subjectsDir: string, subjectId: string, moduleId: number): string | null {
-  const modulesDir = join(subjectsDir, subjectId, "modules");
+export function findModuleDir(coursesDir: string, courseId: string, moduleId: number): string | null {
+  const modulesDir = join(coursesDir, courseId, "modules");
   if (!existsSync(modulesDir)) return null;
   const padded = String(moduleId).padStart(2, "0");
   const entries = readdirSync(modulesDir, { withFileTypes: true });
@@ -71,52 +71,52 @@ export function findModuleDir(subjectsDir: string, subjectId: string, moduleId: 
   return match ? join(modulesDir, match.name) : null;
 }
 
-export function loadSubjects(): Subject[] {
-  const subjectsDir = findSubjectsDir();
-  if (!subjectsDir) return [];
+export function loadCourses(): Course[] {
+  const coursesDir = findCoursesDir();
+  if (!coursesDir) return [];
 
-  const entries = readdirSync(subjectsDir, { withFileTypes: true });
-  const subjects: Subject[] = [];
+  const entries = readdirSync(coursesDir, { withFileTypes: true });
+  const courses: Course[] = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === "srs") continue;
-    const syllabusPath = join(subjectsDir, entry.name, "syllabus.yaml");
+    const syllabusPath = join(coursesDir, entry.name, "syllabus.yaml");
     if (!existsSync(syllabusPath)) continue;
     try {
       const content = readFileSync(syllabusPath, "utf-8");
-      const subject = parseSubject(content, entry.name);
-      if (subject) subjects.push(subject);
+      const course = parseCourse(content, entry.name);
+      if (course) courses.push(course);
     } catch { /* skip invalid */ }
   }
 
-  return subjects.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  return courses.sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
-export function loadLesson(subjectId: string, moduleId: number): string {
-  const subjectsDir = findSubjectsDir();
-  if (!subjectsDir) throw new Error("Subjects directory not found");
-  const modDir = findModuleDir(subjectsDir, subjectId, moduleId);
-  if (!modDir) throw new Error(`Module ${moduleId} not found for subject ${subjectId}`);
+export function loadLesson(courseId: string, moduleId: number): string {
+  const coursesDir = findCoursesDir();
+  if (!coursesDir) throw new Error("Courses directory not found");
+  const modDir = findModuleDir(coursesDir, courseId, moduleId);
+  if (!modDir) throw new Error(`Module ${moduleId} not found for course ${courseId}`);
   const lessonPath = join(modDir, "lesson.md");
   if (!existsSync(lessonPath)) throw new Error(`Lesson not found for module ${moduleId}`);
   return readFileSync(lessonPath, "utf-8");
 }
 
-export function loadQuiz(subjectId: string, moduleId: number): QuizQuestion[] {
-  const subjectsDir = findSubjectsDir();
-  if (!subjectsDir) throw new Error("Subjects directory not found");
-  const modDir = findModuleDir(subjectsDir, subjectId, moduleId);
-  if (!modDir) throw new Error(`Module ${moduleId} not found for subject ${subjectId}`);
+export function loadQuiz(courseId: string, moduleId: number): QuizQuestion[] {
+  const coursesDir = findCoursesDir();
+  if (!coursesDir) throw new Error("Courses directory not found");
+  const modDir = findModuleDir(coursesDir, courseId, moduleId);
+  if (!modDir) throw new Error(`Module ${moduleId} not found for course ${courseId}`);
   const quizPath = join(modDir, "quiz.yaml");
   if (!existsSync(quizPath)) return [];
   const content = readFileSync(quizPath, "utf-8");
   return parseQuiz(content);
 }
 
-export function loadSRSDeck(subjectId: string): SRSDeck {
-  const subjectsDir = findSubjectsDir();
-  if (!subjectsDir) return { cards: {} };
-  const deckPath = join(subjectsDir, subjectId, "srs", "deck.json");
+export function loadSRSDeck(courseId: string): SRSDeck {
+  const coursesDir = findCoursesDir();
+  if (!coursesDir) return { cards: {} };
+  const deckPath = join(coursesDir, courseId, "srs", "deck.json");
   if (!existsSync(deckPath)) return { cards: {} };
   try {
     return JSON.parse(readFileSync(deckPath, "utf-8")) as SRSDeck;
@@ -125,10 +125,10 @@ export function loadSRSDeck(subjectId: string): SRSDeck {
   }
 }
 
-export function saveSRSDeck(deck: SRSDeck, subjectId: string): void {
-  const subjectsDir = findSubjectsDir();
-  if (!subjectsDir) return;
-  const srsDir = join(subjectsDir, subjectId, "srs");
+export function saveSRSDeck(deck: SRSDeck, courseId: string): void {
+  const coursesDir = findCoursesDir();
+  if (!coursesDir) return;
+  const srsDir = join(coursesDir, courseId, "srs");
   mkdirSync(srsDir, { recursive: true });
   writeFileSync(join(srsDir, "deck.json"), JSON.stringify(deck, null, 2));
 }

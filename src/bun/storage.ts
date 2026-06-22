@@ -26,15 +26,15 @@ function save(data: StorageData): void {
   writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
-export function getHighlightsForModule(subjectID: string, moduleID: number): Highlight[] {
+export function getHighlightsForModule(courseID: string, moduleID: number): Highlight[] {
   const data = load();
   return data.highlights
-    .filter((h) => h.subjectID === subjectID && h.moduleID === moduleID)
+    .filter((h) => h.courseID === courseID && h.moduleID === moduleID)
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 }
 
 export function addHighlight(
-  subjectID: string,
+  courseID: string,
   moduleID: number,
   selectedText: string,
   startOffset: number,
@@ -44,7 +44,7 @@ export function addHighlight(
   const data = load();
   const highlight: Highlight = {
     id: crypto.randomUUID(),
-    subjectID,
+    courseID,
     moduleID,
     selectedText,
     startOffset,
@@ -64,7 +64,7 @@ export function deleteHighlight(id: string): void {
 }
 
 export function addNote(
-  subjectID: string,
+  courseID: string,
   moduleID: number,
   content: string,
   highlightID?: string,
@@ -74,7 +74,7 @@ export function addNote(
   const now = new Date().toISOString();
   const note: Note = {
     id: crypto.randomUUID(),
-    subjectID,
+    courseID,
     moduleID,
     highlightID: highlightID || null,
     sectionID: sectionID || null,
@@ -87,10 +87,10 @@ export function addNote(
   return note;
 }
 
-export function getNotesForModule(subjectID: string, moduleID: number): Note[] {
+export function getNotesForModule(courseID: string, moduleID: number): Note[] {
   const data = load();
   return data.notes
-    .filter((n) => n.subjectID === subjectID && n.moduleID === moduleID)
+    .filter((n) => n.courseID === courseID && n.moduleID === moduleID)
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 }
 
@@ -111,7 +111,7 @@ export function deleteNote(id: string): void {
 }
 
 export function addBookmark(
-  subjectID: string,
+  courseID: string,
   moduleID: number,
   title: string,
   sectionID?: string,
@@ -120,7 +120,7 @@ export function addBookmark(
   const data = load();
   const bookmark: Bookmark = {
     id: crypto.randomUUID(),
-    subjectID,
+    courseID,
     moduleID,
     sectionID: sectionID || null,
     title,
@@ -139,17 +139,17 @@ export function getAllBookmarks(): Bookmark[] {
   );
 }
 
-export function getBookmarksForSubject(subjectID: string): Bookmark[] {
+export function getBookmarksForCourse(courseID: string): Bookmark[] {
   const data = load();
   return data.bookmarks
-    .filter((b) => b.subjectID === subjectID)
+    .filter((b) => b.courseID === courseID)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export function getBookmarksForModule(subjectID: string, moduleID: number): Bookmark[] {
+export function getBookmarksForModule(courseID: string, moduleID: number): Bookmark[] {
   const data = load();
   return data.bookmarks
-    .filter((b) => b.subjectID === subjectID && b.moduleID === moduleID)
+    .filter((b) => b.courseID === courseID && b.moduleID === moduleID)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
@@ -170,7 +170,7 @@ export function setGeminiKey(key: string): void {
   save(data);
 }
 
-export function isBookmarked(subjectID: string, moduleID: number): boolean {
+export function isBookmarked(courseID: string, moduleID: number): boolean {
   const data = load();
-  return data.bookmarks.some((b) => b.subjectID === subjectID && b.moduleID === moduleID);
+  return data.bookmarks.some((b) => b.courseID === courseID && b.moduleID === moduleID);
 }

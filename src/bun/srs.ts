@@ -19,25 +19,25 @@ export function getAllCards(deck: SRSDeck): SRSCard[] {
   );
 }
 
-export function getCardsForSubject(deck: SRSDeck, subjectId: string): SRSCard[] {
-  return getAllCards(deck).filter((c) => c.subjectId === subjectId);
+export function getCardsForCourse(deck: SRSDeck, courseId: string): SRSCard[] {
+  return getAllCards(deck).filter((c) => c.courseId === courseId);
 }
 
-export function getDueCardsForSubject(deck: SRSDeck, subjectId: string, now?: Date): SRSCard[] {
-  return getDueCards(deck, now).filter((c) => c.subjectId === subjectId);
+export function getDueCardsForCourse(deck: SRSDeck, courseId: string, now?: Date): SRSCard[] {
+  return getDueCards(deck, now).filter((c) => c.courseId === courseId);
 }
 
-export function getStarredCardsForSubject(deck: SRSDeck, subjectId: string): SRSCard[] {
-  return getStarredCards(deck).filter((c) => c.subjectId === subjectId);
+export function getStarredCardsForCourse(deck: SRSDeck, courseId: string): SRSCard[] {
+  return getStarredCards(deck).filter((c) => c.courseId === courseId);
 }
 
-export function createSRSCard(question: QuizQuestion, moduleId: number, subjectId: string, now?: Date): SRSCard {
+export function createSRSCard(question: QuizQuestion, moduleId: number, courseId: string, now?: Date): SRSCard {
   const nowISO = (now || new Date()).toISOString();
   return {
-    id: `${subjectId}-${moduleId}-${question.id}`,
+    id: `${courseId}-${moduleId}-${question.id}`,
     questionId: question.id,
     moduleId,
-    subjectId,
+    courseId,
     question: question.question,
     answer: `${question.answer}. ${question.options[question.answer] || ""}`,
     explanation: question.explanation,

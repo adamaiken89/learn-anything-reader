@@ -1,26 +1,22 @@
-import { useState, useEffect } from "react";
-import { api } from "../api";
-import type { Subject } from "../../bun/types";
+import { useEffect } from "react";
+import { useCourseStore } from "../stores/courseStore";
+import type { Course } from "../../bun/types";
 
 interface Props {
-  onSelectSubject: (subject: Subject) => void;
+  onSelectCourse: (course: Course) => void;
   onOpenSettings: () => void;
   onOpenBookmarks: () => void;
 }
 
-export default function SubjectListView({ onSelectSubject, onOpenSettings, onOpenBookmarks }: Props) {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenBookmarks }: Props) {
+  const courses = useCourseStore((s) => s.courses);
+  const loading = useCourseStore((s) => s.loading);
+  const error = useCourseStore((s) => s.error);
+  const load = useCourseStore((s) => s.load);
 
-  useEffect(() => {
-    api.subjects.list()
-      .then(setSubjects)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { load(); }, [load]);
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading subjects...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">Loading courses...</div>;
   if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
 
   return (
@@ -47,32 +43,32 @@ export default function SubjectListView({ onSelectSubject, onOpenSettings, onOpe
       </header>
 
       <main className="px-6 py-8 overflow-y-auto flex-1">
-        {subjects.length === 0 && (
+        {courses.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            No subjects found. Add subjects to the subjects/ directory.
+            No courses found. Add courses to the courses/ directory.
           </div>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {subjects.map((subject) => (
+          {courses.map((course) => (
             <button
-              key={subject.id}
-              onClick={() => onSelectSubject(subject)}
+              key={course.id}
+              onClick={() => onSelectCourse(course)}
               className="text-left bg-gray-800 hover:bg-gray-750 border border-gray-700 rounded-xl p-5 transition-colors group cursor-pointer"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <h2 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition-colors">
-                    {subject.displayName}
+                    {course.displayName}
                   </h2>
                   <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-400">
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">{subject.targetLevel}</span>
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">{subject.timeBudgetHours}h</span>
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">{subject.modules.length} modules</span>
+                    <span className="bg-gray-700 px-2 py-0.5 rounded">{course.targetLevel}</span>
+                    <span className="bg-gray-700 px-2 py-0.5 rounded">{course.timeBudgetHours}h</span>
+                    <span className="bg-gray-700 px-2 py-0.5 rounded">{course.modules.length} modules</span>
                   </div>
-                  {subject.learningObjectives.length > 0 && (
+                  {course.learningObjectives.length > 0 && (
                     <ul className="mt-3 space-y-1">
-                      {subject.learningObjectives.slice(0, 3).map((obj, i) => (
+                      {course.learningObjectives.slice(0, 3).map((obj, i) => (
                         <li key={i} className="text-sm text-gray-400 flex items-start gap-2">
                           <span className="text-indigo-500 mt-0.5 shrink-0">→</span>
                           <span>{obj}</span>

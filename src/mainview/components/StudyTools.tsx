@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../api";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useHighlights } from "../hooks/useHighlights";
@@ -7,7 +7,7 @@ import type { Section, Note } from "./sidebar-types";
 type Tab = "notes" | "highlights" | "bookmarks" | "ask-ai";
 
 interface StudyToolsProps {
-  subjectId: string;
+  courseId: string;
   moduleId: number;
   moduleName: string;
   sections: Section[];
@@ -24,7 +24,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function StudyTools({
-  subjectId, moduleId, moduleName, sections, visibleSection, content, onClose,
+  courseId, moduleId, moduleName, sections, visibleSection, content, onClose,
 }: StudyToolsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("notes");
   const [notes, setNotes] = useState<Note[]>([]);
@@ -37,24 +37,25 @@ export default function StudyTools({
   const [aiLoading, setAiLoading] = useState(false);
 
   const { bookmarks, loading: bmLoading, handleToggleBookmark, handleDeleteBookmark } =
-    useBookmarks(subjectId, moduleId, visibleSection);
+    useBookmarks(courseId, moduleId, visibleSection);
   const { highlights, loading: hlLoading, deleteHighlight } =
-    useHighlights(subjectId, moduleId);
+    useHighlights(courseId, moduleId);
 
-  const loadNotes = useCallback(() => {
-    setNotesLoading(true);
-    api.storage.notes(subjectId, moduleId)
+  const loadNotes = () => {
+    return api.storage.notes(courseId, moduleId)
       .then(setNotes)
-      .catch(() => setNotes([]))
-      .finally(() => setNotesLoading(false));
-  }, [subjectId, moduleId]);
+      .catch(() => setNotes([]));
+  };
 
-  useEffect(() => { loadNotes(); }, [loadNotes]);
+  useEffect(() => {
+    setNotesLoading(true);
+    loadNotes().finally(() => setNotesLoading(false));
+  }, [courseId, moduleId]);
 
   const handleAddNote = async () => {
     if (!newNoteContent.trim()) return;
     await api.storage.addNote({
-      subjectID: subjectId,
+      courseID: courseId,
       moduleID: moduleId,
       content: newNoteContent.trim(),
       sectionID: visibleSection ?? undefined,

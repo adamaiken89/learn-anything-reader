@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import LandingView from "./components/LandingView";
-import SubjectListView from "./components/SubjectListView";
+import CourseListView from "./components/CourseListView";
 import LessonView from "./components/LessonView";
 import QuizView from "./components/QuizView";
 import ReviewView from "./components/ReviewView";
@@ -10,11 +10,12 @@ import CourseSwitcher from "./components/CourseSwitcher";
 import ModuleSwitcher from "./components/ModuleSwitcher";
 import { api } from "./api";
 import { useViewStore } from "./stores/viewStore";
-import type { Subject, ModuleMeta } from "../bun/types";
+import { useCourseStore } from "./stores/courseStore";
+import type { Course, ModuleMeta } from "../bun/types";
 
 interface Bookmark {
   id: string;
-  subjectID: string;
+  courseID: string;
   moduleID: number;
   sectionID: string | null;
   title: string;
@@ -39,24 +40,24 @@ export default function App() {
     setLoading(false);
   }, [currentView]);
 
-  const handleSelectModule = (subject: Subject, module: ModuleMeta) => {
-    push({ type: "lesson", subject, module });
+  const handleSelectModule = (course: Course, module: ModuleMeta) => {
+    push({ type: "lesson", course, module });
   };
 
-  const handleStartQuiz = (subject: Subject, module: ModuleMeta) => {
-    push({ type: "quiz", subject, module });
+  const handleStartQuiz = (course: Course, module: ModuleMeta) => {
+    push({ type: "quiz", course, module });
   };
 
-  const handleStartReview = (subject: Subject) => {
-    push({ type: "review", subject });
+  const handleStartReview = (course: Course) => {
+    push({ type: "review", course });
   };
 
-  const handleSwitchCourse = (subject: Subject) => {
-    replace({ type: "lesson", subject, module: subject.modules[0] });
+  const handleSwitchCourse = (course: Course) => {
+    replace({ type: "lesson", course, module: course.modules[0] });
   };
 
-  const handleSelectSubject = (subject: Subject) => {
-    push({ type: "moduleList", subject });
+  const handleSelectCourse = (course: Course) => {
+    push({ type: "moduleList", course });
   };
 
   if (loading || !currentView) {
@@ -67,10 +68,10 @@ export default function App() {
     case "landing":
       return <LandingView />;
 
-    case "subjectList":
+    case "courseList":
       return (
-        <SubjectListView
-          onSelectSubject={handleSelectSubject}
+        <CourseListView
+          onSelectCourse={handleSelectCourse}
           onOpenSettings={() => push({ type: "settings" })}
           onOpenBookmarks={() => push({ type: "bookmarks" })}
         />
@@ -79,9 +80,9 @@ export default function App() {
     case "moduleList":
       return (
         <ModuleListView
-          subject={currentView.subject}
-          onSelectModule={(m) => handleSelectModule(currentView.subject, m)}
-          onBack={() => replace({ type: "subjectList" })}
+          course={currentView.course}
+          onSelectModule={(m) => handleSelectModule(currentView.course, m)}
+          onBack={() => replace({ type: "courseList" })}
           onOpenSettings={() => push({ type: "settings" })}
           onOpenBookmarks={() => push({ type: "bookmarks" })}
         />
@@ -90,13 +91,13 @@ export default function App() {
     case "lesson":
       return (
         <LessonPage
-          subject={currentView.subject}
+          course={currentView.course}
           module={currentView.module}
           initialSectionID={currentView.sectionID}
-          onBack={() => replace({ type: "moduleList", subject: currentView.subject })}
-          onSelectModule={(m) => handleSelectModule(currentView.subject, m)}
-          onStartQuiz={() => handleStartQuiz(currentView.subject, currentView.module)}
-          onStartReview={() => handleStartReview(currentView.subject)}
+          onBack={() => replace({ type: "moduleList", course: currentView.course })}
+          onSelectModule={(m) => handleSelectModule(currentView.course, m)}
+          onStartQuiz={() => handleStartQuiz(currentView.course, currentView.module)}
+          onStartReview={() => handleStartReview(currentView.course)}
           onOpenBookmarks={() => push({ type: "bookmarks" })}
           onSwitchCourse={handleSwitchCourse}
         />
@@ -105,7 +106,7 @@ export default function App() {
     case "quiz":
       return (
         <QuizPage
-          subjectId={currentView.subject.id}
+          courseId={currentView.course.id}
           moduleId={currentView.module.id}
           onBack={pop}
           onSwitchCourse={handleSwitchCourse}
@@ -115,7 +116,7 @@ export default function App() {
     case "review":
       return (
         <ReviewPage
-          subjectId={currentView.subject.id}
+          courseId={currentView.course.id}
           onBack={pop}
           onSwitchCourse={handleSwitchCourse}
         />
@@ -129,11 +130,11 @@ export default function App() {
         <BookmarksView
           onBack={pop}
           onSwitchCourse={handleSwitchCourse}
-          onOpen={(subjectID, moduleID, sectionID, subjects) => {
-            const subject = subjects.find((s: Subject) => s.id === subjectID);
-            const module = subject?.modules.find((m) => m.id === moduleID);
-            if (subject && module) {
-              replace({ type: "lesson", subject, module, sectionID: sectionID || undefined });
+          onOpen={(courseID, moduleID, sectionID, courses) => {
+            const course = courses.find((c: Course) => c.id === courseID);
+            const module = course?.modules.find((m) => m.id === moduleID);
+            if (course && module) {
+              replace({ type: "lesson", course, module, sectionID: sectionID || undefined });
             }
           }}
         />
@@ -142,9 +143,9 @@ export default function App() {
 }
 
 function LessonPage({
-  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks: _onOpenBookmarks, onSwitchCourse: _onSwitchCourse,
+  course, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks: _onOpenBookmarks, onSwitchCourse: _onSwitchCourse,
 }: {
-  subject: Subject;
+  course: Course;
   module: ModuleMeta;
   initialSectionID?: string;
   onBack: () => void;
@@ -152,23 +153,23 @@ function LessonPage({
   onStartQuiz: () => void;
   onStartReview: () => void;
   onOpenBookmarks: () => void;
-  onSwitchCourse: (subject: Subject) => void;
+  onSwitchCourse: (course: Course) => void;
 }) {
   const push = useViewStore((s) => s.push);
-  const currentIdx = subject.modules.findIndex((m) => m.id === module.id);
+  const currentIdx = course.modules.findIndex((m) => m.id === module.id);
   const hasPrev = currentIdx > 0;
-  const hasNext = currentIdx < subject.modules.length - 1;
+  const hasNext = currentIdx < course.modules.length - 1;
 
   return (
     <div className="flex h-screen bg-gray-900">
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 shrink-0">
           <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors text-sm shrink-0 min-w-0 mr-2">
-            ← {subject.displayName}
+            ← {course.displayName}
           </button>
           <div className="flex-1 flex justify-center">
             <ModuleSwitcher
-              modules={subject.modules}
+              modules={course.modules}
               currentModuleId={module.id}
               onSelect={onSelectModule}
             />
@@ -188,16 +189,16 @@ function LessonPage({
         </header>
 
         <LessonView
-          subjectId={subject.id}
+          courseId={course.id}
           module={module}
           initialSectionID={initialSectionID}
           onStartQuiz={onStartQuiz}
           hasPrevModule={hasPrev}
           hasNextModule={hasNext}
-          onPrevModule={hasPrev ? () => onSelectModule(subject.modules[currentIdx - 1]) : undefined}
-          onNextModule={hasNext ? () => onSelectModule(subject.modules[currentIdx + 1]) : undefined}
-          prevModuleName={hasPrev ? subject.modules[currentIdx - 1].name : undefined}
-          nextModuleName={hasNext ? subject.modules[currentIdx + 1].name : undefined}
+          onPrevModule={hasPrev ? () => onSelectModule(course.modules[currentIdx - 1]) : undefined}
+          onNextModule={hasNext ? () => onSelectModule(course.modules[currentIdx + 1]) : undefined}
+          prevModuleName={hasPrev ? course.modules[currentIdx - 1].name : undefined}
+          nextModuleName={hasNext ? course.modules[currentIdx + 1].name : undefined}
         />
       </div>
     </div>
@@ -205,12 +206,12 @@ function LessonPage({
 }
 
 function QuizPage({
-  subjectId, moduleId, onBack, onSwitchCourse,
+  courseId, moduleId, onBack, onSwitchCourse,
 }: {
-  subjectId: string;
+  courseId: string;
   moduleId: number;
   onBack: () => void;
-  onSwitchCourse: (subject: Subject) => void;
+  onSwitchCourse: (course: Course) => void;
 }) {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
@@ -221,23 +222,23 @@ function QuizPage({
           <span className="text-sm font-medium">Quiz</span>
         </div>
         <div className="flex-1 flex justify-center">
-          <CourseSwitcher currentSubjectId={subjectId} onSelect={onSwitchCourse} />
+          <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
         </div>
         <div className="w-16" />
       </header>
       <div className="p-6">
-        <QuizView subjectId={subjectId} moduleId={moduleId} onBack={onBack} />
+        <QuizView courseId={courseId} moduleId={moduleId} onBack={onBack} />
       </div>
     </div>
   );
 }
 
 function ReviewPage({
-  subjectId, onBack, onSwitchCourse,
+  courseId, onBack, onSwitchCourse,
 }: {
-  subjectId: string;
+  courseId: string;
   onBack: () => void;
-  onSwitchCourse: (subject: Subject) => void;
+  onSwitchCourse: (course: Course) => void;
 }) {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
@@ -248,12 +249,12 @@ function ReviewPage({
           <span className="text-sm font-medium">Review</span>
         </div>
         <div className="flex-1 flex justify-center">
-          <CourseSwitcher currentSubjectId={subjectId} onSelect={onSwitchCourse} />
+          <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
         </div>
         <div className="w-16" />
       </header>
       <div className="p-6">
-        <ReviewView subjectId={subjectId} onBack={onBack} />
+        <ReviewView courseId={courseId} onBack={onBack} />
       </div>
     </div>
   );
@@ -261,20 +262,19 @@ function ReviewPage({
 
 function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
   onBack: () => void;
-  onOpen: (subjectID: string, moduleID: number, sectionID: string | null, subjects: Subject[]) => void;
-  onSwitchCourse: (subject: Subject) => void;
+  onOpen: (courseID: string, moduleID: number, sectionID: string | null, courses: Course[]) => void;
+  onSwitchCourse: (course: Course) => void;
 }) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
+  const courses = useCourseStore((s) => s.courses);
+  const loadCourses = useCourseStore((s) => s.load);
+
+  useEffect(() => { loadCourses(); }, [loadCourses]);
 
   useEffect(() => {
-    Promise.all([
-      api.storage.bookmarks(),
-      api.subjects.list(),
-    ]).then(([bks, subs]) => {
+    api.storage.bookmarks().then((bks) => {
       setBookmarks(bks);
-      setSubjects(subs);
       setLoading(false);
     });
   }, []);
@@ -304,19 +304,19 @@ function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
         ) : (
           <div className="space-y-3">
             {bookmarks.map((b) => {
-              const subject = subjects.find((s: Subject) => s.id === b.subjectID);
+              const course = courses.find((c: Course) => c.id === b.courseID);
               return (
                 <div
                   key={b.id}
                   className="bg-gray-800 hover:bg-gray-750 border border-gray-700 rounded-xl transition-colors group relative"
                 >
                   <button
-                    onClick={() => onOpen(b.subjectID, b.moduleID, b.sectionID, subjects)}
+                    onClick={() => onOpen(b.courseID, b.moduleID, b.sectionID, courses)}
                     className="w-full text-left p-4 pr-10"
                   >
                     <h3 className="text-sm font-medium text-indigo-300">{b.title}</h3>
                     <p className="text-xs text-gray-500 mt-1">
-                      {subject?.displayName || b.subjectID}
+                      {course?.displayName || b.courseID}
                       {b.sectionID ? " — Section" : " — Module"}
                     </p>
                     <p className="text-xs text-gray-600 mt-0.5">{new Date(b.createdAt).toLocaleDateString()}</p>

@@ -6,9 +6,9 @@ export interface ModuleMeta {
   topics: string[];
 }
 
-export interface Subject {
+export interface Course {
   id: string;
-  subject: string;
+  course: string;
   timeBudgetHours: number;
   targetLevel: string;
   domain: string;
@@ -32,7 +32,7 @@ export interface SRSCard {
   id: string;
   questionId: string;
   moduleId: number;
-  subjectId: string;
+  courseId: string;
   question: string;
   answer: string;
   explanation: string;
@@ -57,7 +57,7 @@ export interface ModuleSection {
 
 export interface Highlight {
   id: string;
-  subjectID: string;
+  courseID: string;
   moduleID: number;
   selectedText: string;
   startOffset: number;
@@ -68,7 +68,7 @@ export interface Highlight {
 
 export interface Note {
   id: string;
-  subjectID: string;
+  courseID: string;
   moduleID: number;
   highlightID: string | null;
   sectionID: string | null;
@@ -79,7 +79,7 @@ export interface Note {
 
 export interface Bookmark {
   id: string;
-  subjectID: string;
+  courseID: string;
   moduleID: number;
   sectionID: string | null;
   title: string;
@@ -92,10 +92,10 @@ export type NavigationDirection = "prev" | "next";
 export type ReviewFilter = "all" | "due" | "starred";
 
 export interface AppState {
-  subjects: Subject[];
-  selectedSubject: Subject | null;
+  courses: Course[];
+  selectedCourse: Course | null;
   selectedModule: ModuleMeta | null;
-  readerSubject: Subject | null;
+  readerCourse: Course | null;
   readerSelectedModule: ModuleMeta | null;
   lessonContent: string;
   readerSections: ModuleSection[];

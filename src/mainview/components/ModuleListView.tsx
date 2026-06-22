@@ -1,7 +1,7 @@
-import type { Subject, ModuleMeta } from "../../bun/types";
+import type { Course, ModuleMeta } from "../../bun/types";
 
 interface Props {
-  subject: Subject;
+  course: Course;
   onSelectModule: (module: ModuleMeta) => void;
   onBack: () => void;
   onOpenSettings: () => void;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function ModuleListView({
-  subject, onSelectModule, onBack, onOpenSettings, onOpenBookmarks,
+  course, onSelectModule, onBack, onOpenSettings, onOpenBookmarks,
 }: Props) {
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
@@ -23,8 +23,8 @@ export default function ModuleListView({
           </button>
           <div className="h-4 w-px bg-gray-600" />
           <div>
-            <h1 className="text-xl font-bold text-indigo-400">{subject.displayName}</h1>
-            <p className="text-xs text-gray-400 mt-0.5">{subject.modules.length} modules</p>
+            <h1 className="text-xl font-bold text-indigo-400">{course.displayName}</h1>
+            <p className="text-xs text-gray-400 mt-0.5">{course.modules.length} modules</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -45,7 +45,7 @@ export default function ModuleListView({
 
       <main className="px-6 py-8 overflow-y-auto flex-1">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {subject.modules.map((mod, i) => (
+          {course.modules.map((mod, i) => (
             <button
               key={mod.id}
               onClick={() => onSelectModule(mod)}

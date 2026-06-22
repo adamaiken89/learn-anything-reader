@@ -5,12 +5,12 @@ import type { QuizQuestion } from "../../bun/types";
 import clsx from "clsx";
 
 interface Props {
-  subjectId: string;
+  courseId: string;
   moduleId: number;
   onBack: () => void;
 }
 
-export default function QuizView({ subjectId, moduleId, onBack }: Props) {
+export default function QuizView({ courseId, moduleId, onBack }: Props) {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,11 +18,11 @@ export default function QuizView({ subjectId, moduleId, onBack }: Props) {
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    api.quiz.start(subjectId, moduleId).then((qs) => {
+    api.quiz.start(courseId, moduleId).then((qs) => {
       setQuestions(qs);
       setLoading(false);
     });
-  }, [subjectId, moduleId]);
+  }, [courseId, moduleId]);
 
   const selectAnswer = useCallback((answer: string) => {
     const q = questions[currentIndex];

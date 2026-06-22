@@ -1,20 +1,19 @@
-import { useState, useEffect, useRef } from "react";
-import { api } from "../api";
-import type { Subject } from "../../bun/types";
+import { useEffect, useRef, useState } from "react";
+import { useCourseStore } from "../stores/courseStore";
+import type { Course } from "../../bun/types";
 
 interface Props {
-  currentSubjectId?: string;
-  onSelect: (subject: Subject) => void;
+  currentCourseId?: string;
+  onSelect: (course: Course) => void;
 }
 
-export default function CourseSwitcher({ currentSubjectId, onSelect }: Props) {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
+  const courses = useCourseStore((s) => s.courses);
+  const load = useCourseStore((s) => s.load);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    api.subjects.list().then(setSubjects);
-  }, []);
+  useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -24,7 +23,7 @@ export default function CourseSwitcher({ currentSubjectId, onSelect }: Props) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const current = subjects.find((s) => s.id === currentSubjectId);
+  const current = courses.find((s) => s.id === currentCourseId);
 
   return (
     <div ref={ref} className="relative">
@@ -37,15 +36,15 @@ export default function CourseSwitcher({ currentSubjectId, onSelect }: Props) {
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-          {subjects.length === 0 && (
+          {courses.length === 0 && (
             <div className="p-3 text-sm text-gray-500">No courses found</div>
           )}
-          {subjects.map((s) => (
+          {courses.map((s) => (
             <button
               key={s.id}
               onClick={() => { onSelect(s); setOpen(false); }}
               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                s.id === currentSubjectId
+                s.id === currentCourseId
                   ? "bg-indigo-600/20 text-indigo-300"
                   : "text-gray-300 hover:bg-gray-700"
               }`}

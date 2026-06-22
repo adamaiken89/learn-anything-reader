@@ -20,7 +20,7 @@ Details here.
 Second chapter.`;
 
 const defaultProps = {
-  subjectId: "test",
+  courseId: "test",
   module: { id: 1, name: "Intro Module", timeHours: 2, prerequisites: [], topics: [] },
   onStartQuiz: () => {},
 };

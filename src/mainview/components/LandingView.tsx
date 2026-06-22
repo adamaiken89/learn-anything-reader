@@ -47,7 +47,7 @@ export default function LandingView() {
           </div>
 
           <button
-            onClick={() => push({ type: "subjectList" })}
+            onClick={() => push({ type: "courseList" })}
             className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-900/50"
           >
             Browse Courses →

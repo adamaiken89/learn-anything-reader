@@ -1,12 +1,17 @@
-import { describe, expect, test, afterEach } from "bun:test";
+import { describe, expect, test, afterEach, beforeEach } from "bun:test";
 import { render, waitFor } from "@testing-library/react";
-import SubjectListView from "../../mainview/components/SubjectListView";
+import CourseListView from "../../mainview/components/CourseListView";
+import { useCourseStore } from "../../mainview/stores/courseStore";
 import { mockFetch, restoreFetch } from "./mock-fetch";
 
-const mockSubjects = [
+beforeEach(() => {
+  useCourseStore.getState().reset();
+});
+
+const mockCourses = [
   {
     id: "math-101",
-    subject: "Mathematics 101",
+    course: "Mathematics 101",
     displayName: "Mathematics 101",
     domain: "mathematics",
     prerequisites: [],
@@ -20,7 +25,7 @@ const mockSubjects = [
   },
   {
     id: "physics",
-    subject: "Physics",
+    course: "Physics",
     displayName: "Physics",
     domain: "physics",
     prerequisites: [],
@@ -32,44 +37,44 @@ const mockSubjects = [
 ];
 
 const defaultProps = {
-  onSelectSubject: () => {},
+  onSelectCourse: () => {},
   onOpenSettings: () => {},
   onOpenBookmarks: () => {},
 };
 
 afterEach(restoreFetch);
 
-describe("SubjectListView snapshots", () => {
+describe("CourseListView snapshots", () => {
   test("loading state", () => {
-    mockFetch({ "/subjects": mockSubjects });
-    const { container } = render(<SubjectListView {...defaultProps} />);
+    mockFetch({ "/courses": mockCourses });
+    const { container } = render(<CourseListView {...defaultProps} />);
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test("error state", async () => {
     (globalThis as Record<string, unknown>).fetch = async () =>
       new Response(JSON.stringify({ error: "Server down" }), { status: 500 });
-    const { container } = render(<SubjectListView {...defaultProps} />);
+    const { container } = render(<CourseListView {...defaultProps} />);
     await waitFor(() =>
       expect(container.textContent).toContain("Error")
     );
     expect(container.innerHTML).toMatchSnapshot();
   });
 
-  test("content state with subjects", async () => {
-    mockFetch({ "/subjects": mockSubjects });
-    const { container } = render(<SubjectListView {...defaultProps} />);
+  test("content state with courses", async () => {
+    mockFetch({ "/courses": mockCourses });
+    const { container } = render(<CourseListView {...defaultProps} />);
     await waitFor(() =>
       expect(container.textContent).toContain("Mathematics 101")
     );
     expect(container.innerHTML).toMatchSnapshot();
   });
 
-  test("empty state (no subjects)", async () => {
-    mockFetch({ "/subjects": [] });
-    const { container } = render(<SubjectListView {...defaultProps} />);
+  test("empty state (no courses)", async () => {
+    mockFetch({ "/courses": [] });
+    const { container } = render(<CourseListView {...defaultProps} />);
     await waitFor(() =>
-      expect(container.textContent).toContain("No subjects found")
+      expect(container.textContent).toContain("No courses found")
     );
     expect(container.innerHTML).toMatchSnapshot();
   });

@@ -4,11 +4,11 @@ import { filterVariants } from "./ui";
 import type { SRSCard, SRSDeck } from "../../bun/types";
 
 interface Props {
-  subjectId: string;
+  courseId: string;
   onBack: () => void;
 }
 
-export default function ReviewView({ subjectId, onBack }: Props) {
+export default function ReviewView({ courseId, onBack }: Props) {
   const [cards, setCards] = useState<SRSCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,7 +18,7 @@ export default function ReviewView({ subjectId, onBack }: Props) {
 
   const loadCards = (f: typeof filter) => {
     setLoading(true);
-    api.subjects.srs.filter(subjectId, f).then((result) => {
+    api.courses.srs.filter(courseId, f).then((result) => {
       setCards(result);
       setLoading(false);
       setCurrentIndex(0);
@@ -27,7 +27,7 @@ export default function ReviewView({ subjectId, onBack }: Props) {
   };
 
   useEffect(() => {
-    api.subjects.srs.get(subjectId).then((d) => {
+    api.courses.srs.get(courseId).then((d) => {
       setDeck(d);
       const due = Object.values(d.cards).filter(
         (c: SRSCard) => new Date(c.nextReviewDate) <= new Date()
@@ -35,7 +35,7 @@ export default function ReviewView({ subjectId, onBack }: Props) {
       setCards(due);
       setLoading(false);
     });
-  }, [subjectId]);
+  }, [courseId]);
 
   const handleFilterChange = (f: typeof filter) => {
     setFilter(f);
@@ -45,7 +45,7 @@ export default function ReviewView({ subjectId, onBack }: Props) {
   const handleReview = async (correct: boolean) => {
     const card = cards[currentIndex];
     if (!card) return;
-    const result = await api.subjects.srs.review(subjectId, card.id, correct, deck);
+    const result = await api.courses.srs.review(courseId, card.id, correct, deck);
     const updatedDeck = { ...deck, cards: { ...deck.cards, [card.id]: result } };
     setDeck(updatedDeck);
     setShowAnswer(false);
@@ -138,11 +138,11 @@ export default function ReviewView({ subjectId, onBack }: Props) {
 
             <div className="flex justify-center gap-2">
               {currentCard.isStarred ? (
-                <button onClick={async () => { await api.subjects.srs.toggleStar(subjectId, currentCard.id); loadCards(filter); }} className="text-xs text-yellow-500 hover:text-yellow-400">
+                <button onClick={async () => { await api.courses.srs.toggleStar(courseId, currentCard.id); loadCards(filter); }} className="text-xs text-yellow-500 hover:text-yellow-400">
                   ★ Unstar
                 </button>
               ) : (
-                <button onClick={async () => { await api.subjects.srs.toggleStar(subjectId, currentCard.id); loadCards(filter); }} className="text-xs text-gray-500 hover:text-gray-400">
+                <button onClick={async () => { await api.courses.srs.toggleStar(courseId, currentCard.id); loadCards(filter); }} className="text-xs text-gray-500 hover:text-gray-400">
                   ☆ Star
                 </button>
               )}

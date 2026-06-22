@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { parseSubject, parseQuiz, parseSections } from "../course-loader";
+import { parseCourse, parseQuiz, parseSections } from "../course-loader";
 import { createSRSCard, performReview } from "../srs";
 import type { QuizQuestion, SRSCard } from "../types";
 
-describe("parseSubject", () => {
+describe("parseCourse", () => {
   const validYAML = `
 subject: Test Subject
 time_budget_hours: 20
@@ -31,10 +31,10 @@ modules:
 `;
 
   test("parses valid YAML", () => {
-    const result = parseSubject(validYAML, "test-subject");
+    const result = parseCourse(validYAML, "test-subject");
     expect(result).not.toBeNull();
     expect(result!.id).toBe("test-subject");
-    expect(result!.subject).toBe("Test Subject");
+    expect(result!.course).toBe("Test Subject");
     expect(result!.timeBudgetHours).toBe(20);
     expect(result!.targetLevel).toBe("beginner");
     expect(result!.domain).toBe("programming");
@@ -49,15 +49,15 @@ modules:
   });
 
   test("returns null for empty input", () => {
-    expect(parseSubject("", "test")).toBeNull();
+    expect(parseCourse("", "test")).toBeNull();
   });
 
   test("returns null for missing subject field", () => {
-    expect(parseSubject("name: no-subject", "test")).toBeNull();
+    expect(parseCourse("name: no-subject", "test")).toBeNull();
   });
 
   test("handles missing optional fields", () => {
-    const result = parseSubject("subject: Minimal", "minimal");
+    const result = parseCourse("subject: Minimal", "minimal");
     expect(result).not.toBeNull();
     expect(result!.timeBudgetHours).toBe(40);
     expect(result!.targetLevel).toBe("intermediate");
@@ -189,7 +189,7 @@ describe("createSRSCard", () => {
     expect(card.id).toBe("math-1-q1");
     expect(card.questionId).toBe("q1");
     expect(card.moduleId).toBe(1);
-    expect(card.subjectId).toBe("math");
+    expect(card.courseId).toBe("math");
     expect(card.question).toBe("What is 2+2?");
     expect(card.answer).toBe("B. 4");
     expect(card.explanation).toBe("Basic math");
@@ -213,7 +213,7 @@ describe("performReview", () => {
     id: "test-1-q1",
     questionId: "q1",
     moduleId: 1,
-    subjectId: "test",
+    courseId: "test",
     question: "Q?",
     answer: "A",
     explanation: "E",

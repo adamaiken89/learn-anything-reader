@@ -5,7 +5,7 @@ export class QuizEngine {
   currentIndex = 0;
   selectedAnswers: Record<string, string> = {};
   isCompleted = false;
-  subjectId?: string;
+  courseId?: string;
   moduleId?: number;
 
   get currentQuestion(): QuizQuestion | null {
@@ -22,12 +22,12 @@ export class QuizEngine {
     return this.score.total > 0 ? (this.score.correct / this.score.total) * 100 : 0;
   }
 
-  load(qs: QuizQuestion[], subjectId?: string, moduleId?: number): void {
+  load(qs: QuizQuestion[], courseId?: string, moduleId?: number): void {
     this.questions = qs;
     this.currentIndex = 0;
     this.selectedAnswers = {};
     this.isCompleted = false;
-    this.subjectId = subjectId;
+    this.courseId = courseId;
     this.moduleId = moduleId;
   }
 

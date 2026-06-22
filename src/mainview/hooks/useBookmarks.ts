@@ -14,7 +14,7 @@ interface UseBookmarksReturn {
 }
 
 export function useBookmarks(
-  subjectId: string,
+  courseId: string,
   moduleId: number,
   visibleSection: string | null
 ): UseBookmarksReturn {
@@ -23,11 +23,11 @@ export function useBookmarks(
 
   useEffect(() => {
     setLoading(true);
-    api.storage.moduleBookmarks(subjectId, moduleId)
+    api.storage.moduleBookmarks(courseId, moduleId)
       .then(setBookmarks)
       .catch(() => setBookmarks([]))
       .finally(() => setLoading(false));
-  }, [subjectId, moduleId]);
+  }, [courseId, moduleId]);
 
   const sectionBookmark = bookmarks.find((b) => b.sectionID === visibleSection);
   const moduleBookmark = bookmarks.find((b) => !b.sectionID);
@@ -45,7 +45,7 @@ export function useBookmarks(
       setBookmarks((prev) => prev.filter((b) => b.id !== existing.id));
     } else {
       const bookmark = await api.storage.addBookmark({
-        subjectID: subjectId,
+        courseID: courseId,
         moduleID: moduleId,
         title,
         sectionID: sectionID ?? undefined,
@@ -53,7 +53,7 @@ export function useBookmarks(
       });
       setBookmarks((prev) => [...prev, bookmark]);
     }
-  }, [bookmarks, moduleBookmark, subjectId, moduleId]);
+  }, [bookmarks, moduleBookmark, courseId, moduleId]);
 
   const handleDeleteBookmark = useCallback(async (id: string) => {
     await api.storage.deleteBookmark(id);

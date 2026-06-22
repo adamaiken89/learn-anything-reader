@@ -3,7 +3,7 @@ import * as CourseLoader from "./course-loader";
 import * as Storage from "./storage";
 import * as Gemini from "./gemini";
 import { QuizEngine } from "./quiz-engine";
-import { getDueCardsForSubject, getStarredCardsForSubject, getCardsForSubject, toggleStar } from "./srs";
+import { getDueCardsForCourse, getStarredCardsForCourse, getCardsForCourse, toggleStar } from "./srs";
 import { createSRSCard, performReview } from "./srs";
 import type { QuizQuestion, SRSDeck } from "./types";
 
@@ -35,71 +35,71 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 const router = {
-  "GET /api/subjects": () => jsonResponse(CourseLoader.loadSubjects()),
-  "GET /api/subjects/:subjectId/modules": (_params: Record<string, string>) => {
-    const subjects = CourseLoader.loadSubjects();
-    const subject = subjects.find((s) => s.id === _params.subjectId);
-    return jsonResponse(subject?.modules || []);
+  "GET /api/courses": () => jsonResponse(CourseLoader.loadCourses()),
+  "GET /api/courses/:courseId/modules": (_params: Record<string, string>) => {
+    const courses = CourseLoader.loadCourses();
+    const course = courses.find((s) => s.id === _params.courseId);
+    return jsonResponse(course?.modules || []);
   },
-  "GET /api/subjects/:subjectId/modules/:moduleId/lesson": (params: Record<string, string>) => {
-    return jsonResponse({ content: CourseLoader.loadLesson(params.subjectId, Number(params.moduleId)) });
+  "GET /api/courses/:courseId/modules/:moduleId/lesson": (params: Record<string, string>) => {
+    return jsonResponse({ content: CourseLoader.loadLesson(params.courseId, Number(params.moduleId)) });
   },
-  "GET /api/subjects/:subjectId/modules/:moduleId/quiz": (params: Record<string, string>) => {
-    return jsonResponse(CourseLoader.loadQuiz(params.subjectId, Number(params.moduleId)));
+  "GET /api/courses/:courseId/modules/:moduleId/quiz": (params: Record<string, string>) => {
+    return jsonResponse(CourseLoader.loadQuiz(params.courseId, Number(params.moduleId)));
   },
-  "GET /api/subjects/:subjectId/modules/:moduleId/sections": (params: Record<string, string>) => {
-    const content = CourseLoader.loadLesson(params.subjectId, Number(params.moduleId));
+  "GET /api/courses/:courseId/modules/:moduleId/sections": (params: Record<string, string>) => {
+    const content = CourseLoader.loadLesson(params.courseId, Number(params.moduleId));
     return jsonResponse(CourseLoader.parseSections(content));
   },
-  "GET /api/subjects/:subjectId/srs": (params: Record<string, string>) => {
-    const deck = CourseLoader.loadSRSDeck(params.subjectId);
+  "GET /api/courses/:courseId/srs": (params: Record<string, string>) => {
+    const deck = CourseLoader.loadSRSDeck(params.courseId);
     return jsonResponse(deck);
   },
-  "POST /api/subjects/:subjectId/srs": async (params: Record<string, string>, req: Request) => {
+  "POST /api/courses/:courseId/srs": async (params: Record<string, string>, req: Request) => {
     const body = (await req.json()) as { cardId: string };
-    const deck = CourseLoader.loadSRSDeck(params.subjectId);
+    const deck = CourseLoader.loadSRSDeck(params.courseId);
     const updated = toggleStar(deck, body.cardId);
-    CourseLoader.saveSRSDeck(updated, params.subjectId);
+    CourseLoader.saveSRSDeck(updated, params.courseId);
     return jsonResponse(updated);
   },
-  "POST /api/subjects/:subjectId/srs/review": async (params: Record<string, string>, req: Request) => {
+  "POST /api/courses/:courseId/srs/review": async (params: Record<string, string>, req: Request) => {
     const body = (await req.json()) as { cardId: string; correct: boolean; deck: SRSDeck };
-    const deck = body.deck || CourseLoader.loadSRSDeck(params.subjectId);
+    const deck = body.deck || CourseLoader.loadSRSDeck(params.courseId);
     const card = deck.cards[body.cardId];
     if (!card) return jsonResponse({ error: "Card not found" }, 404);
     const updatedCard = performReview(card, body.correct);
     deck.cards[body.cardId] = updatedCard;
-    CourseLoader.saveSRSDeck(deck, params.subjectId);
+    CourseLoader.saveSRSDeck(deck, params.courseId);
     return jsonResponse(updatedCard);
   },
-  "POST /api/subjects/:subjectId/srs/create": async (params: Record<string, string>, req: Request) => {
+  "POST /api/courses/:courseId/srs/create": async (params: Record<string, string>, req: Request) => {
     const body = (await req.json()) as { question: QuizQuestion; moduleId: number };
-    const card = createSRSCard(body.question, body.moduleId, params.subjectId);
-    const deck = CourseLoader.loadSRSDeck(params.subjectId);
+    const card = createSRSCard(body.question, body.moduleId, params.courseId);
+    const deck = CourseLoader.loadSRSDeck(params.courseId);
     deck.cards[card.id] = card;
-    CourseLoader.saveSRSDeck(deck, params.subjectId);
+    CourseLoader.saveSRSDeck(deck, params.courseId);
     return jsonResponse(card);
   },
-  "GET /api/subjects/:subjectId/srs/filter/:filter": (params: Record<string, string>) => {
-    const deck = CourseLoader.loadSRSDeck(params.subjectId);
+  "GET /api/courses/:courseId/srs/filter/:filter": (params: Record<string, string>) => {
+    const deck = CourseLoader.loadSRSDeck(params.courseId);
     switch (params.filter) {
       case "due":
-        return jsonResponse(getDueCardsForSubject(deck, params.subjectId));
+        return jsonResponse(getDueCardsForCourse(deck, params.courseId));
       case "starred":
-        return jsonResponse(getStarredCardsForSubject(deck, params.subjectId));
+        return jsonResponse(getStarredCardsForCourse(deck, params.courseId));
       default:
-        return jsonResponse(getCardsForSubject(deck, params.subjectId));
+        return jsonResponse(getCardsForCourse(deck, params.courseId));
     }
   },
   "GET /api/storage/highlights": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
-    const subjectID = url.searchParams.get("subjectID")!;
+    const courseID = url.searchParams.get("courseID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
-    return jsonResponse(Storage.getHighlightsForModule(subjectID, moduleID));
+    return jsonResponse(Storage.getHighlightsForModule(courseID, moduleID));
   },
   "POST /api/storage/highlights": async (_params: Record<string, string>, req: Request) => {
-    const body = (await req.json()) as { subjectID: string; moduleID: number; selectedText: string; startOffset: number; endOffset: number; color?: string };
-    const highlight = Storage.addHighlight(body.subjectID, body.moduleID, body.selectedText, body.startOffset, body.endOffset, body.color);
+    const body = (await req.json()) as { courseID: string; moduleID: number; selectedText: string; startOffset: number; endOffset: number; color?: string };
+    const highlight = Storage.addHighlight(body.courseID, body.moduleID, body.selectedText, body.startOffset, body.endOffset, body.color);
     return jsonResponse(highlight, 201);
   },
   "DELETE /api/storage/highlights/:id": (params: Record<string, string>) => {
@@ -108,13 +108,13 @@ const router = {
   },
   "GET /api/storage/notes": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
-    const subjectID = url.searchParams.get("subjectID")!;
+    const courseID = url.searchParams.get("courseID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
-    return jsonResponse(Storage.getNotesForModule(subjectID, moduleID));
+    return jsonResponse(Storage.getNotesForModule(courseID, moduleID));
   },
   "POST /api/storage/notes": async (_params: Record<string, string>, req: Request) => {
-    const body = (await req.json()) as { subjectID: string; moduleID: number; content: string; highlightID?: string; sectionID?: string };
-    const note = Storage.addNote(body.subjectID, body.moduleID, body.content, body.highlightID, body.sectionID);
+    const body = (await req.json()) as { courseID: string; moduleID: number; content: string; highlightID?: string; sectionID?: string };
+    const note = Storage.addNote(body.courseID, body.moduleID, body.content, body.highlightID, body.sectionID);
     return jsonResponse(note, 201);
   },
   "PUT /api/storage/notes/:id": async (params: Record<string, string>, req: Request) => {
@@ -127,24 +127,24 @@ const router = {
     return jsonResponse({ ok: true });
   },
   "GET /api/storage/bookmarks": () => jsonResponse(Storage.getAllBookmarks()),
-  "GET /api/storage/bookmarks/subject/:subjectID": (params: Record<string, string>) =>
-    jsonResponse(Storage.getBookmarksForSubject(params.subjectID)),
+  "GET /api/storage/bookmarks/course/:courseID": (params: Record<string, string>) =>
+    jsonResponse(Storage.getBookmarksForCourse(params.courseID)),
   "POST /api/storage/bookmarks": async (_params: Record<string, string>, req: Request) => {
-    const body = (await req.json()) as { subjectID: string; moduleID: number; title: string; sectionID?: string; scrollPosition?: number };
-    const bookmark = Storage.addBookmark(body.subjectID, body.moduleID, body.title, body.sectionID, body.scrollPosition);
+    const body = (await req.json()) as { courseID: string; moduleID: number; title: string; sectionID?: string; scrollPosition?: number };
+    const bookmark = Storage.addBookmark(body.courseID, body.moduleID, body.title, body.sectionID, body.scrollPosition);
     return jsonResponse(bookmark, 201);
   },
   "DELETE /api/storage/bookmarks/:id": (params: Record<string, string>) => {
     Storage.deleteBookmark(params.id);
     return jsonResponse({ ok: true });
   },
-  "GET /api/storage/bookmarks/module/:subjectID/:moduleID": (params: Record<string, string>) =>
-    jsonResponse(Storage.getBookmarksForModule(params.subjectID, Number(params.moduleID))),
+  "GET /api/storage/bookmarks/module/:courseID/:moduleID": (params: Record<string, string>) =>
+    jsonResponse(Storage.getBookmarksForModule(params.courseID, Number(params.moduleID))),
   "GET /api/storage/check-bookmark": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
-    const subjectID = url.searchParams.get("subjectID")!;
+    const courseID = url.searchParams.get("courseID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
-    return jsonResponse(Storage.isBookmarked(subjectID, moduleID));
+    return jsonResponse(Storage.isBookmarked(courseID, moduleID));
   },
   "GET /api/gemini/key": () => jsonResponse({ hasKey: Gemini.hasAPIKey() }),
   "POST /api/gemini/key": async (_params: Record<string, string>, req: Request) => {
@@ -162,10 +162,10 @@ const router = {
     }
   },
   "POST /api/quiz/start": async (_params: Record<string, string>, req: Request) => {
-    const body = (await req.json()) as { subjectId: string; moduleId: number };
-    const questions = CourseLoader.loadQuiz(body.subjectId, body.moduleId);
+    const body = (await req.json()) as { courseId: string; moduleId: number };
+    const questions = CourseLoader.loadQuiz(body.courseId, body.moduleId);
     const engine = new QuizEngine();
-    engine.load(questions, body.subjectId, body.moduleId);
+    engine.load(questions, body.courseId, body.moduleId);
     _quizEngine = engine;
     return jsonResponse(questions);
   },

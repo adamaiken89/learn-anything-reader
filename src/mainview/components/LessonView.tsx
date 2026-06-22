@@ -11,11 +11,12 @@ import { THEME_TOKENS, themeToCSSVars } from '../themes';
 import { Section } from './sidebar-types';
 import { toggleVariants } from './ui';
 import StudyTools from './StudyTools';
+import { rehypeHighlightText, HIGHLIGHT_COLORS } from './rehype-highlight-text';
 import type { ModuleMeta } from '../../bun/types';
 import type { Theme } from '../themes';
 
 interface Props {
-  subjectId: string;
+  courseId: string;
   module: ModuleMeta;
   initialSectionID?: string;
   onStartQuiz: () => void;
@@ -67,14 +68,7 @@ const components = {
 const THEME_LABELS: Record<Theme, string> = { dark: "Dark", oled: "OLED", nord: "Nord", sepia: "Sepia", gruvbox: "Gruvbox", light: "Light", "solarized-dark": "Solarized", catppuccin: "Catppuccin" };
 const THEME_ICONS: Record<Theme, string> = { dark: "🌙", oled: "🖤", nord: "❄️", sepia: "📜", gruvbox: "🪵", light: "☀️", "solarized-dark": "🔆", catppuccin: "🩷" };
 
-const HIGHLIGHT_COLORS: Record<string, string> = {
-  yellow: "#facc15",
-  green: "#4ade80",
-  blue: "#60a5fa",
-  pink: "#f472b6",
-};
-
-export default function LessonView({ subjectId, module, initialSectionID, onStartQuiz: _onStartQuiz, onPrevModule, onNextModule, hasPrevModule, hasNextModule, prevModuleName: _prevModuleName, nextModuleName: _nextModuleName }: Props) {
+export default function LessonView({ courseId, module, initialSectionID, onStartQuiz: _onStartQuiz, onPrevModule, onNextModule, hasPrevModule, hasNextModule, prevModuleName: _prevModuleName, nextModuleName: _nextModuleName }: Props) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -89,8 +83,8 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
     handleToggleBookmark: toggleBookmark,
     handleDeleteBookmark: _handleDeleteBookmark,
     hasActiveBookmark,
-  } = useBookmarks(subjectId, module.id, visibleSection);
-  const { highlights, addHighlight, deleteHighlight: _deleteHighlight } = useHighlights(subjectId, module.id);
+  } = useBookmarks(courseId, module.id, visibleSection);
+  const { highlights, addHighlight, deleteHighlight: _deleteHighlight } = useHighlights(courseId, module.id);
 
   const [showTools, setShowTools] = useState(false);
 
@@ -104,17 +98,21 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
   const decFontSize = useSettingsStore((s) => s.decFontSize);
   const cycleTheme = useSettingsStore((s) => s.cycleTheme);
   const themeVars = useMemo(() => themeToCSSVars(THEME_TOKENS[theme]), [theme]);
+  const rehypePlugins = useMemo(
+    () => [rehypeHighlight, rehypeHighlightText(highlights)],
+    [highlights]
+  );
 
   useEffect(() => {
     setLoading(true);
     contentRef.current?.scrollTo(0, 0);
-    api.subjects.lesson(subjectId, module.id).then((lesson) => {
+    api.courses.lesson(courseId, module.id).then((lesson) => {
       setContent(lesson.content);
       setLoading(false);
       requestAnimationFrame(() => contentRef.current?.focus());
     }).catch(() => setLoading(false));
-    api.subjects.sections(subjectId, module.id).then(setSections).catch(() => {});
-  }, [subjectId, module.id]);
+    api.courses.sections(courseId, module.id).then(setSections).catch(() => {});
+  }, [courseId, module.id]);
 
   useEffect(() => {
     if (initialSectionID && content) {
@@ -178,45 +176,6 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
     }
   };
 
-  useEffect(() => {
-    if (!contentRef.current) return;
-    const container = contentRef.current;
-    container.querySelectorAll('mark[data-highlight-id]').forEach((m) => {
-      const parent = m.parentNode;
-      if (parent) {
-        parent.replaceChild(document.createTextNode(m.textContent || ''), m);
-        parent.normalize();
-      }
-    });
-    if (highlights.length === 0) return;
-    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
-    const marks: { node: Text; highlight: { id: string; selectedText: string; color: string } }[] = [];
-    while (walker.nextNode()) {
-      const textNode = walker.currentNode as Text;
-      for (const h of highlights) {
-        if (textNode.textContent?.includes(h.selectedText)) {
-          marks.push({ node: textNode, highlight: h });
-        }
-      }
-    }
-    for (const { node, highlight } of marks) {
-      const idx = node.textContent!.indexOf(highlight.selectedText);
-      if (idx === -1) continue;
-      const parent = node.parentElement;
-      if (parent && (parent.tagName === 'MARK' || parent.closest('mark, pre, code'))) continue;
-      const after = node.splitText(idx);
-      after.splitText(highlight.selectedText.length);
-      const mark = document.createElement('mark');
-      mark.style.backgroundColor = HIGHLIGHT_COLORS[highlight.color] || highlight.color;
-      mark.style.color = '#1f2937';
-      mark.style.borderRadius = '2px';
-      mark.style.padding = '0 2px';
-      mark.dataset.highlightId = highlight.id;
-      after.parentNode?.replaceChild(mark, after);
-      mark.textContent = highlight.selectedText;
-    }
-  }, [highlights, content]);
-
   const sectionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -268,7 +227,7 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
     <div className="flex flex-1 overflow-hidden">
       {showTools && (
         <StudyTools
-          subjectId={subjectId}
+          courseId={courseId}
           moduleId={module.id}
           moduleName={module.name}
           sections={sections}
@@ -371,7 +330,7 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
           <div className={`book-content${wideMode ? " book-content-wide" : ""}`} style={{ fontSize: `${fontSize}px`, ...themeVars }}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
+              rehypePlugins={rehypePlugins}
               components={components}
             >
               {content}

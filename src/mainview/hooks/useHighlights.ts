@@ -9,21 +9,21 @@ interface UseHighlightsReturn {
   deleteHighlight: (id: string) => Promise<void>;
 }
 
-export function useHighlights(subjectId: string, moduleId: number): UseHighlightsReturn {
+export function useHighlights(courseId: string, moduleId: number): UseHighlightsReturn {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    api.storage.highlights(subjectId, moduleId)
+    api.storage.highlights(courseId, moduleId)
       .then(setHighlights)
       .catch(() => setHighlights([]))
       .finally(() => setLoading(false));
-  }, [subjectId, moduleId]);
+  }, [courseId, moduleId]);
 
   const addHighlight = useCallback(async (text: string, color: string) => {
     const highlight = await api.storage.addHighlight({
-      subjectID: subjectId,
+      courseID: courseId,
       moduleID: moduleId,
       selectedText: text,
       startOffset: 0,
@@ -31,7 +31,7 @@ export function useHighlights(subjectId: string, moduleId: number): UseHighlight
       color,
     });
     setHighlights((prev) => [...prev, highlight]);
-  }, [subjectId, moduleId]);
+  }, [courseId, moduleId]);
 
   const deleteHighlight = useCallback(async (id: string) => {
     await api.storage.deleteHighlight(id);
