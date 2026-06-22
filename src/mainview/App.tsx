@@ -142,7 +142,7 @@ export default function App() {
 }
 
 function LessonPage({
-  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks, onSwitchCourse,
+  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks: _onOpenBookmarks, onSwitchCourse: _onSwitchCourse,
 }: {
   subject: Subject;
   module: ModuleMeta;

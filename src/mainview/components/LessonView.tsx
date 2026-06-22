@@ -11,7 +11,8 @@ import { THEME_TOKENS, themeToCSSVars } from '../themes';
 import { Section } from './sidebar-types';
 import { toggleVariants } from './ui';
 import StudyTools from './StudyTools';
-import type { ModuleMeta } from '../../../bun/types';
+import type { ModuleMeta } from '../../bun/types';
+import type { Theme } from '../themes';
 
 interface Props {
   subjectId: string;
@@ -73,7 +74,7 @@ const HIGHLIGHT_COLORS: Record<string, string> = {
   pink: "#f472b6",
 };
 
-export default function LessonView({ subjectId, module, initialSectionID, onStartQuiz, onPrevModule, onNextModule, hasPrevModule, hasNextModule, prevModuleName, nextModuleName }: Props) {
+export default function LessonView({ subjectId, module, initialSectionID, onStartQuiz: _onStartQuiz, onPrevModule, onNextModule, hasPrevModule, hasNextModule, prevModuleName: _prevModuleName, nextModuleName: _nextModuleName }: Props) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -86,10 +87,10 @@ export default function LessonView({ subjectId, module, initialSectionID, onStar
   const {
     bookmarks,
     handleToggleBookmark: toggleBookmark,
-    handleDeleteBookmark,
+    handleDeleteBookmark: _handleDeleteBookmark,
     hasActiveBookmark,
   } = useBookmarks(subjectId, module.id, visibleSection);
-  const { highlights, addHighlight, deleteHighlight } = useHighlights(subjectId, module.id);
+  const { highlights, addHighlight, deleteHighlight: _deleteHighlight } = useHighlights(subjectId, module.id);
 
   const [showTools, setShowTools] = useState(false);
 

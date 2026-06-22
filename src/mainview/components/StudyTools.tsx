@@ -57,7 +57,7 @@ export default function StudyTools({
       subjectID: subjectId,
       moduleID: moduleId,
       content: newNoteContent.trim(),
-      sectionID: visibleSection,
+      sectionID: visibleSection ?? undefined,
     });
     setNewNoteContent("");
     loadNotes();

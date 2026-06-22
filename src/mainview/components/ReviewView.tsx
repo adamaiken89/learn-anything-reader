@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
 import { filterVariants } from "./ui";
-import type { SRSCard, SRSDeck } from "../../../bun/types";
+import type { SRSCard, SRSDeck } from "../../bun/types";
 
 interface Props {
   subjectId: string;
@@ -30,7 +30,7 @@ export default function ReviewView({ subjectId, onBack }: Props) {
     api.subjects.srs.get(subjectId).then((d) => {
       setDeck(d);
       const due = Object.values(d.cards).filter(
-        (c) => new Date(c.nextReviewDate) <= new Date()
+        (c: SRSCard) => new Date(c.nextReviewDate) <= new Date()
       );
       setCards(due);
       setLoading(false);

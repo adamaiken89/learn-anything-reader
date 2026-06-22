@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
 import { answerVariants } from "./ui";
-import type { QuizQuestion } from "../../../bun/types";
+import type { QuizQuestion } from "../../bun/types";
 import clsx from "clsx";
 
 interface Props {
@@ -136,7 +136,7 @@ export default function QuizView({ subjectId, moduleId, onBack }: Props) {
                   )}
                 >
                   <span className="font-mono text-indigo-400 mr-2">{key}.</span>
-                  {value}
+                  {String(value)}
                 </button>
               );
             })}

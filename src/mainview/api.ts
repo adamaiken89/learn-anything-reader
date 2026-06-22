@@ -1,4 +1,4 @@
-import type { Subject, ModuleMeta, QuizQuestion, ModuleSection, SRSDeck, SRSCard, Highlight, Note, Bookmark } from "../../bun/types";
+import type { Subject, ModuleMeta, QuizQuestion, ModuleSection, SRSDeck, SRSCard, Highlight, Note, Bookmark } from "../bun/types";
 
 const API_PORT = new URLSearchParams(window.location.search).get("apiPort") || "50001";
 const BASE = `http://localhost:${API_PORT}/api`;

@@ -48,7 +48,7 @@ export function useBookmarks(
         subjectID: subjectId,
         moduleID: moduleId,
         title,
-        sectionID,
+        sectionID: sectionID ?? undefined,
         scrollPosition: 0,
       });
       setBookmarks((prev) => [...prev, bookmark]);
