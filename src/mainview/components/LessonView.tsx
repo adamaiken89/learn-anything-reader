@@ -1,4 +1,5 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -98,6 +99,7 @@ export default function LessonView({
   prevModuleName: _prevModuleName,
   nextModuleName: _nextModuleName,
 }: Props) {
+  const { t } = useTranslation();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -331,7 +333,7 @@ export default function LessonView({
     return () => el.removeEventListener('wheel', handler);
   }, [hasPrevModule, hasNextModule, onPrevModule, onNextModule]);
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading lesson...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">{t('lesson.loadingLesson')}</div>;
 
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -351,7 +353,7 @@ export default function LessonView({
           <button
             onClick={decFontSize}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-            title="Decrease font size"
+            title={t('lesson.decreaseFontSize')}
           >
             A-
           </button>
@@ -359,7 +361,7 @@ export default function LessonView({
           <button
             onClick={incFontSize}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-            title="Increase font size"
+            title={t('lesson.increaseFontSize')}
           >
             A+
           </button>
@@ -367,7 +369,7 @@ export default function LessonView({
           <button
             onClick={cycleTheme}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-            title={`Theme: ${THEME_LABELS[theme]}`}
+            title={`${t('settings.readingTheme')}: ${THEME_LABELS[theme]}`}
           >
             {THEME_ICONS[theme]}
           </button>
@@ -375,43 +377,42 @@ export default function LessonView({
           <button
             onClick={() => setWideMode(!wideMode)}
             className={toggleVariants({ active: wideMode })}
-            title="Toggle wide mode"
+            title={t('lesson.toggleWideMode')}
           >
-            {wideMode ? 'Wide' : 'Narrow'}
+            {wideMode ? t('lesson.wide') : t('lesson.narrow')}
           </button>
           <div className="h-3 w-px bg-gray-600" />
           <button
             onClick={handleToggleBookmark}
             className={toggleVariants({ active: hasActiveBookmark })}
-            title={visibleSection ? 'Bookmark this section' : 'Bookmark this module'}
+            title={visibleSection ? t('lesson.bookmarkSection') : t('lesson.bookmarkModule')}
           >
-            {hasActiveBookmark ? '★' : '☆'} Bookmark
+            {hasActiveBookmark ? '★' : '☆'} {t('lesson.bookmark')}
           </button>
           <div className="h-3 w-px bg-gray-600" />
           <button
             onClick={() => setShowTools(!showTools)}
             className={toggleVariants({ active: showTools })}
-            title="Toggle study tools panel"
+            title={t('lesson.toggleStudyTools')}
           >
-            Tools
+            {t('lesson.tools')}
           </button>
           <button
             onClick={toggleSections}
             className={toggleVariants({ active: showSections })}
-            title="Toggle sections panel"
+            title={t('lesson.toggleSectionsPanel')}
           >
-            Sections
+            {t('lesson.sections')}
           </button>
         </div>
 
-        {/* Right-side floating panel: sections + nav */}
         {showSections && (
           <div className="relative h-0 z-50">
             <div className="absolute right-4 top-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl flex flex-col">
               {sections.length > 0 && (
                 <>
                   <div className="shrink-0 px-2.5 py-1.5 border-b border-gray-700 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-indigo-400">Sections</span>
+                    <span className="text-xs font-semibold text-indigo-400">{t('lesson.sections')}</span>
                     <span className="text-[10px] text-gray-500">{sections.length}</span>
                   </div>
                   <div className="overflow-y-auto max-h-[70vh]" ref={sectionsRef}>
@@ -451,7 +452,7 @@ export default function LessonView({
                               style={{
                                 color: isBookmarked ? '#fbbf24' : isActive ? '#fff' : '#4b5563',
                               }}
-                              title={isBookmarked ? 'Remove bookmark' : 'Bookmark this section'}
+                              title={isBookmarked ? t('lesson.removeBookmark') : t('lesson.bookmarkSection')}
                             >
                               {isBookmarked ? '★' : '☆'}
                             </span>
@@ -496,7 +497,7 @@ export default function LessonView({
               {totalModules > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs opacity-60">Module Progress</span>
+                    <span className="text-xs opacity-60">{t('lesson.moduleProgress')}</span>
                     <span className="text-xs opacity-60">
                       {completedCount}/{totalModules}
                     </span>
@@ -529,7 +530,7 @@ export default function LessonView({
                   border: `1px solid ${isCompleted ? '#16a34a' : 'var(--book-h2-border)'}`,
                 }}
               >
-                {isCompleted ? '✓ Completed' : 'Mark as Complete'}
+                {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
               </button>
             </div>
           </div>
@@ -562,7 +563,7 @@ export default function LessonView({
               window.getSelection()?.removeAllRanges();
             }}
             className="w-6 h-6 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors flex items-center justify-center"
-            title="Cancel highlight"
+            title={t('lesson.cancelHighlight')}
           >
             ✕
           </button>

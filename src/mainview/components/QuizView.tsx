@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { answerVariants } from './ui';
 import type { QuizQuestion } from '../../bun/types';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function QuizView({ courseId, moduleId, onBack }: Props) {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,13 +58,13 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
     setCompleted(false);
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading quiz...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">{t('quiz.loadingQuiz')}</div>;
   if (questions.length === 0)
     return (
       <div className="p-8 text-center">
-        <p className="text-gray-400 mb-4">No quiz questions for this module.</p>
+        <p className="text-gray-400 mb-4">{t('quiz.noQuestions')}</p>
         <button onClick={onBack} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
-          Back
+          {t('common.back')}
         </button>
       </div>
     );
@@ -75,17 +77,17 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
       <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
         <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
           <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            ← Back
+            {t('common.back')}
           </button>
-          <div className="text-sm text-gray-400">Quiz Complete</div>
+          <div className="text-sm text-gray-400">{t('quiz.quizComplete')}</div>
           <div className="w-16" />
         </header>
         <main className="overflow-y-auto flex-1 px-6 py-8">
           <div className="bg-gray-800 rounded-xl p-8 w-full text-center">
-            <h2 className="text-2xl font-bold mb-2">Quiz Complete!</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('quiz.quizComplete')}!</h2>
             <div className="text-5xl font-bold text-indigo-400 mb-2">{percentage}%</div>
             <p className="text-gray-400 mb-6">
-              {score} / {questions.length} correct
+              {t('quiz.correct', { score, total: questions.length })}
             </p>
             <div className="space-y-3">
               {questions.map((q) => {
@@ -102,7 +104,7 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
                   >
                     <p className="font-medium mb-1">{q.question}</p>
                     <p className="text-gray-400 text-xs">
-                      Your answer: {selectedAnswers[q.id]}. Correct: {q.answer}
+                      {t('quiz.yourAnswer')} {selectedAnswers[q.id]}. {t('quiz.correctAnswer')} {q.answer}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">{q.explanation}</p>
                   </div>
@@ -114,13 +116,13 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
                 onClick={handleFinishOrRetry}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg"
               >
-                Retry
+                {t('quiz.retry')}
               </button>
               <button
                 onClick={onBack}
                 className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
               >
-                Back to Lesson
+                {t('quiz.backToLesson')}
               </button>
             </div>
           </div>
@@ -136,10 +138,10 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
     <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
         <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-          ← Back
+          {t('common.back')}
         </button>
         <div className="text-sm text-gray-400">
-          Question {currentIndex + 1} of {questions.length}
+          {t('quiz.questionOf', { current: currentIndex + 1, total: questions.length })}
         </div>
         <div className="w-16" />
       </header>
@@ -148,7 +150,7 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs bg-indigo-600 px-2 py-0.5 rounded">Q{currentQuestion.id}</span>
-            <span className="text-xs text-gray-400">Difficulty: {currentQuestion.difficulty}</span>
+            <span className="text-xs text-gray-400">{t('quiz.difficulty', { level: currentQuestion.difficulty })}</span>
           </div>
           <h2 className="text-lg font-medium mb-6">{currentQuestion.question}</h2>
 
@@ -194,14 +196,14 @@ export default function QuizView({ courseId, moduleId, onBack }: Props) {
             onClick={skipQuestion}
             className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
-            Skip
+            {t('quiz.skip')}
           </button>
           <button
             onClick={nextQuestion}
             disabled={!hasAnswer}
             className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50"
           >
-            {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+            {currentIndex < questions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishQuiz')}
           </button>
         </div>
       </main>

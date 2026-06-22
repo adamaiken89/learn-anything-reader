@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useHighlights } from '../hooks/useHighlights';
@@ -16,13 +17,6 @@ interface StudyToolsProps {
   onClose: () => void;
 }
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'notes', label: 'Notes' },
-  { id: 'highlights', label: 'Highlights' },
-  { id: 'bookmarks', label: 'Bookmarks' },
-  { id: 'ask-ai', label: 'Ask AI' },
-];
-
 export default function StudyTools({
   courseId,
   moduleId,
@@ -32,6 +26,7 @@ export default function StudyTools({
   content,
   onClose,
 }: StudyToolsProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('notes');
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(true);
@@ -95,7 +90,7 @@ export default function StudyTools({
       const res = await api.gemini.ask(aiQuestion.trim(), content);
       setAiResponse(res.response);
     } catch {
-      setAiResponse('Error: Check Gemini API key in Settings.');
+      setAiResponse(t('studyTools.aiError'));
     } finally {
       setAiLoading(false);
     }
@@ -103,26 +98,33 @@ export default function StudyTools({
 
   const sectionOpt = visibleSection ? sections.find((s) => s.id === visibleSection)?.heading : null;
 
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'notes', label: t('studyTools.notes') },
+    { id: 'highlights', label: t('studyTools.highlights') },
+    { id: 'bookmarks', label: t('studyTools.bookmarks') },
+    { id: 'ask-ai', label: t('studyTools.askAi') },
+  ];
+
   return (
     <aside className="w-72 bg-gray-850 border-r border-gray-700 flex flex-col shrink-0 overflow-hidden">
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700">
-        <span className="text-xs font-semibold text-indigo-400">Study Tools</span>
+        <span className="text-xs font-semibold text-indigo-400">{t('studyTools.title')}</span>
         <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs">
           ✕
         </button>
       </div>
       <div className="flex border-b border-gray-700">
-        {TABS.map((t) => (
+        {tabs.map((tab) => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
             className={`flex-1 text-[10px] py-1.5 transition-colors ${
-              activeTab === t.id
+              activeTab === tab.id
                 ? 'text-indigo-400 border-b-2 border-indigo-400 bg-gray-750'
                 : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -130,12 +132,12 @@ export default function StudyTools({
         {activeTab === 'notes' && (
           <div className="space-y-3">
             {sectionOpt && (
-              <p className="text-[10px] text-gray-500 italic">Current section: {sectionOpt}</p>
+              <p className="text-[10px] text-gray-500 italic">{t('studyTools.currentSection', { section: sectionOpt })}</p>
             )}
             <textarea
               value={newNoteContent}
               onChange={(e) => setNewNoteContent(e.target.value)}
-              placeholder="Add a note..."
+              placeholder={t('studyTools.addNote')}
               className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
             />
             <button
@@ -143,12 +145,12 @@ export default function StudyTools({
               disabled={!newNoteContent.trim()}
               className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
             >
-              Save Note
+              {t('studyTools.saveNote')}
             </button>
             {notesLoading ? (
-              <p className="text-xs text-gray-500">Loading notes...</p>
+              <p className="text-xs text-gray-500">{t('studyTools.loadingNotes')}</p>
             ) : notes.length === 0 ? (
-              <p className="text-xs text-gray-500">No notes yet.</p>
+              <p className="text-xs text-gray-500">{t('studyTools.noNotes')}</p>
             ) : (
               notes.map((n) => (
                 <div key={n.id} className="bg-gray-800 border border-gray-700 rounded p-2">
@@ -164,7 +166,7 @@ export default function StudyTools({
                           onClick={() => handleUpdateNote(n.id)}
                           className="flex-1 py-0.5 text-[10px] bg-indigo-700 hover:bg-indigo-600 rounded"
                         >
-                          Save
+                          {t('common.save')}
                         </button>
                         <button
                           onClick={() => {
@@ -173,7 +175,7 @@ export default function StudyTools({
                           }}
                           className="py-0.5 text-[10px] text-gray-400 hover:text-gray-200"
                         >
-                          Cancel
+                          {t('common.cancel')}
                         </button>
                       </div>
                     </div>
@@ -188,18 +190,18 @@ export default function StudyTools({
                           }}
                           className="text-[10px] text-indigo-400 hover:text-indigo-300"
                         >
-                          Edit
+                          {t('common.edit')}
                         </button>
                         <button
                           onClick={() => handleDeleteNote(n.id)}
                           className="text-[10px] text-red-400 hover:text-red-300"
                         >
-                          Delete
+                          {t('common.delete')}
                         </button>
                       </div>
                       {n.sectionID && (
                         <p className="text-[10px] text-gray-600 mt-1">
-                          Section:{' '}
+                          {t('studyTools.section')}{' '}
                           {sections.find((s) => s.id === n.sectionID)?.heading || n.sectionID}
                         </p>
                       )}
@@ -214,9 +216,9 @@ export default function StudyTools({
         {activeTab === 'highlights' && (
           <div>
             {hlLoading ? (
-              <p className="text-xs text-gray-500">Loading highlights...</p>
+              <p className="text-xs text-gray-500">{t('studyTools.loadingHighlights')}</p>
             ) : highlights.length === 0 ? (
-              <p className="text-xs text-gray-500">No highlights yet. Select text to highlight.</p>
+              <p className="text-xs text-gray-500">{t('studyTools.noHighlights')}</p>
             ) : (
               highlights.map((h) => (
                 <div key={h.id} className="bg-gray-800 border border-gray-700 rounded p-2 mb-2">
@@ -227,7 +229,7 @@ export default function StudyTools({
                       onClick={() => deleteHighlight(h.id)}
                       className="text-[10px] text-red-400 hover:text-red-300"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </div>
@@ -239,21 +241,21 @@ export default function StudyTools({
         {activeTab === 'bookmarks' && (
           <div>
             {bmLoading ? (
-              <p className="text-xs text-gray-500">Loading bookmarks...</p>
+              <p className="text-xs text-gray-500">{t('studyTools.loadingBookmarks')}</p>
             ) : bookmarks.length === 0 ? (
-              <p className="text-xs text-gray-500">No bookmarks yet.</p>
+              <p className="text-xs text-gray-500">{t('studyTools.noBookmarks')}</p>
             ) : (
               bookmarks.map((b) => (
                 <div key={b.id} className="bg-gray-800 border border-gray-700 rounded p-2 mb-2">
                   <p className="text-xs text-gray-300">{b.title}</p>
                   <p className="text-[10px] text-gray-500 mt-0.5">
-                    {b.sectionID ? 'Section' : 'Module'}
+                    {b.sectionID ? t('studyTools.bookmarkType') : t('studyTools.moduleType')}
                   </p>
                   <button
                     onClick={() => handleDeleteBookmark(b.id)}
                     className="text-[10px] text-red-400 hover:text-red-300 mt-1"
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               ))
@@ -268,8 +270,8 @@ export default function StudyTools({
               {bookmarks.some((b) =>
                 visibleSection ? b.sectionID === visibleSection : !b.sectionID,
               )
-                ? 'Remove Bookmark'
-                : 'Add Bookmark'}
+                ? t('studyTools.removeBookmark')
+                : t('studyTools.addBookmark')}
             </button>
           </div>
         )}
@@ -279,7 +281,7 @@ export default function StudyTools({
             <textarea
               value={aiQuestion}
               onChange={(e) => setAiQuestion(e.target.value)}
-              placeholder="Ask a question about this lesson..."
+              placeholder={t('studyTools.askQuestion')}
               className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
             />
             <button
@@ -287,7 +289,7 @@ export default function StudyTools({
               disabled={!aiQuestion.trim() || aiLoading}
               className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
             >
-              {aiLoading ? 'Thinking...' : 'Ask'}
+              {aiLoading ? t('studyTools.thinking') : t('studyTools.ask')}
             </button>
             {aiResponse && (
               <div className="bg-gray-800 border border-gray-700 rounded p-2">

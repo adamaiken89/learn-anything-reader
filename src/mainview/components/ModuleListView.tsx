@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Course, ModuleMeta } from '../../bun/types';
 
 interface Props {
@@ -15,6 +16,8 @@ export default function ModuleListView({
   onOpenSettings,
   onOpenBookmarks,
 }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between shrink-0">
@@ -23,12 +26,12 @@ export default function ModuleListView({
             onClick={onBack}
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
-            ← All Courses
+            {t('moduleList.allCourses')}
           </button>
           <div className="h-4 w-px bg-gray-600" />
           <div>
             <h1 className="text-xl font-bold text-indigo-400">{course.displayName}</h1>
-            <p className="text-xs text-gray-400 mt-0.5">{course.modules.length} modules</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('moduleList.modules', { count: course.modules.length })}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -36,13 +39,13 @@ export default function ModuleListView({
             onClick={onOpenBookmarks}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
-            Bookmarks
+            {t('common.bookmarks')}
           </button>
           <button
             onClick={onOpenSettings}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
-            Settings
+            {t('common.settings')}
           </button>
         </div>
       </header>

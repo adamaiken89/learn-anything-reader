@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCourseStore } from '../stores/courseStore';
 import type { Course } from '../../bun/types';
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenBookmarks }: Props) {
+  const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
   const loading = useCourseStore((s) => s.loading);
   const error = useCourseStore((s) => s.error);
@@ -18,28 +20,28 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
     load();
   }, [load]);
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading courses...</div>;
-  if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">{t('courseList.loadingCourses')}</div>;
+  if (error) return <div className="p-8 text-center text-red-400">{t('courseList.loadError')}: {error}</div>;
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-indigo-400">CourseReader</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Desktop study app</p>
+          <p className="text-sm text-gray-400 mt-0.5">{t('courseList.appTagline')}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={onOpenBookmarks}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
-            Bookmarks
+            {t('common.bookmarks')}
           </button>
           <button
             onClick={onOpenSettings}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
-            Settings
+            {t('common.settings')}
           </button>
         </div>
       </header>
@@ -47,7 +49,7 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
       <main className="px-6 py-8 overflow-y-auto flex-1">
         {courses.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            No courses found. Add courses to the courses/ directory.
+            {t('courseList.noCourses')}
           </div>
         )}
 
@@ -69,7 +71,7 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
                       {course.timeBudgetHours}h
                     </span>
                     <span className="bg-gray-700 px-2 py-0.5 rounded">
-                      {course.modules.length} modules
+                      {t('courseList.modules', { count: course.modules.length })}
                     </span>
                   </div>
                   {course.learningObjectives.length > 0 && (

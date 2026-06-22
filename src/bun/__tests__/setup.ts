@@ -1,3 +1,4 @@
+import '../../mainview/i18n';
 import { Window } from 'happy-dom';
 
 const win = new Window() as unknown as Window & typeof globalThis;

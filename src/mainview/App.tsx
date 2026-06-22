@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import LandingView from './components/LandingView';
 import CourseListView from './components/CourseListView';
 import LessonView from './components/LessonView';
@@ -23,6 +24,7 @@ interface Bookmark {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const views = useViewStore((s) => s.views);
   const push = useViewStore((s) => s.push);
   const pop = useViewStore((s) => s.pop);
@@ -63,7 +65,7 @@ export default function App() {
   if (loading || !currentView) {
     return (
       <div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }
@@ -167,6 +169,7 @@ function LessonPage({
   onOpenBookmarks: () => void;
   onSwitchCourse: (course: Course) => void;
 }) {
+  const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
   const currentIdx = course.modules.findIndex((m) => m.id === module.id);
   const hasPrev = currentIdx > 0;
@@ -201,12 +204,12 @@ function LessonPage({
               onClick={onStartReview}
               className="px-2 py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded"
             >
-              Review
+              {t('common.review')}
             </button>
             <button
               onClick={() => push({ type: 'settings' })}
               className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-              title="Settings"
+              title={t('common.settings')}
             >
               ⚙
             </button>
@@ -241,15 +244,16 @@ function QuizPage({
   onBack: () => void;
   onSwitchCourse: (course: Course) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            ← Back
+            {t('common.back')}
           </button>
           <div className="h-4 w-px bg-gray-600" />
-          <span className="text-sm font-medium">Quiz</span>
+          <span className="text-sm font-medium">{t('common.quiz')}</span>
         </div>
         <div className="flex-1 flex justify-center">
           <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
@@ -272,15 +276,16 @@ function ReviewPage({
   onBack: () => void;
   onSwitchCourse: (course: Course) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            ← Back
+            {t('common.back')}
           </button>
           <div className="h-4 w-px bg-gray-600" />
-          <span className="text-sm font-medium">Review</span>
+          <span className="text-sm font-medium">{t('common.review')}</span>
         </div>
         <div className="flex-1 flex justify-center">
           <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
@@ -303,6 +308,7 @@ function BookmarksView({
   onOpen: (courseID: string, moduleID: number, sectionID: string | null, courses: Course[]) => void;
   onSwitchCourse: (course: Course) => void;
 }) {
+  const { t } = useTranslation();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [loading, setLoading] = useState(true);
   const courses = useCourseStore((s) => s.courses);
@@ -325,17 +331,17 @@ function BookmarksView({
     setBookmarks((prev) => prev.filter((b) => b.id !== id));
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading bookmarks...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">{t('bookmarks.loadingBookmarks')}</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            ← Back
+            {t('common.back')}
           </button>
           <div className="h-4 w-px bg-gray-600" />
-          <h2 className="text-sm font-medium">Bookmarks ({bookmarks.length})</h2>
+          <h2 className="text-sm font-medium">{t('bookmarks.bookmarks', { count: bookmarks.length })}</h2>
         </div>
         <CourseSwitcher onSelect={onSwitchCourse} />
       </header>
@@ -343,7 +349,7 @@ function BookmarksView({
       <main className="max-w-2xl mx-auto px-6 py-8">
         {bookmarks.length === 0 ? (
           <p className="text-center text-gray-500 py-12">
-            No bookmarks yet. Bookmark lessons while reading.
+            {t('bookmarks.noBookmarks')}
           </p>
         ) : (
           <div className="space-y-3">
@@ -361,7 +367,7 @@ function BookmarksView({
                     <h3 className="text-sm font-medium text-indigo-300">{b.title}</h3>
                     <p className="text-xs text-gray-500 mt-1">
                       {course?.displayName || b.courseID}
-                      {b.sectionID ? ' — Section' : ' — Module'}
+                      {b.sectionID ? t('bookmarks.sectionLabel') : t('bookmarks.moduleLabel')}
                     </p>
                     <p className="text-xs text-gray-600 mt-0.5">
                       {new Date(b.createdAt).toLocaleDateString()}
@@ -370,9 +376,9 @@ function BookmarksView({
                   <button
                     onClick={(e) => handleDelete(e, b.id)}
                     className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 px-2 py-0.5 text-xs bg-red-800 hover:bg-red-700 rounded transition-all"
-                    title="Delete bookmark"
+                    title={t('common.deleteBookmark')}
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               );

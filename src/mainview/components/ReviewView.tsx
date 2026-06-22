@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { filterVariants } from './ui';
 import type { SRSCard, SRSDeck } from '../../bun/types';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function ReviewView({ courseId, onBack }: Props) {
+  const { t } = useTranslation();
   const [cards, setCards] = useState<SRSCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,7 +58,7 @@ export default function ReviewView({ courseId, onBack }: Props) {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-400">Loading review cards...</div>;
+  if (loading) return <div className="p-8 text-center text-gray-400">{t('review.loadingCards')}</div>;
 
   const currentCard = cards[currentIndex];
 
@@ -64,7 +66,7 @@ export default function ReviewView({ courseId, onBack }: Props) {
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
         <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-          ← Back
+          {t('common.back')}
         </button>
         <div className="flex items-center gap-2">
           {(['all', 'due', 'starred'] as const).map((f) => (
@@ -73,11 +75,11 @@ export default function ReviewView({ courseId, onBack }: Props) {
               onClick={() => handleFilterChange(f)}
               className={filterVariants({ active: filter === f })}
             >
-              {f === 'all' ? 'All' : f === 'due' ? 'Due' : 'Starred'}
+              {f === 'all' ? t('review.all') : f === 'due' ? t('review.due') : t('review.starred')}
             </button>
           ))}
         </div>
-        <div className="text-sm text-gray-400">{cards.length} cards</div>
+        <div className="text-sm text-gray-400">{t('review.cards', { count: cards.length })}</div>
       </header>
 
       <main className="max-w-xl mx-auto px-6 py-12">
@@ -85,18 +87,18 @@ export default function ReviewView({ courseId, onBack }: Props) {
           <div className="text-center py-12">
             <p className="text-gray-400 mb-4">
               {filter === 'due'
-                ? 'No cards due for review!'
+                ? t('review.noDueCards')
                 : filter === 'starred'
-                  ? 'No starred cards.'
-                  : 'No cards in deck.'}
+                  ? t('review.noStarredCards')
+                  : t('review.noCards')}
             </p>
-            <p className="text-sm text-gray-500">Complete a quiz to generate SRS cards.</p>
+            <p className="text-sm text-gray-500">{t('review.completeQuiz')}</p>
           </div>
         ) : (
           currentCard && (
             <div>
               <div className="text-xs text-gray-500 mb-2 text-center">
-                Card {currentIndex + 1} of {cards.length}
+                {t('review.cardOf', { current: currentIndex + 1, total: cards.length })}
                 {currentCard.isStarred && <span className="ml-2 text-yellow-500">★</span>}
               </div>
 
@@ -108,21 +110,21 @@ export default function ReviewView({ courseId, onBack }: Props) {
                       onClick={() => setShowAnswer(true)}
                       className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
                     >
-                      Show Answer
+                      {t('review.showAnswer')}
                     </button>
                   </div>
                 ) : (
                   <div className="w-full">
                     <div className="mb-4 pb-4 border-b border-gray-700">
-                      <p className="text-sm text-gray-400 mb-1">Question:</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('review.question')}</p>
                       <p className="text-lg font-medium">{currentCard.question}</p>
                     </div>
                     <div className="mb-4">
-                      <p className="text-sm text-gray-400 mb-1">Answer:</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('review.answer')}</p>
                       <p className="text-lg">{currentCard.answer}</p>
                     </div>
                     <div className="mb-6">
-                      <p className="text-sm text-gray-400 mb-1">Explanation:</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('review.explanation')}</p>
                       <p className="text-sm text-gray-300">{currentCard.explanation}</p>
                     </div>
                     <div className="flex gap-3 justify-center">
@@ -130,13 +132,13 @@ export default function ReviewView({ courseId, onBack }: Props) {
                         onClick={() => handleReview(false)}
                         className="px-6 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
                       >
-                        Forgot
+                        {t('review.forgot')}
                       </button>
                       <button
                         onClick={() => handleReview(true)}
                         className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg transition-colors"
                       >
-                        Remembered
+                        {t('review.remembered')}
                       </button>
                     </div>
                   </div>
@@ -152,7 +154,7 @@ export default function ReviewView({ courseId, onBack }: Props) {
                     }}
                     className="text-xs text-yellow-500 hover:text-yellow-400"
                   >
-                    ★ Unstar
+                    {t('review.unstar')}
                   </button>
                 ) : (
                   <button
@@ -162,7 +164,7 @@ export default function ReviewView({ courseId, onBack }: Props) {
                     }}
                     className="text-xs text-gray-500 hover:text-gray-400"
                   >
-                    ☆ Star
+                    {t('review.star')}
                   </button>
                 )}
               </div>

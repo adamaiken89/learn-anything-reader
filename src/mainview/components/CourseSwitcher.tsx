@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCourseStore } from '../stores/courseStore';
 import type { Course } from '../../bun/types';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
+  const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
   const load = useCourseStore((s) => s.load);
   const [open, setOpen] = useState(false);
@@ -33,13 +35,13 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
         onClick={() => setOpen(!open)}
         className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-2 max-w-[200px]"
       >
-        <span className="truncate">{current?.displayName || 'Courses'}</span>
+        <span className="truncate">{current?.displayName || t('common.modules')}</span>
         <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
           {courses.length === 0 && (
-            <div className="p-3 text-sm text-gray-500">No courses found</div>
+            <div className="p-3 text-sm text-gray-500">{t('courseSwitcher.noCourses')}</div>
           )}
           {courses.map((s) => (
             <button
@@ -56,7 +58,7 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
             >
               <div className="font-medium truncate">{s.displayName}</div>
               <div className="text-xs text-gray-500 mt-0.5">
-                {s.modules.length} modules · {s.timeBudgetHours}h
+                {s.modules.length} {t('common.modules').toLowerCase()} · {s.timeBudgetHours}h
               </div>
             </button>
           ))}
