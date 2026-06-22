@@ -1,7 +1,4 @@
-import { cva, type VariantProps } from "class-variance-authority";
-import clsx from "clsx";
-
-export { clsx };
+import { cva, VariantProps } from 'class-variance-authority';
 
 export const buttonVariants = cva(
   "px-3 py-1.5 text-sm rounded-lg transition-colors",

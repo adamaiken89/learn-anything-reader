@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
 import { useSettingsStore } from "../stores/settingsStore";
+import CourseSwitcher from "./CourseSwitcher";
+import type { Subject } from "../../bun/types";
 
 interface Props {
   onBack: () => void;
+  onSwitchCourse?: (subject: Subject) => void;
+  currentSubjectId?: string;
 }
 
-export default function SettingsView({ onBack }: Props) {
+export default function SettingsView({ onBack, onSwitchCourse, currentSubjectId }: Props) {
   const [apiKey, setApiKey] = useState("");
   const [saved, setSaved] = useState(false);
   const hasApiKey = useSettingsStore((s) => s.hasApiKey);
@@ -29,9 +33,13 @@ export default function SettingsView({ onBack }: Props) {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
-        <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
-        <h2 className="text-sm font-medium">Settings</h2>
-        <div className="w-16" />
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <div className="h-4 w-px bg-gray-600" />
+          <h2 className="text-sm font-medium">Settings</h2>
+        </div>
+        {onSwitchCourse && <CourseSwitcher currentSubjectId={currentSubjectId} onSelect={onSwitchCourse} />}
+        {!onSwitchCourse && <div className="w-16" />}
       </header>
 
       <main className="max-w-lg mx-auto px-6 py-8">

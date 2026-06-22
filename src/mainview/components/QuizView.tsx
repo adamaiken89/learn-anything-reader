@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
-import { answerVariants, clsx } from "./ui";
+import { answerVariants } from "./ui";
+import clsx from "clsx";
 
 interface QuizQuestion {
   id: string;

@@ -1,15 +1,16 @@
-import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
-import { api } from "../api";
-import { useSettingsStore } from "../stores/settingsStore";
-import type { Theme } from "../stores/settingsStore";
-import Sidebar, { type Section } from "./Sidebar";
-import { useBookmarks } from "../hooks/useBookmarks";
-import { useHighlights } from "../hooks/useHighlights";
-import { toggleVariants, navButtonVariants } from "./ui";
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 
+import { api } from '../api';
+import { useBookmarks } from '../hooks/useBookmarks';
+import { useHighlights } from '../hooks/useHighlights';
+import { useSettingsStore } from '../stores/settingsStore';
+import Sidebar, { Section } from './Sidebar';
+import { navButtonVariants, toggleVariants } from './ui';
+
+import type { Theme } from "../stores/settingsStore";
 interface ModuleMeta {
   id: number;
   name: string;

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
-import SubjectListView from "./components/SubjectListView";
 import LessonView from "./components/LessonView";
 import QuizView from "./components/QuizView";
 import ReviewView from "./components/ReviewView";
 import SettingsView from "./components/SettingsView";
+import CourseSwitcher from "./components/CourseSwitcher";
 import { api } from "./api";
-import { useViewStore, type Subject, type ModuleMeta } from "./stores/viewStore";
-import { clsx, toggleVariants } from "./components/ui";
+import { useViewStore } from "./stores/viewStore";
+import type { Subject, ModuleMeta } from "../bun/types";
+import clsx from "clsx";
+import { toggleVariants } from "./components/ui";
+
+// SubjectListView removed - course switcher replaces dedicated course list page
 
 interface Bookmark {
   id: string;
@@ -21,12 +25,23 @@ export default function App() {
   const views = useViewStore((s) => s.views);
   const push = useViewStore((s) => s.push);
   const pop = useViewStore((s) => s.pop);
-  const popToRoot = useViewStore((s) => s.popToRoot);
+  const replace = useViewStore((s) => s.replace);
   const currentView = views[views.length - 1];
 
-  const handleSelectSubject = (subject: Subject) => {
-    push({ type: "lesson", subject, module: subject.modules[0] });
-  };
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentView) {
+      setLoading(false);
+      return;
+    }
+    api.subjects.list().then((subjects: Subject[]) => {
+      if (subjects.length > 0) {
+        replace({ type: "lesson", subject: subjects[0], module: subjects[0].modules[0] });
+      }
+      setLoading(false);
+    });
+  }, [currentView]);
 
   const handleSelectModule = (subject: Subject, module: ModuleMeta) => {
     push({ type: "lesson", subject, module });
@@ -40,16 +55,15 @@ export default function App() {
     push({ type: "review", subject });
   };
 
-  switch (currentView.type) {
-    case "subjectList":
-      return (
-        <SubjectListView
-          onSelectSubject={handleSelectSubject}
-          onOpenSettings={() => push({ type: "settings" })}
-          onOpenBookmarks={() => push({ type: "bookmarks" })}
-        />
-      );
+  const handleSwitchCourse = (subject: Subject) => {
+    replace({ type: "lesson", subject, module: subject.modules[0] });
+  };
 
+  if (loading || !currentView) {
+    return <div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">Loading...</div>;
+  }
+
+  switch (currentView.type) {
     case "lesson":
       return (
         <LessonPage
@@ -61,43 +75,51 @@ export default function App() {
           onStartQuiz={() => handleStartQuiz(currentView.subject, currentView.module)}
           onStartReview={() => handleStartReview(currentView.subject)}
           onOpenBookmarks={() => push({ type: "bookmarks" })}
+          onSwitchCourse={handleSwitchCourse}
         />
       );
 
     case "quiz":
       return (
-        <QuizView
+        <QuizPage
           subjectId={currentView.subject.id}
           moduleId={currentView.module.id}
           onBack={pop}
+          onSwitchCourse={handleSwitchCourse}
         />
       );
 
     case "review":
       return (
-        <ReviewView
+        <ReviewPage
           subjectId={currentView.subject.id}
           onBack={pop}
+          onSwitchCourse={handleSwitchCourse}
         />
       );
 
     case "settings":
-      return <SettingsView onBack={pop} />;
+      return <SettingsView onBack={pop} onSwitchCourse={handleSwitchCourse} />;
 
     case "bookmarks":
-      return <BookmarksView onBack={pop} onOpen={(subjectID, moduleID, sectionID, subjects) => {
-        const subject = subjects.find((s: Subject) => s.id === subjectID);
-        const module = subject?.modules.find((m) => m.id === moduleID);
-        if (subject && module) {
-          popToRoot();
-          push({ type: "lesson", subject, module, sectionID: sectionID || undefined });
-        }
-      }} />;
+      return (
+        <BookmarksView
+          onBack={pop}
+          onSwitchCourse={handleSwitchCourse}
+          onOpen={(subjectID, moduleID, sectionID, subjects) => {
+            const subject = subjects.find((s: Subject) => s.id === subjectID);
+            const module = subject?.modules.find((m) => m.id === moduleID);
+            if (subject && module) {
+              replace({ type: "lesson", subject, module, sectionID: sectionID || undefined });
+            }
+          }}
+        />
+      );
   }
 }
 
 function LessonPage({
-  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks,
+  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks, onSwitchCourse,
 }: {
   subject: Subject;
   module: ModuleMeta;
@@ -107,7 +129,9 @@ function LessonPage({
   onStartQuiz: () => void;
   onStartReview: () => void;
   onOpenBookmarks: () => void;
+  onSwitchCourse: (subject: Subject) => void;
 }) {
+  const push = useViewStore((s) => s.push);
   const [showNav, setShowNav] = useState(false);
   const currentIdx = subject.modules.findIndex((m) => m.id === module.id);
   const hasPrev = currentIdx > 0;
@@ -150,13 +174,15 @@ function LessonPage({
               Modules
             </button>
           </div>
-          <div className="flex-1 text-center">
-            <span className="text-sm font-medium truncate inline-block max-w-md">{module.name}</span>
+          <div className="flex-1 flex justify-center">
+            <CourseSwitcher currentSubjectId={subject.id} onSelect={onSwitchCourse} />
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-4 w-px bg-gray-600" />
             <button onClick={onOpenBookmarks} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">
               Bookmarks
+            </button>
+            <button onClick={() => push({ type: "settings" })} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">
+              Settings
             </button>
             <button onClick={onStartReview} className="px-3 py-1 text-sm bg-amber-700 hover:bg-amber-600 rounded transition-colors">
               Review
@@ -181,9 +207,65 @@ function LessonPage({
   );
 }
 
-function BookmarksView({ onBack, onOpen }: {
+function QuizPage({
+  subjectId, moduleId, onBack, onSwitchCourse,
+}: {
+  subjectId: string;
+  moduleId: number;
+  onBack: () => void;
+  onSwitchCourse: (subject: Subject) => void;
+}) {
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <div className="h-4 w-px bg-gray-600" />
+          <span className="text-sm font-medium">Quiz</span>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <CourseSwitcher currentSubjectId={subjectId} onSelect={onSwitchCourse} />
+        </div>
+        <div className="w-16" />
+      </header>
+      <div className="p-6">
+        <QuizView subjectId={subjectId} moduleId={moduleId} onBack={onBack} />
+      </div>
+    </div>
+  );
+}
+
+function ReviewPage({
+  subjectId, onBack, onSwitchCourse,
+}: {
+  subjectId: string;
+  onBack: () => void;
+  onSwitchCourse: (subject: Subject) => void;
+}) {
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <div className="h-4 w-px bg-gray-600" />
+          <span className="text-sm font-medium">Review</span>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <CourseSwitcher currentSubjectId={subjectId} onSelect={onSwitchCourse} />
+        </div>
+        <div className="w-16" />
+      </header>
+      <div className="p-6">
+        <ReviewView subjectId={subjectId} onBack={onBack} />
+      </div>
+    </div>
+  );
+}
+
+function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
   onBack: () => void;
   onOpen: (subjectID: string, moduleID: number, sectionID: string | null, subjects: Subject[]) => void;
+  onSwitchCourse: (subject: Subject) => void;
 }) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -211,9 +293,12 @@ function BookmarksView({ onBack, onOpen }: {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
-        <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
-        <h2 className="text-sm font-medium">Bookmarks ({bookmarks.length})</h2>
-        <div className="w-16" />
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <div className="h-4 w-px bg-gray-600" />
+          <h2 className="text-sm font-medium">Bookmarks ({bookmarks.length})</h2>
+        </div>
+        <CourseSwitcher onSelect={onSwitchCourse} />
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-8">

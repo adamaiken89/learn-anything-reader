@@ -1,24 +1,7 @@
 import { create } from "zustand";
-
-export interface Subject {
-  id: string;
-  subject: string;
-  displayName: string;
-  modules: { id: number; name: string; timeHours: number; prerequisites: number[] }[];
-  timeBudgetHours: number;
-  targetLevel: string;
-  learningObjectives: string[];
-}
-
-export interface ModuleMeta {
-  id: number;
-  name: string;
-  timeHours: number;
-  prerequisites: number[];
-}
+import type { Subject, ModuleMeta } from "../../bun/types";
 
 export type View =
-  | { type: "subjectList" }
   | { type: "lesson"; subject: Subject; module: ModuleMeta; sectionID?: string }
   | { type: "quiz"; subject: Subject; module: ModuleMeta }
   | { type: "review"; subject: Subject }
@@ -34,9 +17,9 @@ interface ViewState {
 }
 
 export const useViewStore = create<ViewState>((set) => ({
-  views: [{ type: "subjectList" as const }],
+  views: [] as View[],
   push: (view) => set((s) => ({ views: [...s.views, view] })),
   pop: () => set((s) => ({ views: s.views.slice(0, -1) })),
-  popToRoot: () => set({ views: [{ type: "subjectList" as const }] }),
+  popToRoot: () => set({ views: [] as View[] }),
   replace: (view) => set((s) => ({ views: [...s.views.slice(0, -1), view] })),
 }));
