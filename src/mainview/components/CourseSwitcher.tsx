@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useCourseStore } from "../stores/courseStore";
-import type { Course } from "../../bun/types";
+import { useEffect, useRef, useState } from 'react';
+import { useCourseStore } from '../stores/courseStore';
+import type { Course } from '../../bun/types';
 
 interface Props {
   currentCourseId?: string;
@@ -13,14 +13,16 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   const current = courses.find((s) => s.id === currentCourseId);
@@ -31,8 +33,8 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
         onClick={() => setOpen(!open)}
         className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-2 max-w-[200px]"
       >
-        <span className="truncate">{current?.displayName || "Courses"}</span>
-        <span className={`text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
+        <span className="truncate">{current?.displayName || 'Courses'}</span>
+        <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
@@ -42,15 +44,20 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
           {courses.map((s) => (
             <button
               key={s.id}
-              onClick={() => { onSelect(s); setOpen(false); }}
+              onClick={() => {
+                onSelect(s);
+                setOpen(false);
+              }}
               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                 s.id === currentCourseId
-                  ? "bg-indigo-600/20 text-indigo-300"
-                  : "text-gray-300 hover:bg-gray-700"
+                  ? 'bg-indigo-600/20 text-indigo-300'
+                  : 'text-gray-300 hover:bg-gray-700'
               }`}
             >
               <div className="font-medium truncate">{s.displayName}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{s.modules.length} modules · {s.timeBudgetHours}h</div>
+              <div className="text-xs text-gray-500 mt-0.5">
+                {s.modules.length} modules · {s.timeBudgetHours}h
+              </div>
             </button>
           ))}
         </div>

@@ -1,4 +1,4 @@
-declare module "three" {
+declare module 'three' {
   const THREE: Record<string, unknown>;
   export = THREE;
 }

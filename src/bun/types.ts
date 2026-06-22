@@ -87,9 +87,15 @@ export interface Bookmark {
   createdAt: string;
 }
 
-export type NavigationDirection = "prev" | "next";
+export interface CompletedModule {
+  courseID: string;
+  moduleID: number;
+  completedAt: string;
+}
 
-export type ReviewFilter = "all" | "due" | "starred";
+export type NavigationDirection = 'prev' | 'next';
+
+export type ReviewFilter = 'all' | 'due' | 'starred';
 
 export interface AppState {
   courses: Course[];

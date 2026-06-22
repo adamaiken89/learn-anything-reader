@@ -1,4 +1,4 @@
-import { Window } from "happy-dom";
+import { Window } from 'happy-dom';
 
 const win = new Window() as unknown as Window & typeof globalThis;
 
@@ -26,7 +26,7 @@ const win = new Window() as unknown as Window & typeof globalThis;
 };
 (globalThis as any).requestAnimationFrame = (cb: FrameRequestCallback) => setTimeout(cb, 16);
 (globalThis as any).cancelAnimationFrame = (id: number) => clearTimeout(id);
-(globalThis as any).fetch = async () => new Response("{}", { status: 200 });
+(globalThis as any).fetch = async () => new Response('{}', { status: 200 });
 (globalThis as any).NodeFilter = {
   SHOW_ALL: -1,
   SHOW_ELEMENT: 1,

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { api } from "../api";
-import { useSettingsStore } from "../stores/settingsStore";
-import type { Theme } from "../themes";
+import { useState, useEffect } from 'react';
+import { api } from '../api';
+import { useSettingsStore } from '../stores/settingsStore';
+import type { Theme } from '../themes';
 interface ThemeCard {
   id: Theme;
   icon: string;
@@ -10,14 +10,14 @@ interface ThemeCard {
 }
 
 const THEME_CARDS: ThemeCard[] = [
-  { id: "dark", icon: "🌙", label: "Dark", desc: "Warm dark, easy on eyes at night" },
-  { id: "oled", icon: "🖤", label: "OLED", desc: "Pure black for OLED screens" },
-  { id: "nord", icon: "❄️", label: "Nord", desc: "Cool arctic tones, low strain" },
-  { id: "sepia", icon: "📜", label: "Sepia", desc: "Paper-like, mimics physical book" },
-  { id: "gruvbox", icon: "🪵", label: "Gruvbox", desc: "Warm retro, cozy alternative" },
-  { id: "light", icon: "☀️", label: "Light", desc: "Crisp white for bright environments" },
-  { id: "solarized-dark", icon: "🔆", label: "Solarized", desc: "Scientific amber, long sessions" },
-  { id: "catppuccin", icon: "🩷", label: "Catppuccin", desc: "Pastel purple, gentle contrast" },
+  { id: 'dark', icon: '🌙', label: 'Dark', desc: 'Warm dark, easy on eyes at night' },
+  { id: 'oled', icon: '🖤', label: 'OLED', desc: 'Pure black for OLED screens' },
+  { id: 'nord', icon: '❄️', label: 'Nord', desc: 'Cool arctic tones, low strain' },
+  { id: 'sepia', icon: '📜', label: 'Sepia', desc: 'Paper-like, mimics physical book' },
+  { id: 'gruvbox', icon: '🪵', label: 'Gruvbox', desc: 'Warm retro, cozy alternative' },
+  { id: 'light', icon: '☀️', label: 'Light', desc: 'Crisp white for bright environments' },
+  { id: 'solarized-dark', icon: '🔆', label: 'Solarized', desc: 'Scientific amber, long sessions' },
+  { id: 'catppuccin', icon: '🩷', label: 'Catppuccin', desc: 'Pastel purple, gentle contrast' },
 ];
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export default function SettingsView({ onBack }: Props) {
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState('');
   const [saved, setSaved] = useState(false);
   const hasApiKey = useSettingsStore((s) => s.hasApiKey);
   const setHasApiKey = useSettingsStore((s) => s.setHasApiKey);
@@ -55,7 +55,9 @@ export default function SettingsView({ onBack }: Props) {
   return (
     <div className="h-screen bg-gray-900 text-gray-100 flex flex-col overflow-y-auto">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 shrink-0">
-        <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+        <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
+          ← Back
+        </button>
         <div className="h-4 w-px bg-gray-600" />
         <h2 className="text-sm font-medium">Settings</h2>
       </header>
@@ -64,8 +66,13 @@ export default function SettingsView({ onBack }: Props) {
         <section className="bg-gray-800 rounded-xl p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Gemini API Key</h3>
           <p className="text-sm text-gray-400 mb-4">
-            Required for the Ask AI feature. Get a free key at{" "}
-            <a href="https://aistudio.google.com/apikey" target="_blank" className="text-indigo-400 hover:underline" rel="noreferrer">
+            Required for the Ask AI feature. Get a free key at{' '}
+            <a
+              href="https://aistudio.google.com/apikey"
+              target="_blank"
+              className="text-indigo-400 hover:underline"
+              rel="noreferrer"
+            >
               Google AI Studio
             </a>
             .
@@ -75,7 +82,9 @@ export default function SettingsView({ onBack }: Props) {
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder={hasApiKey ? "API key set (enter new key to change)" : "Enter your Gemini API key"}
+              placeholder={
+                hasApiKey ? 'API key set (enter new key to change)' : 'Enter your Gemini API key'
+              }
               className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-500"
             />
             <button
@@ -83,7 +92,7 @@ export default function SettingsView({ onBack }: Props) {
               disabled={!apiKey.trim()}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm transition-colors disabled:opacity-50"
             >
-              {saved ? "Saved!" : "Save"}
+              {saved ? 'Saved!' : 'Save'}
             </button>
           </div>
           {hasApiKey && !saved && (
@@ -100,8 +109,8 @@ export default function SettingsView({ onBack }: Props) {
                 onClick={() => setTheme(t.id)}
                 className={`text-left p-3 rounded-xl border-2 transition-all ${
                   theme === t.id
-                    ? "border-indigo-500 bg-indigo-900/30"
-                    : "border-gray-700 bg-gray-800/50 hover:border-gray-500"
+                    ? 'border-indigo-500 bg-indigo-900/30'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-gray-500'
                 }`}
               >
                 <div className="text-base">{t.icon}</div>
@@ -115,7 +124,12 @@ export default function SettingsView({ onBack }: Props) {
         <section className="bg-gray-800 rounded-xl p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Font Size</h3>
           <div className="flex items-center gap-3">
-            <button onClick={decFontSize} className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">A-</button>
+            <button
+              onClick={decFontSize}
+              className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            >
+              A-
+            </button>
             <input
               type="range"
               min={10}
@@ -124,7 +138,12 @@ export default function SettingsView({ onBack }: Props) {
               onChange={(e) => setFontSize(Number(e.target.value))}
               className="flex-1 accent-indigo-500"
             />
-            <button onClick={incFontSize} className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">A+</button>
+            <button
+              onClick={incFontSize}
+              className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            >
+              A+
+            </button>
             <span className="text-sm text-gray-400 w-8 text-center">{fontSize}</span>
           </div>
         </section>
@@ -136,8 +155,8 @@ export default function SettingsView({ onBack }: Props) {
               onClick={() => setWideMode(false)}
               className={`flex-1 p-3 rounded-xl border-2 transition-all ${
                 !wideMode
-                  ? "border-indigo-500 bg-indigo-900/30"
-                  : "border-gray-700 bg-gray-800/50 hover:border-gray-500"
+                  ? 'border-indigo-500 bg-indigo-900/30'
+                  : 'border-gray-700 bg-gray-800/50 hover:border-gray-500'
               }`}
             >
               <div className="text-sm font-medium">Narrow</div>
@@ -147,8 +166,8 @@ export default function SettingsView({ onBack }: Props) {
               onClick={() => setWideMode(true)}
               className={`flex-1 p-3 rounded-xl border-2 transition-all ${
                 wideMode
-                  ? "border-indigo-500 bg-indigo-900/30"
-                  : "border-gray-700 bg-gray-800/50 hover:border-gray-500"
+                  ? 'border-indigo-500 bg-indigo-900/30'
+                  : 'border-gray-700 bg-gray-800/50 hover:border-gray-500'
               }`}
             >
               <div className="text-sm font-medium">Wide</div>

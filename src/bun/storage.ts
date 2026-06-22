@@ -1,23 +1,27 @@
-import type { Highlight, Note, Bookmark } from "./types";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import type { Highlight, Note, Bookmark, CompletedModule } from './types';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
-const DATA_DIR = join(process.env.HOME || "", ".coursereader");
-const DB_FILE = join(DATA_DIR, "data.json");
+const DATA_DIR = join(process.env.HOME || '', '.coursereader');
+const DB_FILE = join(DATA_DIR, 'data.json');
 
 interface StorageData {
   highlights: Highlight[];
   notes: Note[];
   bookmarks: Bookmark[];
+  completedModules: CompletedModule[];
   geminiAPIKey?: string;
 }
 
 function load(): StorageData {
-  if (!existsSync(DB_FILE)) return { highlights: [], notes: [], bookmarks: [] };
+  if (!existsSync(DB_FILE))
+    return { highlights: [], notes: [], bookmarks: [], completedModules: [] };
   try {
-    return JSON.parse(readFileSync(DB_FILE, "utf-8"));
+    const data = JSON.parse(readFileSync(DB_FILE, 'utf-8'));
+    if (!data.completedModules) data.completedModules = [];
+    return data;
   } catch {
-    return { highlights: [], notes: [], bookmarks: [] };
+    return { highlights: [], notes: [], bookmarks: [], completedModules: [] };
   }
 }
 
@@ -39,7 +43,7 @@ export function addHighlight(
   selectedText: string,
   startOffset: number,
   endOffset: number,
-  color: string = "yellow"
+  color: string = 'yellow',
 ): Highlight {
   const data = load();
   const highlight: Highlight = {
@@ -68,7 +72,7 @@ export function addNote(
   moduleID: number,
   content: string,
   highlightID?: string,
-  sectionID?: string
+  sectionID?: string,
 ): Note {
   const data = load();
   const now = new Date().toISOString();
@@ -115,7 +119,7 @@ export function addBookmark(
   moduleID: number,
   title: string,
   sectionID?: string,
-  scrollPosition: number = 0
+  scrollPosition: number = 0,
 ): Bookmark {
   const data = load();
   const bookmark: Bookmark = {
@@ -135,7 +139,7 @@ export function addBookmark(
 export function getAllBookmarks(): Bookmark[] {
   const data = load();
   return data.bookmarks.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
@@ -173,4 +177,29 @@ export function setGeminiKey(key: string): void {
 export function isBookmarked(courseID: string, moduleID: number): boolean {
   const data = load();
   return data.bookmarks.some((b) => b.courseID === courseID && b.moduleID === moduleID);
+}
+
+export function isModuleCompleted(courseID: string, moduleID: number): boolean {
+  const data = load();
+  return data.completedModules.some((m) => m.courseID === courseID && m.moduleID === moduleID);
+}
+
+export function toggleModuleCompleted(courseID: string, moduleID: number): boolean {
+  const data = load();
+  const idx = data.completedModules.findIndex(
+    (m) => m.courseID === courseID && m.moduleID === moduleID,
+  );
+  if (idx >= 0) {
+    data.completedModules.splice(idx, 1);
+    save(data);
+    return false;
+  }
+  data.completedModules.push({ courseID, moduleID, completedAt: new Date().toISOString() });
+  save(data);
+  return true;
+}
+
+export function getCompletedModuleCount(courseID: string): number {
+  const data = load();
+  return data.completedModules.filter((m) => m.courseID === courseID).length;
 }

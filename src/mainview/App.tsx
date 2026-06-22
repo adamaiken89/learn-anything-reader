@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import LandingView from "./components/LandingView";
-import CourseListView from "./components/CourseListView";
-import LessonView from "./components/LessonView";
-import QuizView from "./components/QuizView";
-import ReviewView from "./components/ReviewView";
-import SettingsView from "./components/SettingsView";
-import ModuleListView from "./components/ModuleListView";
-import CourseSwitcher from "./components/CourseSwitcher";
-import ModuleSwitcher from "./components/ModuleSwitcher";
-import { api } from "./api";
-import { useViewStore } from "./stores/viewStore";
-import { useCourseStore } from "./stores/courseStore";
-import type { Course, ModuleMeta } from "../bun/types";
+import { useState, useEffect } from 'react';
+import LandingView from './components/LandingView';
+import CourseListView from './components/CourseListView';
+import LessonView from './components/LessonView';
+import QuizView from './components/QuizView';
+import ReviewView from './components/ReviewView';
+import SettingsView from './components/SettingsView';
+import ModuleListView from './components/ModuleListView';
+import CourseSwitcher from './components/CourseSwitcher';
+import ModuleSwitcher from './components/ModuleSwitcher';
+import { api } from './api';
+import { useViewStore } from './stores/viewStore';
+import { useCourseStore } from './stores/courseStore';
+import type { Course, ModuleMeta } from '../bun/types';
 
 interface Bookmark {
   id: string;
@@ -36,74 +36,78 @@ export default function App() {
       setLoading(false);
       return;
     }
-    replace({ type: "landing" });
+    replace({ type: 'landing' });
     setLoading(false);
   }, [currentView]);
 
   const handleSelectModule = (course: Course, module: ModuleMeta) => {
-    push({ type: "lesson", course, module });
+    push({ type: 'lesson', course, module });
   };
 
   const handleStartQuiz = (course: Course, module: ModuleMeta) => {
-    push({ type: "quiz", course, module });
+    push({ type: 'quiz', course, module });
   };
 
   const handleStartReview = (course: Course) => {
-    push({ type: "review", course });
+    push({ type: 'review', course });
   };
 
   const handleSwitchCourse = (course: Course) => {
-    replace({ type: "lesson", course, module: course.modules[0] });
+    replace({ type: 'lesson', course, module: course.modules[0] });
   };
 
   const handleSelectCourse = (course: Course) => {
-    push({ type: "moduleList", course });
+    push({ type: 'moduleList', course });
   };
 
   if (loading || !currentView) {
-    return <div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   switch (currentView.type) {
-    case "landing":
+    case 'landing':
       return <LandingView />;
 
-    case "courseList":
+    case 'courseList':
       return (
         <CourseListView
           onSelectCourse={handleSelectCourse}
-          onOpenSettings={() => push({ type: "settings" })}
-          onOpenBookmarks={() => push({ type: "bookmarks" })}
+          onOpenSettings={() => push({ type: 'settings' })}
+          onOpenBookmarks={() => push({ type: 'bookmarks' })}
         />
       );
 
-    case "moduleList":
+    case 'moduleList':
       return (
         <ModuleListView
           course={currentView.course}
           onSelectModule={(m) => handleSelectModule(currentView.course, m)}
-          onBack={() => replace({ type: "courseList" })}
-          onOpenSettings={() => push({ type: "settings" })}
-          onOpenBookmarks={() => push({ type: "bookmarks" })}
+          onBack={() => replace({ type: 'courseList' })}
+          onOpenSettings={() => push({ type: 'settings' })}
+          onOpenBookmarks={() => push({ type: 'bookmarks' })}
         />
       );
 
-    case "lesson":
+    case 'lesson':
       return (
         <LessonPage
           course={currentView.course}
           module={currentView.module}
           initialSectionID={currentView.sectionID}
-          onBack={() => replace({ type: "moduleList", course: currentView.course })}
+          onBack={() => replace({ type: 'moduleList', course: currentView.course })}
           onSelectModule={(m) => handleSelectModule(currentView.course, m)}
           onStartQuiz={() => handleStartQuiz(currentView.course, currentView.module)}
           onStartReview={() => handleStartReview(currentView.course)}
-          onOpenBookmarks={() => push({ type: "bookmarks" })}
+          onOpenBookmarks={() => push({ type: 'bookmarks' })}
           onSwitchCourse={handleSwitchCourse}
         />
       );
 
-    case "quiz":
+    case 'quiz':
       return (
         <QuizPage
           courseId={currentView.course.id}
@@ -113,7 +117,7 @@ export default function App() {
         />
       );
 
-    case "review":
+    case 'review':
       return (
         <ReviewPage
           courseId={currentView.course.id}
@@ -122,10 +126,10 @@ export default function App() {
         />
       );
 
-    case "settings":
+    case 'settings':
       return <SettingsView onBack={pop} />;
 
-    case "bookmarks":
+    case 'bookmarks':
       return (
         <BookmarksView
           onBack={pop}
@@ -134,7 +138,7 @@ export default function App() {
             const course = courses.find((c: Course) => c.id === courseID);
             const module = course?.modules.find((m) => m.id === moduleID);
             if (course && module) {
-              replace({ type: "lesson", course, module, sectionID: sectionID || undefined });
+              replace({ type: 'lesson', course, module, sectionID: sectionID || undefined });
             }
           }}
         />
@@ -143,7 +147,15 @@ export default function App() {
 }
 
 function LessonPage({
-  course, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks: _onOpenBookmarks, onSwitchCourse: _onSwitchCourse,
+  course,
+  module,
+  initialSectionID,
+  onBack,
+  onSelectModule,
+  onStartQuiz,
+  onStartReview,
+  onOpenBookmarks: _onOpenBookmarks,
+  onSwitchCourse: _onSwitchCourse,
 }: {
   course: Course;
   module: ModuleMeta;
@@ -164,7 +176,10 @@ function LessonPage({
     <div className="flex h-screen bg-gray-900">
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 shrink-0">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors text-sm shrink-0 min-w-0 mr-2">
+          <button
+            onClick={onBack}
+            className="text-gray-400 hover:text-white transition-colors text-sm shrink-0 min-w-0 mr-2"
+          >
             ← {course.displayName}
           </button>
           <div className="flex-1 flex justify-center">
@@ -176,13 +191,23 @@ function LessonPage({
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-4 w-px bg-gray-600" />
-            <button onClick={onStartQuiz} className="px-2 py-1 text-xs bg-emerald-700 hover:bg-emerald-600 rounded">
+            <button
+              onClick={onStartQuiz}
+              className="px-2 py-1 text-xs bg-emerald-700 hover:bg-emerald-600 rounded"
+            >
               Quiz
             </button>
-            <button onClick={onStartReview} className="px-2 py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded">
+            <button
+              onClick={onStartReview}
+              className="px-2 py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded"
+            >
               Review
             </button>
-            <button onClick={() => push({ type: "settings" })} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded" title="Settings">
+            <button
+              onClick={() => push({ type: 'settings' })}
+              className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded"
+              title="Settings"
+            >
               ⚙
             </button>
           </div>
@@ -206,7 +231,10 @@ function LessonPage({
 }
 
 function QuizPage({
-  courseId, moduleId, onBack, onSwitchCourse,
+  courseId,
+  moduleId,
+  onBack,
+  onSwitchCourse,
 }: {
   courseId: string;
   moduleId: number;
@@ -217,7 +245,9 @@ function QuizPage({
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
+            ← Back
+          </button>
           <div className="h-4 w-px bg-gray-600" />
           <span className="text-sm font-medium">Quiz</span>
         </div>
@@ -234,7 +264,9 @@ function QuizPage({
 }
 
 function ReviewPage({
-  courseId, onBack, onSwitchCourse,
+  courseId,
+  onBack,
+  onSwitchCourse,
 }: {
   courseId: string;
   onBack: () => void;
@@ -244,7 +276,9 @@ function ReviewPage({
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
+            ← Back
+          </button>
           <div className="h-4 w-px bg-gray-600" />
           <span className="text-sm font-medium">Review</span>
         </div>
@@ -260,7 +294,11 @@ function ReviewPage({
   );
 }
 
-function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
+function BookmarksView({
+  onBack,
+  onOpen,
+  onSwitchCourse,
+}: {
   onBack: () => void;
   onOpen: (courseID: string, moduleID: number, sectionID: string | null, courses: Course[]) => void;
   onSwitchCourse: (course: Course) => void;
@@ -270,7 +308,9 @@ function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
   const courses = useCourseStore((s) => s.courses);
   const loadCourses = useCourseStore((s) => s.load);
 
-  useEffect(() => { loadCourses(); }, [loadCourses]);
+  useEffect(() => {
+    loadCourses();
+  }, [loadCourses]);
 
   useEffect(() => {
     api.storage.bookmarks().then((bks) => {
@@ -291,7 +331,9 @@ function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
+          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
+            ← Back
+          </button>
           <div className="h-4 w-px bg-gray-600" />
           <h2 className="text-sm font-medium">Bookmarks ({bookmarks.length})</h2>
         </div>
@@ -300,7 +342,9 @@ function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
 
       <main className="max-w-2xl mx-auto px-6 py-8">
         {bookmarks.length === 0 ? (
-          <p className="text-center text-gray-500 py-12">No bookmarks yet. Bookmark lessons while reading.</p>
+          <p className="text-center text-gray-500 py-12">
+            No bookmarks yet. Bookmark lessons while reading.
+          </p>
         ) : (
           <div className="space-y-3">
             {bookmarks.map((b) => {
@@ -317,9 +361,11 @@ function BookmarksView({ onBack, onOpen, onSwitchCourse }: {
                     <h3 className="text-sm font-medium text-indigo-300">{b.title}</h3>
                     <p className="text-xs text-gray-500 mt-1">
                       {course?.displayName || b.courseID}
-                      {b.sectionID ? " — Section" : " — Module"}
+                      {b.sectionID ? ' — Section' : ' — Module'}
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">{new Date(b.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {new Date(b.createdAt).toLocaleDateString()}
+                    </p>
                   </button>
                   <button
                     onClick={(e) => handleDelete(e, b.id)}

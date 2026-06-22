@@ -1,4 +1,4 @@
-import type { SRSCard, SRSDeck, QuizQuestion } from "./types";
+import type { SRSCard, SRSDeck, QuizQuestion } from './types';
 
 export function getDueCards(deck: SRSDeck, now?: Date): SRSCard[] {
   const nowDate = now || new Date();
@@ -15,7 +15,7 @@ export function getStarredCards(deck: SRSDeck): SRSCard[] {
 
 export function getAllCards(deck: SRSDeck): SRSCard[] {
   return Object.values(deck.cards).sort(
-    (a, b) => new Date(a.nextReviewDate).getTime() - new Date(b.nextReviewDate).getTime()
+    (a, b) => new Date(a.nextReviewDate).getTime() - new Date(b.nextReviewDate).getTime(),
   );
 }
 
@@ -31,7 +31,12 @@ export function getStarredCardsForCourse(deck: SRSDeck, courseId: string): SRSCa
   return getStarredCards(deck).filter((c) => c.courseId === courseId);
 }
 
-export function createSRSCard(question: QuizQuestion, moduleId: number, courseId: string, now?: Date): SRSCard {
+export function createSRSCard(
+  question: QuizQuestion,
+  moduleId: number,
+  courseId: string,
+  now?: Date,
+): SRSCard {
   const nowISO = (now || new Date()).toISOString();
   return {
     id: `${courseId}-${moduleId}-${question.id}`,
@@ -39,7 +44,7 @@ export function createSRSCard(question: QuizQuestion, moduleId: number, courseId
     moduleId,
     courseId,
     question: question.question,
-    answer: `${question.answer}. ${question.options[question.answer] || ""}`,
+    answer: `${question.answer}. ${question.options[question.answer] || ''}`,
     explanation: question.explanation,
     easeFactor: 2.5,
     interval: 0,

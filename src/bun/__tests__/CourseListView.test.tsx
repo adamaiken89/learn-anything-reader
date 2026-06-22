@@ -1,8 +1,8 @@
-import { describe, expect, test, afterEach, beforeEach } from "bun:test";
-import { render, waitFor } from "@testing-library/react";
-import CourseListView from "../../mainview/components/CourseListView";
-import { useCourseStore } from "../../mainview/stores/courseStore";
-import { mockFetch, restoreFetch } from "./mock-fetch";
+import { describe, expect, test, afterEach, beforeEach } from 'bun:test';
+import { render, waitFor } from '@testing-library/react';
+import CourseListView from '../../mainview/components/CourseListView';
+import { useCourseStore } from '../../mainview/stores/courseStore';
+import { mockFetch, restoreFetch } from './mock-fetch';
 
 beforeEach(() => {
   useCourseStore.getState().reset();
@@ -10,28 +10,28 @@ beforeEach(() => {
 
 const mockCourses = [
   {
-    id: "math-101",
-    course: "Mathematics 101",
-    displayName: "Mathematics 101",
-    domain: "mathematics",
+    id: 'math-101',
+    course: 'Mathematics 101',
+    displayName: 'Mathematics 101',
+    domain: 'mathematics',
     prerequisites: [],
     modules: [
-      { id: 1, name: "Algebra Basics", timeHours: 3, prerequisites: [], topics: [] },
-      { id: 2, name: "Geometry", timeHours: 2, prerequisites: [], topics: [] },
+      { id: 1, name: 'Algebra Basics', timeHours: 3, prerequisites: [], topics: [] },
+      { id: 2, name: 'Geometry', timeHours: 2, prerequisites: [], topics: [] },
     ],
     timeBudgetHours: 20,
-    targetLevel: "beginner",
-    learningObjectives: ["Understand algebra", "Solve equations"],
+    targetLevel: 'beginner',
+    learningObjectives: ['Understand algebra', 'Solve equations'],
   },
   {
-    id: "physics",
-    course: "Physics",
-    displayName: "Physics",
-    domain: "physics",
+    id: 'physics',
+    course: 'Physics',
+    displayName: 'Physics',
+    domain: 'physics',
     prerequisites: [],
-    modules: [{ id: 1, name: "Mechanics", timeHours: 5, prerequisites: [], topics: [] }],
+    modules: [{ id: 1, name: 'Mechanics', timeHours: 5, prerequisites: [], topics: [] }],
     timeBudgetHours: 30,
-    targetLevel: "intermediate",
+    targetLevel: 'intermediate',
     learningObjectives: [],
   },
 ];
@@ -44,38 +44,32 @@ const defaultProps = {
 
 afterEach(restoreFetch);
 
-describe("CourseListView snapshots", () => {
-  test("loading state", () => {
-    mockFetch({ "/courses": mockCourses });
+describe('CourseListView snapshots', () => {
+  test('loading state', () => {
+    mockFetch({ '/courses': mockCourses });
     const { container } = render(<CourseListView {...defaultProps} />);
     expect(container.innerHTML).toMatchSnapshot();
   });
 
-  test("error state", async () => {
+  test('error state', async () => {
     (globalThis as Record<string, unknown>).fetch = async () =>
-      new Response(JSON.stringify({ error: "Server down" }), { status: 500 });
+      new Response(JSON.stringify({ error: 'Server down' }), { status: 500 });
     const { container } = render(<CourseListView {...defaultProps} />);
-    await waitFor(() =>
-      expect(container.textContent).toContain("Error")
-    );
+    await waitFor(() => expect(container.textContent).toContain('Error'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
-  test("content state with courses", async () => {
-    mockFetch({ "/courses": mockCourses });
+  test('content state with courses', async () => {
+    mockFetch({ '/courses': mockCourses });
     const { container } = render(<CourseListView {...defaultProps} />);
-    await waitFor(() =>
-      expect(container.textContent).toContain("Mathematics 101")
-    );
+    await waitFor(() => expect(container.textContent).toContain('Mathematics 101'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
-  test("empty state (no courses)", async () => {
-    mockFetch({ "/courses": [] });
+  test('empty state (no courses)', async () => {
+    mockFetch({ '/courses': [] });
     const { container } = render(<CourseListView {...defaultProps} />);
-    await waitFor(() =>
-      expect(container.textContent).toContain("No courses found")
-    );
+    await waitFor(() => expect(container.textContent).toContain('No courses found'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 });

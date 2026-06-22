@@ -1,15 +1,15 @@
-import { create } from "zustand";
-import type { Course, ModuleMeta } from "../../bun/types";
+import { create } from 'zustand';
+import type { Course, ModuleMeta } from '../../bun/types';
 
 export type View =
-  | { type: "landing" }
-  | { type: "courseList" }
-  | { type: "moduleList"; course: Course }
-  | { type: "lesson"; course: Course; module: ModuleMeta; sectionID?: string }
-  | { type: "quiz"; course: Course; module: ModuleMeta }
-  | { type: "review"; course: Course }
-  | { type: "settings" }
-  | { type: "bookmarks" };
+  | { type: 'landing' }
+  | { type: 'courseList' }
+  | { type: 'moduleList'; course: Course }
+  | { type: 'lesson'; course: Course; module: ModuleMeta; sectionID?: string }
+  | { type: 'quiz'; course: Course; module: ModuleMeta }
+  | { type: 'review'; course: Course }
+  | { type: 'settings' }
+  | { type: 'bookmarks' };
 
 interface ViewState {
   views: View[];

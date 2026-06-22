@@ -10,7 +10,7 @@ export function mockFetch(responses: Record<string, unknown>): void {
         return new Response(JSON.stringify(data), { status: 200 });
       }
     }
-    return new Response("{}", { status: 200 });
+    return new Response('{}', { status: 200 });
   };
 }
 

@@ -1,4 +1,4 @@
-import type { Course, ModuleMeta } from "../../bun/types";
+import type { Course, ModuleMeta } from '../../bun/types';
 
 interface Props {
   course: Course;
@@ -9,7 +9,11 @@ interface Props {
 }
 
 export default function ModuleListView({
-  course, onSelectModule, onBack, onOpenSettings, onOpenBookmarks,
+  course,
+  onSelectModule,
+  onBack,
+  onOpenSettings,
+  onOpenBookmarks,
 }: Props) {
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-gray-100">
@@ -53,7 +57,7 @@ export default function ModuleListView({
             >
               <div className="flex items-start gap-3">
                 <span className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-900/50 text-indigo-400 text-sm font-bold">
-                  {String(i + 1).padStart(2, "0")}
+                  {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="flex-1 min-w-0">
                   <h2 className="text-base font-semibold text-white group-hover:text-indigo-400 transition-colors">

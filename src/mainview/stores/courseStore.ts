@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { api } from "../api";
-import type { Course } from "../../bun/types";
+import { create } from 'zustand';
+import { api } from '../api';
+import type { Course } from '../../bun/types';
 
 interface CourseState {
   courses: Course[];
@@ -19,7 +19,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
   load: () => {
     if (get().loaded) return;
     set({ loading: true, error: null });
-    api.courses.list()
+    api.courses
+      .list()
       .then((courses) => set({ courses, loading: false, loaded: true }))
       .catch((e: Error) => set({ error: e.message, loading: false }));
   },

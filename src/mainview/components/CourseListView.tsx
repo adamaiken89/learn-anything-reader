@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useCourseStore } from "../stores/courseStore";
-import type { Course } from "../../bun/types";
+import { useEffect } from 'react';
+import { useCourseStore } from '../stores/courseStore';
+import type { Course } from '../../bun/types';
 
 interface Props {
   onSelectCourse: (course: Course) => void;
@@ -14,7 +14,9 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
   const error = useCourseStore((s) => s.error);
   const load = useCourseStore((s) => s.load);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   if (loading) return <div className="p-8 text-center text-gray-400">Loading courses...</div>;
   if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
@@ -63,8 +65,12 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
                   </h2>
                   <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-400">
                     <span className="bg-gray-700 px-2 py-0.5 rounded">{course.targetLevel}</span>
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">{course.timeBudgetHours}h</span>
-                    <span className="bg-gray-700 px-2 py-0.5 rounded">{course.modules.length} modules</span>
+                    <span className="bg-gray-700 px-2 py-0.5 rounded">
+                      {course.timeBudgetHours}h
+                    </span>
+                    <span className="bg-gray-700 px-2 py-0.5 rounded">
+                      {course.modules.length} modules
+                    </span>
                   </div>
                   {course.learningObjectives.length > 0 && (
                     <ul className="mt-3 space-y-1">
@@ -77,7 +83,9 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
                     </ul>
                   )}
                 </div>
-                <span className="text-gray-600 group-hover:text-indigo-400 ml-4 mt-1 shrink-0">→</span>
+                <span className="text-gray-600 group-hover:text-indigo-400 ml-4 mt-1 shrink-0">
+                  →
+                </span>
               </div>
             </button>
           ))}

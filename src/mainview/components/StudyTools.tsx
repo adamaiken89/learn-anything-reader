@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { api } from "../api";
-import { useBookmarks } from "../hooks/useBookmarks";
-import { useHighlights } from "../hooks/useHighlights";
-import type { Section, Note } from "./sidebar-types";
+import { useState, useEffect } from 'react';
+import { api } from '../api';
+import { useBookmarks } from '../hooks/useBookmarks';
+import { useHighlights } from '../hooks/useHighlights';
+import type { Section, Note } from './sidebar-types';
 
-type Tab = "notes" | "highlights" | "bookmarks" | "ask-ai";
+type Tab = 'notes' | 'highlights' | 'bookmarks' | 'ask-ai';
 
 interface StudyToolsProps {
   courseId: string;
@@ -17,32 +17,42 @@ interface StudyToolsProps {
 }
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "notes", label: "Notes" },
-  { id: "highlights", label: "Highlights" },
-  { id: "bookmarks", label: "Bookmarks" },
-  { id: "ask-ai", label: "Ask AI" },
+  { id: 'notes', label: 'Notes' },
+  { id: 'highlights', label: 'Highlights' },
+  { id: 'bookmarks', label: 'Bookmarks' },
+  { id: 'ask-ai', label: 'Ask AI' },
 ];
 
 export default function StudyTools({
-  courseId, moduleId, moduleName, sections, visibleSection, content, onClose,
+  courseId,
+  moduleId,
+  moduleName,
+  sections,
+  visibleSection,
+  content,
+  onClose,
 }: StudyToolsProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("notes");
+  const [activeTab, setActiveTab] = useState<Tab>('notes');
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(true);
-  const [newNoteContent, setNewNoteContent] = useState("");
+  const [newNoteContent, setNewNoteContent] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [editingContent, setEditingContent] = useState("");
-  const [aiQuestion, setAiQuestion] = useState("");
-  const [aiResponse, setAiResponse] = useState("");
+  const [editingContent, setEditingContent] = useState('');
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
-  const { bookmarks, loading: bmLoading, handleToggleBookmark, handleDeleteBookmark } =
-    useBookmarks(courseId, moduleId, visibleSection);
-  const { highlights, loading: hlLoading, deleteHighlight } =
-    useHighlights(courseId, moduleId);
+  const {
+    bookmarks,
+    loading: bmLoading,
+    handleToggleBookmark,
+    handleDeleteBookmark,
+  } = useBookmarks(courseId, moduleId, visibleSection);
+  const { highlights, loading: hlLoading, deleteHighlight } = useHighlights(courseId, moduleId);
 
   const loadNotes = () => {
-    return api.storage.notes(courseId, moduleId)
+    return api.storage
+      .notes(courseId, moduleId)
       .then(setNotes)
       .catch(() => setNotes([]));
   };
@@ -60,7 +70,7 @@ export default function StudyTools({
       content: newNoteContent.trim(),
       sectionID: visibleSection ?? undefined,
     });
-    setNewNoteContent("");
+    setNewNoteContent('');
     loadNotes();
   };
 
@@ -68,7 +78,7 @@ export default function StudyTools({
     if (!editingContent.trim()) return;
     await api.storage.updateNote(id, editingContent.trim());
     setEditingNoteId(null);
-    setEditingContent("");
+    setEditingContent('');
     loadNotes();
   };
 
@@ -80,26 +90,26 @@ export default function StudyTools({
   const handleAskAI = async () => {
     if (!aiQuestion.trim()) return;
     setAiLoading(true);
-    setAiResponse("");
+    setAiResponse('');
     try {
       const res = await api.gemini.ask(aiQuestion.trim(), content);
       setAiResponse(res.response);
     } catch {
-      setAiResponse("Error: Check Gemini API key in Settings.");
+      setAiResponse('Error: Check Gemini API key in Settings.');
     } finally {
       setAiLoading(false);
     }
   };
 
-  const sectionOpt = visibleSection
-    ? sections.find((s) => s.id === visibleSection)?.heading
-    : null;
+  const sectionOpt = visibleSection ? sections.find((s) => s.id === visibleSection)?.heading : null;
 
   return (
     <aside className="w-72 bg-gray-850 border-r border-gray-700 flex flex-col shrink-0 overflow-hidden">
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700">
         <span className="text-xs font-semibold text-indigo-400">Study Tools</span>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs">✕</button>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs">
+          ✕
+        </button>
       </div>
       <div className="flex border-b border-gray-700">
         {TABS.map((t) => (
@@ -108,8 +118,8 @@ export default function StudyTools({
             onClick={() => setActiveTab(t.id)}
             className={`flex-1 text-[10px] py-1.5 transition-colors ${
               activeTab === t.id
-                ? "text-indigo-400 border-b-2 border-indigo-400 bg-gray-750"
-                : "text-gray-500 hover:text-gray-300"
+                ? 'text-indigo-400 border-b-2 border-indigo-400 bg-gray-750'
+                : 'text-gray-500 hover:text-gray-300'
             }`}
           >
             {t.label}
@@ -117,12 +127,10 @@ export default function StudyTools({
         ))}
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {activeTab === "notes" && (
+        {activeTab === 'notes' && (
           <div className="space-y-3">
             {sectionOpt && (
-              <p className="text-[10px] text-gray-500 italic">
-                Current section: {sectionOpt}
-              </p>
+              <p className="text-[10px] text-gray-500 italic">Current section: {sectionOpt}</p>
             )}
             <textarea
               value={newNoteContent}
@@ -152,8 +160,21 @@ export default function StudyTools({
                         className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-1.5 text-gray-200 resize-none h-16 focus:outline-none focus:border-indigo-500"
                       />
                       <div className="flex gap-2">
-                        <button onClick={() => handleUpdateNote(n.id)} className="flex-1 py-0.5 text-[10px] bg-indigo-700 hover:bg-indigo-600 rounded">Save</button>
-                        <button onClick={() => { setEditingNoteId(null); setEditingContent(""); }} className="py-0.5 text-[10px] text-gray-400 hover:text-gray-200">Cancel</button>
+                        <button
+                          onClick={() => handleUpdateNote(n.id)}
+                          className="flex-1 py-0.5 text-[10px] bg-indigo-700 hover:bg-indigo-600 rounded"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingNoteId(null);
+                            setEditingContent('');
+                          }}
+                          className="py-0.5 text-[10px] text-gray-400 hover:text-gray-200"
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -161,7 +182,10 @@ export default function StudyTools({
                       <p className="text-xs text-gray-300 whitespace-pre-wrap">{n.content}</p>
                       <div className="flex gap-2 mt-1.5">
                         <button
-                          onClick={() => { setEditingNoteId(n.id); setEditingContent(n.content); }}
+                          onClick={() => {
+                            setEditingNoteId(n.id);
+                            setEditingContent(n.content);
+                          }}
                           className="text-[10px] text-indigo-400 hover:text-indigo-300"
                         >
                           Edit
@@ -175,7 +199,8 @@ export default function StudyTools({
                       </div>
                       {n.sectionID && (
                         <p className="text-[10px] text-gray-600 mt-1">
-                          Section: {sections.find((s) => s.id === n.sectionID)?.heading || n.sectionID}
+                          Section:{' '}
+                          {sections.find((s) => s.id === n.sectionID)?.heading || n.sectionID}
                         </p>
                       )}
                     </>
@@ -186,7 +211,7 @@ export default function StudyTools({
           </div>
         )}
 
-        {activeTab === "highlights" && (
+        {activeTab === 'highlights' && (
           <div>
             {hlLoading ? (
               <p className="text-xs text-gray-500">Loading highlights...</p>
@@ -211,7 +236,7 @@ export default function StudyTools({
           </div>
         )}
 
-        {activeTab === "bookmarks" && (
+        {activeTab === 'bookmarks' && (
           <div>
             {bmLoading ? (
               <p className="text-xs text-gray-500">Loading bookmarks...</p>
@@ -222,7 +247,7 @@ export default function StudyTools({
                 <div key={b.id} className="bg-gray-800 border border-gray-700 rounded p-2 mb-2">
                   <p className="text-xs text-gray-300">{b.title}</p>
                   <p className="text-[10px] text-gray-500 mt-0.5">
-                    {b.sectionID ? "Section" : "Module"}
+                    {b.sectionID ? 'Section' : 'Module'}
                   </p>
                   <button
                     onClick={() => handleDeleteBookmark(b.id)}
@@ -235,21 +260,21 @@ export default function StudyTools({
             )}
             <button
               onClick={() => {
-                const title = visibleSection
-                  ? `${moduleName} – ${sectionOpt || ""}`
-                  : moduleName;
+                const title = visibleSection ? `${moduleName} – ${sectionOpt || ''}` : moduleName;
                 handleToggleBookmark(title, visibleSection);
               }}
               className="w-full py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded mt-2"
             >
-              {bookmarks.some((b) => visibleSection ? b.sectionID === visibleSection : !b.sectionID)
-                ? "Remove Bookmark"
-                : "Add Bookmark"}
+              {bookmarks.some((b) =>
+                visibleSection ? b.sectionID === visibleSection : !b.sectionID,
+              )
+                ? 'Remove Bookmark'
+                : 'Add Bookmark'}
             </button>
           </div>
         )}
 
-        {activeTab === "ask-ai" && (
+        {activeTab === 'ask-ai' && (
           <div className="space-y-3">
             <textarea
               value={aiQuestion}
@@ -262,7 +287,7 @@ export default function StudyTools({
               disabled={!aiQuestion.trim() || aiLoading}
               className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
             >
-              {aiLoading ? "Thinking..." : "Ask"}
+              {aiLoading ? 'Thinking...' : 'Ask'}
             </button>
             {aiResponse && (
               <div className="bg-gray-800 border border-gray-700 rounded p-2">

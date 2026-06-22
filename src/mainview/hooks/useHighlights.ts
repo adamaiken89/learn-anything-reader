@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { api } from "../api";
-import type { Highlight } from "../components/sidebar-types";
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../api';
+import type { Highlight } from '../components/sidebar-types';
 
 interface UseHighlightsReturn {
   highlights: Highlight[];
@@ -15,23 +15,27 @@ export function useHighlights(courseId: string, moduleId: number): UseHighlights
 
   useEffect(() => {
     setLoading(true);
-    api.storage.highlights(courseId, moduleId)
+    api.storage
+      .highlights(courseId, moduleId)
       .then(setHighlights)
       .catch(() => setHighlights([]))
       .finally(() => setLoading(false));
   }, [courseId, moduleId]);
 
-  const addHighlight = useCallback(async (text: string, color: string) => {
-    const highlight = await api.storage.addHighlight({
-      courseID: courseId,
-      moduleID: moduleId,
-      selectedText: text,
-      startOffset: 0,
-      endOffset: 0,
-      color,
-    });
-    setHighlights((prev) => [...prev, highlight]);
-  }, [courseId, moduleId]);
+  const addHighlight = useCallback(
+    async (text: string, color: string) => {
+      const highlight = await api.storage.addHighlight({
+        courseID: courseId,
+        moduleID: moduleId,
+        selectedText: text,
+        startOffset: 0,
+        endOffset: 0,
+        color,
+      });
+      setHighlights((prev) => [...prev, highlight]);
+    },
+    [courseId, moduleId],
+  );
 
   const deleteHighlight = useCallback(async (id: string) => {
     await api.storage.deleteHighlight(id);
