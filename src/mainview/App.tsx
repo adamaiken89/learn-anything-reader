@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SubjectListView from "./components/SubjectListView";
 import LessonView from "./components/LessonView";
 import QuizView from "./components/QuizView";
 import ReviewView from "./components/ReviewView";
 import SettingsView from "./components/SettingsView";
 import { api } from "./api";
-import { useViewStore, type Subject, type ModuleMeta, type View } from "./stores/viewStore";
+import { useViewStore, type Subject, type ModuleMeta } from "./stores/viewStore";
+import { clsx, toggleVariants } from "./components/ui";
 
 interface Bookmark {
   id: string;
   subjectID: string;
   moduleID: number;
+  sectionID: string | null;
   title: string;
   createdAt: string;
 }
@@ -20,11 +22,9 @@ export default function App() {
   const push = useViewStore((s) => s.push);
   const pop = useViewStore((s) => s.pop);
   const popToRoot = useViewStore((s) => s.popToRoot);
-  const replace = useViewStore((s) => s.replace);
-
   const currentView = views[views.length - 1];
 
-  const handleSelectSubject = async (subject: Subject) => {
+  const handleSelectSubject = (subject: Subject) => {
     push({ type: "lesson", subject, module: subject.modules[0] });
   };
 
@@ -55,10 +55,12 @@ export default function App() {
         <LessonPage
           subject={currentView.subject}
           module={currentView.module}
+          initialSectionID={currentView.sectionID}
           onBack={pop}
           onSelectModule={(m) => handleSelectModule(currentView.subject, m)}
           onStartQuiz={() => handleStartQuiz(currentView.subject, currentView.module)}
           onStartReview={() => handleStartReview(currentView.subject)}
+          onOpenBookmarks={() => push({ type: "bookmarks" })}
         />
       );
 
@@ -83,26 +85,28 @@ export default function App() {
       return <SettingsView onBack={pop} />;
 
     case "bookmarks":
-      return <BookmarksView onBack={pop} onOpen={(subjectID, moduleID, subjects) => {
+      return <BookmarksView onBack={pop} onOpen={(subjectID, moduleID, sectionID, subjects) => {
         const subject = subjects.find((s: Subject) => s.id === subjectID);
         const module = subject?.modules.find((m) => m.id === moduleID);
         if (subject && module) {
           popToRoot();
-          push({ type: "lesson", subject, module });
+          push({ type: "lesson", subject, module, sectionID: sectionID || undefined });
         }
       }} />;
   }
 }
 
 function LessonPage({
-  subject, module, onBack, onSelectModule, onStartQuiz, onStartReview,
+  subject, module, initialSectionID, onBack, onSelectModule, onStartQuiz, onStartReview, onOpenBookmarks,
 }: {
   subject: Subject;
   module: ModuleMeta;
+  initialSectionID?: string;
   onBack: () => void;
   onSelectModule: (m: ModuleMeta) => void;
   onStartQuiz: () => void;
   onStartReview: () => void;
+  onOpenBookmarks: () => void;
 }) {
   const [showNav, setShowNav] = useState(false);
   const currentIdx = subject.modules.findIndex((m) => m.id === module.id);
@@ -122,13 +126,14 @@ function LessonPage({
               <button
                 key={m.id}
                 onClick={() => { onSelectModule(m); setShowNav(false); }}
-                className={`w-full text-left p-2 rounded-lg text-sm transition-colors ${
+                className={clsx(
+                  "w-full text-left p-2 rounded-lg text-sm transition-colors",
                   m.id === module.id
                     ? "bg-indigo-600 text-white shadow-md shadow-indigo-900/50"
                     : "text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-                }`}
+                )}
               >
-                <span className={`text-xs mr-2 ${m.id === module.id ? "text-indigo-200" : "text-gray-500"}`}>{String(i + 1).padStart(2, "0")}</span>
+                <span className={clsx("text-xs mr-2", m.id === module.id ? "text-indigo-200" : "text-gray-500")}>{String(i + 1).padStart(2, "0")}</span>
                 <span className="break-words">{m.name}</span>
               </button>
             ))}
@@ -141,7 +146,7 @@ function LessonPage({
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">← Back</button>
             <div className="h-4 w-px bg-gray-600" />
-            <button onClick={() => setShowNav(!showNav)} className={`px-2 py-1 text-xs rounded ${showNav ? "bg-indigo-600" : "bg-gray-700 hover:bg-gray-600"}`}>
+            <button onClick={() => setShowNav(!showNav)} className={toggleVariants({ active: showNav })}>
               Modules
             </button>
           </div>
@@ -149,13 +154,10 @@ function LessonPage({
             <span className="text-sm font-medium truncate inline-block max-w-md">{module.name}</span>
           </div>
           <div className="flex items-center gap-2">
-            {hasPrev && (
-              <button onClick={() => onSelectModule(subject.modules[currentIdx - 1])} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">← Prev</button>
-            )}
-            {hasNext && (
-              <button onClick={() => onSelectModule(subject.modules[currentIdx + 1])} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">Next →</button>
-            )}
             <div className="h-4 w-px bg-gray-600" />
+            <button onClick={onOpenBookmarks} className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded">
+              Bookmarks
+            </button>
             <button onClick={onStartReview} className="px-3 py-1 text-sm bg-amber-700 hover:bg-amber-600 rounded transition-colors">
               Review
             </button>
@@ -165,8 +167,14 @@ function LessonPage({
         <LessonView
           subjectId={subject.id}
           module={module}
-          onBack={onBack}
+          initialSectionID={initialSectionID}
           onStartQuiz={onStartQuiz}
+          hasPrevModule={hasPrev}
+          hasNextModule={hasNext}
+          onPrevModule={hasPrev ? () => onSelectModule(subject.modules[currentIdx - 1]) : undefined}
+          onNextModule={hasNext ? () => onSelectModule(subject.modules[currentIdx + 1]) : undefined}
+          prevModuleName={hasPrev ? subject.modules[currentIdx - 1].name : undefined}
+          nextModuleName={hasNext ? subject.modules[currentIdx + 1].name : undefined}
         />
       </div>
     </div>
@@ -175,13 +183,13 @@ function LessonPage({
 
 function BookmarksView({ onBack, onOpen }: {
   onBack: () => void;
-  onOpen: (subjectID: string, moduleID: number, subjects: Subject[]) => void;
+  onOpen: (subjectID: string, moduleID: number, sectionID: string | null, subjects: Subject[]) => void;
 }) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useState(() => {
+  useEffect(() => {
     Promise.all([
       api.storage.bookmarks(),
       api.subjects.list(),
@@ -190,7 +198,7 @@ function BookmarksView({ onBack, onOpen }: {
       setSubjects(subs);
       setLoading(false);
     });
-  });
+  }, []);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -221,7 +229,7 @@ function BookmarksView({ onBack, onOpen }: {
                   className="bg-gray-800 hover:bg-gray-750 border border-gray-700 rounded-xl transition-colors group relative"
                 >
                   <button
-                    onClick={() => onOpen(b.subjectID, b.moduleID, subjects)}
+                    onClick={() => onOpen(b.subjectID, b.moduleID, b.sectionID, subjects)}
                     className="w-full text-left p-4 pr-10"
                   >
                     <h3 className="text-sm font-medium text-indigo-300">{b.title}</h3>
@@ -233,7 +241,7 @@ function BookmarksView({ onBack, onOpen }: {
                   </button>
                   <button
                     onClick={(e) => handleDelete(e, b.id)}
-                    className="absolute right-4 mt-[-2.25rem] opacity-0 group-hover:opacity-100 px-2 py-0.5 text-xs bg-red-800 hover:bg-red-700 rounded transition-all"
+                    className="absolute right-4 top-4 opacity-0 group-hover:opacity-100 px-2 py-0.5 text-xs bg-red-800 hover:bg-red-700 rounded transition-all"
                     title="Delete bookmark"
                   >
                     Delete

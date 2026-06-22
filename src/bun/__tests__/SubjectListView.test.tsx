@@ -43,7 +43,7 @@ describe("SubjectListView snapshots", () => {
   });
 
   test("error state", async () => {
-    globalThis.fetch = async () =>
+    (globalThis as Record<string, unknown>).fetch = async () =>
       new Response(JSON.stringify({ error: "Server down" }), { status: 500 });
     const { container } = render(<SubjectListView {...defaultProps} />);
     await waitFor(() =>

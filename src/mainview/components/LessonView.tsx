@@ -8,6 +8,7 @@ import type { Theme } from "../stores/settingsStore";
 import Sidebar, { type Section } from "./Sidebar";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useHighlights } from "../hooks/useHighlights";
+import { toggleVariants, navButtonVariants } from "./ui";
 
 interface ModuleMeta {
   id: number;
@@ -19,7 +20,14 @@ interface ModuleMeta {
 interface Props {
   subjectId: string;
   module: ModuleMeta;
+  initialSectionID?: string;
   onStartQuiz: () => void;
+  onPrevModule?: () => void;
+  onNextModule?: () => void;
+  hasPrevModule?: boolean;
+  hasNextModule?: boolean;
+  prevModuleName?: string;
+  nextModuleName?: string;
 }
 
 function extractText(children: ReactNode): string {
@@ -44,7 +52,7 @@ function headingId(children: ReactNode): string {
 }
 
 const headingRenderer = (level: number) =>
-  function Heading({ children }: { children: ReactNode }) {
+  function Heading({ children }: { children?: ReactNode }) {
     const id = headingId(children);
     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
     return <Tag id={id}>{children}</Tag>;
@@ -59,7 +67,6 @@ const components = {
   h6: headingRenderer(6),
 };
 
-const THEMES: Theme[] = ["dark", "sepia", "light"];
 const THEME_LABELS: Record<Theme, string> = { dark: "Dark", sepia: "Sepia", light: "Light" };
 const THEME_ICONS: Record<Theme, string> = { dark: "🌙", sepia: "📜", light: "☀️" };
 
@@ -70,7 +77,7 @@ const HIGHLIGHT_COLORS: Record<string, string> = {
   pink: "#f472b6",
 };
 
-export default function LessonView({ subjectId, module, onStartQuiz }: Props) {
+export default function LessonView({ subjectId, module, initialSectionID, onStartQuiz, onPrevModule, onNextModule, hasPrevModule, hasNextModule, prevModuleName, nextModuleName }: Props) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
@@ -89,6 +96,8 @@ export default function LessonView({ subjectId, module, onStartQuiz }: Props) {
   } = useBookmarks(subjectId, module.id, visibleSection);
   const { highlights, addHighlight, deleteHighlight } = useHighlights(subjectId, module.id);
 
+  const [wideMode, setWideMode] = useState(false);
+
   const fontSize = useSettingsStore((s) => s.fontSize);
   const theme = useSettingsStore((s) => s.theme);
   const incFontSize = useSettingsStore((s) => s.incFontSize);
@@ -103,6 +112,14 @@ export default function LessonView({ subjectId, module, onStartQuiz }: Props) {
     }).catch(() => setLoading(false));
     api.subjects.sections(subjectId, module.id).then(setSections).catch(() => {});
   }, [subjectId, module.id]);
+
+  useEffect(() => {
+    if (initialSectionID && content) {
+      requestAnimationFrame(() => {
+        scrollToSection(initialSectionID);
+      });
+    }
+  }, [initialSectionID, content]);
 
   const handleToggleBookmark = useCallback(() => {
     const title = visibleSection
@@ -218,23 +235,23 @@ export default function LessonView({ subjectId, module, onStartQuiz }: Props) {
             {THEME_ICONS[theme]}
           </button>
           <div className="h-3 w-px bg-gray-600" />
-          <button onClick={() => scrollSection("prev")} disabled={!hasPrevSection} className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-30">↑ Sec</button>
-          <button onClick={() => scrollSection("next")} disabled={!hasNextSection} className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-30">↓ Sec</button>
-          <div className="h-3 w-px bg-gray-600" />
+          <button
+            onClick={() => setWideMode(!wideMode)}
+            className={toggleVariants({ active: wideMode })}
+            title="Toggle wide mode"
+          >
+            {wideMode ? "Wide" : "Narrow"}
+          </button>
           <button
             onClick={() => setSidebarTab(sidebarTab ? null : "sections")}
-            className={`px-2 py-0.5 text-xs rounded ${sidebarTab ? "bg-indigo-600 text-white" : "bg-gray-700 hover:bg-gray-600"}`}
+            className={toggleVariants({ active: !!sidebarTab })}
           >
             Sidebar
           </button>
           <div className="h-3 w-px bg-gray-600" />
           <button
             onClick={handleToggleBookmark}
-            className={`px-2 py-0.5 text-xs rounded ${
-              hasActiveBookmark
-                ? "bg-amber-600 text-white"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
+            className={toggleVariants({ active: hasActiveBookmark })}
             title={visibleSection ? "Bookmark this section" : "Bookmark this module"}
           >
             {hasActiveBookmark ? "★" : "☆"} Bookmark
@@ -245,13 +262,48 @@ export default function LessonView({ subjectId, module, onStartQuiz }: Props) {
           </button>
         </div>
 
-        <div
-          className="flex-1 overflow-y-auto p-6"
-          ref={contentRef}
-          onScroll={handleScroll}
-          onMouseUp={handleTextSelection}
-        >
-          <div className={`book-content book-${theme}`} style={{ fontSize: `${fontSize}px` }}>
+        <div className="flex-1 overflow-y-auto p-6 relative" ref={contentRef} onScroll={handleScroll} onMouseUp={handleTextSelection}>
+          {/* Floating navigation */}
+          {(hasPrevSection || hasNextSection || hasPrevModule || hasNextModule) && (
+            <div className="fixed right-4 bottom-[156px] z-50 max-h-[200px] overflow-y-auto flex flex-col gap-1 bg-gray-800/90 backdrop-blur-sm border border-gray-700 rounded-lg p-1 shadow-lg">
+              {hasPrevModule && (
+                <button
+                  onClick={onPrevModule}
+                  className={navButtonVariants()}
+                  title={prevModuleName ? `Previous module: ${prevModuleName}` : "Previous module"}
+                >
+                  ← Prev Module
+                </button>
+              )}
+              {hasPrevSection && (
+                <button
+                  onClick={() => scrollSection("prev")}
+                  className={navButtonVariants()}
+                >
+                  ↑ Section
+                </button>
+              )}
+              {hasNextSection && (
+                <button
+                  onClick={() => scrollSection("next")}
+                  className={navButtonVariants()}
+                >
+                  ↓ Section
+                </button>
+              )}
+              {hasNextModule && (
+                <button
+                  onClick={onNextModule}
+                  className={navButtonVariants()}
+                  title={nextModuleName ? `Next module: ${nextModuleName}` : "Next module"}
+                >
+                  Next Module →
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className={`book-content book-${theme}${wideMode ? " book-content-wide" : ""}`} style={{ fontSize: `${fontSize}px` }}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
+import { tabVariants, sidebarSectionVariants, messageVariants } from "./ui";
 
 export interface Section {
   id: string;
@@ -146,11 +147,7 @@ export default function Sidebar({
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 px-2 py-2 text-xs font-medium transition-colors ${
-              tab === t.id
-                ? "bg-indigo-600/20 text-indigo-300 border-b-2 border-indigo-400"
-                : "text-gray-500 hover:text-gray-300 hover:bg-gray-800"
-            }`}
+            className={tabVariants({ active: tab === t.id })}
           >
             {t.label}{t.count !== undefined ? ` (${t.count})` : ""}
           </button>
@@ -169,11 +166,7 @@ export default function Sidebar({
                 <div key={section.id} className="flex items-center group mb-0.5">
                   <button
                     onClick={() => onScrollToSection(section.id)}
-                    className={`flex-1 text-left py-1 pr-1 text-xs rounded transition-colors ${
-                      visibleSection === section.id
-                        ? "bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-400"
-                        : "text-gray-400 hover:text-gray-200 hover:bg-gray-800 border-l-2 border-transparent"
-                    }`}
+                    className={sidebarSectionVariants({ active: visibleSection === section.id })}
                     style={{ paddingLeft: `${12 + (section.level - 1) * 16}px` }}
                   >
                     {section.heading}
@@ -289,11 +282,7 @@ export default function Sidebar({
               {aiConversation.map((msg, i) => (
                 <div
                   key={i}
-                  className={`p-2 rounded text-xs ${
-                    msg.role === "user"
-                      ? "bg-indigo-900/30 text-indigo-200 ml-4"
-                      : "bg-gray-800 text-gray-300 mr-4"
-                  }`}
+                  className={messageVariants({ role: msg.role })}
                 >
                   {msg.text}
                 </div>

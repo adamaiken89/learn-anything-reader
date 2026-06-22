@@ -2,7 +2,8 @@ let originalFetch: typeof globalThis.fetch;
 
 export function mockFetch(responses: Record<string, unknown>): void {
   originalFetch = globalThis.fetch;
-  globalThis.fetch = async (url: RequestInfo | URL) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).fetch = async (url: RequestInfo | URL) => {
     const urlStr = url.toString();
     for (const [pattern, data] of Object.entries(responses)) {
       if (urlStr.includes(pattern)) {
@@ -14,9 +15,5 @@ export function mockFetch(responses: Record<string, unknown>): void {
 }
 
 export function restoreFetch(): void {
-  if (originalFetch) globalThis.fetch = originalFetch;
-}
-
-export function restoreFetch(): void {
-  if (originalFetch) globalThis.fetch = originalFetch;
+  if (originalFetch) (globalThis as any).fetch = originalFetch;
 }

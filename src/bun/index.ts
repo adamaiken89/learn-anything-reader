@@ -1,11 +1,11 @@
-import { BrowserWindow, Updater, PATHS } from "electrobun/bun";
+import { BrowserWindow, Updater } from "electrobun/bun";
 import * as CourseLoader from "./course-loader";
 import * as Storage from "./storage";
 import * as Gemini from "./gemini";
 import { QuizEngine } from "./quiz-engine";
 import { getDueCardsForSubject, getStarredCardsForSubject, getCardsForSubject, toggleStar } from "./srs";
 import { createSRSCard, performReview } from "./course-loader";
-import type { Subject, ModuleMeta, QuizQuestion, SRSDeck, Highlight, Note, Bookmark } from "./types";
+import type { QuizQuestion, SRSDeck } from "./types";
 
 const DEV_SERVER_PORT = 5173;
 const DEV_SERVER_URL = `http://localhost:${DEV_SERVER_PORT}`;
@@ -77,7 +77,6 @@ const router = {
   },
   "GET /api/subjects/:subjectId/srs/filter/:filter": (params: Record<string, string>) => {
     const deck = CourseLoader.loadSRSDeck(params.subjectId);
-    let cards: typeof deck.cards[];
     switch (params.filter) {
       case "due":
         return jsonResponse(getDueCardsForSubject(deck, params.subjectId));
@@ -87,7 +86,7 @@ const router = {
         return jsonResponse(getCardsForSubject(deck, params.subjectId));
     }
   },
-  "GET /api/storage/highlights": (params: Record<string, string>, req: Request) => {
+  "GET /api/storage/highlights": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
     const subjectID = url.searchParams.get("subjectID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
@@ -102,7 +101,7 @@ const router = {
     Storage.deleteHighlight(params.id);
     return jsonResponse({ ok: true });
   },
-  "GET /api/storage/notes": (params: Record<string, string>, req: Request) => {
+  "GET /api/storage/notes": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
     const subjectID = url.searchParams.get("subjectID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
@@ -136,7 +135,7 @@ const router = {
   },
   "GET /api/storage/bookmarks/module/:subjectID/:moduleID": (params: Record<string, string>) =>
     jsonResponse(Storage.getBookmarksForModule(params.subjectID, Number(params.moduleID))),
-  "GET /api/storage/check-bookmark": (params: Record<string, string>, req: Request) => {
+  "GET /api/storage/check-bookmark": (_params: Record<string, string>, req: Request) => {
     const url = new URL(req.url);
     const subjectID = url.searchParams.get("subjectID")!;
     const moduleID = Number(url.searchParams.get("moduleID"));
@@ -252,16 +251,14 @@ const server = Bun.serve({
 
 console.log(`API server running at http://localhost:${API_PORT}`);
 
-let mainWindow: BrowserWindow | null = null;
 try {
   const mainViewUrl = await getMainViewUrl();
-  mainWindow = new BrowserWindow({
+  new BrowserWindow({
     title: "CourseReader",
     url: mainViewUrl,
     frame: {
       width: 1100,
       height: 800,
-      minWidth: 800,
       x: 200,
       y: 200,
     },

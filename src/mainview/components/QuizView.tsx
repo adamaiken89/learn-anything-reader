@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
+import { answerVariants, clsx } from "./ui";
 
 interface QuizQuestion {
   id: string;
@@ -7,6 +8,7 @@ interface QuizQuestion {
   options: Record<string, string>;
   answer: string;
   explanation: string;
+  difficulty: number;
 }
 
 interface Props {
@@ -86,7 +88,7 @@ export default function QuizView({ subjectId, moduleId, onBack }: Props) {
                 {questions.map((q) => {
                   const correct = selectedAnswers[q.id] === q.answer;
                   return (
-                    <div key={q.id} className={`text-left p-3 rounded-lg text-sm ${correct ? "bg-emerald-900/30 border border-emerald-700" : "bg-red-900/30 border border-red-700"}`}>
+                    <div key={q.id} className={clsx("text-left p-3 rounded-lg text-sm", correct ? "bg-emerald-900/30 border border-emerald-700" : "bg-red-900/30 border border-red-700")}>
                       <p className="font-medium mb-1">{q.question}</p>
                       <p className="text-gray-400 text-xs">Your answer: {selectedAnswers[q.id]}. Correct: {q.answer}</p>
                       <p className="text-gray-500 text-xs mt-1">{q.explanation}</p>
@@ -133,12 +135,12 @@ export default function QuizView({ subjectId, moduleId, onBack }: Props) {
                   key={key}
                   onClick={() => !hasAnswer && selectAnswer(key)}
                   disabled={hasAnswer}
-                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                    showCorrect ? "bg-emerald-900/30 border-emerald-600" :
-                    showWrong ? "bg-red-900/30 border-red-600" :
-                    isSelected ? "bg-indigo-900/30 border-indigo-600" :
-                    "bg-gray-750 border-gray-600 hover:border-gray-500"
-                  } ${!hasAnswer ? "cursor-pointer" : "cursor-default"}`}
+                  className={clsx(
+                    answerVariants({
+                      state: showCorrect ? "correct" : showWrong ? "wrong" : isSelected ? "selected" : "neutral",
+                    }),
+                    !hasAnswer ? "cursor-pointer" : "cursor-default"
+                  )}
                 >
                   <span className="font-mono text-indigo-400 mr-2">{key}.</span>
                   {value}

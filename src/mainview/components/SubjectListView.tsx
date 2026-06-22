@@ -5,7 +5,7 @@ interface Subject {
   id: string;
   subject: string;
   displayName: string;
-  modules: { id: number; name: string; timeHours: number }[];
+  modules: { id: number; name: string; timeHours: number; prerequisites: number[] }[];
   timeBudgetHours: number;
   targetLevel: string;
   learningObjectives: string[];

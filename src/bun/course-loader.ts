@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
+import { join } from "path";
 import * as yaml from "js-yaml";
 import type { Subject, ModuleMeta, QuizQuestion, SRSDeck, SRSCard } from "./types";
 
