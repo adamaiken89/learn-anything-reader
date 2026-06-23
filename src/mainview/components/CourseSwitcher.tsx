@@ -33,13 +33,13 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-2 max-w-[200px]"
+        className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 min-w-[380px]"
       >
         <span className="truncate">{current?.displayName || t('common.modules')}</span>
         <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
           {courses.length === 0 && (
             <div className="p-3 text-sm text-gray-500">{t('courseSwitcher.noCourses')}</div>
           )}

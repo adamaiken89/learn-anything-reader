@@ -14,6 +14,7 @@ import ReviewPage from './containers/ReviewPage';
 import UserCardReviewPage from './containers/UserCardReviewPage';
 import { useCourseStore } from './stores/courseStore';
 import { useViewStore } from './stores/viewStore';
+import { useSyncStore } from './stores/syncStore';
 
 import type { Course, ModuleMeta } from '../bun/types';
 
@@ -42,6 +43,18 @@ export default function App() {
   useEffect(() => {
     loadCourses();
   }, [loadCourses]);
+
+  useEffect(() => {
+    useSyncStore.getState().loadStatus().then(() => {
+      const syncState = useSyncStore.getState();
+      if (syncState.remoteRepoURL) {
+        useSyncStore.getState().startSync().then(() => {
+          useCourseStore.getState().reset();
+          useCourseStore.getState().load();
+        });
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

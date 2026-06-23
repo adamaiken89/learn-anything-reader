@@ -16,7 +16,6 @@ export default function UserCardReviewPage({ courseId, onBack, onSwitchCourse }:
     <PageLayout>
       <PageHeader
         onBack={onBack}
-        title="Card Review"
         center={<CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />}
       />
       <PageContent>

@@ -219,95 +219,97 @@ export default function LessonView({
     return <div className="p-8 text-center text-gray-400">{t('lesson.loadingLesson')}</div>;
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      {showTools && !focusMode && (
-        <StudyTools
-          courseId={courseId}
-          moduleId={module.id}
-          moduleName={module.name}
-          sections={sections}
-          visibleSection={visibleSection}
-          content={content}
-          highlights={highlights}
-          onClose={() => setShowTools(false)}
-        />
-      )}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <LessonToolbar
-          focusMode={focusMode}
-          showTools={showTools}
-          showPomodoro={showPomodoro}
-          hasActiveBookmark={hasActiveBookmark}
-          completedCount={completedCount}
-          totalModules={totalModules}
-          onToggleBookmark={handleToggleBookmark}
-          onToggleTools={() => setShowTools(!showTools)}
-          onTogglePomodoro={() => setShowPomodoro(!showPomodoro)}
-          onReviewCards={handleReviewCards}
-        />
-
-        {!showSections && !focusMode && (
-          <button
-            onClick={toggleSections}
-            className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 shadow-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-            title={t('lesson.toggleSectionsPanel')}
-          >
-            ☰
-          </button>
-        )}
-
-        {showPomodoro && (
-          <div className="relative h-0 z-40">
-            <div className="absolute left-4 top-2">
-              <PomodoroTimer compact={focusMode} />
-            </div>
-          </div>
-        )}
-
-        {showSections && !focusMode && (
-          <SectionsPanel
+    <>
+      <div className="flex flex-1 overflow-hidden">
+        {showTools && !focusMode && (
+          <StudyTools
+            courseId={courseId}
+            moduleId={module.id}
+            moduleName={module.name}
             sections={sections}
             visibleSection={visibleSection}
-            bookmarks={bookmarks}
-            onScrollToSection={scrollToSection}
-            onToggleSectionBookmark={handleToggleSectionBookmark}
-            onClose={toggleSections}
+            content={content}
+            highlights={highlights}
+            onClose={() => setShowTools(false)}
           />
         )}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <LessonToolbar
+            focusMode={focusMode}
+            showTools={showTools}
+            showPomodoro={showPomodoro}
+            hasActiveBookmark={hasActiveBookmark}
+            completedCount={completedCount}
+            totalModules={totalModules}
+            onToggleBookmark={handleToggleBookmark}
+            onToggleTools={() => setShowTools(!showTools)}
+            onTogglePomodoro={() => setShowPomodoro(!showPomodoro)}
+            onReviewCards={handleReviewCards}
+          />
 
-        <div
-          className="flex-1 overflow-y-auto p-6"
-          ref={contentRef}
-          tabIndex={-1}
-          onScroll={handleScroll}
-          onMouseUp={handleTextSelection}
-        >
-          <div
-            className={`book-content${wideMode ? ' book-content-wide' : ''}`}
-            style={{ fontSize: `${fontSize}px`, ...themeVars }}
-          >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={rehypePlugins}
-              components={components}
+          {!showSections && !focusMode && (
+            <button
+              onClick={toggleSections}
+              className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 shadow-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+              title={t('lesson.toggleSectionsPanel')}
             >
-              {content}
-            </ReactMarkdown>
+              ☰
+            </button>
+          )}
 
-            <div style={{ marginTop: '3rem' }}>
-              <button
-                onClick={handleToggleCompleted}
-                className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200"
-                style={{
-                  background: isCompleted
-                    ? 'linear-gradient(135deg, #22c55e, #16a34a)'
-                    : 'var(--book-code-bg)',
-                  color: isCompleted ? '#fff' : 'var(--book-text)',
-                  border: `1px solid ${isCompleted ? '#16a34a' : 'var(--book-h2-border)'}`,
-                }}
+          {showPomodoro && (
+            <div className="relative h-0 z-40">
+              <div className="absolute left-4 top-2">
+                <PomodoroTimer compact={focusMode} />
+              </div>
+            </div>
+          )}
+
+          {showSections && !focusMode && (
+            <SectionsPanel
+              sections={sections}
+              visibleSection={visibleSection}
+              bookmarks={bookmarks}
+              onScrollToSection={scrollToSection}
+              onToggleSectionBookmark={handleToggleSectionBookmark}
+              onClose={toggleSections}
+            />
+          )}
+
+          <div
+            className="flex-1 overflow-y-auto p-6"
+            ref={contentRef}
+            tabIndex={-1}
+            onScroll={handleScroll}
+            onMouseUp={handleTextSelection}
+          >
+            <div
+              className={`book-content${wideMode ? ' book-content-wide' : ''}`}
+              style={{ fontSize: `${fontSize}px`, ...themeVars }}
+            >
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={rehypePlugins}
+                components={components}
               >
-                {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
-              </button>
+                {content}
+              </ReactMarkdown>
+
+              <div style={{ marginTop: '3rem' }}>
+                <button
+                  onClick={handleToggleCompleted}
+                  className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200"
+                  style={{
+                    background: isCompleted
+                      ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                      : 'var(--book-code-bg)',
+                    color: isCompleted ? '#fff' : 'var(--book-text)',
+                    border: `1px solid ${isCompleted ? '#16a34a' : 'var(--book-h2-border)'}`,
+                  }}
+                >
+                  {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -345,6 +347,6 @@ export default function LessonView({
           onCancel={closeNoteEditor}
         />
       )}
-    </div>
+    </>
   );
 }

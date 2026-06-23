@@ -209,4 +209,25 @@ export const api = {
         body: JSON.stringify({ question, context }),
       }),
   },
+  sync: {
+    status: () =>
+      request<{
+        lastSyncTime: string | null;
+        lastSyncedCommit: string | null;
+        isSyncing: boolean;
+        remoteRepoURL: string;
+      }>('/sync/status'),
+    start: () =>
+      request<{
+        success: boolean;
+        commitHash: string;
+        message: string;
+        unchanged?: boolean;
+      }>('/sync/start', { method: 'POST' }),
+    setURL: (url: string) =>
+      request<OkResponse>('/sync/config', {
+        method: 'POST',
+        body: JSON.stringify({ remoteRepoURL: url }),
+      }),
+  },
 };

@@ -60,7 +60,8 @@
     "focusMode": "Focus Mode",
     "focusModeOn": "Exit Focus",
     "focusModeOff": "Focus",
-    "addNote": "Add Note"
+    "addNote": "Add Note",
+    "createCard": "Create Card"
   },
   "quiz": {
     "loadingQuiz": "Loading quiz...",
@@ -159,7 +160,13 @@
     "askQuestion": "Ask a question about this lesson...",
     "thinking": "Thinking...",
     "ask": "Ask",
-    "aiError": "Error: Check Gemini API key in Settings."
+    "aiError": "Error: Check Gemini API key in Settings.",
+    "cardBack": "Answer / explanation",
+    "cardDue": "Due",
+    "cardFront": "Question / prompt",
+    "cardReps": "Reps",
+    "cards": "Cards",
+    "noCards": "No cards yet. Select text in the lesson to create cards."
   },
   "bookmarks": {
     "loadingBookmarks": "Loading bookmarks...",

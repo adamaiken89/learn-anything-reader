@@ -12,6 +12,7 @@ import {
 import { createSRSCard, performReview } from './srs';
 import * as Search from './search';
 import * as Stats from './stats';
+import * as Sync from './sync';
 import type { QuizQuestion, SRSDeck } from './types';
 
 const DEV_SERVER_PORT = 5173;
@@ -340,6 +341,29 @@ const router = {
     if (!card) return jsonResponse({ error: 'Card not found' }, 404);
     return jsonResponse(card);
   },
+
+  // --- Sync routes ---
+
+  'GET /api/sync/status': () => {
+    const config = Storage.getSyncConfig();
+    return jsonResponse({
+      lastSyncTime: config.lastSyncTime,
+      lastSyncedCommit: config.lastSyncedCommit,
+      isSyncing: Sync.isSyncing(),
+      remoteRepoURL: config.remoteRepoURL,
+    });
+  },
+
+  'POST /api/sync/start': async () => {
+    const result = await Sync.syncCourses();
+    return jsonResponse(result);
+  },
+
+  'POST /api/sync/config': async (_params: Record<string, string>, req: Request) => {
+    const body = (await req.json()) as { remoteRepoURL: string };
+    Storage.saveSyncConfig({ remoteRepoURL: body.remoteRepoURL });
+    return jsonResponse({ ok: true });
+  },
 };
 
 function matchRoute(
@@ -409,6 +433,16 @@ const server = Bun.serve({
 });
 
 console.log(`API server running at http://localhost:${API_PORT}`);
+
+// Auto-sync on startup (non-blocking)
+const syncConfig = Storage.getSyncConfig();
+if (syncConfig.remoteRepoURL) {
+  Sync.syncCourses()
+    .then((result) => {
+      if (!result.unchanged) console.log(`Auto-sync: ${result.message}`);
+    })
+    .catch((err) => console.error('Auto-sync failed:', err));
+}
 
 try {
   const mainViewUrl = await getMainViewUrl();

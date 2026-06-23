@@ -21,7 +21,7 @@ export default function PageHeader({
   const { t } = useTranslation();
 
   return (
-    <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 shrink-0">
+    <header className="relative z-40 bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 shrink-0">
       <div className="flex items-center gap-3 min-w-0">
         {onBack && (
           <>
@@ -37,9 +37,9 @@ export default function PageHeader({
         {title && <span className="text-sm font-medium text-gray-200 truncate">{title}</span>}
       </div>
 
-      {center && <div className="flex-1 flex justify-center">{center}</div>}
+      {center && <div className="absolute left-1/2 -translate-x-1/2 z-50">{center}</div>}
 
-      {actions && <div className="flex items-center gap-1.5">{actions}</div>}
+      {actions && <div className="ml-auto flex items-center gap-1.5">{actions}</div>}
 
       {children}
     </header>

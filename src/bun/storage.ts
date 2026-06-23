@@ -13,6 +13,9 @@ interface StorageData {
   studySessions: StudySession[];
   userCards: UserCard[];
   geminiAPIKey?: string;
+  remoteRepoURL?: string;
+  lastSyncedCommit?: string | null;
+  lastSyncTime?: string | null;
 }
 
 function load(): StorageData {
@@ -380,4 +383,31 @@ export function toggleUserCardStar(id: string): UserCard | null {
   card.isStarred = !card.isStarred;
   save(data);
   return card;
+}
+
+// --- Sync Config ---
+
+export function getSyncConfig(): {
+  remoteRepoURL: string;
+  lastSyncedCommit: string | null;
+  lastSyncTime: string | null;
+} {
+  const data = load();
+  return {
+    remoteRepoURL: data.remoteRepoURL || '',
+    lastSyncedCommit: data.lastSyncedCommit || null,
+    lastSyncTime: data.lastSyncTime || null,
+  };
+}
+
+export function saveSyncConfig(config: {
+  remoteRepoURL?: string;
+  lastSyncedCommit?: string | null;
+  lastSyncTime?: string | null;
+}): void {
+  const data = load();
+  if (config.remoteRepoURL !== undefined) data.remoteRepoURL = config.remoteRepoURL;
+  if (config.lastSyncedCommit !== undefined) data.lastSyncedCommit = config.lastSyncedCommit;
+  if (config.lastSyncTime !== undefined) data.lastSyncTime = config.lastSyncTime;
+  save(data);
 }

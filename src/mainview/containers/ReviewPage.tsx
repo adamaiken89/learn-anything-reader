@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import PageLayout from '../layouts/PageLayout';
 import PageHeader from '../layouts/PageHeader';
 import PageContent from '../layouts/PageContent';
@@ -13,12 +12,10 @@ interface ReviewPageProps {
 }
 
 export default function ReviewPage({ courseId, onBack, onSwitchCourse }: ReviewPageProps) {
-  const { t } = useTranslation();
   return (
     <PageLayout>
       <PageHeader
         onBack={onBack}
-        title={t('common.review')}
         center={<CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />}
       />
       <PageContent>

@@ -10,6 +10,7 @@
 		"build": "vite build && electrobun build",
 		"build:canary": "vite build && electrobun build --env=canary",
 		"test": "bun test",
+		"typecheck": "tsc --noEmit",
 		"format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
 		"lint": "eslint src/ --ext .ts,.tsx",
 		"lint:fix": "eslint src/ --fix --ext .ts,.tsx"

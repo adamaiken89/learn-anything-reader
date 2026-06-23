@@ -33,30 +33,6 @@ export function useLesson(
   const [completedCount, setCompletedCount] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null) as DivRef;
 
-  useEffect(() => {
-    setLoading(true);
-    contentRef.current?.scrollTo(0, 0);
-    api.courses.lesson(courseId, moduleId).then((lesson) => {
-      setContent(lesson.content);
-      setLoading(false);
-      requestAnimationFrame(() => contentRef.current?.focus());
-    }).catch(() => setLoading(false));
-    api.courses.sections(courseId, moduleId).then(setSections).catch(() => {});
-    api.storage.isCompleted(courseId, moduleId).then((r) => setIsCompleted(r.completed)).catch(() => {});
-    api.courses.modules(courseId).then((mods) => {
-      setTotalModules(mods.length);
-      api.storage.completedCount(courseId).then((r) => setCompletedCount(r.count)).catch(() => {});
-    }).catch(() => {});
-  }, [courseId, moduleId]);
-
-  useEffect(() => {
-    if (initialSectionID && content) {
-      requestAnimationFrame(() => {
-        scrollToSection(initialSectionID);
-      });
-    }
-  }, [initialSectionID, content, scrollToSection]);
-
   const scrollToSection = useCallback((sectionId: string) => {
     const container = contentRef.current;
     if (!container) return;
@@ -101,6 +77,30 @@ export function useLesson(
       }).catch(() => {});
     }
   }, [courseId, moduleId]);
+
+  useEffect(() => {
+    setLoading(true);
+    contentRef.current?.scrollTo(0, 0);
+    api.courses.lesson(courseId, moduleId).then((lesson) => {
+      setContent(lesson.content);
+      setLoading(false);
+      requestAnimationFrame(() => contentRef.current?.focus());
+    }).catch(() => setLoading(false));
+    api.courses.sections(courseId, moduleId).then(setSections).catch(() => {});
+    api.storage.isCompleted(courseId, moduleId).then((r) => setIsCompleted(r.completed)).catch(() => {});
+    api.courses.modules(courseId).then((mods) => {
+      setTotalModules(mods.length);
+      api.storage.completedCount(courseId).then((r) => setCompletedCount(r.count)).catch(() => {});
+    }).catch(() => {});
+  }, [courseId, moduleId]);
+
+  useEffect(() => {
+    if (initialSectionID && content) {
+      requestAnimationFrame(() => {
+        scrollToSection(initialSectionID);
+      });
+    }
+  }, [initialSectionID, content, scrollToSection]);
 
   return {
     content,

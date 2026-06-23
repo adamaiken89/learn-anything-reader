@@ -60,7 +60,8 @@
     "focusMode": "專注模式",
     "focusModeOn": "離開專注",
     "focusModeOff": "專注",
-    "addNote": "新增筆記"
+    "addNote": "新增筆記",
+    "createCard": "建立卡片"
   },
   "quiz": {
     "loadingQuiz": "正在載入測驗...",
@@ -159,7 +160,13 @@
     "askQuestion": "詢問關於此課程的問題...",
     "thinking": "思考中...",
     "ask": "發送",
-    "aiError": "錯誤：請在設定中檢查 Gemini API 金鑰。"
+    "aiError": "錯誤：請在設定中檢查 Gemini API 金鑰。",
+    "cardBack": "答案 / 解釋",
+    "cardDue": "到期",
+    "cardFront": "問題 / 提示",
+    "cardReps": "次數",
+    "cards": "卡片",
+    "noCards": "尚無卡片。在課程中選取文字以建立卡片。"
   },
   "bookmarks": {
     "loadingBookmarks": "正在載入書籤...",

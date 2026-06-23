@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import PageLayout from '../layouts/PageLayout';
 import PageHeader from '../layouts/PageHeader';
 import PageContent from '../layouts/PageContent';
@@ -14,12 +13,10 @@ interface QuizPageProps {
 }
 
 export default function QuizPage({ courseId, moduleId, onBack, onSwitchCourse }: QuizPageProps) {
-  const { t } = useTranslation();
   return (
     <PageLayout>
       <PageHeader
         onBack={onBack}
-        title={t('common.quiz')}
         center={<CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />}
       />
       <PageContent>

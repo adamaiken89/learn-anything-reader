@@ -28,7 +28,7 @@ export default function ModuleSwitcher({ modules, currentModuleId, onSelect }: P
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center gap-2 min-w-[260px] w-full max-w-lg"
+        className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 min-w-[460px]"
       >
         <span className="truncate">
           {current

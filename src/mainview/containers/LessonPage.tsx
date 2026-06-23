@@ -71,7 +71,7 @@ export default function LessonFeature({
           }
         />
       )}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <LessonView
           courseId={course.id}
           module={module}

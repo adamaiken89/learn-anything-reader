@@ -54,7 +54,6 @@ export default function BookmarksView({ onBack, onOpen, onSwitchCourse }: Props)
     <PageLayout>
       <PageHeader
         onBack={onBack}
-        title={t('bookmarks.bookmarks', { count: bookmarks.length })}
         center={<CourseSwitcher onSelect={onSwitchCourse} />}
       />
       <PageContent className="max-w-2xl mx-auto px-6 py-8">
