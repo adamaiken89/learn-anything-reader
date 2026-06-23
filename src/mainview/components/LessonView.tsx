@@ -20,13 +20,10 @@ interface Props {
   courseId: string;
   module: ModuleMeta;
   initialSectionID?: string;
-  onStartQuiz: () => void;
   onPrevModule?: () => void;
   onNextModule?: () => void;
   hasPrevModule?: boolean;
   hasNextModule?: boolean;
-  prevModuleName?: string;
-  nextModuleName?: string;
 }
 
 function extractText(children: ReactNode): string {

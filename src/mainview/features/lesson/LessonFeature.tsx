@@ -14,8 +14,6 @@ interface LessonFeatureProps {
   onSelectModule: (m: ModuleMeta) => void;
   onStartQuiz: () => void;
   onStartReview: () => void;
-  onOpenBookmarks: () => void;
-  onSwitchCourse: (course: Course) => void;
 }
 
 export default function LessonFeature({
@@ -74,13 +72,10 @@ export default function LessonFeature({
           courseId={course.id}
           module={module}
           initialSectionID={initialSectionID}
-          onStartQuiz={onStartQuiz}
           hasPrevModule={hasPrev}
           hasNextModule={hasNext}
           onPrevModule={hasPrev ? () => onSelectModule(course.modules[currentIdx - 1]) : undefined}
           onNextModule={hasNext ? () => onSelectModule(course.modules[currentIdx + 1]) : undefined}
-          prevModuleName={hasPrev ? course.modules[currentIdx - 1].name : undefined}
-          nextModuleName={hasNext ? course.modules[currentIdx + 1].name : undefined}
         />
       </div>
     </PageLayout>

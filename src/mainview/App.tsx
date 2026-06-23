@@ -35,10 +35,6 @@ export default function App() {
     push({ type: 'lesson', course, module });
   };
 
-  const handleStartQuiz = (course: Course, module: ModuleMeta) => {
-    push({ type: 'quiz', course, module });
-  };
-
   const handleStartReview = (course: Course) => {
     push({ type: 'review', course });
   };
@@ -91,10 +87,8 @@ export default function App() {
           initialSectionID={currentView.sectionID}
           onBack={() => replace({ type: 'moduleList', course: currentView.course })}
           onSelectModule={(m) => handleSelectModule(currentView.course, m)}
-          onStartQuiz={() => handleStartQuiz(currentView.course, currentView.module)}
+          onStartQuiz={() => push({ type: 'quiz', course: currentView.course, module: currentView.module })}
           onStartReview={() => handleStartReview(currentView.course)}
-          onOpenBookmarks={() => push({ type: 'bookmarks' })}
-          onSwitchCourse={handleSwitchCourse}
         />
       );
 
