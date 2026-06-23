@@ -29,7 +29,7 @@ export default function App() {
     }
     replace({ type: 'landing' });
     setLoading(false);
-  }, [currentView]);
+  }, [currentView, replace]);
 
   const handleSelectModule = (course: Course, module: ModuleMeta) => {
     push({ type: 'lesson', course, module });

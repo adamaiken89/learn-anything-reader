@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
 import type { Section, Note } from '../sidebar-types';
@@ -18,17 +18,17 @@ export default function NotesTab({ courseId, moduleId, sections, visibleSection 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
 
-  const loadNotes = () => {
+  const loadNotes = useCallback(() => {
     return api.storage
       .notes(courseId, moduleId)
       .then(setNotes)
       .catch(() => setNotes([]));
-  };
+  }, [courseId, moduleId]);
 
   useEffect(() => {
     setLoading(true);
     loadNotes().finally(() => setLoading(false));
-  }, [courseId, moduleId]);
+  }, [loadNotes]);
 
   const handleAddNote = async () => {
     if (!newNoteContent.trim()) return;

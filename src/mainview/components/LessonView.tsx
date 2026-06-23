@@ -91,13 +91,10 @@ export default function LessonView({
   courseId,
   module,
   initialSectionID,
-  onStartQuiz: _onStartQuiz,
   onPrevModule,
   onNextModule,
   hasPrevModule,
   hasNextModule,
-  prevModuleName: _prevModuleName,
-  nextModuleName: _nextModuleName,
 }: Props) {
   const { t } = useTranslation();
   const [content, setContent] = useState('');
@@ -115,13 +112,11 @@ export default function LessonView({
   const {
     bookmarks,
     handleToggleBookmark: toggleBookmark,
-    handleDeleteBookmark: _handleDeleteBookmark,
     hasActiveBookmark,
   } = useBookmarks(courseId, module.id, visibleSection);
   const {
     highlights,
     addHighlight,
-    deleteHighlight: _deleteHighlight,
   } = useHighlights(courseId, module.id);
 
   const [showTools, setShowTools] = useState(false);
@@ -314,6 +309,7 @@ export default function LessonView({
     showHighlightPicker,
     cycleTheme,
     setWideMode,
+    wideMode,
     toggleSections,
   ]);
 

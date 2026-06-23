@@ -26,8 +26,6 @@ export default function LessonFeature({
   onSelectModule,
   onStartQuiz,
   onStartReview,
-  onOpenBookmarks: _onOpenBookmarks,
-  onSwitchCourse: _onSwitchCourse,
 }: LessonFeatureProps) {
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
