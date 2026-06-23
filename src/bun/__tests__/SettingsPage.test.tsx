@@ -1,32 +1,32 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor, act } from '@testing-library/react';
-import SettingsView from '../../mainview/components/views/SettingsView';
+import SettingsPage from '../../mainview/pages/SettingsPage';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const defaultProps = { onBack: () => {} };
 
 afterEach(restoreFetch);
 
-describe('SettingsView snapshots', () => {
+describe('SettingsPage snapshots', () => {
   test('initial render (checking key status)', async () => {
     mockFetch({ '/gemini/key': { hasKey: false } });
     let container: HTMLElement;
     await act(async () => {
-      ({ container } = render(<SettingsView {...defaultProps} />));
+      ({ container } = render(<SettingsPage {...defaultProps} />));
     });
     expect(container!.innerHTML).toMatchSnapshot();
   });
 
   test('no API key configured', async () => {
     mockFetch({ '/gemini/key': { hasKey: false } });
-    const { container } = render(<SettingsView {...defaultProps} />);
+    const { container } = render(<SettingsPage {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('Gemini API'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('API key configured', async () => {
     mockFetch({ '/gemini/key': { hasKey: true } });
-    const { container } = render(<SettingsView {...defaultProps} />);
+    const { container } = render(<SettingsPage {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('API key is configured'));
     expect(container.innerHTML).toMatchSnapshot();
   });

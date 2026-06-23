@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../api';
-import { useSettingsStore } from '../../stores/settingsStore';
-import { useSyncStore } from '../../stores/syncStore';
-import PageHeader from '../../layouts/PageHeader';
-import PageLayout from '../../layouts/PageLayout';
-import PageContent from '../../layouts/PageContent';
-import { selectableCardVariants } from '../ui';
-import type { Theme } from '../../themes';
+import { api } from '../api';
+import { useSettingsStore } from '../stores/settingsStore';
+import { useSyncStore } from '../stores/syncStore';
+import PageHeader from '../layouts/PageHeader';
+import PageLayout from '../layouts/PageLayout';
+import PageContent from '../layouts/PageContent';
+import { selectableCardVariants } from '../components/ui';
+import type { Theme } from '../themes';
 interface ThemeCard {
   id: Theme;
   icon: string;
@@ -55,7 +55,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function SettingsView({ onBack }: Props) {
+export default function SettingsPage({ onBack }: Props) {
   const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
   const [saved, setSaved] = useState(false);

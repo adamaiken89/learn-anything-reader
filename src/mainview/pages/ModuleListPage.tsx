@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import PageHeader from '../../layouts/PageHeader';
-import PageLayout from '../../layouts/PageLayout';
-import PageContent from '../../layouts/PageContent';
-import type { Course, ModuleMeta } from '../../../bun/types';
+import PageHeader from '../layouts/PageHeader';
+import PageLayout from '../layouts/PageLayout';
+import PageContent from '../layouts/PageContent';
+import type { Course, ModuleMeta } from '../../bun/types';
 
 interface Props {
   course: Course;
@@ -13,7 +13,7 @@ interface Props {
   onOpenDashboard: () => void;
 }
 
-export default function ModuleListView({
+export default function ModuleListPage({
   course,
   onSelectModule,
   onBack,

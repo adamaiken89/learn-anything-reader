@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import LessonView from '../components/views/LessonView';
+import LessonSection from '../sections/LessonSection';
 import ModuleSwitcher from '../components/ModuleSwitcher';
 import PageLayout from '../layouts/PageLayout';
 import PageHeader from '../layouts/PageHeader';
@@ -72,7 +72,7 @@ export default function LessonFeature({
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
-        <LessonView
+        <LessonSection
           courseId={course.id}
           module={module}
           initialSectionID={initialSectionID}

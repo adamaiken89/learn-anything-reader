@@ -1,18 +1,17 @@
 import PageLayout from '../layouts/PageLayout';
 import PageHeader from '../layouts/PageHeader';
 import PageContent from '../layouts/PageContent';
-import QuizView from '../components/views/QuizView';
+import ReviewSection from '../sections/ReviewSection';
 import CourseSwitcher from '../components/CourseSwitcher';
 import type { Course } from '../../bun/types';
 
-interface QuizPageProps {
+interface ReviewPageProps {
   courseId: string;
-  moduleId: number;
   onBack: () => void;
   onSwitchCourse: (course: Course) => void;
 }
 
-export default function QuizPage({ courseId, moduleId, onBack, onSwitchCourse }: QuizPageProps) {
+export default function ReviewPage({ courseId, onBack, onSwitchCourse }: ReviewPageProps) {
   return (
     <PageLayout>
       <PageHeader
@@ -20,7 +19,7 @@ export default function QuizPage({ courseId, moduleId, onBack, onSwitchCourse }:
         center={<CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />}
       />
       <PageContent>
-        <QuizView courseId={courseId} moduleId={moduleId} />
+        <ReviewSection courseId={courseId} />
       </PageContent>
     </PageLayout>
   );

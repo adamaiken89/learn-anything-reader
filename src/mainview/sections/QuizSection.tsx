@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useQuizEngine } from '../../hooks/useQuizEngine';
-import { answerVariants } from '../ui';
+import { useQuizEngine } from '../hooks/useQuizEngine';
+import { answerVariants } from '../components/ui';
 import clsx from 'clsx';
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
   moduleId: number;
 }
 
-export default function QuizView({ courseId, moduleId }: Props) {
+export default function QuizSection({ courseId, moduleId }: Props) {
   const { t } = useTranslation();
   const {
     status, questions, currentIndex, selectedAnswers,

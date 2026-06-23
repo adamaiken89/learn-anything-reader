@@ -1,27 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../../api';
+import { api } from '../api';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 
-import { useBookmarks } from '../../hooks/useBookmarks';
-import { useHighlights } from '../../hooks/useHighlights';
-import { useLesson } from '../../hooks/useLesson';
-import { useHighlightPicker } from '../../hooks/useHighlightPicker';
-import { useSettingsStore } from '../../stores/settingsStore';
-import { THEME_TOKENS, themeToCSSVars } from '../../themes';
-import LessonToolbar from '../lesson/LessonToolbar';
-import SectionsPanel from '../lesson/SectionsPanel';
-import SelectionToolbar from '../lesson/SelectionToolbar';
-import NoteEditor from '../lesson/NoteEditor';
-import CardEditor from '../lesson/CardEditor';
-import StudyTools from '../StudyTools';
-import PomodoroTimer from '../PomodoroTimer';
-import { rehypeHighlightText } from '../rehype-highlight-text';
-import { useViewStore } from '../../stores/viewStore';
-import { useCourseStore } from '../../stores/courseStore';
-import type { ModuleMeta } from '../../../bun/types';
+import { useBookmarks } from '../hooks/useBookmarks';
+import { useHighlights } from '../hooks/useHighlights';
+import { useLesson } from '../hooks/useLesson';
+import { useSelection } from '../hooks/useSelection';
+import { useSettingsStore } from '../stores/settingsStore';
+import { THEME_TOKENS, themeToCSSVars } from '../themes';
+import LessonToolbar from '../components/lesson/LessonToolbar';
+import SectionsPanel from '../components/lesson/SectionsPanel';
+import SelectionToolbar from '../components/lesson/SelectionToolbar';
+import NoteEditor from '../components/lesson/NoteEditor';
+import CardEditor from '../components/lesson/CardEditor';
+import StudyTools from '../components/StudyTools';
+import PomodoroTimer from '../components/PomodoroTimer';
+import { rehypeHighlightText } from '../components/rehype-highlight-text';
+import { useViewStore } from '../stores/viewStore';
+import { useCourseStore } from '../stores/courseStore';
+import type { ModuleMeta } from '../../bun/types';
 
 interface Props {
   courseId: string;
@@ -66,7 +66,7 @@ const components = {
   h4: headingRenderer(4), h5: headingRenderer(5), h6: headingRenderer(6),
 };
 
-export default function LessonView({
+export default function LessonSection({
   courseId,
   module,
   initialSectionID,
@@ -92,11 +92,11 @@ export default function LessonView({
   const { highlights, addHighlight } = useHighlights(courseId, module.id);
 
   const {
-    showHighlightPicker, showNoteEditor, showCardEditor, noteText,
-    highlightSelection, pickerPos,
+    showToolbar, showNoteEditor, showCardEditor, noteText,
+    selection, pickerPos,
     handleTextSelection, openNoteEditor, openCardEditor, setNoteText,
-    closeHighlightPicker, closeNoteEditor, closeCardEditor,
-  } = useHighlightPicker();
+    closeToolbar, closeNoteEditor, closeCardEditor,
+  } = useSelection(contentRef);
 
   const focusMode = useSettingsStore((s) => s.focusMode);
   const theme = useSettingsStore((s) => s.theme);
@@ -131,9 +131,9 @@ export default function LessonView({
   };
 
   const handleAddHighlight = async (color: string) => {
-    if (!highlightSelection) return;
-    await addHighlight(highlightSelection.text, color);
-    closeHighlightPicker();
+    if (!selection) return;
+    await addHighlight(selection.text, color);
+    closeToolbar();
   };
 
   const handleCopy = async (text: string) => {
@@ -141,25 +141,25 @@ export default function LessonView({
   };
 
   const handleAddAnnotation = async () => {
-    if (!highlightSelection || !noteText.trim()) return;
+    if (!selection || !noteText.trim()) return;
     await api.storage.addAnnotation({
       courseID: courseId,
       moduleID: module.id,
-      selectedText: highlightSelection.text,
+      selectedText: selection.text,
       startOffset: 0,
       endOffset: 0,
       color: 'yellow',
       noteContent: noteText.trim(),
     });
-    closeHighlightPicker();
+    closeToolbar();
     closeNoteEditor();
     api.storage.highlights(courseId, module.id).then(() => {});
   };
 
   const handleCreateCard = async (front: string, back: string) => {
-    if (!highlightSelection) return;
+    if (!selection) return;
     await api.usercards.create(courseId, module.id, front, back);
-    closeHighlightPicker();
+    closeToolbar();
     closeCardEditor();
   };
 
@@ -167,7 +167,7 @@ export default function LessonView({
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      if (showHighlightPicker) return;
+      if (showToolbar) return;
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
@@ -200,7 +200,7 @@ export default function LessonView({
     return () => window.removeEventListener('keydown', handler);
   }, [
     hasPrevModule, hasNextModule, onPrevModule, onNextModule,
-    showHighlightPicker, contentRef, wideMode,
+    showToolbar, contentRef, wideMode,
   ]);
 
   useEffect(() => {
@@ -319,23 +319,23 @@ export default function LessonView({
         </div>
       </div>
 
-      {showHighlightPicker && highlightSelection && !showNoteEditor && !showCardEditor && (
+      {showToolbar && selection && !showNoteEditor && !showCardEditor && (
         <SelectionToolbar
           x={pickerPos.x}
           y={pickerPos.y}
           selectionTop={pickerPos.selectionTop}
-          selectedText={highlightSelection.text}
+          selectedText={selection.text}
           onSelectColor={handleAddHighlight}
           onOpenNote={openNoteEditor}
           onCreateCard={openCardEditor}
           onCopy={handleCopy}
-          onCancel={closeHighlightPicker}
+          onCancel={closeToolbar}
         />
       )}
 
-      {showCardEditor && highlightSelection && (
+      {showCardEditor && selection && (
         <CardEditor
-          selectedText={highlightSelection.text}
+          selectedText={selection.text}
           x={pickerPos.x}
           y={pickerPos.y}
           onSave={handleCreateCard}
@@ -343,9 +343,9 @@ export default function LessonView({
         />
       )}
 
-      {showNoteEditor && highlightSelection && (
+      {showNoteEditor && selection && (
         <NoteEditor
-          selectedText={highlightSelection.text}
+          selectedText={selection.text}
           noteText={noteText}
           x={pickerPos.x}
           y={pickerPos.y}

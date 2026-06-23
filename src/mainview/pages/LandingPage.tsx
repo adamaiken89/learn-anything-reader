@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { useViewStore } from '../../stores/viewStore';
+import { useViewStore } from '../stores/viewStore';
 
-export default function LandingView() {
+export default function LandingPage() {
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
 

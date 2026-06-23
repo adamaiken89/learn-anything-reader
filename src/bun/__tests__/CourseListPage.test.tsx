@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach, beforeEach } from 'bun:test';
-import { render, waitFor } from '@testing-library/react';
-import CourseListView from '../../mainview/components/views/CourseListView';
+import { render, waitFor, act } from '@testing-library/react';
+import CourseListPage from '../../mainview/pages/CourseListPage';
 import { useCourseStore } from '../../mainview/stores/courseStore';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
@@ -45,31 +45,31 @@ const defaultProps = {
 
 afterEach(restoreFetch);
 
-describe('CourseListView snapshots', () => {
-  test('loading state', () => {
+describe('CourseListPage snapshots', () => {
+  test('loading state', async () => {
     mockFetch({ '/courses': mockCourses });
-    const { container } = render(<CourseListView {...defaultProps} />);
+    const { container } = await act(() => render(<CourseListPage {...defaultProps} />));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('error state', async () => {
     (globalThis as Record<string, unknown>).fetch = async () =>
       new Response(JSON.stringify({ error: 'Server down' }), { status: 500 });
-    const { container } = render(<CourseListView {...defaultProps} />);
+    const { container } = await act(() => render(<CourseListPage {...defaultProps} />));
     await waitFor(() => expect(container.textContent).toContain('Error'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('content state with courses', async () => {
     mockFetch({ '/courses': mockCourses });
-    const { container } = render(<CourseListView {...defaultProps} />);
+    const { container } = await act(() => render(<CourseListPage {...defaultProps} />));
     await waitFor(() => expect(container.textContent).toContain('Mathematics 101'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('empty state (no courses)', async () => {
     mockFetch({ '/courses': [] });
-    const { container } = render(<CourseListView {...defaultProps} />);
+    const { container } = await act(() => render(<CourseListPage {...defaultProps} />));
     await waitFor(() => expect(container.textContent).toContain('No courses found'));
     expect(container.innerHTML).toMatchSnapshot();
   });

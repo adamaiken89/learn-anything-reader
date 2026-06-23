@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../api';
-import PageLayout from '../../layouts/PageLayout';
-import PageHeader from '../../layouts/PageHeader';
-import PageContent from '../../layouts/PageContent';
-import type { CourseStats, GlobalStats } from '../../../bun/stats';
+import { api } from '../api';
+import PageLayout from '../layouts/PageLayout';
+import PageHeader from '../layouts/PageHeader';
+import PageContent from '../layouts/PageContent';
+import type { CourseStats, GlobalStats } from '../../bun/stats';
 
-interface DashboardViewProps {
+interface DashboardPageProps {
   courseID?: string;
   onBack: () => void;
 }
@@ -23,7 +23,7 @@ function StatCard({ label, value, suffix, color }: { label: string; value: strin
   );
 }
 
-export default function DashboardView({ courseID, onBack }: DashboardViewProps) {
+export default function DashboardPage({ courseID, onBack }: DashboardPageProps) {
   const { t } = useTranslation();
   const [courseStats, setCourseStats] = useState<CourseStats | null>(null);
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);

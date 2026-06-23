@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import BookmarksView from './components/views/BookmarksView';
-import CourseListView from './components/views/CourseListView';
-import DashboardView from './components/views/DashboardView';
-import LandingView from './components/views/LandingView';
-import ModuleListView from './components/views/ModuleListView';
+import BookmarksPage from './pages/BookmarksPage';
+import CourseListPage from './pages/CourseListPage';
+import DashboardPage from './pages/DashboardPage';
+import LandingPage from './pages/LandingPage';
+import ModuleListPage from './pages/ModuleListPage';
 import SearchOverlay from './components/SearchOverlay';
-import SettingsView from './components/views/SettingsView';
-import LessonPage from './containers/LessonPage';
-import QuizPage from './containers/QuizPage';
-import ReviewPage from './containers/ReviewPage';
-import UserCardReviewPage from './containers/UserCardReviewPage';
+import SettingsPage from './pages/SettingsPage';
+import LessonPage from './pages/LessonPage';
+import QuizPage from './pages/QuizPage';
+import ReviewPage from './pages/ReviewPage';
+import UserCardReviewPage from './pages/UserCardReviewPage';
 import { useCourseStore } from './stores/courseStore';
 import { useViewStore } from './stores/viewStore';
 import { useSyncStore } from './stores/syncStore';
@@ -105,11 +105,11 @@ export default function App() {
   const viewContent = (() => {
     switch (currentView.type) {
     case 'landing':
-      return <LandingView />;
+      return <LandingPage />;
 
     case 'courseList':
       return (
-        <CourseListView
+        <CourseListPage
           onSelectCourse={handleSelectCourse}
           onOpenSettings={() => push({ type: 'settings' })}
           onOpenBookmarks={() => push({ type: 'bookmarks' })}
@@ -119,7 +119,7 @@ export default function App() {
 
     case 'moduleList':
       return (
-        <ModuleListView
+        <ModuleListPage
           course={currentView.course}
           onSelectModule={(m) => handleSelectModule(currentView.course, m)}
           onBack={() => replace({ type: 'courseList' })}
@@ -171,11 +171,11 @@ export default function App() {
       );
 
     case 'settings':
-      return <SettingsView onBack={pop} />;
+      return <SettingsPage onBack={pop} />;
 
     case 'bookmarks':
       return (
-        <BookmarksView
+        <BookmarksPage
           onBack={pop}
           onSwitchCourse={handleSwitchCourse}
           onOpen={(courseID, moduleID, sectionID, courses) => {
@@ -190,7 +190,7 @@ export default function App() {
 
     case 'dashboard':
       return (
-        <DashboardView courseID={currentView.courseID} onBack={pop} />
+        <DashboardPage courseID={currentView.courseID} onBack={pop} />
       );
   }})();
 

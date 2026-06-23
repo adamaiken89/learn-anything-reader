@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import LessonView from '../../mainview/components/views/LessonView';
+import LessonSection from '../../mainview/sections/LessonSection';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockContent = `# Introduction
@@ -37,16 +37,16 @@ function mockAll(opts?: { content?: string }) {
   });
 }
 
-describe('LessonView snapshots', () => {
+describe('LessonSection snapshots', () => {
   test('loading state', () => {
     mockAll();
-    const { container } = render(<LessonView {...defaultProps} />);
+    const { container } = render(<LessonSection {...defaultProps} />);
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('content loaded', async () => {
     mockAll({ content: mockContent });
-    const { container } = render(<LessonView {...defaultProps} />);
+    const { container } = render(<LessonSection {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('Introduction'));
     expect(container.innerHTML).toMatchSnapshot();
   });

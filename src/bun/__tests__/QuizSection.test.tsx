@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import QuizView from '../../mainview/components/views/QuizView';
+import QuizSection from '../../mainview/sections/QuizSection';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockQuestions = [
@@ -32,23 +32,23 @@ const defaultProps = {
 
 afterEach(restoreFetch);
 
-describe('QuizView snapshots', () => {
+describe('QuizSection snapshots', () => {
   test('loading state', () => {
     mockFetch({ '/quiz/start': mockQuestions });
-    const { container } = render(<QuizView {...defaultProps} />);
+    const { container } = render(<QuizSection {...defaultProps} />);
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('empty quiz (no questions)', async () => {
     mockFetch({ '/quiz/start': [] });
-    const { container } = render(<QuizView {...defaultProps} />);
+    const { container } = render(<QuizSection {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('No quiz questions'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('first question displayed', async () => {
     mockFetch({ '/quiz/start': mockQuestions });
-    const { container } = render(<QuizView {...defaultProps} />);
+    const { container } = render(<QuizSection {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('What is 2+2?'));
     expect(container.innerHTML).toMatchSnapshot();
   });

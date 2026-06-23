@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import ReviewView from '../../mainview/components/views/ReviewView';
+import ReviewSection from '../../mainview/sections/ReviewSection';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockCard = {
@@ -25,23 +25,23 @@ const defaultProps = { courseId: 'test', onBack: () => {} };
 
 afterEach(restoreFetch);
 
-describe('ReviewView snapshots', () => {
+describe('ReviewSection snapshots', () => {
   test('loading state', () => {
     mockFetch({ '/srs': mockDeck });
-    const { container } = render(<ReviewView {...defaultProps} />);
+    const { container } = render(<ReviewSection {...defaultProps} />);
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('empty deck (no cards)', async () => {
     mockFetch({ '/srs': { cards: {} } });
-    const { container } = render(<ReviewView {...defaultProps} />);
+    const { container } = render(<ReviewSection {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('No cards in deck'));
     expect(container.innerHTML).toMatchSnapshot();
   });
 
   test('card question side (initial)', async () => {
     mockFetch({ '/srs': mockDeck, '/filter': [mockCard] });
-    const { container } = render(<ReviewView {...defaultProps} />);
+    const { container } = render(<ReviewSection {...defaultProps} />);
     await waitFor(() => expect(container.textContent).toContain('Show Answer'));
     expect(container.innerHTML).toMatchSnapshot();
   });

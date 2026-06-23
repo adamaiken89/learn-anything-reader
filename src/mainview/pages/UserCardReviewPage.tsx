@@ -1,7 +1,7 @@
 import PageLayout from '../layouts/PageLayout';
 import PageHeader from '../layouts/PageHeader';
 import PageContent from '../layouts/PageContent';
-import UserCardReviewView from '../components/views/UserCardReviewView';
+import UserCardReviewSection from '../sections/UserCardReviewSection';
 import CourseSwitcher from '../components/CourseSwitcher';
 import type { Course } from '../../bun/types';
 
@@ -19,7 +19,7 @@ export default function UserCardReviewPage({ courseId, onBack, onSwitchCourse }:
         center={<CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />}
       />
       <PageContent>
-        <UserCardReviewView courseId={courseId} />
+        <UserCardReviewSection courseId={courseId} />
       </PageContent>
     </PageLayout>
   );

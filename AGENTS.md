@@ -19,46 +19,47 @@ React 18 + TypeScript frontend, Bun backend, packaged as desktop app via Electro
 src/
 ├── mainview/            # React frontend (Vite, root=src/mainview)
 │   ├── main.tsx         # React entry point
-│   ├── App.tsx          # View stack router (container pattern, no inline page wrappers)
+│   ├── App.tsx          # View stack router — imports ONLY from pages/
 │   ├── api.ts           # HTTP client → localhost:50001
 │   ├── index.css        # Tailwind + book prose styles
 │   ├── layouts/         # Shared layout shell
 │   │   ├── PageLayout.tsx   # h-screen flex-col bg container
 │   │   ├── PageHeader.tsx   # Header with back, title, center, actions slots
 │   │   └── PageContent.tsx  # Scrollable main area
-│   ├── features/        # Page-level feature bundles
-│   │   ├── lesson/
-│   │   │   └── LessonFeature.tsx  # Lesson view orchestrator (wraps LessonView in PageLayout)
-│   │   ├── quiz/
-│   │   │   └── QuizPage.tsx       # Quiz page (PageLayout + QuizView)
-│   │   └── review/
-│   │       └── ReviewPage.tsx     # Review page (PageLayout + ReviewView)
-│   ├── components/
-│   │   ├── lesson/       # Lesson subcomponents (extracted from 693-line LessonView)
+│   ├── pages/           # App routes here. One *Page per View union variant.
+│   │   ├── LandingPage.tsx       # Landing page (self-contained)
+│   │   ├── CourseListPage.tsx    # Course browser (self-contained)
+│   │   ├── ModuleListPage.tsx    # Module browser (self-contained)
+│   │   ├── LessonPage.tsx        # Lesson wrapper (PageLayout + LessonSection)
+│   │   ├── QuizPage.tsx          # Quiz wrapper (PageLayout + QuizSection)
+│   │   ├── ReviewPage.tsx        # Review wrapper (PageLayout + ReviewSection)
+│   │   ├── UserCardReviewPage.tsx# Card review wrapper (PageLayout + UserCardReviewSection)
+│   │   ├── SettingsPage.tsx      # Settings (self-contained)
+│   │   ├── BookmarksPage.tsx     # Bookmarks (self-contained)
+│   │   └── DashboardPage.tsx     # Stats dashboard (self-contained)
+│   ├── sections/        # Complex content areas nested inside pages. Have subcomponents + hooks.
+│   │   ├── LessonSection.tsx     # Markdown reader (orchestrates lesson/ components + hooks)
+│   │   ├── QuizSection.tsx       # MCQ quiz with scoring (uses useQuizEngine hook)
+│   │   ├── ReviewSection.tsx     # SRS spaced repetition review (uses useReviewState hook)
+│   │   └── UserCardReviewSection.tsx
+│   ├── components/      # Leaf-level reusable UI. No routing awareness.
+│   │   ├── lesson/       # Lesson subcomponents
 │   │   │   ├── LessonToolbar.tsx    # Font size, theme, bookmark, focus, pomodoro, progress
 │   │   │   ├── SectionsPanel.tsx    # Floating section navigation panel
-│   │   │   ├── HighlightPicker.tsx  # Text highlight color picker popup
-│   │   │   └── NoteEditor.tsx       # Note editor popup
-│   │   ├── LessonView.tsx     # Markdown reader (decomposed: uses lesson/ components + hooks)
-│   │   ├── QuizView.tsx       # MCQ quiz with scoring (uses useQuizEngine useReducer hook)
-│   │   ├── ReviewView.tsx     # SRS spaced repetition review (uses useReviewState hook)
-│   │   ├── SubjectListView.tsx# Subject grid with module stats
-│   │   ├── SettingsView.tsx   # Gemini API key config
-│   │   ├── BookmarksView.tsx  # Bookmark list view
-│   │   ├── DashboardView.tsx  # Stats dashboard
-│   │   ├── LandingView.tsx    # Landing page
-│   │   ├── CourseListView.tsx # Course browser
-│   │   ├── ModuleListView.tsx # Module browser
-│   │   ├── CourseSwitcher.tsx # Course dropdown switcher
-│   │   ├── ModuleSwitcher.tsx # Module dropdown switcher
-│   │   ├── SearchOverlay.tsx   # ⌘K search overlay
-│   │   ├── StudyTools.tsx     # Sidebar: notes, highlights, bookmarks, AI tabs
-│   │   ├── PomodoroTimer.tsx  # Focus timer
-│   │   ├── study-tools/       # StudyTools tab content
+│   │   │   ├── SelectionToolbar.tsx # Text selection toolbar
+│   │   │   ├── NoteEditor.tsx       # Note editor popup
+│   │   │   └── CardEditor.tsx       # Card editor popup
+│   │   ├── study-tools/  # Sidebar tab content
 │   │   │   ├── NotesTab.tsx
 │   │   │   ├── HighlightsTab.tsx
 │   │   │   ├── BookmarksTab.tsx
+│   │   │   ├── CardsTab.tsx
 │   │   │   └── AITab.tsx
+│   │   ├── CourseSwitcher.tsx # Course dropdown switcher
+│   │   ├── ModuleSwitcher.tsx # Module dropdown switcher
+│   │   ├── SearchOverlay.tsx  # ⌘K search overlay
+│   │   ├── StudyTools.tsx     # Sidebar: notes, highlights, bookmarks, AI tabs
+│   │   ├── PomodoroTimer.tsx  # Focus timer
 │   │   ├── sidebar-types.ts
 │   │   ├── rehype-highlight-text.ts
 │   │   └── ui.tsx             # Shared CVA variants (button, toggle, tab, etc.)
@@ -98,7 +99,7 @@ src/
   - **Domain hooks** for page-specific state: `useLesson` (content + sections + scroll), `useBookmarks`, `useHighlights`, `useReviewState`.
   - **useReducer** for complex state machines: `useQuizEngine` (quiz flow: load/answer/next/skip/retry).
   - **Local useState** only for truly local UI state (dropdown open, tooltip visibility).
-- **Component decomposition**: Large pages split into focused subcomponents (e.g., `LessonView` → `LessonToolbar`, `SectionsPanel`, `HighlightPicker`, `NoteEditor`). Subcomponents receive data via props, never fetch directly.
+- **Component decomposition**: Large pages split into focused subcomponents (e.g., `LessonSection` → `LessonToolbar`, `SectionsPanel`, `SelectionToolbar`, `NoteEditor`, `CardEditor`). Subcomponents receive data via props, never fetch directly.
 - **Markdown rendering**: `react-markdown` + `remarkGfm` + `rehypeHighlight` (highlight.js).
 - **Styling**: Tailwind CSS utility classes + custom `.book-content` CSS for lesson prose.
 - **No CSS preprocessors**, no CSS modules — all custom styles in `index.css`.
@@ -142,7 +143,7 @@ Uses `js-yaml` library (not hand-written). `parseSubject` and `parseQuiz` in `sr
 
 Book-like prose styles defined in `.book-content` CSS class in `index.css`:
 - 8 themes: Dark, OLED, Nord, Sepia, Gruvbox, Light, Solarized, Catppuccin
-- Theme enum in `settingsStore.ts` type `Theme`. `cycleTheme()` for LessonView toolbar, `setTheme(t)` for SettingsView grid
+- Theme enum in `settingsStore.ts` type `Theme`. `cycleTheme()` for LessonSection toolbar, `setTheme(t)` for SettingsPage grid
 - Each theme: `.book-content.book-<theme>` block in `index.css` (text, headings, code highlighting, blockquotes, tables)
 - Decorative headers with clear h1-h6 hierarchy
 - Custom dark syntax highlighting theme (highlight.js)
