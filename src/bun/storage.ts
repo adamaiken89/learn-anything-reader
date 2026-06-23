@@ -1,4 +1,4 @@
-import type { Highlight, Note, Bookmark, CompletedModule } from './types';
+import type { Highlight, Note, Bookmark, CompletedModule, StudySession, UserCard } from './types';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
@@ -10,18 +10,22 @@ interface StorageData {
   notes: Note[];
   bookmarks: Bookmark[];
   completedModules: CompletedModule[];
+  studySessions: StudySession[];
+  userCards: UserCard[];
   geminiAPIKey?: string;
 }
 
 function load(): StorageData {
   if (!existsSync(DB_FILE))
-    return { highlights: [], notes: [], bookmarks: [], completedModules: [] };
+    return { highlights: [], notes: [], bookmarks: [], completedModules: [], studySessions: [], userCards: [] };
   try {
     const data = JSON.parse(readFileSync(DB_FILE, 'utf-8'));
     if (!data.completedModules) data.completedModules = [];
+    if (!data.studySessions) data.studySessions = [];
+    if (!data.userCards) data.userCards = [];
     return data;
   } catch {
-    return { highlights: [], notes: [], bookmarks: [], completedModules: [] };
+    return { highlights: [], notes: [], bookmarks: [], completedModules: [], studySessions: [], userCards: [] };
   }
 }
 
@@ -114,6 +118,20 @@ export function deleteNote(id: string): void {
   save(data);
 }
 
+export function addAnnotation(data: {
+  courseID: string;
+  moduleID: number;
+  selectedText: string;
+  startOffset: number;
+  endOffset: number;
+  color: string;
+  noteContent: string;
+}): { highlight: Highlight; note: Note } {
+  const highlight = addHighlight(data.courseID, data.moduleID, data.selectedText, data.startOffset, data.endOffset, data.color);
+  const note = addNote(data.courseID, data.moduleID, data.noteContent, highlight.id, undefined);
+  return { highlight, note };
+}
+
 export function addBookmark(
   courseID: string,
   moduleID: number,
@@ -202,4 +220,164 @@ export function toggleModuleCompleted(courseID: string, moduleID: number): boole
 export function getCompletedModuleCount(courseID: string): number {
   const data = load();
   return data.completedModules.filter((m) => m.courseID === courseID).length;
+}
+
+export function addStudySession(session: Omit<StudySession, 'date'> & { date?: string }): StudySession {
+  const data = load();
+  const full: StudySession = {
+    ...session,
+    date: session.date || new Date().toISOString().split('T')[0],
+  };
+  data.studySessions.push(full);
+  save(data);
+  return full;
+}
+
+export function getStudySessions(courseID: string, days?: number): StudySession[] {
+  const data = load();
+  let sessions = data.studySessions.filter((s) => s.courseID === courseID);
+  if (days) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    sessions = sessions.filter((s) => new Date(s.date) >= cutoff);
+  }
+  return sessions.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getGlobalStudySessions(days?: number): StudySession[] {
+  const data = load();
+  let sessions = [...data.studySessions];
+  if (days) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    sessions = sessions.filter((s) => new Date(s.date) >= cutoff);
+  }
+  return sessions.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getDailyStreak(): number {
+  const data = load();
+  const dates = [...new Set(data.studySessions.map((s) => s.date))].sort().reverse();
+  if (dates.length === 0) return 0;
+  let streak = 1;
+  const today = new Date().toISOString().split('T')[0];
+  if (dates[0] !== today && dates[0] !== yesterday()) return 0;
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(dates[i - 1]);
+    const curr = new Date(dates[i]);
+    const diff = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24);
+    if (diff === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function yesterday(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
+// --- UserCard CRUD ---
+
+export function addUserCard(
+  courseId: string,
+  moduleId: number,
+  front: string,
+  back: string,
+): UserCard {
+  const data = load();
+  const card: UserCard = {
+    id: crypto.randomUUID(),
+    courseId,
+    moduleId,
+    front,
+    back,
+    easeFactor: 2.5,
+    interval: 0,
+    repetitions: 0,
+    nextReviewDate: new Date().toISOString(),
+    lastReviewed: null,
+    isStarred: false,
+    createdAt: new Date().toISOString(),
+  };
+  data.userCards.push(card);
+  save(data);
+  return card;
+}
+
+export function getUserCards(courseId?: string, moduleId?: number): UserCard[] {
+  const data = load();
+  let cards = data.userCards;
+  if (courseId) cards = cards.filter((c) => c.courseId === courseId);
+  if (moduleId !== undefined) cards = cards.filter((c) => c.moduleId === moduleId);
+  return cards.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+}
+
+export function getAllUserCards(): UserCard[] {
+  const data = load();
+  return [...data.userCards].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+}
+
+export function getUserCardById(id: string): UserCard | undefined {
+  const data = load();
+  return data.userCards.find((c) => c.id === id);
+}
+
+export function deleteUserCard(id: string): void {
+  const data = load();
+  data.userCards = data.userCards.filter((c) => c.id !== id);
+  save(data);
+}
+
+export function updateUserCard(
+  id: string,
+  updates: { front?: string; back?: string },
+): UserCard | null {
+  const data = load();
+  const card = data.userCards.find((c) => c.id === id);
+  if (!card) return null;
+  if (updates.front !== undefined) card.front = updates.front;
+  if (updates.back !== undefined) card.back = updates.back;
+  save(data);
+  return card;
+}
+
+export function reviewUserCard(id: string, correct: boolean, now?: Date): UserCard | null {
+  const data = load();
+  const card = data.userCards.find((c) => c.id === id);
+  if (!card) return null;
+  const nowDate = now || new Date();
+  const updated = { ...card };
+  if (correct) {
+    updated.repetitions += 1;
+    if (updated.repetitions === 1) updated.interval = 1;
+    else if (updated.repetitions === 2) updated.interval = 6;
+    else updated.interval = Math.round(updated.interval * updated.easeFactor);
+    updated.easeFactor = Math.max(1.3, updated.easeFactor + 0.1);
+  } else {
+    updated.repetitions = 0;
+    updated.interval = 1;
+    updated.easeFactor = Math.max(1.3, updated.easeFactor - 0.2);
+  }
+  const nextDate = new Date(nowDate);
+  nextDate.setDate(nextDate.getDate() + updated.interval);
+  updated.nextReviewDate = nextDate.toISOString();
+  updated.lastReviewed = nowDate.toISOString();
+  Object.assign(card, updated);
+  save(data);
+  return card;
+}
+
+export function toggleUserCardStar(id: string): UserCard | null {
+  const data = load();
+  const card = data.userCards.find((c) => c.id === id);
+  if (!card) return null;
+  card.isStarred = !card.isStarred;
+  save(data);
+  return card;
 }

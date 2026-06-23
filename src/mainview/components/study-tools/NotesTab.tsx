@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
-import type { Section, Note } from '../sidebar-types';
+import type { Section, Note, Highlight } from '../sidebar-types';
 
 interface NotesTabProps {
   courseId: string;
   moduleId: number;
   sections: Section[];
   visibleSection: string | null;
+  highlights?: Highlight[];
 }
 
-export default function NotesTab({ courseId, moduleId, sections, visibleSection }: NotesTabProps) {
+export default function NotesTab({ courseId, moduleId, sections, visibleSection, highlights }: NotesTabProps) {
   const { t } = useTranslation();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,6 +112,14 @@ export default function NotesTab({ courseId, moduleId, sections, visibleSection 
               </div>
             ) : (
               <>
+                {n.highlightID && highlights && (() => {
+                  const h = highlights.find((h: Highlight) => h.id === n.highlightID);
+                  return h ? (
+                    <p className="text-[10px] text-gray-600 italic mb-1 truncate border-l-2 border-gray-600 pl-1.5">
+                      &ldquo;{h.selectedText.slice(0, 60)}{h.selectedText.length > 60 ? '...' : ''}&rdquo;
+                    </p>
+                  ) : null;
+                })()}
                 <p className="text-xs text-gray-300 whitespace-pre-wrap">{n.content}</p>
                 <div className="flex gap-2 mt-1.5">
                   <button

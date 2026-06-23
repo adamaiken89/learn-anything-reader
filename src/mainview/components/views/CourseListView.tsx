@@ -1,18 +1,19 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCourseStore } from '../stores/courseStore';
-import PageHeader from '../layouts/PageHeader';
-import PageLayout from '../layouts/PageLayout';
-import PageContent from '../layouts/PageContent';
-import type { Course } from '../../bun/types';
+import { useCourseStore } from '../../stores/courseStore';
+import PageHeader from '../../layouts/PageHeader';
+import PageLayout from '../../layouts/PageLayout';
+import PageContent from '../../layouts/PageContent';
+import type { Course } from '../../../bun/types';
 
 interface Props {
   onSelectCourse: (course: Course) => void;
   onOpenSettings: () => void;
   onOpenBookmarks: () => void;
+  onOpenDashboard: () => void;
 }
 
-export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenBookmarks }: Props) {
+export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenBookmarks, onOpenDashboard }: Props) {
   const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
   const loading = useCourseStore((s) => s.loading);
@@ -38,6 +39,13 @@ export default function CourseListView({ onSelectCourse, onOpenSettings, onOpenB
         title="CourseReader"
         actions={
           <>
+            <button
+              onClick={onOpenDashboard}
+              className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              title={t('dashboard.title')}
+            >
+              📊
+            </button>
             <button
               onClick={onOpenBookmarks}
               className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"

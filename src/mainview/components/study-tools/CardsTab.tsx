@@ -1,0 +1,78 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { api } from '../../api';
+import type { UserCard } from '../../../bun/types';
+
+interface CardsTabProps {
+  courseId: string;
+  moduleId: number;
+}
+
+export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
+  const { t } = useTranslation();
+  const [cards, setCards] = useState<UserCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const loadCards = useCallback(() => {
+    setLoading(true);
+    api.usercards.list(courseId, moduleId)
+      .then(setCards)
+      .finally(() => setLoading(false));
+  }, [courseId, moduleId]);
+
+  useEffect(() => {
+    loadCards();
+  }, [loadCards]);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    await api.usercards.delete(id);
+    setCards((prev) => prev.filter((c) => c.id !== id));
+    setDeletingId(null);
+  };
+
+  if (loading)
+    return <div className="text-xs text-gray-500 text-center py-4">{t('common.loading')}</div>;
+
+  if (cards.length === 0)
+    return (
+      <div className="text-xs text-gray-500 text-center py-4">
+        {t('studyTools.noCards') || 'No cards yet. Select text in the lesson to create cards.'}
+      </div>
+    );
+
+  return (
+    <div className="space-y-2">
+      {cards.map((card) => (
+        <div key={card.id} className="bg-gray-750 border border-gray-700 rounded p-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-gray-300 font-medium truncate">{card.front}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{card.back}</p>
+            </div>
+            <button
+              onClick={() => handleDelete(card.id)}
+              disabled={deletingId === card.id}
+              className="text-[10px] text-gray-600 hover:text-red-400 shrink-0 disabled:opacity-40"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex items-center gap-2 mt-1 text-[9px] text-gray-600">
+            {card.interval > 0 && (
+              <span>
+                {t('studyTools.cardDue') || 'Due'}: {new Date(card.nextReviewDate).toLocaleDateString()}
+              </span>
+            )}
+            {card.repetitions > 0 && (
+              <span>
+                {t('studyTools.cardReps') || 'Reps'}: {card.repetitions}
+              </span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

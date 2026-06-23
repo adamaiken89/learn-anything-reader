@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach, beforeEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import CourseListView from '../../mainview/components/CourseListView';
+import CourseListView from '../../mainview/components/views/CourseListView';
 import { useCourseStore } from '../../mainview/stores/courseStore';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
@@ -40,6 +40,7 @@ const defaultProps = {
   onSelectCourse: () => {},
   onOpenSettings: () => {},
   onOpenBookmarks: () => {},
+  onOpenDashboard: () => {},
 };
 
 afterEach(restoreFetch);

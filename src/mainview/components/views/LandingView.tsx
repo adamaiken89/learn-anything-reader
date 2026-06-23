@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useViewStore } from '../stores/viewStore';
+import { useViewStore } from '../../stores/viewStore';
 
 export default function LandingView() {
   const { t } = useTranslation();

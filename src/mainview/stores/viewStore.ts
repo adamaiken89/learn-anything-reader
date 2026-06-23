@@ -8,8 +8,10 @@ export type View =
   | { type: 'lesson'; course: Course; module: ModuleMeta; sectionID?: string }
   | { type: 'quiz'; course: Course; module: ModuleMeta }
   | { type: 'review'; course: Course }
+  | { type: 'userCardReview'; course: Course }
   | { type: 'settings' }
-  | { type: 'bookmarks' };
+  | { type: 'bookmarks' }
+  | { type: 'dashboard'; courseID?: string };
 
 interface ViewState {
   views: View[];

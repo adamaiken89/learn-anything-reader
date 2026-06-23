@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import NotesTab from './study-tools/NotesTab';
 import HighlightsTab from './study-tools/HighlightsTab';
 import BookmarksTab from './study-tools/BookmarksTab';
+import CardsTab from './study-tools/CardsTab';
 import AITab from './study-tools/AITab';
-import type { Section } from './sidebar-types';
+import type { Section, Highlight } from './sidebar-types';
 
-type Tab = 'notes' | 'highlights' | 'bookmarks' | 'ask-ai';
+type Tab = 'notes' | 'highlights' | 'bookmarks' | 'cards' | 'ask-ai';
 
 interface StudyToolsProps {
   courseId: string;
@@ -15,6 +16,7 @@ interface StudyToolsProps {
   sections: Section[];
   visibleSection: string | null;
   content: string;
+  highlights: Highlight[];
   onClose: () => void;
 }
 
@@ -25,6 +27,7 @@ export default function StudyTools({
   sections,
   visibleSection,
   content,
+  highlights,
   onClose,
 }: StudyToolsProps) {
   const { t } = useTranslation();
@@ -34,6 +37,7 @@ export default function StudyTools({
     { id: 'notes', label: t('studyTools.notes') },
     { id: 'highlights', label: t('studyTools.highlights') },
     { id: 'bookmarks', label: t('studyTools.bookmarks') },
+    { id: 'cards', label: t('studyTools.cards') || 'Cards' },
     { id: 'ask-ai', label: t('studyTools.askAi') },
   ];
 
@@ -67,6 +71,7 @@ export default function StudyTools({
             moduleId={moduleId}
             sections={sections}
             visibleSection={visibleSection}
+            highlights={highlights}
           />
         )}
         {activeTab === 'highlights' && <HighlightsTab courseId={courseId} moduleId={moduleId} />}
@@ -79,6 +84,7 @@ export default function StudyTools({
             visibleSection={visibleSection}
           />
         )}
+        {activeTab === 'cards' && <CardsTab courseId={courseId} moduleId={moduleId} />}
         {activeTab === 'ask-ai' && <AITab content={content} />}
       </div>
     </aside>

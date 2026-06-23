@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import i18n from '../i18n';
 import { THEMES } from '../themes';
 import type { Theme } from '../themes';
 
@@ -23,6 +24,8 @@ interface SettingsState {
   wideMode: boolean;
   showSections: boolean;
   hasApiKey: boolean;
+  focusMode: boolean;
+  locale: string;
   incFontSize: () => void;
   decFontSize: () => void;
   setFontSize: (v: number) => void;
@@ -31,6 +34,8 @@ interface SettingsState {
   setWideMode: (v: boolean) => void;
   toggleSections: () => void;
   setHasApiKey: (v: boolean) => void;
+  toggleFocusMode: () => void;
+  setLocale: (l: string) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -38,6 +43,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   theme: getStored<Theme>('coursereader-theme', 'dark'),
   wideMode: getStored<boolean>('coursereader-wide', false),
   showSections: getStored<boolean>('coursereader-sections', true),
+  focusMode: getStored<boolean>('coursereader-focus', false),
+  locale: getStored<string>('coursereader-locale', 'en-US'),
   hasApiKey: false,
 
   incFontSize: () =>
@@ -85,4 +92,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }),
 
   setHasApiKey: (v) => set({ hasApiKey: v }),
+
+  toggleFocusMode: () =>
+    set((s) => {
+      const next = !s.focusMode;
+      store('coursereader-focus', next);
+      return { focusMode: next };
+    }),
+
+  setLocale: (l) => {
+    store('coursereader-locale', l);
+    i18n.changeLanguage(l);
+    set({ locale: l });
+  },
 }));

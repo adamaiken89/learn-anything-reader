@@ -77,6 +77,21 @@ export interface Note {
   updatedAt: string;
 }
 
+export interface UserCard {
+  id: string;
+  courseId: string;
+  moduleId: number;
+  front: string;
+  back: string;
+  easeFactor: number;
+  interval: number;
+  repetitions: number;
+  nextReviewDate: string;
+  lastReviewed: string | null;
+  isStarred: boolean;
+  createdAt: string;
+}
+
 export interface Bookmark {
   id: string;
   courseID: string;
@@ -94,6 +109,16 @@ export interface CompletedModule {
 }
 
 export type NavigationDirection = 'prev' | 'next';
+
+export interface StudySession {
+  date: string;
+  courseID: string;
+  moduleID: number;
+  durationMinutes: number;
+  type: 'reading' | 'quiz' | 'review';
+  score?: number;
+  total?: number;
+}
 
 export type ReviewFilter = 'all' | 'due' | 'starred';
 

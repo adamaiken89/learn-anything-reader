@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import SettingsView from '../../mainview/components/SettingsView';
+import SettingsView from '../../mainview/components/views/SettingsView';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const defaultProps = { onBack: () => {} };

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../api';
-import { useSettingsStore } from '../stores/settingsStore';
-import PageHeader from '../layouts/PageHeader';
-import PageLayout from '../layouts/PageLayout';
-import PageContent from '../layouts/PageContent';
-import type { Theme } from '../themes';
+import { api } from '../../api';
+import { useSettingsStore } from '../../stores/settingsStore';
+import PageHeader from '../../layouts/PageHeader';
+import PageLayout from '../../layouts/PageLayout';
+import PageContent from '../../layouts/PageContent';
+import type { Theme } from '../../themes';
 interface ThemeCard {
   id: Theme;
   icon: string;
@@ -197,6 +197,31 @@ export default function SettingsView({ onBack }: Props) {
               <div className="text-sm font-medium">{t('settings.wideLayout')}</div>
               <div className="text-[10px] text-gray-400 mt-0.5">{t('settings.wideDesc')}</div>
             </button>
+          </div>
+        </section>
+
+        <section className="bg-gray-800 rounded-xl p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">{t('settings.language')}</h3>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { code: 'en-US', label: '🇺🇸 English (US)' },
+              { code: 'en-GB', label: '🇬🇧 English (UK)' },
+              { code: 'en-CA', label: '🇨🇦 English (CA)' },
+              { code: 'en-AU', label: '🇦🇺 English (AU)' },
+              { code: 'zh-TW', label: '🇹🇼 繁體中文' },
+            ].map((l) => (
+              <button
+                key={l.code}
+                onClick={() => useSettingsStore.getState().setLocale(l.code)}
+                className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                  useSettingsStore.getState().locale === l.code
+                    ? 'border-indigo-500 bg-indigo-900/30 text-indigo-300'
+                    : 'border-gray-600 text-gray-400 hover:border-gray-500'
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
           </div>
         </section>
 

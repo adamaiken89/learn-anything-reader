@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import LessonView from '../../mainview/components/LessonView';
+import LessonView from '../../mainview/components/views/LessonView';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockContent = `# Introduction

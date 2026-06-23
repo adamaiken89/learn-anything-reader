@@ -8,7 +8,10 @@ import type {
   Highlight,
   Note,
   Bookmark,
+  UserCard,
 } from '../bun/types';
+import type { SearchResult } from '../bun/search';
+import type { CourseStats, GlobalStats } from '../bun/stats';
 
 const API_PORT = new URLSearchParams(window.location.search).get('apiPort') || '50001';
 const BASE = `http://localhost:${API_PORT}/api`;
@@ -39,6 +42,20 @@ interface QuizState {
 }
 
 export const api = {
+  search: (q: string) =>
+    request<SearchResult[]>(`/search?q=${encodeURIComponent(q)}`),
+  stats: {
+    course: (courseID: string) => request<CourseStats>(`/stats/${courseID}`),
+    global: () => request<GlobalStats>('/stats/global'),
+    logSession: (data: {
+      courseID: string;
+      moduleID: number;
+      durationMinutes: number;
+      type: 'reading' | 'quiz' | 'review';
+      score?: number;
+      total?: number;
+    }) => request<{ ok: true }>('/stats/session', { method: 'POST', body: JSON.stringify(data) }),
+  },
   courses: {
     list: () => request<Course[]>('/courses'),
     modules: (courseId: string) => request<ModuleMeta[]>(`/courses/${courseId}/modules`),
@@ -97,6 +114,18 @@ export const api = {
       endOffset: number;
       color?: string;
     }) => request<Highlight>('/storage/highlights', { method: 'POST', body: JSON.stringify(data) }),
+    addAnnotation: (data: {
+      courseID: string;
+      moduleID: number;
+      selectedText: string;
+      startOffset: number;
+      endOffset: number;
+      color: string;
+      noteContent: string;
+    }) => request<{ highlight: Highlight; note: Note }>('/storage/annotations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
     deleteHighlight: (id: string) =>
       request<OkResponse>(`/storage/highlights/${id}`, { method: 'DELETE' }),
     notes: (courseID: string, moduleID: number) =>
@@ -147,6 +176,28 @@ export const api = {
       request<{ count: number }>(
         `/storage/completed/count?courseID=${encodeURIComponent(courseID)}`,
       ),
+  },
+  usercards: {
+    list: (courseId?: string, moduleId?: number) => {
+      const params = new URLSearchParams();
+      if (courseId) params.set('courseId', courseId);
+      if (moduleId !== undefined) params.set('moduleId', String(moduleId));
+      return request<UserCard[]>(`/usercards?${params.toString()}`);
+    },
+    create: (courseId: string, moduleId: number, front: string, back: string) =>
+      request<UserCard>('/usercards', {
+        method: 'POST',
+        body: JSON.stringify({ courseId, moduleId, front, back }),
+      }),
+    delete: (id: string) =>
+      request<OkResponse>(`/usercards/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    review: (id: string, correct: boolean) =>
+      request<UserCard>(`/usercards/${encodeURIComponent(id)}/review`, {
+        method: 'POST',
+        body: JSON.stringify({ correct }),
+      }),
+    toggleStar: (id: string) =>
+      request<UserCard>(`/usercards/${encodeURIComponent(id)}/star`, { method: 'POST' }),
   },
   gemini: {
     hasKey: () => request<{ hasKey: boolean }>('/gemini/key'),

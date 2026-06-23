@@ -56,7 +56,11 @@
     "moduleProgress": "Module Progress",
     "completed": "✓ Completed",
     "markAsComplete": "Mark as Complete",
-    "cancelHighlight": "Cancel highlight"
+    "cancelHighlight": "Cancel highlight",
+    "focusMode": "Focus Mode",
+    "focusModeOn": "Exit Focus",
+    "focusModeOff": "Focus",
+    "addNote": "Add Note"
   },
   "quiz": {
     "loadingQuiz": "Loading quiz...",
@@ -108,6 +112,8 @@
     "narrowDesc": "720px centered, book-like",
     "wideLayout": "Wide",
     "wideDesc": "Full width, max screen",
+    "language": "Language",
+    "englishVariant": "English Variant",
     "about": "About",
     "version": "CourseReader v1.0",
     "aboutDesc": "macOS desktop study app with spaced repetition.",
@@ -161,5 +167,41 @@
     "noBookmarks": "No bookmarks yet. Bookmark lessons while reading.",
     "sectionLabel": " — Section",
     "moduleLabel": " — Module"
+  },
+  "search": {
+    "placeholder": "Search across courses...",
+    "noResults": "No results.",
+    "results": "Results ({{count}})",
+    "inCourse": "in {{course}}",
+    "lessonResult": "Lesson",
+    "noteResult": "Note",
+    "highlightResult": "Highlight"
+  },
+  "pomodoro": {
+    "title": "Pomodoro Timer",
+    "focus": "Focus",
+    "shortBreak": "Short Break",
+    "longBreak": "Long Break",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "focusComplete": "Focus session complete!",
+    "breakComplete": "Break over!",
+    "session": "{{count}} sessions today"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "courseStats": "Course Statistics",
+    "globalStats": "Global Statistics",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "modulesDone": "Modules",
+    "avgQuizScore": "Avg Quiz Score",
+    "srsDue": "Cards Due",
+    "srsTotal": "Total Cards",
+    "streak": "Day Streak",
+    "studyTime": "Study Time",
+    "minutes": "{{count}} min"
   }
 }

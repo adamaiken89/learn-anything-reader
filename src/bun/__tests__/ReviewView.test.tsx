@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import ReviewView from '../../mainview/components/ReviewView';
+import ReviewView from '../../mainview/components/views/ReviewView';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockCard = {

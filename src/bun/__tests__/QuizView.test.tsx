@@ -1,6 +1,6 @@
 import { describe, expect, test, afterEach } from 'bun:test';
 import { render, waitFor } from '@testing-library/react';
-import QuizView from '../../mainview/components/QuizView';
+import QuizView from '../../mainview/components/views/QuizView';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockQuestions = [

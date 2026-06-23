@@ -19,23 +19,61 @@ React 18 + TypeScript frontend, Bun backend, packaged as desktop app via Electro
 src/
 ├── mainview/            # React frontend (Vite, root=src/mainview)
 │   ├── main.tsx         # React entry point
-│   ├── App.tsx          # View stack router + layout
+│   ├── App.tsx          # View stack router (container pattern, no inline page wrappers)
 │   ├── api.ts           # HTTP client → localhost:50001
 │   ├── index.css        # Tailwind + book prose styles
+│   ├── layouts/         # Shared layout shell
+│   │   ├── PageLayout.tsx   # h-screen flex-col bg container
+│   │   ├── PageHeader.tsx   # Header with back, title, center, actions slots
+│   │   └── PageContent.tsx  # Scrollable main area
+│   ├── features/        # Page-level feature bundles
+│   │   ├── lesson/
+│   │   │   └── LessonFeature.tsx  # Lesson view orchestrator (wraps LessonView in PageLayout)
+│   │   ├── quiz/
+│   │   │   └── QuizPage.tsx       # Quiz page (PageLayout + QuizView)
+│   │   └── review/
+│   │       └── ReviewPage.tsx     # Review page (PageLayout + ReviewView)
 │   ├── components/
-│   │   ├── LessonView.tsx     # Markdown reader w/ section nav, AI sidebar, notes
+│   │   ├── lesson/       # Lesson subcomponents (extracted from 693-line LessonView)
+│   │   │   ├── LessonToolbar.tsx    # Font size, theme, bookmark, focus, pomodoro, progress
+│   │   │   ├── SectionsPanel.tsx    # Floating section navigation panel
+│   │   │   ├── HighlightPicker.tsx  # Text highlight color picker popup
+│   │   │   └── NoteEditor.tsx       # Note editor popup
+│   │   ├── LessonView.tsx     # Markdown reader (decomposed: uses lesson/ components + hooks)
+│   │   ├── QuizView.tsx       # MCQ quiz with scoring (uses useQuizEngine useReducer hook)
+│   │   ├── ReviewView.tsx     # SRS spaced repetition review (uses useReviewState hook)
 │   │   ├── SubjectListView.tsx# Subject grid with module stats
-│   │   ├── QuizView.tsx       # MCQ quiz with scoring
-│   │   ├── ReviewView.tsx     # SRS spaced repetition review
 │   │   ├── SettingsView.tsx   # Gemini API key config
-│   │   ├── Sidebar.tsx        # Section nav, notes, highlights, AI sidebar
+│   │   ├── BookmarksView.tsx  # Bookmark list view
+│   │   ├── DashboardView.tsx  # Stats dashboard
+│   │   ├── LandingView.tsx    # Landing page
+│   │   ├── CourseListView.tsx # Course browser
+│   │   ├── ModuleListView.tsx # Module browser
+│   │   ├── CourseSwitcher.tsx # Course dropdown switcher
+│   │   ├── ModuleSwitcher.tsx # Module dropdown switcher
+│   │   ├── SearchOverlay.tsx   # ⌘K search overlay
+│   │   ├── StudyTools.tsx     # Sidebar: notes, highlights, bookmarks, AI tabs
+│   │   ├── PomodoroTimer.tsx  # Focus timer
+│   │   ├── study-tools/       # StudyTools tab content
+│   │   │   ├── NotesTab.tsx
+│   │   │   ├── HighlightsTab.tsx
+│   │   │   ├── BookmarksTab.tsx
+│   │   │   └── AITab.tsx
+│   │   ├── sidebar-types.ts
+│   │   ├── rehype-highlight-text.ts
 │   │   └── ui.tsx             # Shared CVA variants (button, toggle, tab, etc.)
 │   ├── hooks/
-│   │   ├── useBookmarks.ts    # Bookmark CRUD hook
-│   │   └── useHighlights.ts   # Highlights CRUD hook
+│   │   ├── useBookmarks.ts      # Bookmark CRUD hook
+│   │   ├── useHighlights.ts     # Highlights CRUD hook
+│   │   ├── useLesson.ts         # Lesson content loading, section tracking, scroll handling
+│   │   ├── useHighlightPicker.ts# Text selection state (show/hide/position)
+│   │   ├── useQuizEngine.ts     # Quiz state machine (useReducer: load/answer/next/skip/retry)
+│   │   └── useReviewState.ts    # SRS review state (cards/filter/review/toggleStar)
 │   └── stores/
-│       ├── viewStore.ts       # Zustand view stack (Subject, ModuleMeta, View union)
-│       └── settingsStore.ts   # Font size, theme settings
+│       ├── viewStore.ts       # Zustand view stack (View union type)
+│       ├── courseStore.ts     # Course list cache (loaded once)
+│       ├── settingsStore.ts   # Font size, theme, locale, focus/wide mode
+│       └── pomodoroStore.ts   # Timer state (idle/running/paused/finished)
 ├── types/               # Ambient module declarations
 │   ├── js-yaml.d.ts     # Declaration for js-yaml (no @types package)
 │   └── three.d.ts       # Declaration for three (electrobun dependency)
@@ -54,6 +92,13 @@ src/
 
 - **Frontend → API (port 50001) → Backend handlers**. No direct file I/O from UI.
 - **Navigation**: React state-driven view stack in App.tsx (type `View` union). No React Router.
+- **App.tsx container pattern**: App routes views and provides fixed chrome (⌘K search). Each page component uses `PageLayout` + `PageHeader` + `PageContent` consistently. No inline page wrappers.
+- **State management hierarchy**:
+  - **Zustand stores** for cross-cutting concerns: `viewStore` (navigation stack), `settingsStore` (font/theme/locale/focus), `courseStore` (course cache), `pomodoroStore` (timer).
+  - **Domain hooks** for page-specific state: `useLesson` (content + sections + scroll), `useBookmarks`, `useHighlights`, `useReviewState`.
+  - **useReducer** for complex state machines: `useQuizEngine` (quiz flow: load/answer/next/skip/retry).
+  - **Local useState** only for truly local UI state (dropdown open, tooltip visibility).
+- **Component decomposition**: Large pages split into focused subcomponents (e.g., `LessonView` → `LessonToolbar`, `SectionsPanel`, `HighlightPicker`, `NoteEditor`). Subcomponents receive data via props, never fetch directly.
 - **Markdown rendering**: `react-markdown` + `remarkGfm` + `rehypeHighlight` (highlight.js).
 - **Styling**: Tailwind CSS utility classes + custom `.book-content` CSS for lesson prose.
 - **No CSS preprocessors**, no CSS modules — all custom styles in `index.css`.

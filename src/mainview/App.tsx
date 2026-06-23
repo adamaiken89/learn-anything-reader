@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import LandingView from './components/LandingView';
-import CourseListView from './components/CourseListView';
-import QuizView from './components/QuizView';
-import ReviewView from './components/ReviewView';
-import SettingsView from './components/SettingsView';
-import ModuleListView from './components/ModuleListView';
-import BookmarksView from './components/BookmarksView';
-import CourseSwitcher from './components/CourseSwitcher';
-import LessonFeature from './features/lesson/LessonFeature';
+
+import BookmarksView from './components/views/BookmarksView';
+import CourseListView from './components/views/CourseListView';
+import DashboardView from './components/views/DashboardView';
+import LandingView from './components/views/LandingView';
+import ModuleListView from './components/views/ModuleListView';
+import SearchOverlay from './components/SearchOverlay';
+import SettingsView from './components/views/SettingsView';
+import LessonPage from './containers/LessonPage';
+import QuizPage from './containers/QuizPage';
+import ReviewPage from './containers/ReviewPage';
+import UserCardReviewPage from './containers/UserCardReviewPage';
+import { useCourseStore } from './stores/courseStore';
 import { useViewStore } from './stores/viewStore';
+
 import type { Course, ModuleMeta } from '../bun/types';
 
 export default function App() {
@@ -19,8 +24,11 @@ export default function App() {
   const pop = useViewStore((s) => s.pop);
   const replace = useViewStore((s) => s.replace);
   const currentView = views[views.length - 1];
+  const courses = useCourseStore((s) => s.courses);
+  const loadCourses = useCourseStore((s) => s.load);
 
   const [loading, setLoading] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     if (currentView) {
@@ -30,6 +38,32 @@ export default function App() {
     replace({ type: 'landing' });
     setLoading(false);
   }, [currentView, replace]);
+
+  useEffect(() => {
+    loadCourses();
+  }, [loadCourses]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  const handleSearchNavigate = useCallback(
+    (courseID: string, moduleID: number) => {
+      const course = courses.find((c) => c.id === courseID);
+      const mod = course?.modules.find((m) => m.id === moduleID);
+      if (course && mod) {
+        push({ type: 'lesson', course, module: mod });
+      }
+    },
+    [courses, push],
+  );
 
   const handleSelectModule = (course: Course, module: ModuleMeta) => {
     push({ type: 'lesson', course, module });
@@ -55,7 +89,8 @@ export default function App() {
     );
   }
 
-  switch (currentView.type) {
+  const viewContent = (() => {
+    switch (currentView.type) {
     case 'landing':
       return <LandingView />;
 
@@ -65,6 +100,7 @@ export default function App() {
           onSelectCourse={handleSelectCourse}
           onOpenSettings={() => push({ type: 'settings' })}
           onOpenBookmarks={() => push({ type: 'bookmarks' })}
+          onOpenDashboard={() => push({ type: 'dashboard' })}
         />
       );
 
@@ -76,12 +112,13 @@ export default function App() {
           onBack={() => replace({ type: 'courseList' })}
           onOpenSettings={() => push({ type: 'settings' })}
           onOpenBookmarks={() => push({ type: 'bookmarks' })}
+          onOpenDashboard={() => push({ type: 'dashboard' })}
         />
       );
 
     case 'lesson':
       return (
-        <LessonFeature
+        <LessonPage
           course={currentView.course}
           module={currentView.module}
           initialSectionID={currentView.sectionID}
@@ -111,6 +148,15 @@ export default function App() {
         />
       );
 
+    case 'userCardReview':
+      return (
+        <UserCardReviewPage
+          courseId={currentView.course.id}
+          onBack={pop}
+          onSwitchCourse={handleSwitchCourse}
+        />
+      );
+
     case 'settings':
       return <SettingsView onBack={pop} />;
 
@@ -128,71 +174,29 @@ export default function App() {
           }}
         />
       );
-  }
-}
 
-function QuizPage({
-  courseId,
-  moduleId,
-  onBack,
-  onSwitchCourse,
-}: {
-  courseId: string;
-  moduleId: number;
-  onBack: () => void;
-  onSwitchCourse: (course: Course) => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            {t('common.back')}
-          </button>
-          <div className="h-4 w-px bg-gray-600" />
-          <span className="text-sm font-medium">{t('common.quiz')}</span>
-        </div>
-        <div className="flex-1 flex justify-center">
-          <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
-        </div>
-        <div className="w-16" />
-      </header>
-      <div className="p-6">
-        <QuizView courseId={courseId} moduleId={moduleId} onBack={onBack} />
-      </div>
-    </div>
-  );
-}
+    case 'dashboard':
+      return (
+        <DashboardView courseID={currentView.courseID} onBack={pop} />
+      );
+  }})();
 
-function ReviewPage({
-  courseId,
-  onBack,
-  onSwitchCourse,
-}: {
-  courseId: string;
-  onBack: () => void;
-  onSwitchCourse: (course: Course) => void;
-}) {
-  const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            {t('common.back')}
-          </button>
-          <div className="h-4 w-px bg-gray-600" />
-          <span className="text-sm font-medium">{t('common.review')}</span>
-        </div>
-        <div className="flex-1 flex justify-center">
-          <CourseSwitcher currentCourseId={courseId} onSelect={onSwitchCourse} />
-        </div>
-        <div className="w-16" />
-      </header>
-      <div className="p-6">
-        <ReviewView courseId={courseId} onBack={onBack} />
-      </div>
-    </div>
+    <>
+      {viewContent}
+      <button
+        onClick={() => setSearchOpen(true)}
+        className="fixed bottom-4 left-4 z-50 w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-500 shadow-lg flex items-center justify-center text-white transition-colors"
+        title="Search (⌘K)"
+      >
+        🔍
+      </button>
+      {searchOpen && (
+        <SearchOverlay
+          onClose={() => setSearchOpen(false)}
+          onNavigate={handleSearchNavigate}
+        />
+      )}
+    </>
   );
 }

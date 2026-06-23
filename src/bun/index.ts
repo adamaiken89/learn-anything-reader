@@ -10,6 +10,8 @@ import {
   toggleStar,
 } from './srs';
 import { createSRSCard, performReview } from './srs';
+import * as Search from './search';
+import * as Stats from './stats';
 import type { QuizQuestion, SRSDeck } from './types';
 
 const DEV_SERVER_PORT = 5173;
@@ -40,6 +42,31 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 const router = {
+  'GET /api/stats/:courseId': (params: Record<string, string>) => {
+    try {
+      return jsonResponse(Stats.getCourseStats(params.courseId));
+    } catch (e) {
+      return jsonResponse({ error: (e as Error).message }, 404);
+    }
+  },
+  'GET /api/stats/global': () => jsonResponse(Stats.getGlobalStats()),
+  'POST /api/stats/session': async (_params: Record<string, string>, req: Request) => {
+    const body = (await req.json()) as {
+      courseID: string;
+      moduleID: number;
+      durationMinutes: number;
+      type: 'reading' | 'quiz' | 'review';
+      score?: number;
+      total?: number;
+    };
+    Storage.addStudySession(body);
+    return jsonResponse({ ok: true });
+  },
+  'GET /api/search': (_params: Record<string, string>, req: Request) => {
+    const url = new URL(req.url);
+    const q = url.searchParams.get('q') || '';
+    return jsonResponse(Search.searchAll(q));
+  },
   'GET /api/courses': () => jsonResponse(CourseLoader.loadCourses()),
   'GET /api/courses/:courseId/modules': (_params: Record<string, string>) => {
     const courses = CourseLoader.loadCourses();
@@ -161,6 +188,19 @@ const router = {
     Storage.updateNote(params.id, body.content);
     return jsonResponse({ ok: true });
   },
+  'POST /api/storage/annotations': async (_params: Record<string, string>, req: Request) => {
+    const body = (await req.json()) as {
+      courseID: string;
+      moduleID: number;
+      selectedText: string;
+      startOffset: number;
+      endOffset: number;
+      color: string;
+      noteContent: string;
+    };
+    const result = Storage.addAnnotation(body);
+    return jsonResponse(result, 201);
+  },
   'DELETE /api/storage/notes/:id': (params: Record<string, string>) => {
     Storage.deleteNote(params.id);
     return jsonResponse({ ok: true });
@@ -259,6 +299,46 @@ const router = {
   'POST /api/quiz/reset': () => {
     getQuizEngine().reset();
     return jsonResponse({ ok: true });
+  },
+
+  // --- UserCard routes ---
+
+  'GET /api/usercards': (_params: Record<string, string>, req: Request) => {
+    const url = new URL(req.url);
+    const courseId = url.searchParams.get('courseId') || undefined;
+    const moduleId = url.searchParams.get('moduleId')
+      ? Number(url.searchParams.get('moduleId'))
+      : undefined;
+    return jsonResponse(Storage.getUserCards(courseId, moduleId));
+  },
+
+  'POST /api/usercards': async (_params: Record<string, string>, req: Request) => {
+    const body = (await req.json()) as {
+      courseId: string;
+      moduleId: number;
+      front: string;
+      back: string;
+    };
+    const card = Storage.addUserCard(body.courseId, body.moduleId, body.front, body.back);
+    return jsonResponse(card, 201);
+  },
+
+  'DELETE /api/usercards/:id': (params: Record<string, string>) => {
+    Storage.deleteUserCard(params.id);
+    return jsonResponse({ ok: true });
+  },
+
+  'POST /api/usercards/:id/review': async (params: Record<string, string>, req: Request) => {
+    const body = (await req.json()) as { correct: boolean };
+    const card = Storage.reviewUserCard(params.id, body.correct);
+    if (!card) return jsonResponse({ error: 'Card not found' }, 404);
+    return jsonResponse(card);
+  },
+
+  'POST /api/usercards/:id/star': (params: Record<string, string>) => {
+    const card = Storage.toggleUserCardStar(params.id);
+    if (!card) return jsonResponse({ error: 'Card not found' }, 404);
+    return jsonResponse(card);
   },
 };
 
