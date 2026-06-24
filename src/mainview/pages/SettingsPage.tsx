@@ -85,8 +85,8 @@ export default function SettingsPage({ onBack }: Props) {
   const setFontSize = useSettingsStore((s) => s.setFontSize);
   const incFontSize = useSettingsStore((s) => s.incFontSize);
   const decFontSize = useSettingsStore((s) => s.decFontSize);
-  const wideMode = useSettingsStore((s) => s.wideMode);
-  const setWideMode = useSettingsStore((s) => s.setWideMode);
+  const contentWidth = useSettingsStore((s) => s.contentWidth);
+  const setContentWidth = useSettingsStore((s) => s.setContentWidth);
   const syncLastTime = useSyncStore((s) => s.lastSyncTime);
   const syncLastCommit = useSyncStore((s) => s.lastSyncedCommit);
   const syncIsSyncing = useSyncStore((s) => s.isSyncing);
@@ -276,15 +276,22 @@ export default function SettingsPage({ onBack }: Props) {
           <h3 className="text-lg font-semibold mb-4">{t('settings.layout')}</h3>
           <div className="flex gap-2">
             <button
-              onClick={() => setWideMode(false)}
-              className={`flex-1 ${selectableCardVariants({ selected: !wideMode })}`}
+              onClick={() => setContentWidth('narrow')}
+              className={`flex-1 ${selectableCardVariants({ selected: contentWidth === 'narrow' })}`}
             >
               <div className="text-sm font-medium">{t('settings.narrowLayout')}</div>
               <div className="text-[10px] text-gray-400 mt-0.5">{t('settings.narrowDesc')}</div>
             </button>
             <button
-              onClick={() => setWideMode(true)}
-              className={`flex-1 ${selectableCardVariants({ selected: wideMode })}`}
+              onClick={() => setContentWidth('standard')}
+              className={`flex-1 ${selectableCardVariants({ selected: contentWidth === 'standard' })}`}
+            >
+              <div className="text-sm font-medium">{t('settings.standardLayout')}</div>
+              <div className="text-[10px] text-gray-400 mt-0.5">{t('settings.standardDesc')}</div>
+            </button>
+            <button
+              onClick={() => setContentWidth('wide')}
+              className={`flex-1 ${selectableCardVariants({ selected: contentWidth === 'wide' })}`}
             >
               <div className="text-sm font-medium">{t('settings.wideLayout')}</div>
               <div className="text-[10px] text-gray-400 mt-0.5">{t('settings.wideDesc')}</div>

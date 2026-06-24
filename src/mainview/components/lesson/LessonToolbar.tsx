@@ -64,8 +64,8 @@ export default function LessonToolbar({
   const decFontSize = useSettingsStore((s) => s.decFontSize);
   const cycleTheme = useSettingsStore((s) => s.cycleTheme);
   const theme = useSettingsStore((s) => s.theme);
-  const wideMode = useSettingsStore((s) => s.wideMode);
-  const setWideMode = useSettingsStore((s) => s.setWideMode);
+  const contentWidth = useSettingsStore((s) => s.contentWidth);
+  const setContentWidth = useSettingsStore((s) => s.setContentWidth);
   const toggleFocusMode = useSettingsStore((s) => s.toggleFocusMode);
 
   return (
@@ -106,12 +106,20 @@ export default function LessonToolbar({
         </>
       )}
       <Button
-        variant={wideMode ? 'toggleActive' : 'toggle'}
+        variant={contentWidth === 'wide' ? 'toggleActive' : 'toggle'}
         size="sm"
-        onClick={() => setWideMode(!wideMode)}
+        onClick={() => {
+          const order: Array<'narrow' | 'standard' | 'wide'> = ['narrow', 'standard', 'wide'];
+          const next = order[(order.indexOf(contentWidth) + 1) % order.length];
+          setContentWidth(next);
+        }}
         title={t('lesson.toggleWideMode')}
       >
-        {wideMode ? t('lesson.wide') : t('lesson.narrow')}
+        {contentWidth === 'narrow'
+          ? t('lesson.narrow')
+          : contentWidth === 'standard'
+            ? t('lesson.standard')
+            : t('lesson.wide')}
       </Button>
       <div className="h-3 w-px bg-gray-600" />
       <Button

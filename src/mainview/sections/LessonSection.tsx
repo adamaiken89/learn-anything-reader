@@ -218,7 +218,7 @@ export default function LessonSection({
   const focusMode = useSettingsStore((s) => s.focusMode);
   const theme = useSettingsStore((s) => s.theme);
   const fontSize = useSettingsStore((s) => s.fontSize);
-  const wideMode = useSettingsStore((s) => s.wideMode);
+  const contentWidth = useSettingsStore((s) => s.contentWidth);
   const toggleSections = onToggleSections;
   const themeVars = useMemo(() => themeToCSSVars(THEME_TOKENS[theme]), [theme]);
   const lessonMeta = useMemo(() => parseLessonMeta(content), [content]);
@@ -333,7 +333,12 @@ export default function LessonSection({
           break;
         case 'w':
         case 'W':
-          useSettingsStore.getState().setWideMode(!wideMode);
+          {
+            const order: Array<'narrow' | 'standard' | 'wide'> = ['narrow', 'standard', 'wide'];
+            const next =
+              order[(order.indexOf(useSettingsStore.getState().contentWidth) + 1) % order.length];
+            useSettingsStore.getState().setContentWidth(next);
+          }
           break;
         case 's':
         case 'S':
@@ -350,7 +355,7 @@ export default function LessonSection({
     onNextModule,
     showToolbar,
     contentRef,
-    wideMode,
+    contentWidth,
     selection,
     closeToolbar,
   ]);
@@ -428,7 +433,7 @@ export default function LessonSection({
             onMouseUp={handleTextSelection}
           >
             <div
-              className={`p-6 book-content${wideMode ? ' book-content-wide' : ''}`}
+              className={`p-6 book-content${contentWidth === 'wide' ? ' book-content-wide' : contentWidth === 'standard' ? ' book-content-standard' : ''}`}
               style={{ fontSize: `${fontSize}px`, ...themeVars }}
             >
               {h1Text && <h1 id={headingId(h1Text)}>{h1Text}</h1>}

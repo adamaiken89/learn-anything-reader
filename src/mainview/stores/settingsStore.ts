@@ -4,10 +4,12 @@ import { THEMES } from '../themes';
 import type { Theme } from '../themes';
 import { getStored, store } from './storage-utils';
 
+export type ContentWidth = 'narrow' | 'standard' | 'wide';
+
 interface SettingsState {
   fontSize: number;
   theme: Theme;
-  wideMode: boolean;
+  contentWidth: ContentWidth;
   showSections: boolean;
   hasApiKey: boolean;
   focusMode: boolean;
@@ -17,17 +19,26 @@ interface SettingsState {
   setFontSize: (v: number) => void;
   cycleTheme: () => void;
   setTheme: (t: Theme) => void;
-  setWideMode: (v: boolean) => void;
+  setContentWidth: (v: ContentWidth) => void;
   toggleSections: () => void;
   setHasApiKey: (v: boolean) => void;
   toggleFocusMode: () => void;
   setLocale: (l: string) => void;
 }
 
+const migrateWidth = (): ContentWidth => {
+  const saved = getStored<unknown>('coursereader-width', undefined);
+  if (saved === 'narrow' || saved === 'standard' || saved === 'wide') return saved;
+  const legacy = getStored<boolean | undefined>('coursereader-wide', undefined);
+  if (legacy === true) return 'wide';
+  if (legacy === false) return 'narrow';
+  return 'standard';
+};
+
 export const useSettingsStore = create<SettingsState>((set) => ({
   fontSize: getStored<number>('coursereader-fontsize', 16),
   theme: getStored<Theme>('coursereader-theme', 'dark'),
-  wideMode: getStored<boolean>('coursereader-wide', false),
+  contentWidth: migrateWidth(),
   showSections: getStored<boolean>('coursereader-sections', true),
   focusMode: getStored<boolean>('coursereader-focus', false),
   locale: getStored<string>('coursereader-locale', 'en-US'),
@@ -65,9 +76,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ theme: t });
   },
 
-  setWideMode: (v) => {
-    store('coursereader-wide', v);
-    set({ wideMode: v });
+  setContentWidth: (v) => {
+    store('coursereader-width', v);
+    set({ contentWidth: v });
   },
 
   toggleSections: () =>
