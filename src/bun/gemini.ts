@@ -1,3 +1,4 @@
+import { logger } from './logger';
 import { getGeminiKey, setGeminiKey } from './storage';
 
 const BASE_URL =
@@ -43,7 +44,10 @@ interface GeminiResponse {
 
 export async function askGemini(question: string, context: string): Promise<string> {
   const apiKey = getAPIKey();
-  if (!apiKey) throw new Error('No API key set. Set your Gemini API key in Settings.');
+  if (!apiKey) {
+    logger.warn('Gemini API key not set');
+    throw new Error('No API key set. Set your Gemini API key in Settings.');
+  }
 
   const prompt = [
     'You are a tutor helping understand course material.',
@@ -67,12 +71,16 @@ export async function askGemini(question: string, context: string): Promise<stri
 
   if (!response.ok) {
     const errText = await response.text();
+    logger.error({ status: response.status, errText }, 'Gemini API request failed');
     throw new Error(`API error (${response.status}): ${errText}`);
   }
 
   const result = (await response.json()) as GeminiResponse;
   const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Invalid response from API.');
+  if (!text) {
+    logger.error('Gemini returned empty response');
+    throw new Error('Invalid response from API.');
+  }
 
   return text;
 }

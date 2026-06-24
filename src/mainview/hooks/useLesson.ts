@@ -74,29 +74,46 @@ export function useLesson(
     const count = await api.storage.completedCount(courseId);
     setCompletedCount(count.count);
     if (result.completed) {
-      api.stats.logSession({
-        courseID: courseId,
-        moduleID: moduleId,
-        durationMinutes: 10,
-        type: 'reading',
-      }).catch(() => {});
+      api.stats
+        .logSession({
+          courseID: courseId,
+          moduleID: moduleId,
+          durationMinutes: 10,
+          type: 'reading',
+        })
+        .catch(() => {});
     }
   }, [courseId, moduleId, toggleOptimistic]);
 
   useEffect(() => {
     setLoading(true);
     contentRef.current?.scrollTo(0, 0);
-    api.courses.lesson(courseId, moduleId).then((lesson) => {
-      setContent(lesson.content);
-      setLoading(false);
-      requestAnimationFrame(() => contentRef.current?.focus());
-    }).catch(() => setLoading(false));
-    api.courses.sections(courseId, moduleId).then(setSections).catch(() => {});
-    api.storage.isCompleted(courseId, moduleId).then((r) => setIsCompleted(r.completed)).catch(() => {});
-    api.courses.modules(courseId).then((mods) => {
-      setTotalModules(mods.length);
-      api.storage.completedCount(courseId).then((r) => setCompletedCount(r.count)).catch(() => {});
-    }).catch(() => {});
+    api.courses
+      .lesson(courseId, moduleId)
+      .then((lesson) => {
+        setContent(lesson.content);
+        setLoading(false);
+        requestAnimationFrame(() => contentRef.current?.focus());
+      })
+      .catch(() => setLoading(false));
+    api.courses
+      .sections(courseId, moduleId)
+      .then(setSections)
+      .catch(() => {});
+    api.storage
+      .isCompleted(courseId, moduleId)
+      .then((r) => setIsCompleted(r.completed))
+      .catch(() => {});
+    api.courses
+      .modules(courseId)
+      .then((mods) => {
+        setTotalModules(mods.length);
+        api.storage
+          .completedCount(courseId)
+          .then((r) => setCompletedCount(r.count))
+          .catch(() => {});
+      })
+      .catch(() => {});
   }, [courseId, moduleId]);
 
   useEffect(() => {

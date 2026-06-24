@@ -16,9 +16,24 @@ interface ThemeCard {
 }
 
 const THEME_CARDS: ThemeCard[] = [
-  { id: 'dark', icon: 'icons.themeDark', labelKey: 'settings.themes.dark', descKey: 'settings.themes.darkDesc' },
-  { id: 'oled', icon: 'icons.themeOled', labelKey: 'settings.themes.oled', descKey: 'settings.themes.oledDesc' },
-  { id: 'nord', icon: 'icons.themeNord', labelKey: 'settings.themes.nord', descKey: 'settings.themes.nordDesc' },
+  {
+    id: 'dark',
+    icon: 'icons.themeDark',
+    labelKey: 'settings.themes.dark',
+    descKey: 'settings.themes.darkDesc',
+  },
+  {
+    id: 'oled',
+    icon: 'icons.themeOled',
+    labelKey: 'settings.themes.oled',
+    descKey: 'settings.themes.oledDesc',
+  },
+  {
+    id: 'nord',
+    icon: 'icons.themeNord',
+    labelKey: 'settings.themes.nord',
+    descKey: 'settings.themes.nordDesc',
+  },
   {
     id: 'sepia',
     icon: 'icons.themeSepia',
@@ -141,9 +156,7 @@ export default function SettingsPage({ onBack }: Props) {
 
         <section className="bg-gray-800 rounded-xl p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">{t('settings.remoteContent')}</h3>
-          <p className="text-sm text-gray-400 mb-4">
-            {t('settings.remoteContentDesc')}
-          </p>
+          <p className="text-sm text-gray-400 mb-4">{t('settings.remoteContentDesc')}</p>
           <div className="flex gap-2 mb-3">
             <input
               type="text"
@@ -210,18 +223,18 @@ export default function SettingsPage({ onBack }: Props) {
             </button>
             {syncLastTime && (
               <span className="text-xs text-gray-500">
-                {t('settings.lastSynced')}{new Date(syncLastTime).toLocaleString()}
+                {t('settings.lastSynced')}
+                {new Date(syncLastTime).toLocaleString()}
               </span>
             )}
           </div>
           {syncLastCommit && (
             <p className="text-xs text-gray-500 mt-2">
-              {t('settings.commit')}{syncLastCommit.slice(0, 7)}
+              {t('settings.commit')}
+              {syncLastCommit.slice(0, 7)}
             </p>
           )}
-          {syncError && (
-            <p className="text-xs text-red-400 mt-2">{syncError}</p>
-          )}
+          {syncError && <p className="text-xs text-red-400 mt-2">{syncError}</p>}
         </section>
 
         <section className="bg-gray-800 rounded-xl p-6 mb-6">

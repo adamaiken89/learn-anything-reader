@@ -9,9 +9,16 @@ interface Props {
 export default function ReviewSection({ courseId }: Props) {
   const { t } = useTranslation();
   const {
-    cards, loading, currentIndex, showAnswer, filter,
-    currentCard, setShowAnswer, setFilter,
-    handleReview, handleToggleStar,
+    cards,
+    loading,
+    currentIndex,
+    showAnswer,
+    filter,
+    currentCard,
+    setShowAnswer,
+    setFilter,
+    handleReview,
+    handleToggleStar,
   } = useReviewState(courseId);
 
   if (loading)
@@ -26,11 +33,7 @@ export default function ReviewSection({ courseId }: Props) {
             onClick={() => setFilter(f)}
             className={filterVariants({ active: filter === f })}
           >
-            {f === 'all'
-              ? t('review.all')
-              : f === 'due'
-                ? t('review.due')
-                : t('review.starred')}
+            {f === 'all' ? t('review.all') : f === 'due' ? t('review.due') : t('review.starred')}
           </button>
         ))}
       </div>
@@ -50,7 +53,9 @@ export default function ReviewSection({ courseId }: Props) {
           <div>
             <div className="text-xs text-gray-500 mb-2 text-center">
               {t('review.cardOf', { current: currentIndex + 1, total: cards.length })}
-              {currentCard.isStarred && <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>}
+              {currentCard.isStarred && (
+                <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>
+              )}
             </div>
 
             <div className="bg-gray-800 rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center mb-6">

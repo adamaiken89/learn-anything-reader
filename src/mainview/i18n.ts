@@ -12,7 +12,9 @@ let detected = 'en-US';
 try {
   const stored = localStorage.getItem('coursereader-locale');
   detected = stored || (supported.includes(navigator.language) ? navigator.language : 'en-US');
-} catch { /* ignore */ }
+} catch {
+  /* ignore */
+}
 
 i18n.use(initReactI18next).init({
   resources: {

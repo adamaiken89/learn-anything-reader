@@ -36,9 +36,7 @@ export default function SectionsPanel({
       {sections.length > 0 && (
         <>
           <div className="shrink-0 px-2.5 py-1.5 border-b border-gray-700 flex items-center justify-between">
-            <span className="text-xs font-semibold text-indigo-400">
-              {t('lesson.sections')}
-            </span>
+            <span className="text-xs font-semibold text-indigo-400">{t('lesson.sections')}</span>
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] text-gray-500">{sections.length}</span>
               <button onClick={onClose} className={toggleVariants({ active: true })}>
@@ -84,9 +82,7 @@ export default function SectionsPanel({
                         color: isBookmarked ? '#fbbf24' : isActive ? '#fff' : '#4b5563',
                       }}
                       title={
-                        isBookmarked
-                          ? t('lesson.removeBookmark')
-                          : t('lesson.bookmarkSection')
+                        isBookmarked ? t('lesson.removeBookmark') : t('lesson.bookmarkSection')
                       }
                     >
                       {isBookmarked ? t('icons.starFilled') : t('icons.starEmpty')}

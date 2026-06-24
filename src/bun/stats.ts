@@ -12,7 +12,13 @@ export interface CourseStats {
   srsTotalCards: number;
   totalStudyMinutes: number;
   streak: number;
-  recentSessions: { date: string; type: string; durationMinutes: number; score?: number; total?: number }[];
+  recentSessions: {
+    date: string;
+    type: string;
+    durationMinutes: number;
+    score?: number;
+    total?: number;
+  }[];
 }
 
 export interface GlobalStats {
@@ -21,7 +27,13 @@ export interface GlobalStats {
   totalCompletedModules: number;
   totalStudyMinutes: number;
   streak: number;
-  courseSummaries: { courseID: string; courseName: string; completed: number; total: number; lastStudied: string | null }[];
+  courseSummaries: {
+    courseID: string;
+    courseName: string;
+    completed: number;
+    total: number;
+    lastStudied: string | null;
+  }[];
 }
 
 export function getCourseStats(courseID: string): CourseStats {
@@ -34,10 +46,16 @@ export function getCourseStats(courseID: string): CourseStats {
   const sessions = Storage.getStudySessions(courseID, 90);
   const totalStudyMinutes = sessions.reduce((sum, s) => sum + s.durationMinutes, 0);
 
-  const quizSessions = sessions.filter((s) => s.type === 'quiz' && s.score != null && s.total != null);
-  const avgQuizScore = quizSessions.length > 0
-    ? Math.round(quizSessions.reduce((sum, s) => sum + (s.score! / s.total!) * 100, 0) / quizSessions.length)
-    : 0;
+  const quizSessions = sessions.filter(
+    (s) => s.type === 'quiz' && s.score != null && s.total != null,
+  );
+  const avgQuizScore =
+    quizSessions.length > 0
+      ? Math.round(
+          quizSessions.reduce((sum, s) => sum + (s.score! / s.total!) * 100, 0) /
+            quizSessions.length,
+        )
+      : 0;
 
   const deck = CourseLoader.loadSRSDeck(courseID);
   const allCards = SRS.getCardsForCourse(deck, courseID);

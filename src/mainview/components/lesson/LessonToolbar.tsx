@@ -4,12 +4,24 @@ import { toggleVariants } from '../ui';
 import type { Theme } from '../../themes';
 
 const THEME_LABELS: Record<Theme, string> = {
-  dark: 'settings.themes.dark', oled: 'settings.themes.oled', nord: 'settings.themes.nord', sepia: 'settings.themes.sepia',
-  gruvbox: 'settings.themes.gruvbox', light: 'settings.themes.light', 'solarized-dark': 'settings.themes.solarized', catppuccin: 'settings.themes.catppuccin',
+  dark: 'settings.themes.dark',
+  oled: 'settings.themes.oled',
+  nord: 'settings.themes.nord',
+  sepia: 'settings.themes.sepia',
+  gruvbox: 'settings.themes.gruvbox',
+  light: 'settings.themes.light',
+  'solarized-dark': 'settings.themes.solarized',
+  catppuccin: 'settings.themes.catppuccin',
 };
 const THEME_ICONS: Record<Theme, string> = {
-  dark: 'icons.themeDark', oled: 'icons.themeOled', nord: 'icons.themeNord', sepia: 'icons.themeSepia',
-  gruvbox: 'icons.themeGruvbox', light: 'icons.themeLight', 'solarized-dark': 'icons.themeSolarized', catppuccin: 'icons.themeCatppuccin',
+  dark: 'icons.themeDark',
+  oled: 'icons.themeOled',
+  nord: 'icons.themeNord',
+  sepia: 'icons.themeSepia',
+  gruvbox: 'icons.themeGruvbox',
+  light: 'icons.themeLight',
+  'solarized-dark': 'icons.themeSolarized',
+  catppuccin: 'icons.themeCatppuccin',
 };
 
 interface LessonToolbarProps {
@@ -96,7 +108,8 @@ export default function LessonToolbar({
             className={toggleVariants({ active: hasActiveBookmark })}
             title={t('lesson.bookmarkModule')}
           >
-            {hasActiveBookmark ? t('icons.bookmarkFilled') : t('icons.bookmarkEmpty')} {t('lesson.bookmark')}
+            {hasActiveBookmark ? t('icons.bookmarkFilled') : t('icons.bookmarkEmpty')}{' '}
+            {t('lesson.bookmark')}
           </button>
         </>
       )}

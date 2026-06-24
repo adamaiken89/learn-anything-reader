@@ -11,7 +11,11 @@ interface UserCardReviewPageProps {
   onSwitchCourse: (course: Course) => void;
 }
 
-export default function UserCardReviewPage({ courseId, onBack, onSwitchCourse }: UserCardReviewPageProps) {
+export default function UserCardReviewPage({
+  courseId,
+  onBack,
+  onSwitchCourse,
+}: UserCardReviewPageProps) {
   return (
     <PageLayout>
       <PageHeader

@@ -35,7 +35,9 @@ export default function PomodoroTimer({ compact = false }: Props) {
         {status !== 'idle' && (
           <>
             <div className="text-center py-1">
-              <div className="text-base font-mono font-bold text-gray-200 tabular-nums">{display}</div>
+              <div className="text-base font-mono font-bold text-gray-200 tabular-nums">
+                {display}
+              </div>
             </div>
             <div className="flex gap-1">
               {status === 'running' && (

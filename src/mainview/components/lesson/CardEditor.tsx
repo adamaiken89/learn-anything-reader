@@ -9,13 +9,7 @@ interface CardEditorProps {
   onCancel: () => void;
 }
 
-export default function CardEditor({
-  selectedText,
-  x,
-  y,
-  onSave,
-  onCancel,
-}: CardEditorProps) {
+export default function CardEditor({ selectedText, x, y, onSave, onCancel }: CardEditorProps) {
   const { t } = useTranslation();
   const [front, setFront] = useState(selectedText);
   const [back, setBack] = useState('');
@@ -56,10 +50,7 @@ export default function CardEditor({
         >
           {t('common.save')}
         </button>
-        <button
-          onClick={onCancel}
-          className="py-1 text-[10px] text-gray-400 hover:text-gray-200"
-        >
+        <button onClick={onCancel} className="py-1 text-[10px] text-gray-400 hover:text-gray-200">
           {t('common.cancel')}
         </button>
       </div>

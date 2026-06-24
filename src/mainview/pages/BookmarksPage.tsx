@@ -52,10 +52,7 @@ export default function BookmarksPage({ onBack, onOpen, onSwitchCourse }: Props)
 
   return (
     <PageLayout>
-      <PageHeader
-        onBack={onBack}
-        center={<CourseSwitcher onSelect={onSwitchCourse} />}
-      />
+      <PageHeader onBack={onBack} center={<CourseSwitcher onSelect={onSwitchCourse} />} />
       <PageContent className="max-w-2xl mx-auto px-6 py-8">
         {bookmarks.length === 0 ? (
           <p className="text-center text-gray-500 py-12">{t('bookmarks.noBookmarks')}</p>

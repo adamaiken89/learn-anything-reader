@@ -16,6 +16,7 @@ import { createSRSCard, performReview } from './srs';
 import * as Search from './search';
 import * as Stats from './stats';
 import * as Sync from './sync';
+import { logger } from './logger';
 import type { QuizQuestion, SRSDeck } from './types';
 
 const DEV_SERVER_PORT = 5173;
@@ -33,8 +34,28 @@ function getQuizEngine(): QuizEngine {
 const app = new Hono();
 
 app.use('/*', cors());
-app.onError((err, c) => c.json({ error: err.message }, 500));
-app.notFound((c) => c.json({ error: 'Not found' }, 404));
+
+app.use('*', async (c, next) => {
+  const start = Date.now();
+  await next();
+  const duration = Date.now() - start;
+  logger.info({
+    method: c.req.method,
+    path: c.req.path,
+    status: c.res.status,
+    duration: `${duration}ms`,
+  });
+});
+
+app.onError((err, c) => {
+  logger.error({ err: err.message, path: c.req.path }, 'Unhandled error');
+  return c.json({ error: err.message }, 500);
+});
+
+app.notFound((c) => {
+  logger.warn({ path: c.req.path }, 'Route not found');
+  return c.json({ error: 'Not found' }, 404);
+});
 
 // --- Stats ---
 
@@ -42,6 +63,10 @@ app.get('/api/stats/:courseId', (c) => {
   try {
     return c.json(Stats.getCourseStats(c.req.param('courseId')));
   } catch (e) {
+    logger.error(
+      { err: (e as Error).message, courseId: c.req.param('courseId') },
+      'Failed to get stats',
+    );
     return c.json({ error: (e as Error).message }, 404);
   }
 });
@@ -305,6 +330,7 @@ app.post('/api/gemini/ask', async (c) => {
     const response = await Gemini.askGemini(body.question, body.context);
     return c.json({ response });
   } catch (err) {
+    logger.error({ err: (err as Error).message }, 'Gemini ask failed');
     return c.json({ error: (err as Error).message }, 400);
   }
 });
@@ -415,10 +441,10 @@ async function getMainViewUrl(): Promise<string> {
   if (channel === 'dev') {
     try {
       await fetch(DEV_SERVER_URL, { method: 'HEAD' });
-      console.log(`HMR enabled: Using Vite dev server at ${DEV_SERVER_URL}`);
+      logger.info(`HMR enabled: Using Vite dev server at ${DEV_SERVER_URL}`);
       return `${DEV_SERVER_URL}?apiPort=${API_PORT}`;
     } catch {
-      console.log("Vite dev server not running. Run 'bun run dev:hmr' for HMR.");
+      logger.warn("Vite dev server not running. Run 'bun run dev:hmr' for HMR.");
     }
   }
   return `views://mainview/index.html?apiPort=${API_PORT}`;
@@ -429,16 +455,15 @@ const server = serve({
   fetch: app.fetch,
 });
 
-console.log(`API server running at http://localhost:${API_PORT}`);
+logger.info({ port: API_PORT }, 'API server running');
 
-// Auto-sync on startup (non-blocking)
 const syncConfig = Storage.getSyncConfig();
 if (syncConfig.remoteRepoURL) {
   Sync.syncCourses()
     .then((result) => {
-      if (!result.unchanged) console.log(`Auto-sync: ${result.message}`);
+      if (!result.unchanged) logger.info({ message: result.message }, 'Auto-sync');
     })
-    .catch((err) => console.error('Auto-sync failed:', err));
+    .catch((err) => logger.error({ err }, 'Auto-sync failed'));
 }
 
 try {
@@ -453,9 +478,9 @@ try {
       y: 200,
     },
   });
-  console.log('CourseReader started!');
+  logger.info('CourseReader started');
 } catch (err) {
-  console.log('BrowserWindow not available (running standalone API server).');
+  logger.info('BrowserWindow not available (running standalone API server)');
 }
 
 process.on('beforeExit', () => {

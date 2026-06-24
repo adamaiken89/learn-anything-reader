@@ -15,7 +15,7 @@
     "delete": "刪除",
     "deleteBookmark": "刪除書籤",
     "modules": "單元",
-    "courseReader": "← CourseReader"
+    "courseReader": "CourseReader"
   },
   "landing": {
     "title": "歡迎使用 CourseReader",

@@ -78,24 +78,27 @@ export function useQuizEngine(courseId: string, moduleId: number): UseQuizEngine
   const [state, dispatch] = useReducer(quizReducer, INITIAL);
 
   useEffect(() => {
-    api.quiz.start(courseId, moduleId).then((qs) => {
-      dispatch({ type: 'LOADED', questions: qs });
-    }).catch(() => dispatch({ type: 'LOAD_FAILED' }));
+    api.quiz
+      .start(courseId, moduleId)
+      .then((qs) => {
+        dispatch({ type: 'LOADED', questions: qs });
+      })
+      .catch(() => dispatch({ type: 'LOAD_FAILED' }));
   }, [courseId, moduleId]);
 
   useEffect(() => {
     if (state.status === 'completed' && state.questions.length > 0) {
-      const score = state.questions.filter(
-        (q) => state.selectedAnswers[q.id] === q.answer,
-      ).length;
-      api.stats.logSession({
-        courseID: courseId,
-        moduleID: moduleId,
-        durationMinutes: Math.ceil(state.questions.length * 1.5),
-        type: 'quiz',
-        score,
-        total: state.questions.length,
-      }).catch(() => {});
+      const score = state.questions.filter((q) => state.selectedAnswers[q.id] === q.answer).length;
+      api.stats
+        .logSession({
+          courseID: courseId,
+          moduleID: moduleId,
+          durationMinutes: Math.ceil(state.questions.length * 1.5),
+          type: 'quiz',
+          score,
+          total: state.questions.length,
+        })
+        .catch(() => {});
     }
   }, [state.status, courseId, moduleId, state.questions, state.selectedAnswers]);
 
@@ -119,12 +122,9 @@ export function useQuizEngine(courseId: string, moduleId: number): UseQuizEngine
   const hasAnswer = currentQuestion
     ? state.selectedAnswers[currentQuestion.id] !== undefined
     : false;
-  const score = state.questions.filter(
-    (q) => state.selectedAnswers[q.id] === q.answer,
-  ).length;
-  const percentage = state.questions.length > 0
-    ? Math.round((score / state.questions.length) * 100)
-    : 0;
+  const score = state.questions.filter((q) => state.selectedAnswers[q.id] === q.answer).length;
+  const percentage =
+    state.questions.length > 0 ? Math.round((score / state.questions.length) * 100) : 0;
 
   return {
     status: state.status,

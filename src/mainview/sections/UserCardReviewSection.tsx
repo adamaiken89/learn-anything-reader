@@ -18,20 +18,26 @@ export default function UserCardReviewSection({ courseId }: Props) {
   const [showAnswer, setShowAnswer] = useState(false);
   const [filter, setFilter] = useState<FilterMode>('all');
 
-  const loadCards = useCallback((f: FilterMode) => {
-    setLoading(true);
-    const p = f === 'due'
-      ? api.usercards.list(courseId).then((all) => all.filter((c) => new Date(c.nextReviewDate) <= new Date()))
-      : f === 'starred'
-        ? api.usercards.list(courseId).then((all) => all.filter((c) => c.isStarred))
-        : api.usercards.list(courseId);
-    p.then((result) => {
-      setCards(result);
-      setLoading(false);
-      setCurrentIndex(0);
-      setShowAnswer(false);
-    });
-  }, [courseId]);
+  const loadCards = useCallback(
+    (f: FilterMode) => {
+      setLoading(true);
+      const p =
+        f === 'due'
+          ? api.usercards
+              .list(courseId)
+              .then((all) => all.filter((c) => new Date(c.nextReviewDate) <= new Date()))
+          : f === 'starred'
+            ? api.usercards.list(courseId).then((all) => all.filter((c) => c.isStarred))
+            : api.usercards.list(courseId);
+      p.then((result) => {
+        setCards(result);
+        setLoading(false);
+        setCurrentIndex(0);
+        setShowAnswer(false);
+      });
+    },
+    [courseId],
+  );
 
   useEffect(() => {
     loadCards('due');
@@ -95,7 +101,9 @@ export default function UserCardReviewSection({ courseId }: Props) {
           <div>
             <div className="text-xs text-gray-500 mb-2 text-center">
               {t('userCardReview.cardCounter', { current: currentIndex + 1, total: cards.length })}
-              {currentCard.isStarred && <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>}
+              {currentCard.isStarred && (
+                <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>
+              )}
             </div>
 
             <div className="bg-gray-800 rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center mb-6">

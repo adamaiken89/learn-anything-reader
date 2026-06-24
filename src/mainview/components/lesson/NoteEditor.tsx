@@ -32,7 +32,8 @@ export default function NoteEditor({
       }}
     >
       <p className="text-[10px] text-gray-500 mb-1.5 truncate">
-        &ldquo;{selectedText.slice(0, 80)}{selectedText.length > 80 ? '...' : ''}&rdquo;
+        &ldquo;{selectedText.slice(0, 80)}
+        {selectedText.length > 80 ? '...' : ''}&rdquo;
       </p>
       <textarea
         value={noteText}
@@ -49,10 +50,7 @@ export default function NoteEditor({
         >
           {t('studyTools.saveNote')}
         </button>
-        <button
-          onClick={onCancel}
-          className="py-1 text-[10px] text-gray-400 hover:text-gray-200"
-        >
+        <button onClick={onCancel} className="py-1 text-[10px] text-gray-400 hover:text-gray-200">
           {t('common.cancel')}
         </button>
       </div>

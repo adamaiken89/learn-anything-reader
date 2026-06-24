@@ -14,7 +14,12 @@ interface Props {
   onOpenDashboard: () => void;
 }
 
-export default function CourseListPage({ onSelectCourse, onOpenSettings, onOpenBookmarks, onOpenDashboard }: Props) {
+export default function CourseListPage({
+  onSelectCourse,
+  onOpenSettings,
+  onOpenBookmarks,
+  onOpenDashboard,
+}: Props) {
   const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
   const loading = useCourseStore((s) => s.loading);

@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as yaml from 'js-yaml';
+import { logger } from './logger';
 import type { Course, ModuleMeta, QuizQuestion, SRSDeck } from './types';
 
 const POSSIBLE_PATHS = [
@@ -92,8 +93,8 @@ export function loadCourses(): Course[] {
       const content = readFileSync(syllabusPath, 'utf-8');
       const course = parseCourse(content, entry.name);
       if (course) courses.push(course);
-    } catch {
-      /* skip invalid */
+    } catch (e) {
+      logger.warn({ err: (e as Error).message, course: entry.name }, 'Failed to parse syllabus');
     }
   }
 
@@ -128,7 +129,8 @@ export function loadSRSDeck(courseId: string): SRSDeck {
   if (!existsSync(deckPath)) return { cards: {} };
   try {
     return JSON.parse(readFileSync(deckPath, 'utf-8')) as SRSDeck;
-  } catch {
+  } catch (e) {
+    logger.warn({ err: (e as Error).message, courseId }, 'Failed to load SRS deck, using empty');
     return { cards: {} };
   }
 }

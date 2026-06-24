@@ -1,3 +1,4 @@
+import { logger } from './logger';
 import type { Highlight, Note, Bookmark, CompletedModule, StudySession, UserCard } from './types';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
@@ -20,15 +21,33 @@ interface StorageData {
 
 function load(): StorageData {
   if (!existsSync(DB_FILE))
-    return { highlights: [], notes: [], bookmarks: [], completedModules: [], studySessions: [], userCards: [] };
+    return {
+      highlights: [],
+      notes: [],
+      bookmarks: [],
+      completedModules: [],
+      studySessions: [],
+      userCards: [],
+    };
   try {
     const data = JSON.parse(readFileSync(DB_FILE, 'utf-8'));
     if (!data.completedModules) data.completedModules = [];
     if (!data.studySessions) data.studySessions = [];
     if (!data.userCards) data.userCards = [];
     return data;
-  } catch {
-    return { highlights: [], notes: [], bookmarks: [], completedModules: [], studySessions: [], userCards: [] };
+  } catch (e) {
+    logger.warn(
+      { err: (e as Error).message, file: DB_FILE },
+      'Failed to load data.json, using defaults',
+    );
+    return {
+      highlights: [],
+      notes: [],
+      bookmarks: [],
+      completedModules: [],
+      studySessions: [],
+      userCards: [],
+    };
   }
 }
 
@@ -130,7 +149,14 @@ export function addAnnotation(data: {
   color: string;
   noteContent: string;
 }): { highlight: Highlight; note: Note } {
-  const highlight = addHighlight(data.courseID, data.moduleID, data.selectedText, data.startOffset, data.endOffset, data.color);
+  const highlight = addHighlight(
+    data.courseID,
+    data.moduleID,
+    data.selectedText,
+    data.startOffset,
+    data.endOffset,
+    data.color,
+  );
   const note = addNote(data.courseID, data.moduleID, data.noteContent, highlight.id, undefined);
   return { highlight, note };
 }
@@ -225,7 +251,9 @@ export function getCompletedModuleCount(courseID: string): number {
   return data.completedModules.filter((m) => m.courseID === courseID).length;
 }
 
-export function addStudySession(session: Omit<StudySession, 'date'> & { date?: string }): StudySession {
+export function addStudySession(
+  session: Omit<StudySession, 'date'> & { date?: string },
+): StudySession {
   const data = load();
   const full: StudySession = {
     ...session,
@@ -314,9 +342,7 @@ export function getUserCards(courseId?: string, moduleId?: number): UserCard[] {
   let cards = data.userCards;
   if (courseId) cards = cards.filter((c) => c.courseId === courseId);
   if (moduleId !== undefined) cards = cards.filter((c) => c.moduleId === moduleId);
-  return cards.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  return cards.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 }
 
 export function getAllUserCards(): UserCard[] {

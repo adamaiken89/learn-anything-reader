@@ -46,15 +46,21 @@ export default function App() {
   }, [loadCourses]);
 
   useEffect(() => {
-    useSyncStore.getState().loadStatus().then(() => {
-      const syncState = useSyncStore.getState();
-      if (syncState.remoteRepoURL) {
-        useSyncStore.getState().startSync().then(() => {
-          useCourseStore.getState().reset();
-          useCourseStore.getState().load();
-        });
-      }
-    });
+    useSyncStore
+      .getState()
+      .loadStatus()
+      .then(() => {
+        const syncState = useSyncStore.getState();
+        if (syncState.remoteRepoURL) {
+          useSyncStore
+            .getState()
+            .startSync()
+            .then(() => {
+              useCourseStore.getState().reset();
+              useCourseStore.getState().load();
+            });
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -105,96 +111,103 @@ export default function App() {
 
   const viewContent = (() => {
     switch (currentView.type) {
-    case 'courseList':
-      return (
-        <CourseListPage
-          onSelectCourse={handleSelectCourse}
-          onOpenSettings={() => push({ type: 'settings' })}
-          onOpenBookmarks={() => push({ type: 'bookmarks' })}
-          onOpenDashboard={() => push({ type: 'dashboard' })}
-        />
-      );
+      case 'courseList':
+        return (
+          <CourseListPage
+            onSelectCourse={handleSelectCourse}
+            onOpenSettings={() => push({ type: 'settings' })}
+            onOpenBookmarks={() => push({ type: 'bookmarks' })}
+            onOpenDashboard={() => push({ type: 'dashboard' })}
+          />
+        );
 
-    case 'moduleList':
-      return (
-        <ModuleListPage
-          course={currentView.course}
-          onSelectModule={(m) => handleSelectModule(currentView.course, m)}
-          onSelectCourse={handleSelectCourse}
-          onOpenSettings={() => push({ type: 'settings' })}
-          onOpenBookmarks={() => push({ type: 'bookmarks' })}
-          onOpenDashboard={() => push({ type: 'dashboard' })}
-        />
-      );
+      case 'moduleList':
+        return (
+          <ModuleListPage
+            course={currentView.course}
+            onSelectModule={(m) => handleSelectModule(currentView.course, m)}
+            onSelectCourse={handleSelectCourse}
+            onOpenSettings={() => push({ type: 'settings' })}
+            onOpenBookmarks={() => push({ type: 'bookmarks' })}
+            onOpenDashboard={() => push({ type: 'dashboard' })}
+          />
+        );
 
-    case 'lesson':
-      return (
-        <LessonPage
-          course={currentView.course}
-          module={currentView.module}
-          initialSectionID={currentView.sectionID}
-          onBack={() => replace({ type: 'moduleList', course: currentView.course })}
-          onSelectModule={(m) => handleSelectModule(currentView.course, m)}
-          onStartQuiz={() => push({ type: 'quiz', course: currentView.course, module: currentView.module })}
-          onStartReview={() => handleStartReview(currentView.course)}
-        />
-      );
-
-    case 'quiz':
-      return (
-        <QuizPage
-          courseId={currentView.course.id}
-          moduleId={currentView.module.id}
-          onBack={pop}
-          onSwitchCourse={handleSwitchCourse}
-        />
-      );
-
-    case 'review':
-      return (
-        <ReviewPage
-          courseId={currentView.course.id}
-          onBack={pop}
-          onSwitchCourse={handleSwitchCourse}
-        />
-      );
-
-    case 'userCardReview':
-      return (
-        <UserCardReviewPage
-          courseId={currentView.course.id}
-          onBack={pop}
-          onSwitchCourse={handleSwitchCourse}
-        />
-      );
-
-    case 'settings':
-      return <SettingsPage onBack={pop} />;
-
-    case 'bookmarks':
-      return (
-        <BookmarksPage
-          onBack={pop}
-          onSwitchCourse={handleSwitchCourse}
-          onOpen={(courseID, moduleID, sectionID, courses) => {
-            const course = courses.find((c: Course) => c.id === courseID);
-            const module = course?.modules.find((m) => m.id === moduleID);
-            if (course && module) {
-              replace({ type: 'lesson', course, module, sectionID: sectionID || undefined });
+      case 'lesson':
+        return (
+          <LessonPage
+            course={currentView.course}
+            module={currentView.module}
+            initialSectionID={currentView.sectionID}
+            onBack={() => replace({ type: 'moduleList', course: currentView.course })}
+            onSelectModule={(m) => handleSelectModule(currentView.course, m)}
+            onStartQuiz={() =>
+              push({ type: 'quiz', course: currentView.course, module: currentView.module })
             }
-          }}
-        />
-      );
+            onStartReview={() => handleStartReview(currentView.course)}
+          />
+        );
 
-    case 'dashboard':
-      return (
-        <DashboardPage courseID={currentView.courseID} onBack={pop} />
-      );
-  }})();
+      case 'quiz':
+        return (
+          <QuizPage
+            courseId={currentView.course.id}
+            moduleId={currentView.module.id}
+            onBack={pop}
+            onSwitchCourse={handleSwitchCourse}
+          />
+        );
+
+      case 'review':
+        return (
+          <ReviewPage
+            courseId={currentView.course.id}
+            onBack={pop}
+            onSwitchCourse={handleSwitchCourse}
+          />
+        );
+
+      case 'userCardReview':
+        return (
+          <UserCardReviewPage
+            courseId={currentView.course.id}
+            onBack={pop}
+            onSwitchCourse={handleSwitchCourse}
+          />
+        );
+
+      case 'settings':
+        return <SettingsPage onBack={pop} />;
+
+      case 'bookmarks':
+        return (
+          <BookmarksPage
+            onBack={pop}
+            onSwitchCourse={handleSwitchCourse}
+            onOpen={(courseID, moduleID, sectionID, courses) => {
+              const course = courses.find((c: Course) => c.id === courseID);
+              const module = course?.modules.find((m) => m.id === moduleID);
+              if (course && module) {
+                replace({ type: 'lesson', course, module, sectionID: sectionID || undefined });
+              }
+            }}
+          />
+        );
+
+      case 'dashboard':
+        return <DashboardPage courseID={currentView.courseID} onBack={pop} />;
+    }
+  })();
 
   return (
     <>
-      <Suspense fallback={<div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">{t('common.loading')}</div>}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-gray-900 text-gray-400 flex items-center justify-center">
+            {t('common.loading')}
+          </div>
+        }
+      >
         {viewContent}
       </Suspense>
       <button
@@ -205,10 +218,7 @@ export default function App() {
         {t('icons.search')}
       </button>
       {searchOpen && (
-        <SearchOverlay
-          onClose={() => setSearchOpen(false)}
-          onNavigate={handleSearchNavigate}
-        />
+        <SearchOverlay onClose={() => setSearchOpen(false)} onNavigate={handleSearchNavigate} />
       )}
     </>
   );

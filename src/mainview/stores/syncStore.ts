@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api } from '../api';
+import { logger } from '../logger';
 
 interface SyncState {
   lastSyncTime: string | null;
@@ -29,26 +30,32 @@ export const useSyncStore = create<SyncState>((set, get) => ({
         remoteRepoURL: status.remoteRepoURL,
         error: null,
       });
+      logger.debug({ remoteRepoURL: status.remoteRepoURL }, 'Sync status loaded');
     } catch (e) {
+      logger.error({ err: (e as Error).message }, 'Failed to load sync status');
       set({ error: (e as Error).message });
     }
   },
 
   startSync: async () => {
     if (get().isSyncing) return;
+    logger.info('Starting sync');
     set({ isSyncing: true, error: null });
     try {
       const result = await api.sync.start();
       if (result.success) {
+        logger.info({ commitHash: result.commitHash }, 'Sync completed');
         set({
           lastSyncTime: new Date().toISOString(),
           lastSyncedCommit: result.commitHash,
           isSyncing: false,
         });
       } else {
+        logger.warn({ message: result.message }, 'Sync failed');
         set({ isSyncing: false, error: result.message });
       }
     } catch (e) {
+      logger.error({ err: (e as Error).message }, 'Sync error');
       set({ isSyncing: false, error: (e as Error).message });
     }
   },
@@ -57,7 +64,9 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     try {
       await api.sync.setURL(url);
       set({ remoteRepoURL: url, error: null });
+      logger.info('Sync repo URL set');
     } catch (e) {
+      logger.error({ err: (e as Error).message }, 'Failed to set sync repo URL');
       set({ error: (e as Error).message });
     }
   },

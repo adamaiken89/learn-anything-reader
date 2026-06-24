@@ -15,7 +15,7 @@
     "delete": "Delete",
     "deleteBookmark": "Delete bookmark",
     "modules": "Modules",
-    "courseReader": "← CourseReader"
+    "courseReader": "CourseReader"
   },
   "landing": {
     "title": "Welcome to CourseReader",

@@ -16,7 +16,8 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
 
   const loadCards = useCallback(() => {
     setLoading(true);
-    api.usercards.list(courseId, moduleId)
+    api.usercards
+      .list(courseId, moduleId)
       .then(setCards)
       .finally(() => setLoading(false));
   }, [courseId, moduleId]);
@@ -36,11 +37,7 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
     return <div className="text-xs text-gray-500 text-center py-4">{t('common.loading')}</div>;
 
   if (cards.length === 0)
-    return (
-      <div className="text-xs text-gray-500 text-center py-4">
-        {t('studyTools.noCards')}
-      </div>
-    );
+    return <div className="text-xs text-gray-500 text-center py-4">{t('studyTools.noCards')}</div>;
 
   return (
     <div className="space-y-2">

@@ -20,7 +20,9 @@ function getStored(key: string): number {
 function storeVal(key: string, val: number) {
   try {
     localStorage.setItem(key, JSON.stringify(val));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 interface PomodoroState {

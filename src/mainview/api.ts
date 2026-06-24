@@ -10,6 +10,7 @@ import type {
   Bookmark,
   UserCard,
 } from '../bun/types';
+import { logger } from './logger';
 import type { SearchResult } from '../bun/search';
 import type { CourseStats, GlobalStats } from '../bun/stats';
 
@@ -17,14 +18,18 @@ const API_PORT = new URLSearchParams(window.location.search).get('apiPort') || '
 const BASE = `http://localhost:${API_PORT}/api`;
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const method = options?.method || 'GET';
+  logger.debug({ method, path }, 'API request');
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
+    logger.error({ status: res.status, path, method }, `API error: ${err.error}`);
     throw new Error(err.error || `HTTP ${res.status}`);
   }
+  logger.debug({ status: res.status, path }, 'API response');
   return res.json();
 }
 
@@ -42,8 +47,7 @@ interface QuizState {
 }
 
 export const api = {
-  search: (q: string) =>
-    request<SearchResult[]>(`/search?q=${encodeURIComponent(q)}`),
+  search: (q: string) => request<SearchResult[]>(`/search?q=${encodeURIComponent(q)}`),
   stats: {
     course: (courseID: string) => request<CourseStats>(`/stats/${courseID}`),
     global: () => request<GlobalStats>('/stats/global'),
@@ -122,10 +126,11 @@ export const api = {
       endOffset: number;
       color: string;
       noteContent: string;
-    }) => request<{ highlight: Highlight; note: Note }>('/storage/annotations', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    }) =>
+      request<{ highlight: Highlight; note: Note }>('/storage/annotations', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     deleteHighlight: (id: string) =>
       request<OkResponse>(`/storage/highlights/${id}`, { method: 'DELETE' }),
     notes: (courseID: string, moduleID: number) =>

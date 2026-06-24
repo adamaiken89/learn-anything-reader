@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback, useOptimistic } from 'react';
 import { api } from '../api';
 import type { Bookmark } from '../components/sidebar-types';
 
-type OptimisticAction =
-  | { type: 'add'; bookmark: Bookmark }
-  | { type: 'delete'; id: string };
+type OptimisticAction = { type: 'add'; bookmark: Bookmark } | { type: 'delete'; id: string };
 
 interface UseBookmarksReturn {
   bookmarks: Bookmark[];
@@ -33,7 +31,8 @@ export function useBookmarks(
       }
       if (action.type === 'add') {
         return state.some(
-          (b) => b.moduleID === action.bookmark.moduleID && b.sectionID === action.bookmark.sectionID,
+          (b) =>
+            b.moduleID === action.bookmark.moduleID && b.sectionID === action.bookmark.sectionID,
         )
           ? state
           : [...state, action.bookmark];
@@ -89,11 +88,14 @@ export function useBookmarks(
     [bookmarks, courseId, moduleId, addOptimistic],
   );
 
-  const handleDeleteBookmark = useCallback(async (id: string) => {
-    addOptimistic({ type: 'delete', id });
-    await api.storage.deleteBookmark(id);
-    setBookmarks((prev) => prev.filter((b) => b.id !== id));
-  }, [addOptimistic]);
+  const handleDeleteBookmark = useCallback(
+    async (id: string) => {
+      addOptimistic({ type: 'delete', id });
+      await api.storage.deleteBookmark(id);
+      setBookmarks((prev) => prev.filter((b) => b.id !== id));
+    },
+    [addOptimistic],
+  );
 
   return {
     bookmarks: optimisticBookmarks,

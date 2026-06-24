@@ -63,10 +63,16 @@ const headingRenderer = (level: number) =>
   };
 
 const components = {
-  h1: headingRenderer(1), h2: headingRenderer(2), h3: headingRenderer(3),
-  h4: headingRenderer(4), h5: headingRenderer(5), h6: headingRenderer(6),
+  h1: headingRenderer(1),
+  h2: headingRenderer(2),
+  h3: headingRenderer(3),
+  h4: headingRenderer(4),
+  h5: headingRenderer(5),
+  h6: headingRenderer(6),
   table: ({ children }: { children?: React.ReactNode }) => (
-    <div className="table-wrapper"><table>{children}</table></div>
+    <div className="table-wrapper">
+      <table>{children}</table>
+    </div>
   ),
 };
 
@@ -85,22 +91,40 @@ export default function LessonSection({
   const selectionToolbarRef = useRef<SelectionToolbarHandle>(null);
 
   const {
-    content, loading, sections, visibleSection,
-    isCompleted, totalModules, completedCount,
-    contentRef, scrollToSection, handleScroll,
+    content,
+    loading,
+    sections,
+    visibleSection,
+    isCompleted,
+    totalModules,
+    completedCount,
+    contentRef,
+    scrollToSection,
+    handleScroll,
     handleToggleCompleted,
   } = useLesson(courseId, module.id, initialSectionID);
 
   const {
-    bookmarks, handleToggleBookmark: toggleBookmark, hasActiveBookmark,
+    bookmarks,
+    handleToggleBookmark: toggleBookmark,
+    hasActiveBookmark,
   } = useBookmarks(courseId, module.id, visibleSection);
   const { highlights, addHighlight } = useHighlights(courseId, module.id);
 
   const {
-    showToolbar, showNoteEditor, showCardEditor, noteText,
-    selection, pickerPos,
-    handleTextSelection, openNoteEditor, openCardEditor, setNoteText,
-    closeToolbar, closeNoteEditor, closeCardEditor,
+    showToolbar,
+    showNoteEditor,
+    showCardEditor,
+    noteText,
+    selection,
+    pickerPos,
+    handleTextSelection,
+    openNoteEditor,
+    openCardEditor,
+    setNoteText,
+    closeToolbar,
+    closeNoteEditor,
+    closeCardEditor,
   } = useSelection(contentRef);
 
   const focusMode = useSettingsStore((s) => s.focusMode);
@@ -130,7 +154,9 @@ export default function LessonSection({
   };
 
   const handleToggleSectionBookmark = (
-    sectionId: string, _hasBookmark: boolean, heading: string,
+    sectionId: string,
+    _hasBookmark: boolean,
+    heading: string,
   ) => {
     toggleBookmark(`${module.name} – ${heading}`, sectionId);
   };
@@ -197,13 +223,16 @@ export default function LessonSection({
           e.preventDefault();
           contentRef.current?.scrollBy({ top: 80, behavior: 'smooth' });
           break;
-        case 't': case 'T':
+        case 't':
+        case 'T':
           useSettingsStore.getState().cycleTheme();
           break;
-        case 'w': case 'W':
+        case 'w':
+        case 'W':
           useSettingsStore.getState().setWideMode(!wideMode);
           break;
-        case 's': case 'S':
+        case 's':
+        case 'S':
           useSettingsStore.getState().toggleSections();
           break;
       }
@@ -211,8 +240,15 @@ export default function LessonSection({
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [
-    hasPrevModule, hasNextModule, onPrevModule, onNextModule,
-    showToolbar, contentRef, wideMode, selection, closeToolbar,
+    hasPrevModule,
+    hasNextModule,
+    onPrevModule,
+    onNextModule,
+    showToolbar,
+    contentRef,
+    wideMode,
+    selection,
+    closeToolbar,
   ]);
 
   useEffect(() => {

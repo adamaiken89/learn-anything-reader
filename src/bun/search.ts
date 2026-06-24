@@ -62,7 +62,8 @@ function score(text: string, query: string): number {
   let s = 0;
   if (lower === qlower) s += 100;
   if (lower.startsWith(qlower)) s += 50;
-  const count = (lower.match(new RegExp(qlower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+  const count = (lower.match(new RegExp(qlower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || [])
+    .length;
   s += count * 10;
   return s;
 }
@@ -113,7 +114,9 @@ export function searchAll(query: string): SearchResult[] {
             courseID: note.courseID,
             courseName: course?.displayName || note.courseID,
             moduleID: note.moduleID,
-            moduleName: course?.modules.find((m) => m.id === note.moduleID)?.name || `Module ${note.moduleID}`,
+            moduleName:
+              course?.modules.find((m) => m.id === note.moduleID)?.name ||
+              `Module ${note.moduleID}`,
             snippet: highlightMatches(note.content, q),
           });
         }
@@ -133,7 +136,8 @@ export function searchAll(query: string): SearchResult[] {
             courseID: hl.courseID,
             courseName: course?.displayName || hl.courseID,
             moduleID: hl.moduleID,
-            moduleName: course?.modules.find((m) => m.id === hl.moduleID)?.name || `Module ${hl.moduleID}`,
+            moduleName:
+              course?.modules.find((m) => m.id === hl.moduleID)?.name || `Module ${hl.moduleID}`,
             snippet: highlightMatches(hl.selectedText, q),
           });
         }

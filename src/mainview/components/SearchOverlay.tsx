@@ -74,10 +74,7 @@ export default function SearchOverlay({ onClose, onNavigate }: SearchOverlayProp
             className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-500 outline-none"
           />
           {loading && <span className="text-xs text-gray-500">...</span>}
-          <button
-            onClick={onClose}
-            className="text-xs text-gray-500 hover:text-gray-300 px-1.5"
-          >
+          <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-300 px-1.5">
             ESC
           </button>
         </div>
@@ -102,11 +99,14 @@ export default function SearchOverlay({ onClose, onNavigate }: SearchOverlayProp
               className="w-full text-left px-4 py-2.5 hover:bg-gray-750 border-b border-gray-700/50 last:border-0 transition-colors"
             >
               <div className="flex items-start gap-2">
-                <span className="text-sm shrink-0 mt-0.5">{t(TYPE_ICONS[r.type] || 'icons.searchLesson')}</span>
+                <span className="text-sm shrink-0 mt-0.5">
+                  {t(TYPE_ICONS[r.type] || 'icons.searchLesson')}
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-300 truncate">{r.snippet}</p>
                   <p className="text-[10px] text-gray-500 mt-0.5">
-                    {t(`search.${r.type}Result`)} {t('search.inCourse', { course: r.courseName })} &middot; {r.moduleName}
+                    {t(`search.${r.type}Result`)} {t('search.inCourse', { course: r.courseName })}{' '}
+                    &middot; {r.moduleName}
                   </p>
                 </div>
               </div>

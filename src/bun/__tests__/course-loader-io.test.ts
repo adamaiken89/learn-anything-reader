@@ -71,9 +71,7 @@ describe('findModuleDir', () => {
 
   test('returns null when no matching module found', async () => {
     loader = await import('../course-loader');
-    mockState.modulesDirEntries = [
-      { name: '01-intro', isDirectory: () => true },
-    ];
+    mockState.modulesDirEntries = [{ name: '01-intro', isDirectory: () => true }];
     const result = loader.findModuleDir('/courses', 'test', 99);
     expect(result).toBeNull();
   });
@@ -123,9 +121,7 @@ describe('loadCourses', () => {
 describe('loadLesson', () => {
   test('returns lesson content', async () => {
     loader = await import('../course-loader');
-    mockState.modulesDirEntries = [
-      { name: '01-intro', isDirectory: () => true },
-    ];
+    mockState.modulesDirEntries = [{ name: '01-intro', isDirectory: () => true }];
     mockState.moduleLesson['01-intro'] = '# Intro\n\nContent';
     const content = loader.loadLesson('test', 1);
     expect(content).toBe('# Intro\n\nContent');
@@ -134,9 +130,7 @@ describe('loadLesson', () => {
   test('throws when module not found', async () => {
     loader = await import('../course-loader');
     mockState.modulesDirEntries = [];
-    expect(() => loader.loadLesson('test', 99)).toThrow(
-      'Module 99 not found for course test',
-    );
+    expect(() => loader.loadLesson('test', 99)).toThrow('Module 99 not found for course test');
   });
 
   test('throws when courses dir not found', async () => {
@@ -149,9 +143,7 @@ describe('loadLesson', () => {
 describe('loadQuiz', () => {
   test('returns quiz questions', async () => {
     loader = await import('../course-loader');
-    mockState.modulesDirEntries = [
-      { name: '01-intro', isDirectory: () => true },
-    ];
+    mockState.modulesDirEntries = [{ name: '01-intro', isDirectory: () => true }];
     mockState.moduleQuiz['01-intro'] =
       '- id: q1\n  question: "?"\n  options:\n    A: a\n    B: b\n  answer: A\n  explanation: e\n';
     const quiz = loader.loadQuiz('test', 1);
@@ -161,9 +153,7 @@ describe('loadQuiz', () => {
 
   test('returns empty array when no quiz.yaml', async () => {
     loader = await import('../course-loader');
-    mockState.modulesDirEntries = [
-      { name: '01-intro', isDirectory: () => true },
-    ];
+    mockState.modulesDirEntries = [{ name: '01-intro', isDirectory: () => true }];
     // No quiz content set → readFileSync returns '' → existsSync returns true but
     // loadQuiz checks existsSync(quizPath) first. Since our mock doesn't distinguish
     // paths, we need a way to simulate missing quiz file.
@@ -176,9 +166,7 @@ describe('loadQuiz', () => {
 
   test('throws when module not found', async () => {
     loader = await import('../course-loader');
-    expect(() => loader.loadQuiz('test', 99)).toThrow(
-      'Module 99 not found for course test',
-    );
+    expect(() => loader.loadQuiz('test', 99)).toThrow('Module 99 not found for course test');
   });
 
   test('throws when courses dir not found', async () => {

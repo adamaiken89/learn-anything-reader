@@ -11,9 +11,18 @@ interface Props {
 export default function QuizSection({ courseId, moduleId }: Props) {
   const { t } = useTranslation();
   const {
-    status, questions, currentIndex, selectedAnswers,
-    currentQuestion, hasAnswer, score, percentage,
-    selectAnswer, nextQuestion, skipQuestion, retry,
+    status,
+    questions,
+    currentIndex,
+    selectedAnswers,
+    currentQuestion,
+    hasAnswer,
+    score,
+    percentage,
+    selectAnswer,
+    nextQuestion,
+    skipQuestion,
+    retry,
   } = useQuizEngine(courseId, moduleId);
 
   if (status === 'loading')
@@ -87,33 +96,34 @@ export default function QuizSection({ courseId, moduleId }: Props) {
         <h2 className="text-lg font-medium mb-6">{currentQuestion?.question}</h2>
 
         <div className="space-y-3">
-          {currentQuestion && Object.entries(currentQuestion.options).map(([key, value]) => {
-            const isSelected = selectedAnswers[currentQuestion.id] === key;
-            const showCorrect = hasAnswer && key === currentQuestion.answer;
-            const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
-            return (
-              <button
-                key={key}
-                onClick={() => !hasAnswer && selectAnswer(key)}
-                disabled={hasAnswer}
-                className={clsx(
-                  answerVariants({
-                    state: showCorrect
-                      ? 'correct'
-                      : showWrong
-                        ? 'wrong'
-                        : isSelected
-                          ? 'selected'
-                          : 'neutral',
-                  }),
-                  !hasAnswer ? 'cursor-pointer' : 'cursor-default',
-                )}
-              >
-                <span className="font-mono text-indigo-400 mr-2">{key}.</span>
-                {String(value)}
-              </button>
-            );
-          })}
+          {currentQuestion &&
+            Object.entries(currentQuestion.options).map(([key, value]) => {
+              const isSelected = selectedAnswers[currentQuestion.id] === key;
+              const showCorrect = hasAnswer && key === currentQuestion.answer;
+              const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
+              return (
+                <button
+                  key={key}
+                  onClick={() => !hasAnswer && selectAnswer(key)}
+                  disabled={hasAnswer}
+                  className={clsx(
+                    answerVariants({
+                      state: showCorrect
+                        ? 'correct'
+                        : showWrong
+                          ? 'wrong'
+                          : isSelected
+                            ? 'selected'
+                            : 'neutral',
+                    }),
+                    !hasAnswer ? 'cursor-pointer' : 'cursor-default',
+                  )}
+                >
+                  <span className="font-mono text-indigo-400 mr-2">{key}.</span>
+                  {String(value)}
+                </button>
+              );
+            })}
         </div>
 
         {hasAnswer && currentQuestion && (

@@ -1,4 +1,12 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, readdirSync } from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  cpSync,
+  readdirSync,
+} from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { getSyncConfig, saveSyncConfig } from './storage';
@@ -54,11 +62,11 @@ async function getLatestRemoteCommit(repoURL: string): Promise<string> {
   const cleanRepo = repo.replace(/\.git$/, '');
 
   const res = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits/main`, {
-    headers: { 'Accept': 'application/vnd.github.v3+json' },
+    headers: { Accept: 'application/vnd.github.v3+json' },
   });
 
   if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-  const data = await res.json() as { sha: string };
+  const data = (await res.json()) as { sha: string };
   return data.sha;
 }
 

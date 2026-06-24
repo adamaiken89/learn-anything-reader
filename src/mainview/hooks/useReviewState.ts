@@ -27,15 +27,18 @@ export function useReviewState(courseId: string): UseReviewStateReturn {
   const [filter, setFilter] = useState<FilterMode>('all');
   const [deck, setDeck] = useState<SRSDeck>({ cards: {} });
 
-  const loadCards = useCallback((f: FilterMode) => {
-    setLoading(true);
-    api.courses.srs.filter(courseId, f).then((result) => {
-      setCards(result);
-      setLoading(false);
-      setCurrentIndex(0);
-      setShowAnswer(false);
-    });
-  }, [courseId]);
+  const loadCards = useCallback(
+    (f: FilterMode) => {
+      setLoading(true);
+      api.courses.srs.filter(courseId, f).then((result) => {
+        setCards(result);
+        setLoading(false);
+        setCurrentIndex(0);
+        setShowAnswer(false);
+      });
+    },
+    [courseId],
+  );
 
   useEffect(() => {
     api.courses.srs.get(courseId).then((d) => {

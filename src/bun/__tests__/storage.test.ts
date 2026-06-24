@@ -296,7 +296,12 @@ describe('study sessions', () => {
 
   test('addStudySession with default date', async () => {
     mod = await import('../storage');
-    const s = mod.addStudySession({ courseID: 'c1', moduleID: 1, durationMinutes: 30, type: 'reading' });
+    const s = mod.addStudySession({
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 30,
+      type: 'reading',
+    });
     expect(s.date).toBe(today);
     expect(s.courseID).toBe('c1');
     expect(s.durationMinutes).toBe(30);
@@ -305,7 +310,15 @@ describe('study sessions', () => {
 
   test('addStudySession with custom date', async () => {
     mod = await import('../storage');
-    const s = mod.addStudySession({ date: '2024-01-15', courseID: 'c1', moduleID: 1, durationMinutes: 15, type: 'quiz', score: 3, total: 5 });
+    const s = mod.addStudySession({
+      date: '2024-01-15',
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 15,
+      type: 'quiz',
+      score: 3,
+      total: 5,
+    });
     expect(s.date).toBe('2024-01-15');
     expect(s.score).toBe(3);
     expect(s.total).toBe(5);
@@ -313,9 +326,27 @@ describe('study sessions', () => {
 
   test('getStudySessions filters by course and sorts desc', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: '2024-01-10', courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: '2024-01-12', courseID: 'c1', moduleID: 1, durationMinutes: 20, type: 'reading' });
-    mod.addStudySession({ date: '2024-01-11', courseID: 'c2', moduleID: 1, durationMinutes: 5, type: 'reading' });
+    mod.addStudySession({
+      date: '2024-01-10',
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: '2024-01-12',
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 20,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: '2024-01-11',
+      courseID: 'c2',
+      moduleID: 1,
+      durationMinutes: 5,
+      type: 'reading',
+    });
     const sessions = mod.getStudySessions('c1');
     expect(sessions).toHaveLength(2);
     expect(sessions[0].date).toBe('2024-01-12');
@@ -324,22 +355,58 @@ describe('study sessions', () => {
 
   test('getStudySessions with days filter', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: daysAgo(1), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(10), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
+    mod.addStudySession({
+      date: daysAgo(1),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(10),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
     expect(mod.getStudySessions('c1', 7)).toHaveLength(1);
   });
 
   test('getGlobalStudySessions returns all sessions', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: '2024-01-10', courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: '2024-01-11', courseID: 'c2', moduleID: 1, durationMinutes: 5, type: 'reading' });
+    mod.addStudySession({
+      date: '2024-01-10',
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: '2024-01-11',
+      courseID: 'c2',
+      moduleID: 1,
+      durationMinutes: 5,
+      type: 'reading',
+    });
     expect(mod.getGlobalStudySessions()).toHaveLength(2);
   });
 
   test('getGlobalStudySessions with days filter', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: daysAgo(1), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(10), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
+    mod.addStudySession({
+      date: daysAgo(1),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(10),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
     expect(mod.getGlobalStudySessions(7)).toHaveLength(1);
   });
 
@@ -356,23 +423,65 @@ describe('study sessions', () => {
 
   test('getDailyStreak counts consecutive days', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: daysAgo(0), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(1), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(2), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
+    mod.addStudySession({
+      date: daysAgo(0),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(1),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(2),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
     expect(mod.getDailyStreak()).toBe(3);
   });
 
   test('getDailyStreak breaks on gap', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: daysAgo(0), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(1), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
-    mod.addStudySession({ date: daysAgo(3), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
+    mod.addStudySession({
+      date: daysAgo(0),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(1),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
+    mod.addStudySession({
+      date: daysAgo(3),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
     expect(mod.getDailyStreak()).toBe(2);
   });
 
   test('getDailyStreak returns 0 if most recent session is not today or yesterday', async () => {
     mod = await import('../storage');
-    mod.addStudySession({ date: daysAgo(5), courseID: 'c1', moduleID: 1, durationMinutes: 10, type: 'reading' });
+    mod.addStudySession({
+      date: daysAgo(5),
+      courseID: 'c1',
+      moduleID: 1,
+      durationMinutes: 10,
+      type: 'reading',
+    });
     expect(mod.getDailyStreak()).toBe(0);
   });
 });

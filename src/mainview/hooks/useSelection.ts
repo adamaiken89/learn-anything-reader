@@ -22,7 +22,9 @@ interface UseSelectionReturn {
   closeCardEditor: () => void;
 }
 
-export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>): UseSelectionReturn {
+export function useSelection(
+  scrollContainerRef?: RefObject<HTMLElement | null>,
+): UseSelectionReturn {
   const [showToolbar, setShowToolbar] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [showCardEditor, setShowCardEditor] = useState(false);
@@ -54,7 +56,9 @@ export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>)
       try {
         const rect = selection.range.getBoundingClientRect();
         setPickerPos({ x: rect.left + rect.width / 2, y: rect.bottom, selectionTop: rect.top });
-      } catch { /* range invalid */ }
+      } catch {
+        /* range invalid */
+      }
     };
     const onScroll = () => {
       cancelAnimationFrame(rafRef.current);
