@@ -1,4 +1,7 @@
 {
+  "app": {
+    "search": "搜尋 (⌘K)"
+  },
   "common": {
     "loading": "載入中...",
     "back": "← 返回",
@@ -27,7 +30,6 @@
   "courseList": {
     "loadingCourses": "正在載入課程...",
     "loadError": "錯誤",
-    "appTagline": "桌面學習應用程式",
     "noCourses": "找不到課程。請將課程加入 courses/ 目錄。",
     "modules": "{{count}} 個單元"
   },
@@ -53,16 +55,19 @@
     "sections": "章節",
     "toggleSectionsPanel": "切換章節面板",
     "removeBookmark": "移除書籤",
-    "moduleProgress": "單元進度",
     "completed": "✓ 已完成",
     "markAsComplete": "標記為完成",
-    "cancelHighlight": "取消標示",
     "focusMode": "專注模式",
     "focusModeOn": "離開專注",
     "focusModeOff": "專注",
     "addNote": "新增筆記",
     "createCard": "建立卡片",
-    "copy": "複製"
+    "copy": "複製",
+    "reviewFlashcards": "複習閃卡",
+    "cards": "卡片"
+  },
+  "selection": {
+    "copied": "已複製！"
   },
   "quiz": {
     "loadingQuiz": "正在載入測驗...",
@@ -72,7 +77,6 @@
     "yourAnswer": "你的答案：",
     "correctAnswer": "正確答案：",
     "retry": "重新挑戰",
-    "backToLesson": "返回課程",
     "questionOf": "第 {{current}} 題，共 {{total}} 題",
     "difficulty": "難度：{{level}}",
     "skip": "跳過",
@@ -84,7 +88,6 @@
     "all": "全部",
     "due": "到期",
     "starred": "已收藏",
-    "cards": "{{count}} 張卡片",
     "noDueCards": "沒有到期的複習卡片！",
     "noStarredCards": "沒有已收藏的卡片。",
     "noCards": "卡片盒中沒有卡片。",
@@ -98,6 +101,13 @@
     "remembered": "記住了",
     "unstar": "★ 取消收藏",
     "star": "☆ 收藏"
+  },
+  "userCardReview": {
+    "noCards": "尚無卡片",
+    "noCardsHint": "在課程中選取文字以建立閃卡。",
+    "front": "正面",
+    "back": "背面",
+    "cardCounter": "第 {{current}} 張，共 {{total}} 張"
   },
   "settings": {
     "geminiApiKey": "Gemini API 金鑰",
@@ -115,10 +125,25 @@
     "wideLayout": "寬版",
     "wideDesc": "全螢幕顯示",
     "language": "語言",
-    "englishVariant": "英語變體",
     "about": "關於",
     "version": "CourseReader v1.0",
     "aboutDesc": "macOS 桌面學習應用程式，支援間隔重複。",
+    "remoteContent": "遠端內容",
+    "remoteContentDesc": "從 GitHub 儲存庫同步課程內容。",
+    "pasteClipboard": "從剪貼簿貼上",
+    "paste": "貼上",
+    "copyClipboard": "複製到剪貼簿",
+    "copy": "複製",
+    "saveUrl": "儲存網址",
+    "syncing": "同步中...",
+    "syncNow": "立即同步",
+    "lastSynced": "上次同步：",
+    "commit": "提交：",
+    "englishUS": "English (US)",
+    "englishUK": "English (UK)",
+    "englishCA": "English (CA)",
+    "englishAU": "English (AU)",
+    "chineseTW": "繁體中文",
     "themes": {
       "dark": "深色",
       "darkDesc": "溫暖的深色，夜間閱讀不傷眼",
@@ -171,7 +196,6 @@
   },
   "bookmarks": {
     "loadingBookmarks": "正在載入書籤...",
-    "bookmarks": "書籤（{{count}}）",
     "noBookmarks": "尚無書籤。閱讀時可將課程加入書籤。",
     "sectionLabel": " — 章節",
     "moduleLabel": " — 單元"
@@ -190,12 +214,9 @@
     "focus": "專注",
     "shortBreak": "短暫休息",
     "longBreak": "長休息",
-    "start": "開始",
     "pause": "暫停",
     "resume": "繼續",
     "stop": "停止",
-    "focusComplete": "專注時間結束！",
-    "breakComplete": "休息時間結束！",
     "session": "今日完成 {{count}} 次"
   },
   "dashboard": {
@@ -210,6 +231,37 @@
     "srsTotal": "卡片總數",
     "streak": "連續天數",
     "studyTime": "學習時間",
-    "minutes": "{{count}} 分鐘"
+    "minutes": "{{count}} 分鐘",
+    "recentActivity": "最近活動",
+    "courses": "課程",
+    "courseProgress": "課程進度",
+    "noData": "無可用資料。"
+  },
+  "icons": {
+    "bookmarkFilled": "★",
+    "bookmarkEmpty": "☆",
+    "pomodoro": "🍅",
+    "cards": "🃏",
+    "search": "🔍",
+    "close": "✕",
+    "note": "📝",
+    "clipboard": "📋",
+    "themeDark": "🌙",
+    "themeOled": "🖤",
+    "themeNord": "❄️",
+    "themeSepia": "📜",
+    "themeGruvbox": "🪵",
+    "themeLight": "☀️",
+    "themeSolarized": "🔆",
+    "themeCatppuccin": "🩷",
+    "starFilled": "★",
+    "starEmpty": "☆",
+    "searchLesson": "📄",
+    "searchHighlight": "🖍",
+    "book": "📖",
+    "review": "🔄",
+    "stats": "📊",
+    "gear": "⚙",
+    "hamburger": "☰"
   }
 }

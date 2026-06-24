@@ -269,7 +269,7 @@ export default function LessonSection({
               className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 shadow-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
               title={t('lesson.toggleSectionsPanel')}
             >
-              ☰
+              {t('icons.hamburger')}
             </button>
           )}
 

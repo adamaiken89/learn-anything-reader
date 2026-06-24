@@ -4,12 +4,12 @@ import { toggleVariants } from '../ui';
 import type { Theme } from '../../themes';
 
 const THEME_LABELS: Record<Theme, string> = {
-  dark: 'Dark', oled: 'OLED', nord: 'Nord', sepia: 'Sepia',
-  gruvbox: 'Gruvbox', light: 'Light', 'solarized-dark': 'Solarized', catppuccin: 'Catppuccin',
+  dark: 'settings.themes.dark', oled: 'settings.themes.oled', nord: 'settings.themes.nord', sepia: 'settings.themes.sepia',
+  gruvbox: 'settings.themes.gruvbox', light: 'settings.themes.light', 'solarized-dark': 'settings.themes.solarized', catppuccin: 'settings.themes.catppuccin',
 };
 const THEME_ICONS: Record<Theme, string> = {
-  dark: '🌙', oled: '🖤', nord: '❄️', sepia: '📜',
-  gruvbox: '🪵', light: '☀️', 'solarized-dark': '🔆', catppuccin: '🩷',
+  dark: 'icons.themeDark', oled: 'icons.themeOled', nord: 'icons.themeNord', sepia: 'icons.themeSepia',
+  gruvbox: 'icons.themeGruvbox', light: 'icons.themeLight', 'solarized-dark': 'icons.themeSolarized', catppuccin: 'icons.themeCatppuccin',
 };
 
 interface LessonToolbarProps {
@@ -74,9 +74,9 @@ export default function LessonToolbar({
           <button
             onClick={cycleTheme}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-            title={`${t('settings.readingTheme')}: ${THEME_LABELS[theme]}`}
+            title={`${t('settings.readingTheme')}: ${t(THEME_LABELS[theme])}`}
           >
-            {THEME_ICONS[theme]}
+            {t(THEME_ICONS[theme])}
           </button>
           <div className="h-3 w-px bg-gray-600" />
         </>
@@ -96,7 +96,7 @@ export default function LessonToolbar({
             className={toggleVariants({ active: hasActiveBookmark })}
             title={t('lesson.bookmarkModule')}
           >
-            {hasActiveBookmark ? '★' : '☆'} {t('lesson.bookmark')}
+            {hasActiveBookmark ? t('icons.bookmarkFilled') : t('icons.bookmarkEmpty')} {t('lesson.bookmark')}
           </button>
         </>
       )}
@@ -114,7 +114,7 @@ export default function LessonToolbar({
         className={toggleVariants({ active: showPomodoro })}
         title={t('pomodoro.title')}
       >
-        🍅
+        {t('icons.pomodoro')}
       </button>
       {!focusMode && (
         <>
@@ -134,9 +134,9 @@ export default function LessonToolbar({
           <button
             onClick={onReviewCards}
             className="px-2 py-0.5 text-xs bg-gray-700 hover:bg-gray-600 rounded"
-            title="Review Flashcards"
+            title={t('lesson.reviewFlashcards')}
           >
-            🃏 Cards
+            {t('icons.cards')} {t('lesson.cards')}
           </button>
         </>
       )}

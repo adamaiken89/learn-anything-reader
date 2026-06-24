@@ -106,7 +106,7 @@ export default function DashboardPage({ courseID, onBack }: DashboardPageProps) 
 
           {courseStats.recentSessions.length > 0 && (
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-              <p className="text-xs font-semibold text-gray-400 mb-2">Recent Activity</p>
+              <p className="text-xs font-semibold text-gray-400 mb-2">{t('dashboard.recentActivity')}</p>
               <div className="space-y-1 max-h-48 overflow-y-auto">
                 {courseStats.recentSessions.slice(0, 10).map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-[10px] text-gray-500">
@@ -139,14 +139,14 @@ export default function DashboardPage({ courseID, onBack }: DashboardPageProps) 
             <StatCard label={t('dashboard.modulesDone')} value={`${globalStats.totalCompletedModules}/${globalStats.totalModules}`} />
             <StatCard label={t('dashboard.streak')} value={globalStats.streak} suffix="days" color="#22c55e" />
             <StatCard
-              label="Study Time"
+              label={t('dashboard.studyTime')}
               value={t('dashboard.minutes', { count: globalStats.totalStudyMinutes })}
             />
-            <StatCard label="Courses" value={globalStats.totalCourses} />
+            <StatCard label={t('dashboard.courses')} value={globalStats.totalCourses} />
           </div>
 
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-            <p className="text-xs font-semibold text-gray-400 mb-2">Course Progress</p>
+            <p className="text-xs font-semibold text-gray-400 mb-2">{t('dashboard.courseProgress')}</p>
             <div className="space-y-2">
               {globalStats.courseSummaries.map((cs) => {
                 const pct = cs.total > 0 ? Math.round((cs.completed / cs.total) * 100) : 0;
@@ -176,7 +176,7 @@ export default function DashboardPage({ courseID, onBack }: DashboardPageProps) 
     <PageLayout>
       <PageHeader onBack={onBack} title={t('dashboard.title')} />
       <PageContent>
-        <div className="text-center text-gray-500 py-12">No data available.</div>
+        <div className="text-center text-gray-500 py-12">{t('dashboard.noData')}</div>
       </PageContent>
     </PageLayout>
   );

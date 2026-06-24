@@ -38,7 +38,7 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
   if (cards.length === 0)
     return (
       <div className="text-xs text-gray-500 text-center py-4">
-        {t('studyTools.noCards') || 'No cards yet. Select text in the lesson to create cards.'}
+        {t('studyTools.noCards')}
       </div>
     );
 
@@ -56,18 +56,18 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
               disabled={deletingId === card.id}
               className="text-[10px] text-gray-600 hover:text-red-400 shrink-0 disabled:opacity-40"
             >
-              ✕
+              {t('icons.close')}
             </button>
           </div>
           <div className="flex items-center gap-2 mt-1 text-[9px] text-gray-600">
             {card.interval > 0 && (
               <span>
-                {t('studyTools.cardDue') || 'Due'}: {new Date(card.nextReviewDate).toLocaleDateString()}
+                {t('studyTools.cardDue')}: {new Date(card.nextReviewDate).toLocaleDateString()}
               </span>
             )}
             {card.repetitions > 0 && (
               <span>
-                {t('studyTools.cardReps') || 'Reps'}: {card.repetitions}
+                {t('studyTools.cardReps')}: {card.repetitions}
               </span>
             )}
           </div>

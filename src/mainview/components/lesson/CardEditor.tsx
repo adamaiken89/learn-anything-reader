@@ -31,21 +31,21 @@ export default function CardEditor({
       }}
     >
       <p className="text-[10px] text-gray-500 mb-2 font-semibold uppercase tracking-wider">
-        {t('lesson.createCard') || 'Create Flashcard'}
+        {t('lesson.createCard')}
       </p>
-      <label className="text-[10px] text-gray-400 block mb-0.5">Front</label>
+      <label className="text-[10px] text-gray-400 block mb-0.5">{t('userCardReview.front')}</label>
       <textarea
         value={front}
         onChange={(e) => setFront(e.target.value)}
-        placeholder={t('studyTools.cardFront') || 'Question / prompt'}
+        placeholder={t('studyTools.cardFront')}
         className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-16 focus:outline-none focus:border-indigo-500 mb-2"
         autoFocus
       />
-      <label className="text-[10px] text-gray-400 block mb-0.5">Back</label>
+      <label className="text-[10px] text-gray-400 block mb-0.5">{t('userCardReview.back')}</label>
       <textarea
         value={back}
         onChange={(e) => setBack(e.target.value)}
-        placeholder={t('studyTools.cardBack') || 'Answer / explanation'}
+        placeholder={t('studyTools.cardBack')}
         className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
       />
       <div className="flex gap-2 mt-1.5">

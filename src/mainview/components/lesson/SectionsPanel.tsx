@@ -89,7 +89,7 @@ export default function SectionsPanel({
                           : t('lesson.bookmarkSection')
                       }
                     >
-                      {isBookmarked ? '★' : '☆'}
+                      {isBookmarked ? t('icons.starFilled') : t('icons.starEmpty')}
                     </span>
                   </div>
                 </button>

@@ -1,4 +1,7 @@
 {
+  "app": {
+    "search": "Search (⌘K)"
+  },
   "common": {
     "loading": "Loading...",
     "back": "← Back",
@@ -27,7 +30,6 @@
   "courseList": {
     "loadingCourses": "Loading courses...",
     "loadError": "Error",
-    "appTagline": "Desktop study app",
     "noCourses": "No courses found. Add courses to the courses/ directory.",
     "modules": "{{count}} modules"
   },
@@ -53,16 +55,19 @@
     "sections": "Sections",
     "toggleSectionsPanel": "Toggle sections panel",
     "removeBookmark": "Remove bookmark",
-    "moduleProgress": "Module Progress",
     "completed": "✓ Completed",
     "markAsComplete": "Mark as Complete",
-    "cancelHighlight": "Cancel highlight",
     "focusMode": "Focus Mode",
     "focusModeOn": "Exit Focus",
     "focusModeOff": "Focus",
     "addNote": "Add Note",
     "createCard": "Create Card",
-    "copy": "Copy"
+    "copy": "Copy",
+    "reviewFlashcards": "Review Flashcards",
+    "cards": "Cards"
+  },
+  "selection": {
+    "copied": "Copied!"
   },
   "quiz": {
     "loadingQuiz": "Loading quiz...",
@@ -72,7 +77,6 @@
     "yourAnswer": "Your answer:",
     "correctAnswer": "Correct:",
     "retry": "Retry",
-    "backToLesson": "Back to Lesson",
     "questionOf": "Question {{current}} of {{total}}",
     "difficulty": "Difficulty: {{level}}",
     "skip": "Skip",
@@ -84,7 +88,6 @@
     "all": "All",
     "due": "Due",
     "starred": "Starred",
-    "cards": "{{count}} cards",
     "noDueCards": "No cards due for review!",
     "noStarredCards": "No starred cards.",
     "noCards": "No cards in deck.",
@@ -98,6 +101,13 @@
     "remembered": "Remembered",
     "unstar": "★ Unstar",
     "star": "☆ Star"
+  },
+  "userCardReview": {
+    "noCards": "No cards yet",
+    "noCardsHint": "Select text in a lesson to create flashcards.",
+    "front": "Front",
+    "back": "Back",
+    "cardCounter": "{{current}} / {{total}}"
   },
   "settings": {
     "geminiApiKey": "Gemini API Key",
@@ -115,10 +125,25 @@
     "wideLayout": "Wide",
     "wideDesc": "Full width, max screen",
     "language": "Language",
-    "englishVariant": "English Variant",
     "about": "About",
     "version": "CourseReader v1.0",
     "aboutDesc": "macOS desktop study app with spaced repetition.",
+    "remoteContent": "Remote Content",
+    "remoteContentDesc": "Sync course content from a GitHub repository.",
+    "pasteClipboard": "Paste from clipboard",
+    "paste": "Paste",
+    "copyClipboard": "Copy to clipboard",
+    "copy": "Copy",
+    "saveUrl": "Save URL",
+    "syncing": "Syncing...",
+    "syncNow": "Sync Now",
+    "lastSynced": "Last synced: ",
+    "commit": "Commit: ",
+    "englishUS": "English (US)",
+    "englishUK": "English (UK)",
+    "englishCA": "English (CA)",
+    "englishAU": "English (AU)",
+    "chineseTW": "繁體中文",
     "themes": {
       "dark": "Dark",
       "darkDesc": "Warm dark, easy on eyes at night",
@@ -171,7 +196,6 @@
   },
   "bookmarks": {
     "loadingBookmarks": "Loading bookmarks...",
-    "bookmarks": "Bookmarks ({{count}})",
     "noBookmarks": "No bookmarks yet. Bookmark lessons while reading.",
     "sectionLabel": " — Section",
     "moduleLabel": " — Module"
@@ -190,12 +214,9 @@
     "focus": "Focus",
     "shortBreak": "Short Break",
     "longBreak": "Long Break",
-    "start": "Start",
     "pause": "Pause",
     "resume": "Resume",
     "stop": "Stop",
-    "focusComplete": "Focus session complete!",
-    "breakComplete": "Break over!",
     "session": "{{count}} sessions today"
   },
   "dashboard": {
@@ -210,6 +231,37 @@
     "srsTotal": "Total Cards",
     "streak": "Day Streak",
     "studyTime": "Study Time",
-    "minutes": "{{count}} min"
+    "minutes": "{{count}} min",
+    "recentActivity": "Recent Activity",
+    "courses": "Courses",
+    "courseProgress": "Course Progress",
+    "noData": "No data available."
+  },
+  "icons": {
+    "bookmarkFilled": "★",
+    "bookmarkEmpty": "☆",
+    "pomodoro": "🍅",
+    "cards": "🃏",
+    "search": "🔍",
+    "close": "✕",
+    "note": "📝",
+    "clipboard": "📋",
+    "themeDark": "🌙",
+    "themeOled": "🖤",
+    "themeNord": "❄️",
+    "themeSepia": "📜",
+    "themeGruvbox": "🪵",
+    "themeLight": "☀️",
+    "themeSolarized": "🔆",
+    "themeCatppuccin": "🩷",
+    "starFilled": "★",
+    "starEmpty": "☆",
+    "searchLesson": "📄",
+    "searchHighlight": "🖍",
+    "book": "📖",
+    "review": "🔄",
+    "stats": "📊",
+    "gear": "⚙",
+    "hamburger": "☰"
   }
 }

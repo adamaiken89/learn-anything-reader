@@ -37,7 +37,7 @@ export default function StudyTools({
     { id: 'notes', label: t('studyTools.notes') },
     { id: 'highlights', label: t('studyTools.highlights') },
     { id: 'bookmarks', label: t('studyTools.bookmarks') },
-    { id: 'cards', label: t('studyTools.cards') || 'Cards' },
+    { id: 'cards', label: t('studyTools.cards') },
     { id: 'ask-ai', label: t('studyTools.askAi') },
   ];
 
@@ -46,7 +46,7 @@ export default function StudyTools({
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-700">
         <span className="text-xs font-semibold text-indigo-400">{t('studyTools.title')}</span>
         <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xs">
-          ✕
+          {t('icons.close')}
         </button>
       </div>
       <div className="flex border-b border-gray-700">

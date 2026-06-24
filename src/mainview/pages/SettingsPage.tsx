@@ -16,36 +16,36 @@ interface ThemeCard {
 }
 
 const THEME_CARDS: ThemeCard[] = [
-  { id: 'dark', icon: '🌙', labelKey: 'settings.themes.dark', descKey: 'settings.themes.darkDesc' },
-  { id: 'oled', icon: '🖤', labelKey: 'settings.themes.oled', descKey: 'settings.themes.oledDesc' },
-  { id: 'nord', icon: '❄️', labelKey: 'settings.themes.nord', descKey: 'settings.themes.nordDesc' },
+  { id: 'dark', icon: 'icons.themeDark', labelKey: 'settings.themes.dark', descKey: 'settings.themes.darkDesc' },
+  { id: 'oled', icon: 'icons.themeOled', labelKey: 'settings.themes.oled', descKey: 'settings.themes.oledDesc' },
+  { id: 'nord', icon: 'icons.themeNord', labelKey: 'settings.themes.nord', descKey: 'settings.themes.nordDesc' },
   {
     id: 'sepia',
-    icon: '📜',
+    icon: 'icons.themeSepia',
     labelKey: 'settings.themes.sepia',
     descKey: 'settings.themes.sepiaDesc',
   },
   {
     id: 'gruvbox',
-    icon: '🪵',
+    icon: 'icons.themeGruvbox',
     labelKey: 'settings.themes.gruvbox',
     descKey: 'settings.themes.gruvboxDesc',
   },
   {
     id: 'light',
-    icon: '☀️',
+    icon: 'icons.themeLight',
     labelKey: 'settings.themes.light',
     descKey: 'settings.themes.lightDesc',
   },
   {
     id: 'solarized-dark',
-    icon: '🔆',
+    icon: 'icons.themeSolarized',
     labelKey: 'settings.themes.solarized',
     descKey: 'settings.themes.solarizedDesc',
   },
   {
     id: 'catppuccin',
-    icon: '🩷',
+    icon: 'icons.themeCatppuccin',
     labelKey: 'settings.themes.catppuccin',
     descKey: 'settings.themes.catppuccinDesc',
   },
@@ -140,9 +140,9 @@ export default function SettingsPage({ onBack }: Props) {
         </section>
 
         <section className="bg-gray-800 rounded-xl p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Remote Content</h3>
+          <h3 className="text-lg font-semibold mb-4">{t('settings.remoteContent')}</h3>
           <p className="text-sm text-gray-400 mb-4">
-            Sync course content from a GitHub repository.
+            {t('settings.remoteContentDesc')}
           </p>
           <div className="flex gap-2 mb-3">
             <input
@@ -162,9 +162,9 @@ export default function SettingsPage({ onBack }: Props) {
                 }
               }}
               className="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors"
-              title="Paste from clipboard"
+              title={t('settings.pasteClipboard')}
             >
-              Paste
+              {t('settings.paste')}
             </button>
             <button
               onClick={async () => {
@@ -176,9 +176,9 @@ export default function SettingsPage({ onBack }: Props) {
               }}
               disabled={!repoURL.trim()}
               className="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors disabled:opacity-50"
-              title="Copy to clipboard"
+              title={t('settings.copyClipboard')}
             >
-              Copy
+              {t('settings.copy')}
             </button>
             <button
               onClick={async () => {
@@ -190,7 +190,7 @@ export default function SettingsPage({ onBack }: Props) {
               disabled={!repoURL.trim()}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm transition-colors disabled:opacity-50"
             >
-              {repoSaved ? 'Saved' : 'Save URL'}
+              {repoSaved ? t('settings.saved') : t('settings.saveUrl')}
             </button>
           </div>
           <div className="flex items-center gap-3">
@@ -202,21 +202,21 @@ export default function SettingsPage({ onBack }: Props) {
               {syncIsSyncing ? (
                 <>
                   <span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-                  Syncing...
+                  {t('settings.syncing')}
                 </>
               ) : (
-                'Sync Now'
+                t('settings.syncNow')
               )}
             </button>
             {syncLastTime && (
               <span className="text-xs text-gray-500">
-                Last synced: {new Date(syncLastTime).toLocaleString()}
+                {t('settings.lastSynced')}{new Date(syncLastTime).toLocaleString()}
               </span>
             )}
           </div>
           {syncLastCommit && (
             <p className="text-xs text-gray-500 mt-2">
-              Commit: {syncLastCommit.slice(0, 7)}
+              {t('settings.commit')}{syncLastCommit.slice(0, 7)}
             </p>
           )}
           {syncError && (
@@ -233,7 +233,7 @@ export default function SettingsPage({ onBack }: Props) {
                 onClick={() => setTheme(t_card.id)}
                 className={`text-left ${selectableCardVariants({ selected: theme === t_card.id })}`}
               >
-                <div className="text-base">{t_card.icon}</div>
+                <div className="text-base">{t(t_card.icon)}</div>
                 <div className="text-sm font-medium mt-1">{t(t_card.labelKey)}</div>
                 <div className="text-[10px] text-gray-400 mt-0.5 leading-tight">
                   {t(t_card.descKey)}
@@ -294,11 +294,11 @@ export default function SettingsPage({ onBack }: Props) {
           <h3 className="text-lg font-semibold mb-4">{t('settings.language')}</h3>
           <div className="flex flex-wrap gap-2">
             {[
-              { code: 'en-US', label: '🇺🇸 English (US)' },
-              { code: 'en-GB', label: '🇬🇧 English (UK)' },
-              { code: 'en-CA', label: '🇨🇦 English (CA)' },
-              { code: 'en-AU', label: '🇦🇺 English (AU)' },
-              { code: 'zh-TW', label: '🇹🇼 繁體中文' },
+              { code: 'en-US', label: t('settings.englishUS') },
+              { code: 'en-GB', label: t('settings.englishUK') },
+              { code: 'en-CA', label: t('settings.englishCA') },
+              { code: 'en-AU', label: t('settings.englishAU') },
+              { code: 'zh-TW', label: t('settings.chineseTW') },
             ].map((l) => (
               <button
                 key={l.code}

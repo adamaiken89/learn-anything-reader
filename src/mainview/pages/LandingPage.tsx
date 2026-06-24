@@ -28,17 +28,17 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 space-y-2">
-              <div className="text-2xl">📖</div>
+              <div className="text-2xl">{t('icons.book')}</div>
               <h3 className="font-medium text-white">{t('landing.lessons')}</h3>
               <p className="text-gray-500 text-xs">{t('landing.lessonsDesc')}</p>
             </div>
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 space-y-2">
-              <div className="text-2xl">📝</div>
+              <div className="text-2xl">{t('icons.note')}</div>
               <h3 className="font-medium text-white">{t('landing.quizzes')}</h3>
               <p className="text-gray-500 text-xs">{t('landing.quizzesDesc')}</p>
             </div>
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 space-y-2">
-              <div className="text-2xl">🔄</div>
+              <div className="text-2xl">{t('icons.review')}</div>
               <h3 className="font-medium text-white">{t('landing.review')}</h3>
               <p className="text-gray-500 text-xs">{t('landing.reviewDesc')}</p>
             </div>

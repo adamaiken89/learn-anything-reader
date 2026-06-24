@@ -55,7 +55,7 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
             >
               <div className="font-medium truncate">{s.displayName}</div>
               <div className="text-xs text-gray-500 mt-0.5">
-                {s.modules.length} {t('common.modules').toLowerCase()} · {s.timeBudgetHours}h
+                {s.modules.length} {t('common.modules')} · {s.timeBudgetHours}h
               </div>
             </button>
           ))}

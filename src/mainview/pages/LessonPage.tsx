@@ -65,7 +65,7 @@ export default function LessonFeature({
                 className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded"
                 title={t('common.settings')}
               >
-                ⚙
+                {t('icons.gear')}
               </button>
             </>
           }

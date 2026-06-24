@@ -200,9 +200,9 @@ export default function App() {
       <button
         onClick={() => setSearchOpen(true)}
         className="fixed bottom-4 left-4 z-50 w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-500 shadow-lg flex items-center justify-center text-white transition-colors"
-        title="Search (⌘K)"
+        title={t('app.search')}
       >
-        🔍
+        {t('icons.search')}
       </button>
       {searchOpen && (
         <SearchOverlay

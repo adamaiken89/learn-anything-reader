@@ -94,7 +94,7 @@ function SelectionToolbar({
           onClick={onCancel}
           className="text-gray-400 hover:text-gray-200 transition-colors text-sm leading-none"
         >
-          ✕
+          {t('icons.close')}
         </button>
       </div>
 
@@ -104,7 +104,7 @@ function SelectionToolbar({
         onClick={onOpenNote}
         className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 transition-colors"
       >
-        <span className="shrink-0">📝</span>
+        <span className="shrink-0">{t('icons.note')}</span>
         {t('lesson.addNote')}
       </button>
 
@@ -112,7 +112,7 @@ function SelectionToolbar({
         onClick={onCreateCard}
         className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 transition-colors"
       >
-        <span className="shrink-0">🃏</span>
+        <span className="shrink-0">{t('icons.cards')}</span>
         {t('lesson.createCard')}
       </button>
 
@@ -120,8 +120,8 @@ function SelectionToolbar({
         onClick={handleCopy}
         className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 transition-colors"
       >
-        <span className="shrink-0">📋</span>
-        {copied ? 'Copied!' : t('lesson.copy')}
+        <span className="shrink-0">{t('icons.clipboard')}</span>
+        {copied ? t('selection.copied') : t('lesson.copy')}
       </button>
     </div>
   );

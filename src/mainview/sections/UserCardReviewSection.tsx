@@ -83,19 +83,19 @@ export default function UserCardReviewSection({ courseId }: Props) {
         <div className="text-center py-12">
           <p className="text-gray-400 mb-4">
             {filter === 'due'
-              ? 'No cards due for review'
+              ? t('review.noDueCards')
               : filter === 'starred'
-                ? 'No starred cards'
-                : 'No cards yet'}
+                ? t('review.noStarredCards')
+                : t('userCardReview.noCards')}
           </p>
-          <p className="text-sm text-gray-500">Select text in a lesson to create flashcards.</p>
+          <p className="text-sm text-gray-500">{t('userCardReview.noCardsHint')}</p>
         </div>
       ) : (
         currentCard && (
           <div>
             <div className="text-xs text-gray-500 mb-2 text-center">
-              {currentIndex + 1} / {cards.length}
-              {currentCard.isStarred && <span className="ml-2 text-yellow-500">★</span>}
+              {t('userCardReview.cardCounter', { current: currentIndex + 1, total: cards.length })}
+              {currentCard.isStarred && <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>}
             </div>
 
             <div className="bg-gray-800 rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center mb-6">
@@ -112,11 +112,11 @@ export default function UserCardReviewSection({ courseId }: Props) {
               ) : (
                 <div className="w-full">
                   <div className="mb-4 pb-4 border-b border-gray-700">
-                    <p className="text-sm text-gray-400 mb-1">Front</p>
+                    <p className="text-sm text-gray-400 mb-1">{t('userCardReview.front')}</p>
                     <p className="text-lg font-medium">{currentCard.front}</p>
                   </div>
                   <div className="mb-6">
-                    <p className="text-sm text-gray-400 mb-1">Back</p>
+                    <p className="text-sm text-gray-400 mb-1">{t('userCardReview.back')}</p>
                     <p className="text-lg">{currentCard.back}</p>
                   </div>
                   <div className="flex gap-3 justify-center">

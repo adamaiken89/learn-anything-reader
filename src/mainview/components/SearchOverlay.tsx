@@ -9,9 +9,9 @@ interface SearchOverlayProps {
 }
 
 const TYPE_ICONS: Record<string, string> = {
-  lesson: '📄',
-  note: '📝',
-  highlight: '🖍',
+  lesson: 'icons.searchLesson',
+  note: 'icons.note',
+  highlight: 'icons.searchHighlight',
 };
 
 export default function SearchOverlay({ onClose, onNavigate }: SearchOverlayProps) {
@@ -63,7 +63,7 @@ export default function SearchOverlay({ onClose, onNavigate }: SearchOverlayProp
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-700">
-          <span className="text-gray-400 text-sm">🔍</span>
+          <span className="text-gray-400 text-sm">{t('icons.search')}</span>
           <input
             ref={inputRef}
             type="text"
@@ -101,7 +101,7 @@ export default function SearchOverlay({ onClose, onNavigate }: SearchOverlayProp
               className="w-full text-left px-4 py-2.5 hover:bg-gray-750 border-b border-gray-700/50 last:border-0 transition-colors"
             >
               <div className="flex items-start gap-2">
-                <span className="text-sm shrink-0 mt-0.5">{TYPE_ICONS[r.type] || '📄'}</span>
+                <span className="text-sm shrink-0 mt-0.5">{t(TYPE_ICONS[r.type] || 'icons.searchLesson')}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-300 truncate">{r.snippet}</p>
                   <p className="text-[10px] text-gray-500 mt-0.5">

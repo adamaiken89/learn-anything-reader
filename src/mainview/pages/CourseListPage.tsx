@@ -45,7 +45,7 @@ export default function CourseListPage({ onSelectCourse, onOpenSettings, onOpenB
               className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
               title={t('dashboard.title')}
             >
-              📊
+              {t('icons.stats')}
             </button>
             <button
               onClick={onOpenBookmarks}

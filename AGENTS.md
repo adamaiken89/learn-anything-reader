@@ -107,6 +107,7 @@ src/
 - **Tests**: `bun test` runs `src/bun/__tests__/` via bun:test + happy-dom (DOM mocks) + @testing-library/react (component tests). Run before every commit.
 - **TypeScript strict mode** enabled.
 - **2-space indent** in tsx, 2-space in ts, tab in json (existing convention).
+- **i18n first**: All UI text and icons must be translation keys (`t('section.key')`), never hardcoded strings or emoji. Locale files at `src/mainview/locales/*.json`. Icons stored under `icons.*` keys. Adding new UI text requires: (1) key in all 5 locale files, (2) `t()` call in component, (3) update snapshots with `bun test --update-snapshots`.
 
 ## Course data model
 
