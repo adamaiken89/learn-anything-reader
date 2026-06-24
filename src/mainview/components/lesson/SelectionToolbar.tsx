@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { useState, useRef, useEffect, useImperativeHandle } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HIGHLIGHT_COLORS } from '../rehype-highlight-text';
 
 interface SelectionToolbarProps {
+  ref?: React.Ref<SelectionToolbarHandle>;
   x: number;
   y: number;
   selectionTop: number;
@@ -18,20 +19,18 @@ export interface SelectionToolbarHandle {
   triggerCopy: () => void;
 }
 
-const SelectionToolbar = forwardRef<SelectionToolbarHandle, SelectionToolbarProps>(function SelectionToolbar(
-  {
-    x,
-    y,
-    selectionTop,
-    selectedText,
-    onSelectColor,
-    onOpenNote,
-    onCreateCard,
-    onCopy,
-    onCancel,
-  },
+function SelectionToolbar({
   ref,
-) {
+  x,
+  y,
+  selectionTop,
+  selectedText,
+  onSelectColor,
+  onOpenNote,
+  onCreateCard,
+  onCopy,
+  onCancel,
+}: SelectionToolbarProps) {
   const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
@@ -126,6 +125,6 @@ const SelectionToolbar = forwardRef<SelectionToolbarHandle, SelectionToolbarProp
       </button>
     </div>
   );
-});
+}
 
 export default SelectionToolbar;

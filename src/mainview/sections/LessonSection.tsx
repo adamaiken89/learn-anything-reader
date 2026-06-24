@@ -58,7 +58,7 @@ function headingId(children: React.ReactNode): string {
 const headingRenderer = (level: number) =>
   function Heading({ children }: { children?: React.ReactNode }) {
     const id = headingId(children);
-    const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+    const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
     return <Tag id={id}>{children}</Tag>;
   };
 

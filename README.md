@@ -2,18 +2,25 @@
 
 Desktop study app for structured curricula with quizzes, spaced repetition, AI-powered Q&A, syntax-highlighted code, and persistent annotations.
 
-Built with **Electrobun** + **React 18** + **TypeScript** + **Bun**.
+Built with **Electrobun** + **React 19** + **TypeScript** + **Bun** + **Hono**.
 
 ## Features
 
 - **Course browser** — course list → module list → lesson, with course/module switchers
 - **Quizzes** — MCQ per module, instant scoring
 - **Spaced repetition** — SM-2 algorithm via SRS deck (JSON), star cards, filter by due/starred/all
+- **User card review** — create and review custom flashcards
 - **AI assistant** — ask Gemini 2.0 Flash about lesson content in sidebar
 - **Annotations** — highlights, notes, and bookmarks per module via JSON persistence
 - **Syntax highlighting** — code blocks rendered via highlight.js (custom dark theme)
 - **Reader navigation** — prev/next module and section buttons, font size controls (10–28px)
 - **Book-like reading** — 8 themes (Dark, OLED, Nord, Sepia, Gruvbox, Light, Solarized, Catppuccin), decorative headers, blockquotes, wide mode toggle
+- **Search** — ⌘K global search across lessons, notes, and highlights
+- **Pomodoro timer** — focus/break timer with session tracking
+- **Dashboard** — per-course and global study stats
+- **Bookmarks page** — browse and jump to saved bookmarks
+- **i18n** — multi-language support (English US/UK/CA/AU, 繁體中文)
+- **Focus mode** — distraction-free reading view
 
 ## Subjects
 
@@ -34,10 +41,10 @@ Subjects live in `subjects/<id>/` with syllabus, modules, and SRS deck.
 React Frontend (Vite) ──HTTP→ Bun Backend (port 50001) ──I/O→ subjects/ + ~/.coursereader/
 ```
 
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Zustand (stores)
-- **Backend**: Bun HTTP server (Bun.serve) with embedded API router
+- **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + Zustand (stores)
+- **Backend**: Bun HTTP server (Bun.serve) + Hono router (port 50001)
 - **Packaging**: Electrobun (desktop app shell, like Electron but lighter)
-- **Dependencies**: `react-markdown`, `remark-gfm`, `rehype-highlight`, `js-yaml`, `class-variance-authority`
+- **Dependencies**: `react-markdown`, `remark-gfm`, `rehype-highlight`, `js-yaml`, `class-variance-authority`, `i18next`, `react-i18next`
 
 ```
 src/mainview/
