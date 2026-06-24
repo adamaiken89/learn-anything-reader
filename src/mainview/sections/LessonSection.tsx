@@ -50,6 +50,83 @@ interface Props {
   onToggleBookmark: (title: string, sectionID: string | null) => Promise<void>;
 }
 
+const META_FIELDS: Record<string, { icon: string; label: string }> = {
+  'est. study time': { icon: '⏱', label: 'Study Time' },
+  language: { icon: '🌐', label: 'Language' },
+  description: { icon: '📝', label: 'Description' },
+  framework: { icon: '🔧', label: 'Framework' },
+};
+
+export function parseLessonMeta(
+  markdown: string,
+): { key: string; icon: string; label: string; value: string }[] {
+  const meta: { key: string; icon: string; label: string; value: string }[] = [];
+  const lines = markdown.split('\n');
+  let pastH1 = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('# ')) {
+      pastH1 = true;
+      continue;
+    }
+    if (trimmed.startsWith('##')) break;
+    if (!pastH1) continue;
+    if (!trimmed) continue;
+    const colonIdx = trimmed.indexOf(':');
+    if (colonIdx === -1) continue;
+    const label = trimmed.slice(0, colonIdx).trim().toLowerCase();
+    const field = META_FIELDS[label];
+    if (field) {
+      meta.push({
+        key: label,
+        icon: field.icon,
+        label: field.label,
+        value: trimmed.slice(colonIdx + 1).trim(),
+      });
+    }
+  }
+  return meta;
+}
+
+export function parseH1(markdown: string): string {
+  for (const line of markdown.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('# ')) return trimmed.slice(2).trim();
+  }
+  return '';
+}
+
+export function stripMetaLines(markdown: string): string {
+  const lines = markdown.split('\n');
+  let lastMetaIdx = -1;
+  let pastH1 = false;
+  let h1Idx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed.startsWith('# ')) {
+      pastH1 = true;
+      h1Idx = i;
+      continue;
+    }
+    if (trimmed.startsWith('##')) break;
+    if (!pastH1) continue;
+    if (!trimmed) continue;
+    const colonIdx = trimmed.indexOf(':');
+    if (colonIdx === -1) continue;
+    const label = trimmed.slice(0, colonIdx).trim().toLowerCase();
+    if (META_FIELDS[label]) {
+      lastMetaIdx = i;
+    }
+  }
+  if (lastMetaIdx === -1) return markdown;
+  let end = lastMetaIdx + 1;
+  while (end < lines.length && !lines[end].trim()) end++;
+  if (h1Idx >= 0) {
+    return lines.slice(end).join('\n');
+  }
+  return lines.slice(end).join('\n');
+}
+
 function extractText(children: React.ReactNode): string {
   let text = '';
   const walk = (node: React.ReactNode) => {
@@ -144,6 +221,37 @@ export default function LessonSection({
   const wideMode = useSettingsStore((s) => s.wideMode);
   const toggleSections = onToggleSections;
   const themeVars = useMemo(() => themeToCSSVars(THEME_TOKENS[theme]), [theme]);
+  const lessonMeta = useMemo(() => parseLessonMeta(content), [content]);
+  const h1Text = useMemo(() => parseH1(content), [content]);
+  const bodyContent = useMemo(() => {
+    if (!h1Text && lessonMeta.length === 0) return content;
+    const lines = content.split('\n');
+    let h1End = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim().startsWith('# ')) {
+        h1End = i + 1;
+        break;
+      }
+    }
+    if (h1End === -1) return content;
+    while (h1End < lines.length && !lines[h1End].trim()) h1End++;
+    if (lessonMeta.length === 0) return lines.slice(h1End).join('\n');
+    let metaEnd = h1End;
+    for (let i = h1End; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+      if (trimmed.startsWith('##')) break;
+      if (!trimmed) {
+        metaEnd = i + 1;
+        continue;
+      }
+      const colonIdx = trimmed.indexOf(':');
+      if (colonIdx === -1) continue;
+      const label = trimmed.slice(0, colonIdx).trim().toLowerCase();
+      if (META_FIELDS[label]) metaEnd = i + 1;
+    }
+    while (metaEnd < lines.length && !lines[metaEnd].trim()) metaEnd++;
+    return lines.slice(metaEnd).join('\n');
+  }, [content, h1Text, lessonMeta]);
   const rehypePlugins = useMemo(
     () => [rehypeHighlight, rehypeHighlightText(highlights)],
     [highlights],
@@ -323,12 +431,30 @@ export default function LessonSection({
               className={`p-6 book-content${wideMode ? ' book-content-wide' : ''}`}
               style={{ fontSize: `${fontSize}px`, ...themeVars }}
             >
+              {h1Text && <h1 id={headingId(h1Text)}>{h1Text}</h1>}
+              {lessonMeta.length > 0 && (
+                <div className="lesson-meta">
+                  {lessonMeta.map((m, i) => {
+                    const isDesc = m.key === 'description';
+                    return (
+                      <span key={m.key}>
+                        {!isDesc && i > 0 && <span className="meta-divider" />}
+                        <span className={`meta-item${isDesc ? ' meta-description' : ''}`}>
+                          <span className="meta-icon">{m.icon}</span>
+                          <span className="meta-label">{m.label}</span>
+                          <span className="meta-value">{m.value}</span>
+                        </span>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={rehypePlugins}
                 components={components}
               >
-                {content}
+                {bodyContent}
               </ReactMarkdown>
 
               <div style={{ marginTop: '3rem' }}>

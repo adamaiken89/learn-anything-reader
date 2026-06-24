@@ -47,6 +47,107 @@ body {
   background: #6b7280;
 }
 
+/* Lesson metadata card */
+.lesson-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.5em;
+  padding: 0.75rem 1rem;
+  background: var(--book-code-bg);
+  border: 1px solid var(--book-h2-border);
+  border-radius: 8px;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+.lesson-meta .meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--book-h4);
+}
+.lesson-meta .meta-item .meta-icon {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+.lesson-meta .meta-item .meta-label {
+  color: var(--book-h6);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78em;
+}
+.lesson-meta .meta-item .meta-value {
+  color: var(--book-text);
+  font-weight: 500;
+}
+.lesson-meta .meta-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--book-h2-border);
+  margin: 0 0.2rem;
+}
+.lesson-meta .meta-description {
+  flex-basis: 100%;
+  display: block;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.4rem;
+  background: var(--book-bq-bg);
+  border-left: 3px solid var(--book-bq-border);
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  line-height: 1.6;
+}
+.lesson-meta .meta-description .meta-icon,
+.lesson-meta .meta-description .meta-label {
+  display: none;
+}
+.lesson-meta .meta-description .meta-value {
+  font-weight: 400;
+  color: var(--book-bq-text);
+  font-style: italic;
+}
+.lesson-meta .meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--book-h4);
+}
+.lesson-meta .meta-item .meta-icon {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+.lesson-meta .meta-item .meta-label {
+  color: var(--book-h6);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78em;
+}
+.lesson-meta .meta-item .meta-value {
+  color: var(--book-text);
+  font-weight: 500;
+}
+.lesson-meta .meta-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--book-h2-border);
+  margin: 0 0.2rem;
+}
+.lesson-meta .meta-description {
+  flex-basis: 100%;
+  padding-top: 0.5rem;
+  margin-top: 0.15rem;
+  border-top: 1px solid var(--book-h2-border);
+}
+.lesson-meta .meta-description .meta-value {
+  font-style: italic;
+  line-height: 1.5;
+}
+
 /* Book-content: lesson prose styles (CSS vars defined here — override via inline style for each theme) */
 .book-content {
   --book-bg: transparent;
