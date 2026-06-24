@@ -1,0 +1,95 @@
+- id: "B4.1"
+  question: "What is the primary benefit of encoding team workflows as custom tools?"
+  options:
+    A: "Faster execution speed"
+    B: "One-shot commands replace 10 minutes of instruction per use"
+    C: "No need for AGENTS.md"
+    D: "Automatic documentation generation"
+  answer: B
+  explanation: "Custom tools encode multi-step team workflows into single commands. A test generator tool replaces explaining 'use Vitest + MSW + factory fixtures' every time. Payback from use #2."
+  difficulty: 1
+  tags: [concept]
+
+- id: "B4.2"
+  question: "What does Zod provide when defining tool parameters?"
+  options:
+    A: "Faster runtime execution"
+    B: "Type validation — agent gets clear errors on invalid parameters"
+    C: "Automatic UI generation"
+    D: "Database integration"
+  answer: B
+  explanation: "Zod schemas validate parameter types and required fields. Agent passes `target: 42`, tool returns 'Expected string, received number'. Immediate feedback prevents silent failures."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B4.3"
+  question: "Where should custom tools be stored for version control?"
+  options:
+    A: "~/.opencode/tools/"
+    B: ".opencode/tools/"
+    C: "/usr/local/bin/"
+    D: "node_modules/"
+  answer: B
+  explanation: ".opencode/tools/ is project-specific and version-controlled. Team members get tools when they clone the repo. The dir is specified in opencode.json."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B4.4"
+  question: "What pattern allows one custom tool to invoke another?"
+  options:
+    A: "Tool chaining"
+    B: "Multi-tool pattern via invoke()"
+    C: "Tool recursion"
+    D: "Sequential execution"
+  answer: B
+  explanation: "`invoke('gen-component', {...})` inside a tool's execute function calls another tool. This enables composition: new-feature calls gen-component + gen-test without the agent orchestrating."
+  difficulty: 2
+  tags: [concept]
+
+- id: "B4.5"
+  question: "What auto-load config makes tools in .opencode/tools/ available without explicit import?"
+  options:
+    A: "\"tools\": {\"auto-load\": true}"
+    B: "\"plugins\": [\"tools\"]"
+    C: "\"features\": {\"tools\": true}"
+    D: "\"experimental\": {\"tools\": true}"
+  answer: A
+  explanation: "In opencode.json: `\"tools\": {\"dir\": \".opencode/tools\", \"auto-load\": true}`. Agent discovers all tools automatically without manual registration."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B4.6"
+  question: "When should you choose oh-my-opencode pre-built tools over a custom tool?"
+  options:
+    A: "Always — pre-built tools cover everything"
+    B: "For generic tasks (LSP, AST, git helpers). Custom for team-specific workflows"
+    C: "Never — custom tools are always better"
+    D: "Only when oh-my-opencode is not installed"
+  answer: B
+  explanation: "oh-my-opencode provides 50+ generic tools. Custom tools should cover team-specific patterns (your test framework, deployment pipeline, code review format). Use pre-built for standard operations."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B4.7"
+  question: "A tool's Zod schema defines target as z.string(). Agent passes {target: 42}. What happens?"
+  options:
+    A: "Tool runs with target='42'"
+    B: "Tool returns 'target: Expected string, received number'"
+    C: "Tool crashes silently"
+    D: "Zod auto-converts to string"
+  answer: B
+  explanation: "Zod validates before execution. Type mismatch triggers clear error message. Agent read error, fixes parameter, retries. No silent failure."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B4.8"
+  question: "How does the agent discover which custom tools are available?"
+  options:
+    A: "From AGENTS.md listing the tools with descriptions"
+    B: "From npm registry"
+    C: "Agent guesses based on file names"
+    D: "Agent asks the user"
+  answer: A
+  explanation: "AGENTS.md should list available custom tools with descriptions and parameter hints. The agent reads this on every turn and chooses tools when purpose matches the task."
+  difficulty: 2
+  tags: [concept]

@@ -76,7 +76,7 @@ app.get('/api/stats/global', (c) => c.json(Stats.getGlobalStats()));
 app.post('/api/stats/session', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: number;
+    moduleID: string | number;
     durationMinutes: number;
     type: 'reading' | 'quiz' | 'review';
     score?: number;
@@ -107,16 +107,16 @@ app.get('/api/courses/:courseId/modules', (c) => {
 
 app.get('/api/courses/:courseId/modules/:moduleId/lesson', (c) => {
   return c.json({
-    content: CourseLoader.loadLesson(c.req.param('courseId'), Number(c.req.param('moduleId'))),
+    content: CourseLoader.loadLesson(c.req.param('courseId'), c.req.param('moduleId')),
   });
 });
 
 app.get('/api/courses/:courseId/modules/:moduleId/quiz', (c) => {
-  return c.json(CourseLoader.loadQuiz(c.req.param('courseId'), Number(c.req.param('moduleId'))));
+  return c.json(CourseLoader.loadQuiz(c.req.param('courseId'), c.req.param('moduleId')));
 });
 
 app.get('/api/courses/:courseId/modules/:moduleId/sections', (c) => {
-  const content = CourseLoader.loadLesson(c.req.param('courseId'), Number(c.req.param('moduleId')));
+  const content = CourseLoader.loadLesson(c.req.param('courseId'), c.req.param('moduleId'));
   return c.json(CourseLoader.parseSections(content));
 });
 
@@ -149,7 +149,7 @@ app.post('/api/courses/:courseId/srs/review', async (c) => {
 });
 
 app.post('/api/courses/:courseId/srs/create', async (c) => {
-  const body = (await c.req.json()) as { question: QuizQuestion; moduleId: number };
+  const body = (await c.req.json()) as { question: QuizQuestion; moduleId: string | number };
   const courseId = c.req.param('courseId');
   const card = createSRSCard(body.question, body.moduleId, courseId);
   const deck = CourseLoader.loadSRSDeck(courseId);
@@ -174,14 +174,14 @@ app.get('/api/courses/:courseId/srs/filter/:filter', (c) => {
 
 app.get('/api/storage/highlights', (c) => {
   const courseID = c.req.query('courseID')!;
-  const moduleID = Number(c.req.query('moduleID'));
+  const moduleID = c.req.query('moduleID')!;
   return c.json(Storage.getHighlightsForModule(courseID, moduleID));
 });
 
 app.post('/api/storage/highlights', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: number;
+    moduleID: string | number;
     selectedText: string;
     startOffset: number;
     endOffset: number;
@@ -207,14 +207,14 @@ app.delete('/api/storage/highlights/:id', (c) => {
 
 app.get('/api/storage/notes', (c) => {
   const courseID = c.req.query('courseID')!;
-  const moduleID = Number(c.req.query('moduleID'));
+  const moduleID = c.req.query('moduleID')!;
   return c.json(Storage.getNotesForModule(courseID, moduleID));
 });
 
 app.post('/api/storage/notes', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: number;
+    moduleID: string | number;
     content: string;
     highlightID?: string;
     sectionID?: string;
@@ -238,7 +238,7 @@ app.put('/api/storage/notes/:id', async (c) => {
 app.post('/api/storage/annotations', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: number;
+    moduleID: string | number;
     selectedText: string;
     startOffset: number;
     endOffset: number;
@@ -265,7 +265,7 @@ app.get('/api/storage/bookmarks/course/:courseID', (c) =>
 app.post('/api/storage/bookmarks', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: number;
+    moduleID: string | number;
     title: string;
     sectionID?: string;
     scrollPosition?: number;
@@ -286,12 +286,12 @@ app.delete('/api/storage/bookmarks/:id', (c) => {
 });
 
 app.get('/api/storage/bookmarks/module/:courseID/:moduleID', (c) =>
-  c.json(Storage.getBookmarksForModule(c.req.param('courseID'), Number(c.req.param('moduleID')))),
+  c.json(Storage.getBookmarksForModule(c.req.param('courseID'), c.req.param('moduleID'))),
 );
 
 app.get('/api/storage/check-bookmark', (c) => {
   const courseID = c.req.query('courseID')!;
-  const moduleID = Number(c.req.query('moduleID'));
+  const moduleID = c.req.query('moduleID')!;
   return c.json(Storage.isBookmarked(courseID, moduleID));
 });
 
@@ -299,12 +299,12 @@ app.get('/api/storage/check-bookmark', (c) => {
 
 app.get('/api/storage/completed', (c) => {
   const courseID = c.req.query('courseID')!;
-  const moduleID = Number(c.req.query('moduleID'));
+  const moduleID = c.req.query('moduleID')!;
   return c.json({ completed: Storage.isModuleCompleted(courseID, moduleID) });
 });
 
 app.post('/api/storage/completed', async (c) => {
-  const body = (await c.req.json()) as { courseID: string; moduleID: number };
+  const body = (await c.req.json()) as { courseID: string; moduleID: string | number };
   const completed = Storage.toggleModuleCompleted(body.courseID, body.moduleID);
   return c.json({ completed });
 });
@@ -338,7 +338,7 @@ app.post('/api/gemini/ask', async (c) => {
 // --- Quiz Engine ---
 
 app.post('/api/quiz/start', async (c) => {
-  const body = (await c.req.json()) as { courseId: string; moduleId: number };
+  const body = (await c.req.json()) as { courseId: string; moduleId: string | number };
   const questions = CourseLoader.loadQuiz(body.courseId, body.moduleId);
   const engine = new QuizEngine();
   engine.load(questions, body.courseId, body.moduleId);
@@ -378,14 +378,14 @@ app.post('/api/quiz/reset', (c) => {
 
 app.get('/api/usercards', (c) => {
   const courseId = c.req.query('courseId') || undefined;
-  const moduleId = c.req.query('moduleId') ? Number(c.req.query('moduleId')) : undefined;
+  const moduleId = c.req.query('moduleId') || undefined;
   return c.json(Storage.getUserCards(courseId, moduleId));
 });
 
 app.post('/api/usercards', async (c) => {
   const body = (await c.req.json()) as {
     courseId: string;
-    moduleId: number;
+    moduleId: string | number;
     front: string;
     back: string;
   };

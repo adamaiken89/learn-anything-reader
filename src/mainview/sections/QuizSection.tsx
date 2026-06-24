@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 interface Props {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
 }
 
 export default function QuizSection({ courseId, moduleId }: Props) {

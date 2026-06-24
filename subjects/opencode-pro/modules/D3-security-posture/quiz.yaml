@@ -1,0 +1,95 @@
+- id: "D3.1"
+  question: "What does vibeguard monitor that permission policies alone cannot?"
+  options:
+    A: "File permissions"
+    B: "Behavioral anomalies — unusual command sequences, prompt injection patterns"
+    C: "Network speed"
+    D: "Token usage"
+  answer: B
+  explanation: "Permission policies check what commands are allowed. Vibeguard checks *behavior* — is this command sequence unusual for this session? Is the agent suddenly trying to rm files when it never has before? Behavioral monitoring catches attacks that pass permission filters."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D3.2"
+  question: "What does `opencode audit permissions` detect?"
+  options:
+    A: "Token savings"
+    B: "Over-permissive patterns, wildcards, unjustified allows"
+    C: "Plugin compatibility"
+    D: "Model provider status"
+  answer: B
+  explanation: "Permission audit scans opencode.json for risky patterns: wildcard allows (src/**), too-broad ask (npm *), missing denies. Suggests specific narrow permissions per entry."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D3.3"
+  question: "What action does vibeguard take on a 'high' severity anomaly?"
+  options:
+    A: "Log only"
+    B: "Block and notify"
+    C: "Warn and continue"
+    D: "Auto-remediate"
+  answer: B
+  explanation: "High severity = block before execution + notify user. Medium = warn but continue. Low = log only. Configurable per severity level."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D3.4"
+  question: "What does the policy-as-code rule no-rm-rf enforce?"
+  options:
+    A: "Allow rm with confirmation"
+    B: "Deny any command matching 'rm -rf *' or 'rm -rf /'"
+    C: "Allow rm only in temp directories"
+    D: "Log all rm commands"
+  answer: B
+  explanation: "no-rm-rf is a deny-all policy for recursive forced removal. Matches 'rm -rf *', 'rm -rf /', and variants. Severity: critical — never permitted in agent sessions."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D3.5"
+  question: "What is the security risk of setting src/** to 'allow' in permissions?"
+  options:
+    A: "No risk — src is source code"
+    B: "Agent can edit any file under src/, including config files and generated code"
+    C: "Performance degradation"
+    D: "Token waste"
+  answer: B
+  explanation: "src/** is too broad — includes src/config/production.ts, src/generated/, src/.env. Narrow to specific subdirs: src/services, src/utils, src/types."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D3.6"
+  question: "Vault MCP least privilege means the agent can ___ but cannot ___."
+  options:
+    A: "Read credentials, inject into commands"
+    B: "Inject credentials into commands, read raw values"
+    C: "Export credentials, read credentials"
+    D: "Rotate credentials, view credentials"
+  answer: B
+  explanation: "Agent can `inject` (request credential injection for a command) but cannot `read` (see the raw credential value). The LLM never has the secret in context."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D3.7"
+  question: "What happens when vibeguard detects a medium-severity anomaly?"
+  options:
+    A: "Blocks the command"
+    B: "Warns the user but allows execution to continue"
+    C: "Silently logs the event"
+    D: "Terminates the session"
+  answer: B
+  explanation: "Medium = warn and log. User sees the warning but can override. High = block and notify. Low = log only."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D3.8"
+  question: "A developer receives a vibeguard alert: 'Agent attempting dangerous command sequence.' What's the likely cause?"
+  options:
+    A: "Normal agent behavior"
+    B: "Prompt injection or compromised dependency — agent is following instructions from untrusted content"
+    C: "Plugin bug"
+    D: "False positive — vibeguard is too sensitive"
+  answer: B
+  explanation: "Dangerous command sequence alert suggests prompt injection or compromised content. The agent is behaving differently than expected — following instructions from untrusted source (file content, README, npm package docs). Investigate the current prompt and recently read files."
+  difficulty: 3
+  tags: [scenario]

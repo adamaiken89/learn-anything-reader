@@ -1,0 +1,95 @@
+- id: "A4.1"
+  question: "What is the correct order of the Dev Loop phases?"
+  options:
+    A: "Build → Review → Plan → Fix"
+    B: "Plan → Build → Review → Fix"
+    C: "Review → Plan → Build → Deploy"
+    D: "Plan → Review → Build → Fix"
+  answer: B
+  explanation: "Plan (propose + clarify) → Build (implement with gates) → Review (self-check against AC) → Fix (address findings, loop). This prevents wasted implementations and catches bugs before deployment."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A4.2"
+  question: "What permission value should git push have in opencode.json?"
+  options:
+    A: "allow"
+    B: "ask"
+    C: "deny"
+    D: "auto"
+  answer: B
+  explanation: "git push should be 'ask' — the agent must confirm before pushing. 'allow' risks accidental pushes. 'deny' blocks all pushes (too restrictive for daily use)."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "A4.3"
+  question: "Which file defines per-tool and per-command permission policies?"
+  options:
+    A: "AGENTS.md"
+    B: "opencode.json"
+    C: ".opencode/permissions.yaml"
+    D: "config.yaml"
+  answer: B
+  explanation: "`opencode.json` has the `agent.build.permission` block for granular bash command and edit path permissions. AGENTS.md holds behavioral instructions, not permission config."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A4.4"
+  question: "When should the agent delegate to cavecrew-builder instead of working inline?"
+  options:
+    A: "For new features spanning 5+ files"
+    B: "For surgical 1-2 file edits — typo fixes, single-function rewrites"
+    C: "For architecture design decisions"
+    D: "For reading documentation"
+  answer: B
+  explanation: "cavecrew-builder is for bounded, obvious changes (typo fix, single fn rewrite). It hard-refuses 3+ file scope. New features and architecture decisions should stay in main thread."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A4.5"
+  question: "What does the Review phase check first?"
+  options:
+    A: "Deploy to production"
+    B: "Is the diff surgical (no unintended modifications)?"
+    C: "Write a blog post about the change"
+    D: "Close the task"
+  answer: B
+  explanation: "Review starts with `rtk git diff` to check changes are surgical. Then: compile check → tests → security scan → AC verification. If diff is messy, fix before testing."
+  difficulty: 1
+  tags: [concept]
+
+- id: "A4.6"
+  question: "What is the main risk of default (no-mode) agent behavior?"
+  options:
+    A: "Too slow — agent asks too many questions"
+    B: "Agent combines plan+build+review into 'write code' — skips architecture check and self-review"
+    C: "Agent costs more tokens"
+    D: "Agent uses wrong model"
+  answer: B
+  explanation: "Without explicit modes, the agent collapses all phases into 'write code.' It doesn't analyze architecture first, doesn't review its own output, and doesn't check permissions. This is the #1 complaint: 'the agent did the wrong thing without checking.'"
+  difficulty: 2
+  tags: [concept]
+
+- id: "A4.7"
+  question: "What information does the agent gain from Plan mode that the prompt alone doesn't provide?"
+  options:
+    A: "The user's true intent"
+    B: "Architecture context — existing patterns, database schema, API conventions"
+    C: "The correct model to use"
+    D: "Test coverage percentage"
+  answer: B
+  explanation: "The prompt says 'add pagination.' Architecture from codegraph reveals cursor-based pagination (not offset), composite indexes on (cursor, filter), and frontend response shape expectations. Agent avoids writing wrong implementation."
+  difficulty: 3
+  tags: [scenario]
+
+- id: "A4.8"
+  question: "What should denial of 'ask' permission result in?"
+  options:
+    A: "Agent executes anyway but logs warning"
+    B: "Agent stops and asks user for approval"
+    C: "Agent silently ignores the task"
+    D: "Agent auto-retries with different approach"
+  answer: B
+  explanation: "'ask' means the agent must pause and present the action to the user. 'allow' = auto-execute. 'deny' = block entirely. Configure carefully: too much 'ask' creates friction, too much 'allow' risks mistakes."
+  difficulty: 1
+  tags: [terminology]

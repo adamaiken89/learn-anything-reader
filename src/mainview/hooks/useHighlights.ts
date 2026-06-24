@@ -11,7 +11,7 @@ interface UseHighlightsReturn {
   deleteHighlight: (id: string) => Promise<void>;
 }
 
-export function useHighlights(courseId: string, moduleId: number): UseHighlightsReturn {
+export function useHighlights(courseId: string, moduleId: string | number): UseHighlightsReturn {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
 

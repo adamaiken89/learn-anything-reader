@@ -1,0 +1,95 @@
+- id: "C1.1"
+  question: "What is the benefit of storing .opencode/ in version control?"
+  options:
+    A: "Faster opencode startup"
+    B: "Team-wide consistent config — clone repo and go"
+    C: "Smaller disk usage"
+    D: "Automatic backups"
+  answer: B
+  explanation: "Version-controlled .opencode/ means every team member gets identical AGENTS.md, tools, permissions, and skills. Clone the repo, run opencode, and the agent uses team conventions without setup."
+  difficulty: 1
+  tags: [concept]
+
+- id: "C1.2"
+  question: "What does ocx use frontend do?"
+  options:
+    A: "Installs frontend dependencies"
+    B: "Switches the active opencode profile to frontend config"
+    C: "Runs frontend tests"
+    D: "Generates frontend components"
+  answer: B
+  explanation: "ocx profiles define different tool sets, plugins, and config for different project contexts. `ocx use frontend` loads the frontend profile — frontend tools, plugins, and permission settings."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C1.3"
+  question: "What one command gives a new hire the team's full opencode harness?"
+  options:
+    A: "opcode init"
+    B: "opencode setup --from github.com/team/opencode-config"
+    C: "npm install -g team-config"
+    D: "git config opencode.team"
+  answer: B
+  explanation: "`opencode setup --from <repo>` pulls team .opencode/, AGENTS.md, and opencode.json from a central config repo, merged with project-local settings. One command, zero-friction onboarding."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C1.4"
+  question: "How does config inheritance work between team and personal configs?"
+  options:
+    A: "Team config overwrites personal config"
+    B: "Personal config overwrites team config — team defaults with personal overrides"
+    C: "Only team config is used"
+    D: "Only personal config is used"
+  answer: B
+  explanation: "Config inheritance layers: team defaults (base) → personal overrides (~/.opencode/personal.yaml). Personal overrides win on specific settings. Team-wide items stay shared."
+  difficulty: 2
+  tags: [concept]
+
+- id: "C1.5"
+  question: "What should NOT be in version-controlled team config?"
+  options:
+    A: "Custom tools"
+    B: "AGENTS.md rules"
+    C: "Vault MCP credentials"
+    D: "Permission policies"
+  answer: C
+  explanation: "Vault MCP credentials (API tokens, database URLs) stay in developer's local ~/.opencode/vault.yaml. Only the vault config structure is shared — credentials are personal and secret."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "C1.6"
+  question: "What format do team skill packages use for distribution?"
+  options:
+    A: "Docker images"
+    B: "npm packages installed via `opencode skill add @team/skill-name`"
+    C: "Git submodules"
+    D: "Shell scripts"
+  answer: B
+  explanation: "Team skills are published as npm packages under a scope (@team/). Install with `opencode skill add @team/code-review`. Version-controlled, dependency-managed, update-able."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "C1.7"
+  question: "A developer wants to override a team permission for personal debugging — allowing a command normally set to 'ask.' How?"
+  options:
+    A: "Edit .opencode/ directly"
+    B: "Set override in ~/.opencode/personal.yaml"
+    C: "Fork the team config"
+    D: "Ask the team to change global config"
+  answer: B
+  explanation: "Personal config at ~/.opencode/personal.yaml overrides team defaults. Developer sets the command to 'allow' for debugging without affecting the team. Override is local and temporary."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "C1.8"
+  question: "What problem does team config as code solve that documentation cannot?"
+  options:
+    A: "Install speed"
+    B: "Config drift — docs become outdated, config in VCS is enforced on every clone"
+    C: "License management"
+    D: "Code compilation"
+  answer: B
+  explanation: "Setup guides in docs drift within weeks. Config in VCS is enforced: fresh clone = current config. No 'actually that section is outdated' problem. It's executable documentation — agent reads it every turn."
+  difficulty: 3
+  tags: [comparison]

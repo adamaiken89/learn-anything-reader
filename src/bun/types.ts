@@ -1,8 +1,8 @@
 export interface ModuleMeta {
-  id: number;
+  id: string | number;
   name: string;
   timeHours: number;
-  prerequisites: number[];
+  prerequisites: (string | number)[];
   topics: string[];
 }
 
@@ -31,7 +31,7 @@ export interface QuizQuestion {
 export interface SRSCard {
   id: string;
   questionId: string;
-  moduleId: number;
+  moduleId: string | number;
   courseId: string;
   question: string;
   answer: string;
@@ -58,7 +58,7 @@ export interface ModuleSection {
 export interface Highlight {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   selectedText: string;
   startOffset: number;
   endOffset: number;
@@ -69,7 +69,7 @@ export interface Highlight {
 export interface Note {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   highlightID: string | null;
   sectionID: string | null;
   content: string;
@@ -80,7 +80,7 @@ export interface Note {
 export interface UserCard {
   id: string;
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
   front: string;
   back: string;
   easeFactor: number;
@@ -95,7 +95,7 @@ export interface UserCard {
 export interface Bookmark {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   sectionID: string | null;
   title: string;
   scrollPosition: number;
@@ -104,14 +104,14 @@ export interface Bookmark {
 
 export interface CompletedModule {
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   completedAt: string;
 }
 
 export interface StudySession {
   date: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   durationMinutes: number;
   type: 'reading' | 'quiz' | 'review';
   score?: number;

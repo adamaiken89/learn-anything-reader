@@ -5,3 +5,5 @@ artifacts/
 *.tsbuildinfo
 course-content/
 .mimocode/
+subjects/.DS_Store
+subjects/**/.DS_Store

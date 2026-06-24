@@ -75,7 +75,7 @@ export default function App() {
   }, []);
 
   const handleSearchNavigate = useCallback(
-    (courseID: string, moduleID: number) => {
+    (courseID: string, moduleID: string | number) => {
       const course = courses.find((c) => c.id === courseID);
       const mod = course?.modules.find((m) => m.id === moduleID);
       if (course && mod) {

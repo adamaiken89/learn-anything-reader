@@ -1,0 +1,95 @@
+- id: "C3.1"
+  question: "Where does headroom dashboard display token savings data?"
+  options:
+    A: "Terminal output"
+    B: "localhost:8788 with live charts"
+    C: "GitHub README"
+    D: "Email report"
+  answer: B
+  explanation: "headroom dashboard runs at localhost:8788. Shows live token savings chart, compression ratio, cache hit rate, and session activity. No API calls — reads local counters."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C3.2"
+  question: "What format does the event stream output use?"
+  options:
+    A: "CSV"
+    B: "JSONL — one JSON object per line"
+    C: "XML"
+    D: "YAML"
+  answer: B
+  explanation: "JSONL (JSON Lines) format — each line is a complete JSON event: tool call, permission decision, compression event. Greppable, filterable, processable with standard tools like jq."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C3.3"
+  question: "Which opencode.json section configures per-plugin verbosity?"
+  options:
+    A: "agent: { build: { logging: ... } }"
+    B: "logging: { plugins: { headroom: 'debug', codegraph: 'info' } }"
+    C: "plugins: { log-level: 'debug' }"
+    D: "debug: { enable: true }"
+  answer: B
+  explanation: "The logging.plugins block sets per-plugin log level. headroom at debug captures compression decisions. codegraph at info captures query summaries. Logs are written to file, not LLM context."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "C3.4"
+  question: "What does Sentry MCP capture that the event stream does not?"
+  options:
+    A: "Token savings data"
+    B: "Error context with full agent trace — what led to the failure"
+    C: "Compression ratios"
+    D: "Cache hit rates"
+  answer: B
+  explanation: "Sentry MCP captures errors with full agent trace: user request → plan → command → failure → retry → final state. Event stream captures all events as structured data but doesn't correlate into traces."
+  difficulty: 2
+  tags: [comparison]
+
+- id: "C3.5"
+  question: "How does plugin logging affect token consumption?"
+  options:
+    A: "Increases token usage by ~10%"
+    B: "Zero impact — logs are written to file, not LLM context"
+    C: "Decreases token usage"
+    D: "Depends on log level"
+  answer: B
+  explanation: "Plugin logging writes to .opencode/logs/agent.log. The LLM never reads these logs. Zero token cost from logging."
+  difficulty: 1
+  tags: [concept]
+
+- id: "C3.6"
+  question: "What is the primary value of the headroom stats command?"
+  options:
+    A: "Lists installed plugins"
+    B: "Reports session-level token savings: 'Session tokens saved: 87%'"
+    C: "Shows system uptime"
+    D: "Displays model provider status"
+  answer: B
+  explanation: "`headroom stats` gives per-session savings report: input token reduction, output token reduction, overall percentage. This is the number to show when justifying the harness to the team."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C3.7"
+  question: "A developer reports 'my agent feels slow.' Which observability tool helps diagnose?"
+  options:
+    A: "Sentry MCP — only useful for crashes"
+    B: "Event stream — check per-tool-call duration_ms field"
+    C: "Dashboard — only shows savings, not speed"
+    D: "headroom stats — only shows totals"
+  answer: B
+  explanation: "Event stream captures duration_ms per tool call. Grep for slow calls: `jq 'select(.duration_ms > 5000)' events.jsonl`. Identify the slow tool and investigate."
+  difficulty: 3
+  tags: [scenario]
+
+- id: "C3.8"
+  question: "What max-size setting in plugin logging prevents runaway disk usage?"
+  options:
+    A: "max-bytes: 1048576"
+    B: "max-size: 50MB with max-files: 5"
+    C: "size-limit: medium"
+    D: "log-rotation: weekly"
+  answer: B
+  explanation: "max-size: 50MB + max-files: 5 means log files rotate at 50MB, keeping 5 rotated files. Total max disk usage: 250MB. Prevents runaway logs from filling disks."
+  difficulty: 2
+  tags: [terminology]

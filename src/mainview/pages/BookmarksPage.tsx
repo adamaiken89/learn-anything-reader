@@ -11,7 +11,7 @@ import type { Course } from '../../bun/types';
 interface Bookmark {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   sectionID: string | null;
   title: string;
   createdAt: string;
@@ -19,7 +19,12 @@ interface Bookmark {
 
 interface Props {
   onBack: () => void;
-  onOpen: (courseID: string, moduleID: number, sectionID: string | null, courses: Course[]) => void;
+  onOpen: (
+    courseID: string,
+    moduleID: string | number,
+    sectionID: string | null,
+    courses: Course[],
+  ) => void;
   onSwitchCourse: (course: Course) => void;
 }
 

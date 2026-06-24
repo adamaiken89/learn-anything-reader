@@ -19,7 +19,7 @@ interface UseBookmarksReturn {
 
 export function useBookmarks(
   courseId: string,
-  moduleId: number,
+  moduleId: string | number,
   visibleSection: string | null,
 ): UseBookmarksReturn {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);

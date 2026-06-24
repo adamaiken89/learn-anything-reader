@@ -4,7 +4,7 @@ import type { Section } from '../sidebar-types';
 
 interface BookmarksTabProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
   moduleName: string;
   courseName: string;
   sections: Section[];

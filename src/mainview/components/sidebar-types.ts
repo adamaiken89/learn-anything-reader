@@ -8,7 +8,7 @@ export interface Section {
 export interface Note {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   highlightID: string | null;
   sectionID: string | null;
   content: string;
@@ -19,7 +19,7 @@ export interface Note {
 export interface Highlight {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   selectedText: string;
   startOffset: number;
   endOffset: number;
@@ -30,7 +30,7 @@ export interface Highlight {
 export interface Bookmark {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   sectionID: string | null;
   title: string;
   scrollPosition: number;

@@ -1,0 +1,124 @@
+subject: "OpenCode Professional"
+language: en
+time_budget_hours: 40
+target_level: advanced
+domain: "engineering productivity"
+prerequisites:
+  - Familiar with terminal and git
+  - Used at least one AI coding tool (Copilot, Cursor, Claude Code)
+  - Basic understanding of LLM concepts (tokens, context window, prompting)
+
+learning_objectives:
+  - "Set up complete OpenCode harness including rtk, headroom, codegraph, and MCP servers in under 30 minutes"
+  - "Reduce token consumption by 60-95% using compression proxies and cache alignment"
+  - "Build persistent codebase intelligence with codegraph indexing and graphify knowledge graphs"
+  - "Integrate security vault MCP for zero-trust secrets management in agent workflows"
+  - "Implement agentic RAG pipeline with 3-tier retrieval (codegraph → graphify → context7)"
+  - "Design and deploy custom tools and skills that encode team conventions as code"
+  - "Establish CI/CD pipeline with OpenCode-powered PR review and changelog automation"
+  - "Configure cross-session persistent memory using opencode-supermemory"
+  - "Set up multi-agent swarm with worktree isolation and background agents"
+  - "Audit and enforce security posture with vault MCP, vibeguard, and permission policies"
+
+modules:
+  - id: "A1"
+    name: "Zero-to-Harness"
+    time_hours: 2
+    prerequisites: []
+    topics: [install, init, structure, first-cycle]
+
+  - id: "A2"
+    name: "Token Economy"
+    time_hours: 2.5
+    prerequisites: [A1]
+    topics: [rtk, headroom, cache-alignment, wrap]
+
+  - id: "A3"
+    name: "Codebase IQ"
+    time_hours: 2.5
+    prerequisites: [A1]
+    topics: [codegraph, graphify, explore, node, watch]
+
+  - id: "A4"
+    name: "Dev Loop"
+    time_hours: 2
+    prerequisites: [A2, A3]
+    topics: [agent-cycle, delegation, permission-gating, review]
+
+  - id: "B1"
+    name: "Secrets Harness"
+    time_hours: 2.5
+    prerequisites: [A2]
+    topics: [vault-mcp, db-mcp, custom-wrapper, shell-env]
+
+  - id: "B2"
+    name: "Docs Intelligence"
+    time_hours: 2
+    prerequisites: [A1]
+    topics: [context7, references, git-repos, project-docs]
+
+  - id: "B3"
+    name: "Agentic RAG"
+    time_hours: 2.5
+    prerequisites: [A3, B2]
+    topics: [graphify-query, headroom-retrieve, skillful, 3-tier-retrieval]
+
+  - id: "B4"
+    name: "Custom Tools Arsenal"
+    time_hours: 2.5
+    prerequisites: [A4]
+    topics: [tool-helper, zod-schema, multi-tool, oh-my-opencode]
+
+  - id: "C1"
+    name: "Team Config as Code"
+    time_hours: 2
+    prerequisites: [A1]
+    topics: [shared-config, skills-vcs, ocx-profiles, remote-defaults]
+
+  - id: "C2"
+    name: "CI/CD with OpenCode"
+    time_hours: 2.5
+    prerequisites: [B4]
+    topics: [github-actions, pr-review, changelog, scheduler]
+
+  - id: "C3"
+    name: "Observability"
+    time_hours: 2
+    prerequisites: [A2]
+    topics: [plugin-logging, headroom-dashboard, event-stream, sentry-mcp]
+
+  - id: "C4"
+    name: "Failure Learning"
+    time_hours: 2
+    prerequisites: [C3]
+    topics: [headroom-learn, session-mining, auto-agentsmd, feedback-loop]
+
+  - id: "D1"
+    name: "Multi-Agent Swarm"
+    time_hours: 2.5
+    prerequisites: [A4]
+    topics: [subagent-matrix, task-routing, context-sharing, delegation]
+
+  - id: "D2"
+    name: "DCP Internals"
+    time_hours: 2
+    prerequisites: [A4]
+    topics: [compress-boundaries, compaction-lifecycle, message-id, plugin-hooks]
+
+  - id: "D3"
+    name: "Security Posture"
+    time_hours: 2.5
+    prerequisites: [B1, C1]
+    topics: [vault-mcp, vibeguard, permission-audit, policy-enforcement]
+
+  - id: "D4"
+    name: "Worktree + Background Agents"
+    time_hours: 2
+    prerequisites: [D1]
+    topics: [git-worktree, async-agents, context-persistence, parallel-branches]
+
+  - id: "D5"
+    name: "Supermemory"
+    time_hours: 2
+    prerequisites: [D2]
+    topics: [cross-session-persist, compaction-survival, memory-facts, recall]

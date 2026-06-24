@@ -7,7 +7,7 @@ import type { Section, Note, Highlight } from '../sidebar-types';
 
 interface NotesTabProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
   sections: Section[];
   visibleSection: string | null;
   highlights?: Highlight[];

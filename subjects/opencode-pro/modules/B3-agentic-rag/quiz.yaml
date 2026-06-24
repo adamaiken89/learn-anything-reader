@@ -1,0 +1,95 @@
+- id: "B3.1"
+  question: "What is the correct order of the 3-tier retrieval pipeline?"
+  options:
+    A: "Context7 → Graphify → Codegraph"
+    B: "Graphify → Codegraph → Context7"
+    C: "Codegraph → Graphify → Context7"
+    D: "Context7 → Codegraph → Graphify"
+  answer: C
+  explanation: "Tier 1: codegraph (instant, local symbol info). Tier 2: graphify (relationship queries). Tier 3: context7 (external docs). Each tier handles what previous tier cannot."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B3.2"
+  question: "When should the agent escalate from tier 1 (codegraph) to tier 2 (graphify)?"
+  options:
+    A: "Always — use all tiers every time"
+    B: "When codegraph returns fewer than 3 relevant symbols"
+    C: "Never — codegraph is always sufficient"
+    D: "Only for test-related questions"
+  answer: B
+  explanation: "If codegraph explore returns thin results (<3 relevant symbols), the agent auto-escalates to graphify for relationship queries. Escalation avoids wasted time on insufficient context."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B3.3"
+  question: "What does skillful do in the agentic RAG pipeline?"
+  options:
+    A: "Compresses context"
+    B: "Auto-detects user intent and loads the matching skill"
+    C: "Manages API keys"
+    D: "Runs code tests"
+  answer: B
+  explanation: "skillful monitors prompts for intent signals. When it detects 'I want to understand X', it loads the codebase-investigation skill — which triggers the 3-tier retrieval chain automatically."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B3.4"
+  question: "How does headroom_retrieve work inside a compressed session?"
+  options:
+    A: "It re-runs the original tool calls"
+    B: "It retrieves original data from headroom's CCR cache"
+    C: "It downloads data from the internet"
+    D: "It decompresses the entire context window"
+  answer: B
+  explanation: "CCR (Cached Context Retrieval) stores original uncompressed data locally. headroom_retrieve fetches from this cache. Compression is reversible — no data is permanently lost."
+  difficulty: 2
+  tags: [concept]
+
+- id: "B3.5"
+  question: "A developer asks 'what does prisma findMany do.' What should the 3-tier pipeline return?"
+  options:
+    A: "Codegraph shows findMany definition in the project"
+    B: "Codegraph returns nothing (external library) → context7 retrieves prisma v5 findMany docs"
+    C: "Graphify shows findMany callers"
+    D: "All 3 tiers return empty"
+  answer: B
+  explanation: "prisma is an external library, not in codegraph index. Codegraph returns thin results → escalate to context7, which has version-matched prisma docs. Context7 returns the signature, options, and examples."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B3.6"
+  question: "How does agentic RAG differ from traditional vector-based RAG?"
+  options:
+    A: "It uses specialized tools (codegraph, graphify, context7) instead of vector DB + embeddings"
+    B: "It's slower but more accurate"
+    C: "It requires GPU"
+    D: "It uses more tokens"
+  answer: A
+  explanation: "Traditional RAG: embed docs → vector search → LLM. Agentic RAG: codegraph (structured symbols) → graphify (relationships) → context7 (curated docs). No embeddings, no vector DB. Each tool returns structured data the agent can use directly."
+  difficulty: 2
+  tags: [comparison]
+
+- id: "B3.7"
+  question: "What is the total cost of running a 3-tier retrieval pipeline for one query?"
+  options:
+    A: "$0.01-0.05 in API costs"
+    B: "Free — all 3 tiers run locally with no API calls"
+    C: "$0.10 per query"
+    D: "$1 per query"
+  answer: B
+  explanation: "codegraph, graphify, and context7 all run entirely locally. No API calls, no token costs. Only compute time (~300ms + 500ms + 1-2s)."
+  difficulty: 3
+  tags: [concept]
+
+- id: "B3.8"
+  question: "What does the agent do when all 3 tiers return insufficient results?"
+  options:
+    A: "Guess based on available context"
+    B: "Ask user for clarification"
+    C: "Report 'Retrieval exhausted for: <question>' and explain what's missing"
+    D: "Retry with different query"
+  answer: C
+  explanation: "Agent reports the gap explicitly. This tells the user what context is missing so they can add it (e.g., add docs to context7, re-index codegraph, add graphify relationships). Never guess when retrieval exhausts."
+  difficulty: 3
+  tags: [scenario]

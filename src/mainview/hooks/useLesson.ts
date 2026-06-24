@@ -23,7 +23,7 @@ interface UseLessonReturn {
 
 export function useLesson(
   courseId: string,
-  moduleId: number,
+  moduleId: string | number,
   initialSectionID?: string,
 ): UseLessonReturn {
   const [content, setContent] = useState('');

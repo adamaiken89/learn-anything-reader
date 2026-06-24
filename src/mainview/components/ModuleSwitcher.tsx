@@ -4,7 +4,7 @@ import type { ModuleMeta } from '../../bun/types';
 
 interface Props {
   modules: ModuleMeta[];
-  currentModuleId: number;
+  currentModuleId: string | number;
   onSelect: (mod: ModuleMeta) => void;
 }
 
@@ -31,9 +31,7 @@ export default function ModuleSwitcher({ modules, currentModuleId, onSelect }: P
         className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 min-w-[460px]"
       >
         <span className="truncate">
-          {current
-            ? `${String(currentIdx + 1).padStart(2, '0')} ${current.name}`
-            : t('common.modules')}
+          {current ? `${String(current.id)} ${current.name}` : t('common.modules')}
         </span>
         <span className={`text-xs shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}>
           ▾
@@ -41,7 +39,7 @@ export default function ModuleSwitcher({ modules, currentModuleId, onSelect }: P
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 max-h-[60vh] overflow-y-auto p-2 space-y-1.5">
-          {modules.map((m, i) => (
+          {modules.map((m) => (
             <button
               key={m.id}
               onClick={() => {
@@ -54,7 +52,7 @@ export default function ModuleSwitcher({ modules, currentModuleId, onSelect }: P
             >
               <div className="flex items-start gap-3">
                 <span className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-900/50 text-indigo-400 text-sm font-bold">
-                  {String(i + 1).padStart(2, '0')}
+                  {String(m.id)}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-base font-semibold text-white group-hover:text-indigo-400 transition-colors break-words">

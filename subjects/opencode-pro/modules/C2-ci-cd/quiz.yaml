@@ -1,0 +1,95 @@
+- id: "C2.1"
+  question: "What is the primary function of the OpenCode GitHub Action?"
+  options:
+    A: "Deploy code to production"
+    B: "Automated PR review — diff analysis, lint, test, security scan"
+    C: "Run database migrations"
+    D: "Monitor application performance"
+  answer: B
+  explanation: "OpenCode Action runs automated PR review: analyzes diff, runs lint, tests changed files, scans for security issues, posts per-file comments. Catches mechanical issues before human review."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C2.2"
+  question: "What permission should `git push` have in CI agent config?"
+  options:
+    A: "allow"
+    B: "ask"
+    C: "deny"
+    D: "auto"
+  answer: C
+  explanation: "CI agent must not push. `git push: deny` prevents the automated review agent from pushing changes without human approval. No human is watching CI approvals."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "C2.3"
+  question: "How does changelog generation categorize changes?"
+  options:
+    A: "By file extension"
+    B: "From commit messages (conventional commits) + session logs, AI-categorized as feat/fix/chore"
+    C: "By developer name"
+    D: "By PR number"
+  answer: B
+  explanation: "Changelog uses conventional commit prefixes (feat:, fix:, chore:) and session logs. AI categorizes and groups entries. No manual tagging."
+  difficulty: 1
+  tags: [concept]
+
+- id: "C2.4"
+  question: "What config limits false-positive noise from CI review?"
+  options:
+    A: "max-actions: 5"
+    B: "max-comments: 10 and min-confidence: 0.8"
+    C: "verbose: false"
+    D: "skip-tests: true"
+  answer: B
+  explanation: "max-comments caps total comments per PR. min-confidence filters low-confidence findings. Configurable categories let you disable style checks (covered by formatters)."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "C2.5"
+  question: "What does opencode-scheduler run that the CI review action does not?"
+  options:
+    A: "PR review"
+    B: "Recurring maintenance tasks (dep upgrades, dead code detection, changelog)"
+    C: "Unit tests"
+    D: "Deployment"
+  answer: B
+  explanation: "opencode-scheduler runs time-based jobs: weekly dep upgrades, monthly dead code scans, changelog generation. CI review is event-based (triggered by PR). Scheduler is time-based (cron)."
+  difficulty: 2
+  tags: [comparison]
+
+- id: "C2.6"
+  question: "What format do CI review findings use?"
+  options:
+    A: "JSON report"
+    B: "Per-file comments in the PR"
+    C: "Email notification"
+    D: "Slack message"
+  answer: B
+  explanation: "Review config `format: per-file` posts findings as PR comments on the relevant file. Example: 'src/auth.ts:12: <⚠️ security: Password logged in error handler>'."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C2.7"
+  question: "Which trigger type runs the OpenCode Action in a PR workflow?"
+  options:
+    A: "push"
+    B: "pull_request: [opened, synchronize]"
+    C: "schedule"
+    D: "workflow_dispatch"
+  answer: B
+  explanation: "The action triggers on pull_request events: opened (new PR) and synchronize (new commits on existing PR). This runs review on every update."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C2.8"
+  question: "A developer gets 15 CI review comments on a 20-line PR. What's the likely cause?"
+  options:
+    A: "Code has 15 real issues"
+    B: "min-confidence too low or style checks enabled (use formatter instead)"
+    C: "Test suite is failing"
+    D: "Agent is misconfigured"
+  answer: B
+  explanation: "15 comments on 20 lines suggests noise. Raise min-confidence (e.g., 0.85) or disable style categories (style is for formatters, not AI review). If style review is needed, re-enable but separate category."
+  difficulty: 3
+  tags: [scenario]

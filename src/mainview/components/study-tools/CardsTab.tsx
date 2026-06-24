@@ -5,7 +5,7 @@ import type { UserCard } from '../../../bun/types';
 
 interface CardsTabProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
 }
 
 export default function CardsTab({ courseId, moduleId }: CardsTabProps) {

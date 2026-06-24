@@ -6,7 +6,7 @@ export interface SearchResult {
   type: 'lesson' | 'note' | 'highlight';
   courseID: string;
   courseName: string;
-  moduleID: number;
+  moduleID: string | number;
   moduleName: string;
   sectionID?: string;
   snippet: string;
@@ -18,14 +18,14 @@ const DB_FILE = join(DATA_DIR, 'data.json');
 interface StoredNote {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   content: string;
 }
 
 interface StoredHighlight {
   id: string;
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   selectedText: string;
 }
 

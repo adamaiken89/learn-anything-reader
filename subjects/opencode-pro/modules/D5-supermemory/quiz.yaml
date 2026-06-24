@@ -1,0 +1,95 @@
+- id: "D5.1"
+  question: "What is the primary purpose of opencode-supermemory?"
+  options:
+    A: "Compress context tokens"
+    B: "Persist project facts (decisions, conventions, architecture) across sessions"
+    C: "Run background tasks"
+    D: "Manage API keys"
+  answer: B
+  explanation: "Supermemory stores distilled facts (not conversation history) that survive session close and compression. The agent recalls them in future sessions — no more 'let me grep that again.'"
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D5.2"
+  question: "What happens to a supermemory fact with importance=1 after its TTL expires?"
+  options:
+    A: "Survives indefinitely"
+    B: "Auto-pruned — expired + low-importance facts are cleaned up"
+    C: "Escalated to AGENTS.md"
+    D: "Survives if queried recently"
+  answer: B
+  explanation: "Supermemory auto-prunes: expired TTL + low importance = removal. Only important facts (≥3) with active TTL persist. Self-cleaning design prevents accumulation of stale junk."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D5.3"
+  question: "What should the agent do before implementing a feature?"
+  options:
+    A: "Ask the user for instructions"
+    B: "Run supermemory recall matching the task context — check if previous session decided this"
+    C: "Start coding immediately"
+    D: "Check codegraph only"
+  answer: B
+  explanation: "Plan phase should include supermemory recall. Previous session may have decided the architecture, chosen the library, or rejected an approach. Recall prevents re-debating settled decisions."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D5.4"
+  question: "What data should NOT be stored in supermemory?"
+  options:
+    A: "Architecture decisions"
+    B: "Project conventions"
+    C: "Temporary task state or file contents"
+    D: "API design preferences"
+  answer: C
+  explanation: "Supermemory stores persistent facts (decisions, conventions). Temporary task state belongs in current session. File contents belong in codegraph. Supermemory is for *why*, not *where* or *what's running now*."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D5.5"
+  question: "What is the recall priority order the agent should follow?"
+  options:
+    A: "AGENTS.md → codegraph → supermemory → context7"
+    B: "supermemory → AGENTS.md → graphify → context7"
+    C: "context7 → codegraph → AGENTS.md → supermemory"
+    D: "graphify → supermemory → context7 → AGENTS.md"
+  answer: B
+  explanation: "Recall priority: supermemory (persistent facts) → AGENTS.md (session rules) → graphify (code intelligence) → context7 (docs). Longest-term memory first, then increasingly specific."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D5.6"
+  question: "What TTL is appropriate for a fact like 'deploy uses GitHub Actions'?"
+  options:
+    A: "1 day"
+    B: "7 days"
+    C: "90 days — infrastructure patterns change slowly"
+    D: "Infinite"
+  answer: C
+  explanation: "Deployment infrastructure is relatively stable. 90d TTL means recall for ~3 months. If it changes sooner, the new fact overwrites. Infinite TTL risks stale facts surviving indefinitely."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D5.7"
+  question: "How does supermemory differ from AGENTS.md for project knowledge?"
+  options:
+    A: "They serve the same purpose"
+    B: "Supermemory is dynamic (facts learned during sessions). AGENTS.md is static (pre-authored rules)"
+    C: "AGENTS.md is dynamic, supermemory is static"
+    D: "Supermemory is for code, AGENTS.md is for config"
+  answer: B
+  explanation: "AGENTS.md is manually edited rules that load on every session. Supermemory is facts accumulated during sessions — learned dynamically. AGENTS.md = constitution (fixed rules). Supermemory = common law (accumulated precedents)."
+  difficulty: 2
+  tags: [comparison]
+
+- id: "D5.8"
+  question: "After 3 months of daily use, supermemory has 300+ facts. How does the agent find the right one?"
+  options:
+    A: "Scans all facts sequentially"
+    B: "Runs `supermemory recall <query>` with semantic matching — returns relevance-ranked facts"
+    C: "Loads all facts into context"
+    D: "User must specify fact ID"
+  answer: B
+  explanation: "Supermemory recall uses semantic matching against the query. Returns relevance-ranked facts capped at a limit (default 5-10). The agent does not scan all 300 facts — it queries with intent and gets the top matches."
+  difficulty: 3
+  tags: [concept]

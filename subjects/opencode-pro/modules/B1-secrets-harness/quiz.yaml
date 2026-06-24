@@ -1,0 +1,95 @@
+- id: "B1.1"
+  question: "What is the core security property of vault MCP?"
+  options:
+    A: "Encrypts secrets in transit"
+    B: "Credentials are injected into the shell process — the LLM never sees their values"
+    C: "Rotates secrets automatically"
+    D: "Stores secrets in the cloud"
+  answer: B
+  explanation: "Vault MCP injects credentials into shell environment but the agent/LLM never reads their values. The LLM says 'run deploy' — vault injects credentials locally, runs the command, returns output. Raw secrets never enter LLM context."
+  difficulty: 1
+  tags: [concept]
+
+- id: "B1.2"
+  question: "What denial should be configured for vault MCP agent operations?"
+  options:
+    A: "inject"
+    B: "read and export"
+    C: "verify"
+    D: "list"
+  answer: B
+  explanation: "Agent must be denied `read` (cannot see raw credential values) and `export` (cannot dump credentials to context). `inject` and `verify` are allowed — agent can request credential injection for commands and check if a credential exists."
+  difficulty: 2
+  tags: [application]
+
+- id: "B1.3"
+  question: "Database MCP defaults to what access mode?"
+  options:
+    A: "Read-write"
+    B: "Read-only"
+    C: "Admin"
+    D: "No access — config must specify"
+  answer: B
+  explanation: "Database MCP runs read-only by default. The agent can run SELECT and schema queries but not INSERT, UPDATE, DELETE, or DROP. This prevents accidental data modification through agent prompts."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B1.4"
+  question: "A custom deploy wrapper should do what after running the command?"
+  options:
+    A: "Log the command output to a file"
+    B: "Unset injected credentials from the environment"
+    C: "Save credentials for next run"
+    D: "Send output to the LLM"
+  answer: B
+  explanation: "Wrapper should unset injected credentials (DEPLOY_TOKEN, DEPLOY_HOST, etc.) after command exits. This prevents credential persistence in the shell session where a future agent command might read them."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B1.5"
+  question: "What does vault verify operation allow the agent to check?"
+  options:
+    A: "The secret's actual value"
+    B: "Whether a credential is set (not its value)"
+    C: "The secret's expiration date"
+    D: "Who last accessed the secret"
+  answer: B
+  explanation: "verify is a safe boolean operation — 'is DEPLOY_TOKEN set?' Returns yes/no without revealing the value. The agent uses this to decide if it can proceed with a deploy without asking the user."
+  difficulty: 2
+  tags: [concept]
+
+- id: "B1.6"
+  question: "What config file defines vault users and their allowed operations?"
+  options:
+    A: "opencode.json"
+    B: "vault.yaml"
+    C: "AGENTS.md"
+    D: ".env"
+  answer: B
+  explanation: "vault.yaml defines vault backends (local file, env, cloud), users, permissions, and allowed/denied operations per user. The 'agent' user gets inject+verify but denied read+export."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B1.7"
+  question: "Before deployment, which vaultMCP prompt does the user see?"
+  options:
+    A: "Show me your deploy script"
+    B: "Allow deploy with [DEPLOY_TOKEN]? (yes/no/always)"
+    C: "Type your password"
+    D: "Confirm API endpoint"
+  answer: B
+  explanation: "Vault MCP asks permission: 'Agent wants to run deploy with [DEPLOY_TOKEN].' The credential name is shown (bracketed), not its value. User approves or denies the operation."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B1.8"
+  question: "What happens if vault MCP is unreachable and agent needs a credential?"
+  options:
+    A: "Agent asks user for the credential value"
+    B: "Agent falls back to environment variables directly"
+    C: "Agent reports error — do not fallback to asking user for secrets"
+    D: "Agent retries vault connection indefinitely"
+  answer: C
+  explanation: "AGENTS.md should instruct: if vault MCP unreachable, report error. Do NOT fallback to asking user for credentials — that defeats the security model. User must fix vault connection."
+  difficulty: 3
+  tags: [scenario]

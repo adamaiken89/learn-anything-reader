@@ -6,7 +6,7 @@ import type { SearchResult } from '../../bun/search';
 
 interface SearchOverlayProps {
   onClose: () => void;
-  onNavigate: (courseID: string, moduleID: number) => void;
+  onNavigate: (courseID: string, moduleID: string | number) => void;
 }
 
 const TYPE_ICONS: Record<string, string> = {

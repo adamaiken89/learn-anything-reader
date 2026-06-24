@@ -55,7 +55,7 @@ export default function ModuleListPage({
 
       <PageContent>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {course.modules.map((mod, i) => (
+          {course.modules.map((mod) => (
             <button
               key={mod.id}
               onClick={() => onSelectModule(mod)}
@@ -63,7 +63,7 @@ export default function ModuleListPage({
             >
               <div className="flex items-start gap-3">
                 <span className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-900/50 text-indigo-400 text-sm font-bold">
-                  {String(i + 1).padStart(2, '0')}
+                  {String(mod.id)}
                 </span>
                 <div className="flex-1 min-w-0">
                   <h2 className="text-base font-semibold text-white group-hover:text-indigo-400 transition-colors">

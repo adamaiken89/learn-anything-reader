@@ -1,0 +1,95 @@
+- id: "A1.1"
+  question: "What is the primary purpose of rtk in the OpenCode harness?"
+  options:
+    A: "It replaces git for version control"
+    B: "It compresses command output (ls, git, grep) before it reaches the LLM"
+    C: "It runs machine learning models locally"
+    D: "It manages LLM API keys"
+  answer: B
+  explanation: "rtk is a CLI proxy that filters/summarizes system outputs. It strips whitespace, truncates lines, and groups entries — reducing token count by ~60% before the LLM sees the output."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A1.2"
+  question: "Which command wires headroom's compression proxy into opencode?"
+  options:
+    A: "headroom install opencode"
+    B: "headroom wrap opencode"
+    C: "opencode plugin add headroom"
+    D: "opencode --headroom"
+  answer: B
+  explanation: "`headroom wrap opencode` starts a proxy and configures opencode to route through it. All tool output then passes through headroom's compression pipeline."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A1.3"
+  question: "How does codegraph improve agent productivity versus reading files directly?"
+  options:
+    A: "It rewrites code faster"
+    B: "It provides symbol source + call paths in one call, avoiding blind grep+read loops"
+    C: "It replaces the need for AGENTS.md"
+    D: "It compiles code faster"
+  answer: B
+  explanation: "`codegraph explore` returns relevant symbol definitions and their caller/callee paths in one call. The agent understands the area before editing, eliminating the grep→read→understand→edit sequence."
+  difficulty: 2
+  tags: [application]
+
+- id: "A1.4"
+  question: "What is the correct stacking order of the harness layers from lowest to highest?"
+  options:
+    A: "headroom → rtk → codegraph → agent"
+    B: "codegraph → rtk → agent → headroom"
+    C: "rtk → headroom → agent (with codegraph alongside)"
+    D: "agent → headroom → rtk → codegraph"
+  answer: C
+  explanation: "rtk wraps shell commands (first layer), headroom compresses everything at proxy level (second layer), agent runs on compressed input. codegraph runs alongside as a search/intelligence tool, not a compression layer."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A1.5"
+  question: "You run `headroom wrap opencode` and then type 'ls' in opencode. Which transformation happens?"
+  options:
+    A: "ls output is sent directly to the LLM unchanged"
+    B: "ls output is compressed by headroom before the LLM sees it"
+    C: "ls is blocked for security"
+    D: "ls output is sent to a remote server for processing"
+  answer: B
+  explanation: "headroom runs as a proxy. All tool output passes through its compression pipeline (SmartCrusher/CodeCompressor/Kompress-base) before reaching the LLM. This happens transparently."
+  difficulty: 1
+  tags: [scenario]
+
+- id: "A1.6"
+  question: "When should you mutate AGENTS.md for harness rules rather than just using defaults?"
+  options:
+    A: "Never — AGENTS.md is for documentation only"
+    B: "Always — AGENTS.md rules fire on every turn, including instructions to use rtk and codegraph"
+    C: "Only when onboarding new team members"
+    D: "Only when the project has more than 100 files"
+  answer: B
+  explanation: "AGENTS.md is read by the agent on every turn. Adding harness rules like 'prefix commands with rtk' or 'use codegraph explore first' changes the agent's default behavior across all sessions."
+  difficulty: 2
+  tags: [application]
+
+- id: "A1.7"
+  question: "What does oh-my-opencode provide that reduces the need to write custom tools?"
+  options:
+    A: "A new LLM provider"
+    B: "50+ pre-built tools including LSP references, AST queries, and git helpers"
+    C: "A visual IDE for OpenCode"
+    D: "Free API credits"
+  answer: B
+  explanation: "oh-my-opencode bundles 50+ tools covering LSP, AST, git, MCP, and curated agents. This eliminates writing custom tools for ~80% of common needs."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A1.8"
+  question: "What is the token savings estimate from stacking rtk + headroom in the harness?"
+  options:
+    A: "10-20%"
+    B: "30-40%"
+    C: "60-95%"
+    D: "99%"
+  answer: C
+  explanation: "rtk reduces shell output by ~60%. headroom then compresses everything (including rtk output) by 60-95% total. The stacked effect is compounding — rtk removes structural waste, headroom removes semantic redundancy."
+  difficulty: 3
+  tags: [scenario]

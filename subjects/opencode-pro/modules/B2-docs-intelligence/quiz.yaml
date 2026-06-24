@@ -1,0 +1,95 @@
+- id: "B2.1"
+  question: "What is context7's primary function in the OpenCode harness?"
+  options:
+    A: "Compress context tokens"
+    B: "Provide version-matched documentation and reference material to the agent"
+    C: "Run code tests"
+    D: "Manage API keys"
+  answer: B
+  explanation: "context7 indexes docs, API references, and git repos. The agent queries it for library APIs, internal conventions, and reference patterns — reducing API hallucination by ~80%."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B2.2"
+  question: "Which command indexes a GitHub repo's docs as a context7 source?"
+  options:
+    A: "context7 add npm owner/repo"
+    B: "context7 add github owner/repo --branch main --path docs/"
+    C: "context7 clone owner/repo"
+    D: "context7 index owner/repo"
+  answer: B
+  explanation: "`context7 add github owner/repo` indexes the repo. `--branch` and `--path` narrow to specific docs subtree."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B2.3"
+  question: "What happens when context7 auto-retrieval is enabled?"
+  options:
+    A: "context7 intercepts prompts matching known topics and injects relevant doc chunks"
+    B: "context7 blocks all external API calls"
+    C: "context7 auto-generates documentation"
+    D: "context7 rewrites prompts to be shorter"
+  answer: A
+  explanation: "Auto-retrieval monitors prompts for topics matching indexed sources. On match, context7 injects relevant doc chunks before the agent responds. No manual retrieve calls needed."
+  difficulty: 2
+  tags: [concept]
+
+- id: "B2.4"
+  question: "context7 reduces which agent failure mode?"
+  options:
+    A: "Token limit exceeded"
+    B: "API hallucination — calling wrong function signatures"
+    C: "Slow response time"
+    D: "Permission errors"
+  answer: B
+  explanation: "Without context7, agent guesses library APIs — often wrong (wrong version, wrong signature). context7 returns accurate, version-matched docs. Estimate: 80% reduction in API hallucination."
+  difficulty: 2
+  tags: [concept]
+
+- id: "B2.5"
+  question: "After upgrading prisma from v4 to v5, what must you do in context7?"
+  options:
+    A: "Nothing — context7 auto-detects"
+    B: "Re-add prisma with version pin: context7 add npm prisma --version 5"
+    C: "Reinstall context7"
+    D: "Delete and recreate all sources"
+  answer: B
+  explanation: "context7 indexes what you tell it. After upgrading, re-add the package with the new version. The old v4 docs remain until explicitly removed."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "B2.6"
+  question: "How does context7 affect token cost per turn?"
+  options:
+    A: "Reduces cost via compression"
+    B: "Increases cost by injecting doc chunks into context"
+    C: "No effect on token costs"
+    D: "Reduces cost by eliminating hallucination-related retries"
+  answer: B
+  explanation: "Doc chunks add context length, increasing per-turn cost. However, they reduce retries from hallucinated code and wasted implementations. Net effect is typically cost-neutral or cost-positive on large tasks."
+  difficulty: 3
+  tags: [scenario]
+
+- id: "B2.7"
+  question: "Which source type indexes external documentation websites?"
+  options:
+    A: "context7 add npm"
+    B: "context7 add url"
+    C: "context7 add web"
+    D: "context7 add site"
+  answer: B
+  explanation: "`context7 add url <url> --recursive depth=N` indexes web pages. Useful for SaaS docs, framework guides, and API references that lack npm packages."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "B2.8"
+  question: "Your project uses an internal npm package. How does context7 help the agent use it correctly?"
+  options:
+    A: "It reads the package's README and TypeScript definitions"
+    B: "It auto-fills import statements"
+    C: "It rewrites package exports"
+    D: "It generates mock implementations"
+  answer: A
+  explanation: "context7 indexes the package's README, type definitions, and docs. The agent retrieves the actual API surface — exported functions, parameters, return types — instead of guessing."
+  difficulty: 2
+  tags: [scenario]

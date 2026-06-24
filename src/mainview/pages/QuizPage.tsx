@@ -7,7 +7,7 @@ import type { Course } from '../../bun/types';
 
 interface QuizPageProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
   onBack: () => void;
   onSwitchCourse: (course: Course) => void;
 }

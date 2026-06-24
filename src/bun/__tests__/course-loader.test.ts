@@ -41,10 +41,10 @@ modules:
     expect(result!.prerequisites).toEqual(['basic math']);
     expect(result!.learningObjectives).toEqual(['Understand X', 'Understand Y']);
     expect(result!.modules).toHaveLength(2);
-    expect(result!.modules[0].id).toBe(1);
+    expect(result!.modules[0].id).toBe('1');
     expect(result!.modules[0].name).toBe('Intro');
     expect(result!.modules[0].timeHours).toBe(2);
-    expect(result!.modules[1].prerequisites).toEqual([1]);
+    expect(result!.modules[1].prerequisites).toEqual(['1']);
     expect(result!.modules[1].topics).toEqual(['advanced']);
   });
 

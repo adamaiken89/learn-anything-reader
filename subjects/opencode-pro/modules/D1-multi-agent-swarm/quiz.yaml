@@ -1,0 +1,95 @@
+- id: "D1.1"
+  question: "What is the main advantage of specialized subagents over one general agent?"
+  options:
+    A: "They use a better LLM model"
+    B: "Focused context window = cheaper turns + fewer mistakes per agent"
+    C: "They run on local hardware"
+    D: "They don't need AGENTS.md"
+  answer: B
+  explanation: "Each subagent handles a narrow scope with focused context. Investigator reads 3 files. Builder edits 2. They make fewer mistakes because they handle less information at once."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D1.2"
+  question: "Which subagent type is read-only and returns file:line tables?"
+  options:
+    A: "Builder"
+    B: "Reviewer"
+    C: "Investigator"
+    D: "Main thread"
+  answer: C
+  explanation: "Investigator is read-only. Explores codebase, returns structured file:line table with symbol locations. No opinions, no suggestions, no edits."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D1.3"
+  question: "What should happen when a builder receives a task requiring 5 files?"
+  options:
+    A: "Builder proceeds and edits all 5 files"
+    B: "Builder hard-refuses — it's scoped to 1-2 file edits"
+    C: "Builder asks the main thread for permission"
+    D: "Builder splits the work into subtasks"
+  answer: B
+  explanation: "Builder hard-refuses 3+ file scope. Its design is surgical edits. Multi-file changes need the main thread's orchestration (builder edits files one at a time, or a custom tool handles the workflow)."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D1.4"
+  question: "How do subagents inherit context from the main thread?"
+  options:
+    A: "They share the full conversation log"
+    B: "Context facts (architecture-summary, active-branch, bug-description) via share-context"
+    C: "Subagents start with empty context"
+    D: "They read AGENTS.md only"
+  answer: B
+  explanation: "`task.session.share-context` with `context-facts` list. Subagents inherit specific facts: architecture summary, bug description, active branch. Prevents re-explaining what main thread already knows."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D1.5"
+  question: "What is the fallback when an investigator delegation fails?"
+  options:
+    A: "Retry with the same prompt"
+    B: "Fallback to codegraph explore directly"
+    C: "Ask the user to investigate"
+    D: "Skip the research phase"
+  answer: B
+  explanation: "If investigator fails, fallback to codegraph explore. It's the same tool the investigator would use. Direct codegraph access continues the task without blocking on subagent failure."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D1.6"
+  question: "When should the main thread NOT delegate to a subagent?"
+  options:
+    A: "When the task involves codebase research"
+    B: "When the task involves permission decisions or architecture design"
+    C: "When the task is a bug fix in one file"
+    D: "When the task is a PR review"
+  answer: B
+  explanation: "Permission decisions and architecture design stay with the main thread. The main thread owns approvals and high-level design. Subagents execute within those boundaries."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D1.7"
+  question: "How do subagents format their output for the main thread to consume?"
+  options:
+    A: "Free-form prose"
+    B: "Structured, consistent format per type (file:line tables, diff receipts, severity-tagged findings)"
+    C: "JSON only"
+    D: "Markdown only"
+  answer: B
+  explanation: "Investigator returns file:line tables. Builder returns caveman-diff receipts. Reviewer returns one-line-per-finding with severity tags. Structured formats let the main thread consume output immediately without parsing."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D1.8"
+  question: "What happens when all 3 subagent types fail for the same task?"
+  options:
+    A: "Main thread gives up"
+    B: "Report 'Cannot delegate — manual intervention required'"
+    C: "Retry in a loop"
+    D: "Escalate to higher-priority thread"
+  answer: B
+  explanation: "After investigator → fallback, builder → re-prompt, reviewer → fallback all fail: report manual intervention needed. The task has something in common that defeats all subagent types — human judgment required."
+  difficulty: 3
+  tags: [scenario]

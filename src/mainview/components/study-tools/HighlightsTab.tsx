@@ -3,7 +3,7 @@ import { useHighlights } from '../../hooks/useHighlights';
 
 interface HighlightsTabProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
 }
 
 export default function HighlightsTab({ courseId, moduleId }: HighlightsTabProps) {

@@ -56,7 +56,7 @@ function save(data: StorageData): void {
   writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
-export function getHighlightsForModule(courseID: string, moduleID: number): Highlight[] {
+export function getHighlightsForModule(courseID: string, moduleID: string | number): Highlight[] {
   const data = load();
   return data.highlights
     .filter((h) => h.courseID === courseID && h.moduleID === moduleID)
@@ -65,7 +65,7 @@ export function getHighlightsForModule(courseID: string, moduleID: number): High
 
 export function addHighlight(
   courseID: string,
-  moduleID: number,
+  moduleID: string | number,
   selectedText: string,
   startOffset: number,
   endOffset: number,
@@ -95,7 +95,7 @@ export function deleteHighlight(id: string): void {
 
 export function addNote(
   courseID: string,
-  moduleID: number,
+  moduleID: string | number,
   content: string,
   highlightID?: string,
   sectionID?: string,
@@ -117,7 +117,7 @@ export function addNote(
   return note;
 }
 
-export function getNotesForModule(courseID: string, moduleID: number): Note[] {
+export function getNotesForModule(courseID: string, moduleID: string | number): Note[] {
   const data = load();
   return data.notes
     .filter((n) => n.courseID === courseID && n.moduleID === moduleID)
@@ -142,7 +142,7 @@ export function deleteNote(id: string): void {
 
 export function addAnnotation(data: {
   courseID: string;
-  moduleID: number;
+  moduleID: string | number;
   selectedText: string;
   startOffset: number;
   endOffset: number;
@@ -163,7 +163,7 @@ export function addAnnotation(data: {
 
 export function addBookmark(
   courseID: string,
-  moduleID: number,
+  moduleID: string | number,
   title: string,
   sectionID?: string,
   scrollPosition: number = 0,
@@ -197,7 +197,7 @@ export function getBookmarksForCourse(courseID: string): Bookmark[] {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export function getBookmarksForModule(courseID: string, moduleID: number): Bookmark[] {
+export function getBookmarksForModule(courseID: string, moduleID: string | number): Bookmark[] {
   const data = load();
   return data.bookmarks
     .filter((b) => b.courseID === courseID && b.moduleID === moduleID)
@@ -221,17 +221,17 @@ export function setGeminiKey(key: string): void {
   save(data);
 }
 
-export function isBookmarked(courseID: string, moduleID: number): boolean {
+export function isBookmarked(courseID: string, moduleID: string | number): boolean {
   const data = load();
   return data.bookmarks.some((b) => b.courseID === courseID && b.moduleID === moduleID);
 }
 
-export function isModuleCompleted(courseID: string, moduleID: number): boolean {
+export function isModuleCompleted(courseID: string, moduleID: string | number): boolean {
   const data = load();
   return data.completedModules.some((m) => m.courseID === courseID && m.moduleID === moduleID);
 }
 
-export function toggleModuleCompleted(courseID: string, moduleID: number): boolean {
+export function toggleModuleCompleted(courseID: string, moduleID: string | number): boolean {
   const data = load();
   const idx = data.completedModules.findIndex(
     (m) => m.courseID === courseID && m.moduleID === moduleID,
@@ -313,7 +313,7 @@ function yesterday(): string {
 
 export function addUserCard(
   courseId: string,
-  moduleId: number,
+  moduleId: string | number,
   front: string,
   back: string,
 ): UserCard {
@@ -337,7 +337,7 @@ export function addUserCard(
   return card;
 }
 
-export function getUserCards(courseId?: string, moduleId?: number): UserCard[] {
+export function getUserCards(courseId?: string, moduleId?: string | number): UserCard[] {
   const data = load();
   let cards = data.userCards;
   if (courseId) cards = cards.filter((c) => c.courseId === courseId);

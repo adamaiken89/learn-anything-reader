@@ -76,7 +76,7 @@ interface UseQuizEngineReturn {
   retry: () => void;
 }
 
-export function useQuizEngine(courseId: string, moduleId: number): UseQuizEngineReturn {
+export function useQuizEngine(courseId: string, moduleId: string | number): UseQuizEngineReturn {
   const [state, dispatch] = useReducer(quizReducer, INITIAL);
 
   useEffect(() => {

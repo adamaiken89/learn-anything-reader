@@ -26,10 +26,10 @@ export function parseCourse(yamlStr: string, directory: string): Course | null {
     for (const m of raw.modules) {
       const mod = m as Record<string, unknown>;
       moduleList.push({
-        id: Number(mod.id) || 0,
+        id: String(mod.id),
         name: String(mod.name || ''),
         timeHours: Number(mod.time_hours) || 0,
-        prerequisites: Array.isArray(mod.prerequisites) ? mod.prerequisites.map(Number) : [],
+        prerequisites: Array.isArray(mod.prerequisites) ? mod.prerequisites.map(String) : [],
         topics: Array.isArray(mod.topics) ? mod.topics.map(String) : [],
       });
     }
@@ -68,13 +68,17 @@ export function parseQuiz(yamlStr: string): QuizQuestion[] {
 export function findModuleDir(
   coursesDir: string,
   courseId: string,
-  moduleId: number,
+  moduleId: string | number,
 ): string | null {
   const modulesDir = join(coursesDir, courseId, 'modules');
   if (!existsSync(modulesDir)) return null;
-  const padded = String(moduleId).padStart(2, '0');
+  const idStr = String(moduleId);
   const entries = readdirSync(modulesDir, { withFileTypes: true });
-  const match = entries.find((e) => e.isDirectory() && e.name.startsWith(padded));
+  const match = entries.find(
+    (e) =>
+      e.isDirectory() &&
+      (e.name.startsWith(idStr + '-') || e.name.startsWith(idStr.padStart(2, '0') + '-')),
+  );
   return match ? join(modulesDir, match.name) : null;
 }
 
@@ -101,7 +105,7 @@ export function loadCourses(): Course[] {
   return courses.sort((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
-export function loadLesson(courseId: string, moduleId: number): string {
+export function loadLesson(courseId: string, moduleId: string | number): string {
   const coursesDir = findCoursesDir();
   if (!coursesDir) throw new Error('Courses directory not found');
   const modDir = findModuleDir(coursesDir, courseId, moduleId);
@@ -111,7 +115,7 @@ export function loadLesson(courseId: string, moduleId: number): string {
   return readFileSync(lessonPath, 'utf-8');
 }
 
-export function loadQuiz(courseId: string, moduleId: number): QuizQuestion[] {
+export function loadQuiz(courseId: string, moduleId: string | number): QuizQuestion[] {
   const coursesDir = findCoursesDir();
   if (!coursesDir) throw new Error('Courses directory not found');
   const modDir = findModuleDir(coursesDir, courseId, moduleId);

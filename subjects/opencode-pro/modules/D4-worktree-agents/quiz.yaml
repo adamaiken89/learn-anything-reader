@@ -1,0 +1,95 @@
+- id: "D4.1"
+  question: "Why are git worktrees necessary for parallel agent branches?"
+  options:
+    A: "Agents need different git configs"
+    B: "Each branch needs its own working directory — git checkout would overwrite the other agent's changes"
+    C: "Faster git operations"
+    D: "Smaller disk usage"
+  answer: B
+  explanation: "Git worktrees share the .git directory but have independent working directories. Two agents can work on different branches simultaneously without one overwriting the other's changes."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D4.2"
+  question: "How does a background agent persist its state between sessions?"
+  options:
+    A: "Writes to database"
+    B: "Compressed session state saved to .opencode/background/ — resumes from compressed summary"
+    C: "No persistence — always starts fresh"
+    D: "Stored in git commits"
+  answer: B
+  explanation: "Background agents compress session state to .opencode/background/. On resume, they read compressed summary + metadata and continue. No progress lost on session close."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D4.3"
+  question: "What command checks if parallel worktree branches have conflicts before merging?"
+  options:
+    A: "git merge --check"
+    B: "opencode conflict check --worktrees <paths> --base main"
+    C: "opencode worktree verify"
+    D: "git diff --parallel"
+  answer: B
+  explanation: "opencode conflict check analyzes all specified worktrees against the base branch. Reports conflict status per worktree. Prevents merge nightmares from parallel agent work."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D4.4"
+  question: "What happens when a background agent encounters an error?"
+  options:
+    A: "Stops silently"
+    B: "Notifies via configured channels (terminal, sentry) and pauses"
+    C: "Retries indefinitely"
+    D: "Deletes the worktree"
+  answer: B
+  explanation: "On error: notification sent via configured channels, agent pauses. User reviews the error and decides: resume, modify task, or cancel. Agent does not retry without user input."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D4.5"
+  question: "What is the minimum task duration where background agents make sense?"
+  options:
+    A: "Any task — always use background"
+    B: "5+ minutes wall-clock time (test suites, large refactors, dependency analysis)"
+    C: "1+ hour tasks only"
+    D: "Only overnight tasks"
+  answer: B
+  explanation: "Background agents excel at 5+ minute tasks where you can switch to other work. Tasks under 5 minutes are faster to do interactively. Setup overhead pays off for longer-running work."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D4.6"
+  question: "How does agent state isolation work across worktrees?"
+  options:
+    A: "Global state shared across all worktrees"
+    B: "Each worktree has its own .opencode/ directory — fully isolated agent state"
+    C: "State is stored in environment variables"
+    D: "State is synced via git"
+  answer: B
+  explanation: "Each worktree gets its own .opencode/ directory with separate AGENTS.md, config, tools, and session logs. Agents running in different worktrees have completely independent state."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D4.7"
+  question: "A developer has 3 background agents on 3 worktrees. Main session is slowing down. Why?"
+  options:
+    A: "Each agent consumes API calls — concurrent agents = concurrent token usage"
+    B: "Worktrees share CPU"
+    C: "Git lock contention"
+    D: "Network bottleneck"
+  answer: A
+  explanation: "Each agent makes independent LLM API calls. 3 parallel agents = 3x token consumption rate. Background agents don't slow the local machine, but they do increase API spending. Monitor token usage."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "D4.8"
+  question: "What command resumes a paused background agent?"
+  options:
+    A: "opencode background continue feature-a"
+    B: "opencode background resume feature-a"
+    C: "opencode agent restart feature-a"
+    D: "opencode start feature-a"
+  answer: B
+  explanation: "`opencode background resume <agent-name>` restores the agent's compressed session state and continues execution. Paused or background agents resume from where they stopped."
+  difficulty: 1
+  tags: [terminology]

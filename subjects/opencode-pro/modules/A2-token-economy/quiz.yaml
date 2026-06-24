@@ -1,0 +1,95 @@
+- id: "A2.1"
+  question: "What does CacheAligner do inside headroom?"
+  options:
+    A: "It aligns text to the center of the context window"
+    B: "It stabilizes prompt prefixes so provider KV caches hit on repeated tokens"
+    C: "It compresses cached files on disk"
+    D: "It removes duplicate commands from bash history"
+  answer: B
+  explanation: "CacheAligner makes system prompt + AGENTS.md byte-identical across turns. Without it, tool result noise shifts prefix bytes and KV caches miss. With it, repeated prefixes hit cache — 40-60% fewer input tokens."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A2.2"
+  question: "Output tokens cost 5x input on Opus-class models. Which headroom feature targets output waste?"
+  options:
+    A: "SmartCrusher"
+    B: "CodeCompressor"
+    C: "Output Shaper (verbosity steering + effort routing)"
+    D: "CacheAligner"
+  answer: C
+  explanation: "Output Shaper appends a 'be terse' note to the system prompt and dials thinking effort down on routine turns (file reads, passing tests). Estimated 30% reduction in output tokens."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A2.3"
+  question: "A developer spends $100/month on opencode tokens. After setting up rtk + headroom, what's the expected savings?"
+  options:
+    A: "$10-20"
+    B: "$30-40"
+    C: "$60-90"
+    D: "$0 — compression costs more than it saves"
+  answer: C
+  explanation: "At 60-95% total reduction, $100/month drops to $5-40/month. Even accounting for headroom proxy overhead, savings are 60-90%. Payback period for setup time is <1 day."
+  difficulty: 2
+  tags: [scenario]
+
+- id: "A2.4"
+  question: "headroom learns terseness preference from past sessions via which command?"
+  options:
+    A: "headroom analyze"
+    B: "headroom learn --verbosity --apply"
+    C: "headroom train"
+    D: "headroom tune"
+  answer: B
+  explanation: "`headroom learn --verbosity` reads past sessions to detect your terseness threshold. `--apply` saves it. The proxy uses this to dial output verbosity automatically."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A2.5"
+  question: "Which headroom feature makes compression reversible — allowing the LLM to fetch original data if needed?"
+  options:
+    A: "CacheAligner"
+    B: "CCR (Cached Context Retrieval)"
+    C: "Kompress-base"
+    D: "SmartCrusher"
+  answer: B
+  explanation: "CCR stores originals locally within a configurable TTL. The LLM can call `headroom_retrieve` if it needs the full original output. This enables aggressive compression without losing the safety valve."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A2.6"
+  question: "What waste does rtk remove that headroom cannot?"
+  options:
+    A: "Semantic redundancy in code"
+    B: "Structural ceremony like ls colors, git pager formatting, file permissions"
+    C: "Tokenizer inefficiency"
+    D: "Prompt engineering errors"
+  answer: B
+  explanation: "rtk strips output formatting at the source (colors, borders, whitespace, pagination). headroom operates on the already-formatted output. Stripping ceremony before headroom sees it lets headroom focus on semantic compression."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A2.7"
+  question: "What environment variable enables the output reduction feature in headroom proxy?"
+  options:
+    A: "HEADROOM_VERBOSE=1"
+    B: "HEADROOM_OUTPUT_SHAPER=1"
+    C: "HEADROOM_COMPRESS_OUTPUT=1"
+    D: "HEADROOM_TRIMMER=1"
+  answer: B
+  explanation: "`HEADROOM_OUTPUT_SHAPER=1` enables verbosity steering + effort routing. It's off by default because savings must be measured (counterfactual estimation) before enabling in production."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A2.8"
+  question: "headroom's ContentRouter selects the right compressor based on content type. Which compressor handles source code?"
+  options:
+    A: "SmartCrusher"
+    B: "CodeCompressor"
+    C: "Kompress-base"
+    D: "TextRouter"
+  answer: B
+  explanation: "CodeCompressor uses AST-aware algorithms per language (Python, JS, Go, Rust, Java, C++). It keeps function signatures, types, control flow — drops docstrings, comments, formatting."
+  difficulty: 1
+  tags: [terminology]

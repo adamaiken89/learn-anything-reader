@@ -1,0 +1,95 @@
+- id: "D2.1"
+  question: "What are the 4 phases of the DCP compaction lifecycle?"
+  options:
+    A: "Capture, Store, Compress, Delete"
+    B: "Detection, Summarization, Retention, Expansion"
+    C: "Scan, Reduce, Save, Purge"
+    D: "Identify, Minimize, Archive, Retrieve"
+  answer: B
+  explanation: "Phase 1: Detection (find stale content). Phase 2: Summarization (compress to summary). Phase 3: Retention (preserve metadata). Phase 4: Expansion (CCR recovery on demand)."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D2.2"
+  question: "What data type survives DCP compression without any special handling?"
+  options:
+    A: "Plugin runtime state"
+    B: "AGENTS.md rules"
+    C: "Tool output from 20 turns ago"
+    D: "Conversation context"
+  answer: B
+  explanation: "AGENTS.md is a prefixed system instruction — DCP never compresses it. All other conversation content is subject to compression."
+  difficulty: 1
+  tags: [concept]
+
+- id: "D2.3"
+  question: "Which DCP hook should a plugin use to save its state before compression?"
+  options:
+    A: "after-expand"
+    B: "before-compress"
+    C: "after-summarize"
+    D: "on-session-start"
+  answer: B
+  explanation: "before-compress fires before phase 2. Plugin saves runtime state (counts, facts, decisions) to the metadata block here. After compression, the plugin's runtime state is gone — metadata is the only survivor."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "D2.4"
+  question: "What does CCR (Cached Context Retrieval) enable inside compressed sessions?"
+  options:
+    A: "Permanent deletion of old context"
+    B: "Reversible access to original uncompressed data"
+    C: "Faster compression"
+    D: "Smaller context windows"
+  answer: B
+  explanation: "CCR stores original uncompressed data locally. headroom_retrieve fetches from this cache. Compression is reversible — original data is not permanently lost."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "D2.5"
+  question: "How does DCP decide which content to compress?"
+  options:
+    A: "Random selection"
+    B: "Detection phase identifies stale/section-closed content"
+    C: "User manually marks sections"
+    D: "All content older than 5 turns"
+  answer: B
+  explanation: "Phase 1 detection analyzes conversation flow for completed sections — resolved discussion threads, implemented tasks, closed topics. Unresolved or ongoing content stays."
+  difficulty: 2
+  tags: [concept]
+
+- id: "D2.6"
+  question: "What does the dcp.preserve config option in opencode.json do?"
+  options:
+    A: "Prevents AGENTS.md from being edited"
+    B: "Specific data keys (tool-call-count, architecture-decisions) flagged for metadata retention"
+    C: "Preserves all conversation content"
+    D: "Prevents plugin unloading"
+  answer: B
+  explanation: "dcp.preserve lists data keys that should be retained in the metadata block across compactions. These survive as structured facts even when the conversational context is compressed."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "D2.7"
+  question: "A developer's plugin counter resets to 0 after every compression. What's the fix?"
+  options:
+    A: "Increase compression threshold"
+    B: "Save counter to metadata in before-compress hook, restore in after-expand"
+    C: "Use global variable instead of plugin variable"
+    D: "Disable compression for that plugin"
+  answer: B
+  explanation: "Plugin runtime state is lost on compression. before-compress hook saves counter to metadata block. after-expand hook restores it. This is the standard DCP-aware plugin pattern."
+  difficulty: 3
+  tags: [scenario]
+
+- id: "D2.8"
+  question: "What happens to a compressed section when the user asks a related question?"
+  options:
+    A: "Agent replies from memory only"
+    B: "CCR expands (if available) — headroom_retrieve returns original data"
+    C: "Compression is reversed for the whole session"
+    D: "Nothing — compressed data is gone forever"
+  answer: B
+  explanation: "CCR stores originals. On related query, the agent can call headroom_retrieve to get the original uncompressed data. Only the conversational *representation* is compressed — the original bytes are cached."
+  difficulty: 2
+  tags: [scenario]

@@ -1,0 +1,95 @@
+- id: "C4.1"
+  question: "What does headroom learn --session-mining produce as output?"
+  options:
+    A: "Token savings report"
+    B: "Detected patterns with frequency/severity and generated AGENTS.md rules"
+    C: "Dashboard URL"
+    D: "List of active sessions"
+  answer: B
+  explanation: "Session mining analyzes past sessions for recurring mistakes. Output: patterns.json (patterns with frequency/severity) + rules.md (generated AGENTS.md rules) + efficacy.md (previous rule effectiveness)."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C4.2"
+  question: "What does he confirm-threshold: 0.8 control in auto-apply?"
+  options:
+    A: "Minimum compression ratio"
+    B: "Confidence level — rules above 0.8 are auto-applied, below need manual review"
+    C: "Maximum number of rules to apply"
+    D: "Token savings target"
+  answer: B
+  explanation: "Rules with confidence score ≥0.8 are auto-applied to AGENTS.md. Below 0.8: presented for manual review. Prevents low-confidence or spurious patterns from polluting AGENTS.md."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "C4.3"
+  question: "What does efficacy tracking measure?"
+  options:
+    A: "Compression ratio improvement"
+    B: "Violations before vs after a rule was added"
+    C: "Session duration"
+    D: "Developer satisfaction"
+  answer: B
+  explanation: "Efficacy compares violation frequency before adding a rule vs after. If violations drop to 0, rule is working. If unchanged, rule format or position in AGENTS.md needs adjustment."
+  difficulty: 2
+  tags: [concept]
+
+- id: "C4.4"
+  question: "What retention setting prevents session logs from filling the disk?"
+  options:
+    A: "logging: { session: { retention: '90d' } }"
+    B: "logging: { max-size: 'infinite' }"
+    C: "logging: { session: { archives: 'keep-all' } }"
+    D: "logging: { disk: 'unlimited' }"
+  answer: A
+  explanation: "retention: '90d' auto-deletes sessions older than 90 days. Prevents unbounded disk usage. Sessions are compressed (~KB each) so 90 days is manageable for auditing."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "C4.5"
+  question: "What is the weekly learning cadence?"
+  options:
+    A: "Run session mining every day"
+    B: "Run session mining weekly via opencode-scheduler, update AGENTS.md on Monday"
+    C: "Run session mining monthly"
+    D: "Manual review only"
+  answer: B
+  explanation: "Recommended cadence: schedule session mining every Monday via opencode-scheduler. Mines week's sessions, generates rules, auto-applies high-confidence ones, produces weekly report."
+  difficulty: 2
+  tags: [concept]
+
+- id: "C4.6"
+  question: "What does verbosity learning tune?"
+  options:
+    A: "Model temperature"
+    B: "Compression aggressiveness based on how often you expand compressed output"
+    C: "Response length limit"
+    D: "Log verbosity"
+  answer: B
+  explanation: "If you frequently expand compressed output, compression is too aggressive. If you never expand, compression can be stronger. Verbosity learning detects this from past sessions and adjusts."
+  difficulty: 2
+  tags: [concept]
+
+- id: "C4.7"
+  question: "A rule was auto-added to AGENTS.md but violations continue at the same rate. What does efficacy analysis recommend?"
+  options:
+    A: "Remove the rule"
+    B: "Check rule format or position — agent may not be reading it effectively"
+    C: "Increase confidence threshold"
+    D: "Ignore the issue"
+  answer: B
+  explanation: "If violations are unchanged, the rule exists but the agent isn't acting on it. Common issues: rule buried at bottom of AGENTS.md, too long, or phrased as suggestion instead of instruction. Adjust format and position."
+  difficulty: 3
+  tags: [scenario]
+
+- id: "C4.8"
+  question: "How should the learning loop handle low-confidence patterns (score <0.8)?"
+  options:
+    A: "Auto-apply anyway"
+    B: "Present for manual review — human decides whether to add as rule"
+    C: "Discard immediately"
+    D: "Auto-apply but mark as experimental"
+  answer: B
+  explanation: "Low-confidence patterns may be one-off incidents or misdetections. Flag for human review. The developer sees the pattern and decides: real problem (add as rule), fluke (ignore), or recurring issue not yet frequent enough (monitor)."
+  difficulty: 2
+  tags: [scenario]

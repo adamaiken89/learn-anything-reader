@@ -12,7 +12,7 @@ type Tab = 'notes' | 'highlights' | 'bookmarks' | 'cards' | 'ask-ai';
 
 interface StudyToolsProps {
   courseId: string;
-  moduleId: number;
+  moduleId: string | number;
   moduleName: string;
   courseName: string;
   sections: Section[];

@@ -1,0 +1,95 @@
+- id: "A3.1"
+  question: "What does codegraph explore do that plain grep cannot?"
+  options:
+    A: "Returns file contents as text"
+    B: "Returns structured symbol definitions + call paths in one call"
+    C: "Runs faster on large directories"
+    D: "Searches binary files"
+  answer: B
+  explanation: "codegraph explore returns symbol definitions with call graphs, type references, and dependencies in one call. grep returns raw text lines — the agent must piece together meaning manually across multiple reads."
+  difficulty: 1
+  tags: [comparison]
+
+- id: "A3.2"
+  question: "After codegraph index, how do you verify coverage?"
+  options:
+    A: "codegraph verify"
+    B: "codegraph status"
+    C: "codegraph check"
+    D: "codegraph coverage"
+  answer: B
+  explanation: "`codegraph status` shows files indexed, symbols indexed, last index time, and coverage percentage."
+  difficulty: 1
+  tags: [terminology]
+
+- id: "A3.3"
+  question: "What does graphify do beyond standard codegraph indexing?"
+  options:
+    A: "Git blame integration"
+    B: "Extracts relationships into a queryable knowledge graph that persists across sessions"
+    C: "Compiles TypeScript faster"
+    D: "Generates documentation"
+  answer: B
+  explanation: "graphify constructs a relationship graph from the index. Queries like 'what depends on auth service' return structured results. This knowledge persists across sessions — reference yesterday's queries today."
+  difficulty: 2
+  tags: [concept]
+
+- id: "A3.4"
+  question: "A developer runs codegraph node src/auth.ts. What do they get that Read tool does not provide?"
+  options:
+    A: "Syntax highlighting"
+    B: "Line numbers and file source plus 'Depended by' list"
+    C: "Compiled output"
+    D: "Lint errors"
+  answer: B
+  explanation: "codegraph node returns file source with line numbers plus dependency info: 'Depended by: X.ts, Y.ts'. This blast-radius awareness is critical before editing — you see what your change will affect."
+  difficulty: 2
+  tags: [comparison]
+
+- id: "A3.5"
+  question: "What is the cost profile of codegraph indexing?"
+  options:
+    A: "Free — no API costs, just local compute"
+    B: "$0.50 per index run"
+    C: "$5/month subscription"
+    D: "Free with credits for cloud sync"
+  answer: A
+  explanation: "codegraph runs entirely locally. No API calls, no token costs. Only compute for tree-sitter parsing (~30-120s initial, <2s incremental)."
+  difficulty: 1
+  tags: [concept]
+
+- id: "A3.6"
+  question: "A prompt instructs the agent to 'grep for the symbol before reading files'. What should it say instead?"
+  options:
+    A: "Always use find before grep"
+    B: "Use codegraph explore — returns symbol source + call paths without redundant reads"
+    C: "Use git grep for speed"
+    D: "Read all files first"
+  answer: B
+  explanation: "The whole point of codegraph is to eliminate the grep+read cycle. AGENTS.md should say 'Before editing, call codegraph explore for relevant symbol context. Do not grep+read as fallback unless codegraph returns nothing.'"
+  difficulty: 3
+  tags: [scenario]
+
+- id: "A3.7"
+  question: "Which graphify export command feeds codegraph facts into headroom for compression resilience?"
+  options:
+    A: "codegraph graphify export | headroom import --namespace codebase-facts"
+    B: "codegraph export | headroom compress"
+    C: "headroom codegraph sync"
+    D: "codegraph headroom --export"
+  answer: A
+  explanation: "This pipeline exports graphify relationships and imports them into headroom's namespace. Compressed sessions retain structured knowledge because headroom preserves metadata, not verbosity."
+  difficulty: 2
+  tags: [terminology]
+
+- id: "A3.8"
+  question: "codegraph watch runs in background. What's its typical re-index latency on file save?"
+  options:
+    A: "5-10 seconds"
+    B: "200-500ms"
+    C: "Instant (zero-lag)"
+    D: "Only triggers on git commit"
+  answer: B
+  explanation: "codegraph watch uses filesystem events (inotify/FSEvents). Re-indexing 1 changed file takes 200-500ms — the index stays fresh during active development."
+  difficulty: 1
+  tags: [terminology]
