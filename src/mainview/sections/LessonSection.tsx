@@ -65,7 +65,7 @@ const headingRenderer = (level: number) =>
 const components = {
   h1: headingRenderer(1), h2: headingRenderer(2), h3: headingRenderer(3),
   h4: headingRenderer(4), h5: headingRenderer(5), h6: headingRenderer(6),
-  table: ({ children }) => (
+  table: ({ children }: { children?: React.ReactNode }) => (
     <div className="table-wrapper"><table>{children}</table></div>
   ),
 };
