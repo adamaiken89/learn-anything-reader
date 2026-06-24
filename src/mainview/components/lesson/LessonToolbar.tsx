@@ -40,7 +40,6 @@ interface LessonToolbarProps {
   onToggleTools: () => void;
   onTogglePomodoro: () => void;
   onReviewCards?: () => void;
-  onSettings?: () => void;
   onStartQuiz?: () => void;
   onStartReview?: () => void;
 }
@@ -55,7 +54,6 @@ export default function LessonToolbar({
   onToggleTools,
   onTogglePomodoro,
   onReviewCards,
-  onSettings,
   onStartQuiz,
   onStartReview,
 }: LessonToolbarProps) {
@@ -199,14 +197,6 @@ export default function LessonToolbar({
             {completedCount}/{totalModules}
           </span>
         </div>
-      )}
-      {onSettings && (
-        <>
-          <div className="h-3 w-px bg-gray-600" />
-          <Button variant="ghost" size="sm" onClick={onSettings} title={t('common.settings')}>
-            {t('common.settings')}
-          </Button>
-        </>
       )}
     </div>
   );

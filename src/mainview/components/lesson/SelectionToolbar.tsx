@@ -80,7 +80,7 @@ function SelectionToolbar({
         transform: 'translateX(-50%)',
       }}
     >
-      <div className="flex items-center gap-2 px-3 py-2">
+      <div className="flex items-center justify-center gap-2 px-3 py-2">
         {Object.entries(HIGHLIGHT_COLORS).map(([name, color]) => (
           <button
             key={name}
@@ -98,19 +98,19 @@ function SelectionToolbar({
 
       <div className="h-px bg-gray-600 my-0.5" />
 
-      <Button variant="ghost" size="md" onClick={onOpenNote} className="w-full justify-start">
+      <Button variant="ghost" size="md" onClick={onOpenNote} className="justify-start">
         <span className="shrink-0">{t('icons.note')}</span>
-        {t('lesson.addNote')}
+        <span className="truncate">{t('lesson.addNote')}</span>
       </Button>
 
-      <Button variant="ghost" size="md" onClick={onCreateCard} className="w-full justify-start">
+      <Button variant="ghost" size="md" onClick={onCreateCard} className="justify-start">
         <span className="shrink-0">{t('icons.cards')}</span>
-        {t('lesson.createCard')}
+        <span className="truncate">{t('lesson.createCard')}</span>
       </Button>
 
-      <Button variant="ghost" size="md" onClick={handleCopy} className="w-full justify-start">
+      <Button variant="ghost" size="md" onClick={handleCopy} className="justify-start">
         <span className="shrink-0">{t('icons.clipboard')}</span>
-        {copied ? t('selection.copied') : t('lesson.copy')}
+        <span className="truncate">{copied ? t('selection.copied') : t('lesson.copy')}</span>
       </Button>
     </div>
   );
