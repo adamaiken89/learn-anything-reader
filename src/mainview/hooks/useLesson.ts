@@ -32,7 +32,7 @@ export function findVisibleHeading(container: HTMLElement, sections: Section[]):
   }
 
   const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
-  if (atBottom && !currentId) {
+  if (atBottom) {
     currentId = sections[sections.length - 1].id;
   }
 

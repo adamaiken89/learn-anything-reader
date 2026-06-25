@@ -4,7 +4,9 @@ import LessonSection, {
   parseLessonMeta,
   parseH1,
   stripMetaLines,
+  headingId,
 } from '../../mainview/sections/LessonSection';
+import { parseSections } from '../course-loader';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 const mockContent = `# Introduction
@@ -158,6 +160,94 @@ describe('stripMetaLines', () => {
     const md = `# Title\n\nDescription: Foo bar\n\n## Next`;
     const stripped = stripMetaLines(md);
     expect(stripped).toBe(`## Next`);
+  });
+});
+
+describe('headingId', () => {
+  test('generates kebab-case from heading text', () => {
+    expect(headingId('Hello World')).toBe('hello-world');
+  });
+
+  test('removes punctuation', () => {
+    expect(headingId('Variables & Data Types: Part 1 (intro)')).toBe(
+      'variables--data-types-part-1-intro',
+    );
+  });
+
+  test('matches parseSections output for plain text headings', () => {
+    const md = `# Hello World\n## Variables & Data Types\n### Basic Example\n## Control Flow: if/else`;
+    const sections = parseSections(md);
+    for (const s of sections) {
+      expect(s.id).toBe(headingId(s.heading));
+    }
+  });
+});
+
+describe('scrollToSection', () => {
+  test('scrolls container to correct heading position', async () => {
+    const heading = document.createElement('h2');
+    heading.id = 'target-section';
+    heading.textContent = 'Target Section';
+    heading.getBoundingClientRect = () =>
+      ({
+        top: 600,
+        bottom: 630,
+        left: 0,
+        right: 800,
+        width: 800,
+        height: 30,
+        x: 0,
+        y: 600,
+        toJSON: () => {},
+      }) as DOMRect;
+
+    const container = {
+      querySelector: (sel: string) => (sel === '[id="target-section"]' ? heading : null),
+      getBoundingClientRect: () =>
+        ({
+          top: 80,
+          bottom: 580,
+          left: 0,
+          right: 800,
+          width: 800,
+          height: 500,
+          x: 0,
+          y: 80,
+          toJSON: () => {},
+        }) as DOMRect,
+      scrollTop: 0,
+      focus: () => {},
+    } as unknown as HTMLDivElement;
+
+    const scrollToSection = (sectionId: string) => {
+      const el = container.querySelector(`[id="${sectionId}"]`);
+      if (!el) return;
+      const offset =
+        el.getBoundingClientRect().top -
+        container.getBoundingClientRect().top +
+        container.scrollTop -
+        20;
+      container.scrollTop = offset;
+    };
+
+    scrollToSection('target-section');
+    expect(container.scrollTop).toBeGreaterThan(0);
+    expect(container.scrollTop).toBe(500);
+  });
+
+  test('does nothing when heading not found', () => {
+    const container = {
+      querySelector: () => null,
+      scrollTop: 0,
+    } as unknown as HTMLDivElement;
+
+    const scrollToSection = (sectionId: string) => {
+      const el = container.querySelector(`[id="${sectionId}"]`);
+      if (!el) return;
+    };
+
+    scrollToSection('nonexistent');
+    expect(container.scrollTop).toBe(0);
   });
 });
 

@@ -112,6 +112,23 @@ describe('findVisibleHeading', () => {
     expect(findVisibleHeading(container, toSections(['section-a', 'section-b']))).toBe('section-b');
   });
 
+  test('forces last section when at bottom even if headings above threshold', () => {
+    const container = makeContainer(
+      [
+        { id: 'section-a', top: -500 },
+        { id: 'section-b', top: -300 },
+        { id: 'section-c', top: 50 },
+      ],
+      { scrollTop: 2000, clientHeight: 500, scrollHeight: 2500 },
+    );
+    const sections = [
+      { id: 'section-a', heading: 'A', level: 2, parentID: null },
+      { id: 'section-b', heading: 'B', level: 2, parentID: null },
+      { id: 'section-c', heading: 'C', level: 2, parentID: null },
+    ];
+    expect(findVisibleHeading(container, sections)).toBe('section-c');
+  });
+
   test('does not force last section when not at bottom', () => {
     const container = makeContainer(
       [

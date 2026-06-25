@@ -77,6 +77,12 @@ Module dir matching: `findModuleDir` scans `modules/<id>/` for `NN-` prefix.
 
 - Run `bun run knip` to find and remove unused code, exports, types, and dependencies.
 
+## Scroll layout invariant
+
+`PageContent` (`src/mainview/layouts/PageContent.tsx`) MUST have `flex flex-col` classes. Without them, `div.flex.flex-1.overflow-hidden` inside `LessonSection` gets unbounded height → inner `contentRef` (`overflow-y-auto`) never overflows → `scrollToSection` on `contentRef.scrollTop` silently does nothing.
+
+The real scrollbar lives on `contentRef` only when `PageContent` is a flex container. If `contentRef` has `overflow-y-auto` but sections are always at scrollTop 0, check `PageContent` hasn't lost `flex flex-col`.
+
 ## Quirks
 
 - `vite.config.ts` root=`src/mainview`, output=`dist/`

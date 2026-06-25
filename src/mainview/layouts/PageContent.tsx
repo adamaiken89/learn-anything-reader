@@ -6,5 +6,9 @@ interface PageContentProps {
 }
 
 export default function PageContent({ children, className = '' }: PageContentProps) {
-  return <main className={`overflow-y-auto flex-1 px-6 py-8 ${className}`}>{children}</main>;
+  return (
+    <main className={`overflow-y-auto flex-1 flex flex-col px-6 py-8 ${className}`}>
+      {children}
+    </main>
+  );
 }

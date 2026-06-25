@@ -48,6 +48,7 @@ function mockAll() {
   mockFetch({
     '/api/storage/bookmarks/module': [],
     '/api/storage/highlights': [],
+    '/api/storage/notes': [],
   });
 }
 

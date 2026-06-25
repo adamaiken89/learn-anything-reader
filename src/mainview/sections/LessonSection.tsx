@@ -140,7 +140,7 @@ function extractText(children: React.ReactNode): string {
   return text;
 }
 
-function headingId(children: React.ReactNode): string {
+export function headingId(children: React.ReactNode): string {
   return extractText(children)
     .toLowerCase()
     .replace(/\s+/g, '-')
