@@ -4,10 +4,10 @@ import type { Course } from '../../bun/types';
 import { api } from '../api';
 import { logger } from '../logger';
 import { showToast } from '../toast';
+import { useCompletionStore } from './completionStore';
 
 interface CourseState {
   courses: Course[];
-  progress: Record<string, number>;
   loading: boolean;
   error: string | null;
   loaded: boolean;
@@ -17,7 +17,6 @@ interface CourseState {
 
 export const useCourseStore = create<CourseState>((set, get) => ({
   courses: [],
-  progress: {},
   loading: false,
   error: null,
   loaded: false,
@@ -29,18 +28,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       .list()
       .then(async (courses) => {
         logger.info({ count: courses.length }, 'Courses loaded');
-        const progressEntries = await Promise.all(
-          courses.map(async (c) => {
-            try {
-              const { count } = await api.storage.completedCount(c.id);
-              return [c.id, count] as const;
-            } catch {
-              return [c.id, 0] as const;
-            }
-          }),
-        );
-        const progress = Object.fromEntries(progressEntries);
-        set({ courses, progress, loading: false, loaded: true });
+        set({ courses, loading: false, loaded: true });
+        void useCompletionStore.getState().loadAll(courses.map((c) => c.id));
       })
       .catch((e: Error) => {
         logger.error({ err: e.message }, 'Failed to load courses');
@@ -48,5 +37,5 @@ export const useCourseStore = create<CourseState>((set, get) => ({
         set({ error: e.message, loading: false });
       });
   },
-  reset: () => set({ courses: [], progress: {}, loading: false, error: null, loaded: false }),
+  reset: () => set({ courses: [], loading: false, error: null, loaded: false }),
 }));

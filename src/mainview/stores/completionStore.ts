@@ -4,27 +4,38 @@ import { api } from '../api';
 import { logger } from '../logger';
 import { showToast } from '../toast';
 
-function key(courseId: string, moduleId: string | number) {
+function key(courseId: string, moduleId: string) {
   return `${courseId}:${moduleId}`;
+}
+
+export function countCompleted(completed: Record<string, boolean>, courseId: string): number {
+  const prefix = courseId + ':';
+  let n = 0;
+  for (const [k, v] of Object.entries(completed)) {
+    if (k.startsWith(prefix) && v) n++;
+  }
+  return n;
 }
 
 interface CompletionState {
   completed: Record<string, boolean>;
-  counts: Record<string, number>;
   totalModules: Record<string, number>;
   loading: Record<string, boolean>;
-  load(courseId: string, moduleId: string | number): Promise<void>;
+  loaded: boolean;
+  load(courseId: string, moduleId: string): Promise<void>;
   loadCourse(courseId: string): Promise<void>;
-  toggle(courseId: string, moduleId: string | number): Promise<void>;
-  get(courseId: string, moduleId: string | number): boolean;
+  loadModules(courseId: string): Promise<void>;
+  loadAll(courseIds: string[]): Promise<void>;
+  toggle(courseId: string, moduleId: string): Promise<void>;
+  get(courseId: string, moduleId: string): boolean;
   getProgress(courseId: string): { completed: number; total: number };
 }
 
 export const useCompletionStore = create<CompletionState>((set, get) => ({
   completed: {},
-  counts: {},
   totalModules: {},
   loading: {},
+  loaded: false,
 
   load: async (courseId, moduleId) => {
     const k = key(courseId, moduleId);
@@ -40,11 +51,17 @@ export const useCompletionStore = create<CompletionState>((set, get) => ({
     set((s) => ({ loading: { ...s.loading, [courseId]: true } }));
     try {
       const mods = await api.courses.modules(courseId);
-      const count = await api.storage.completedCount(courseId);
-      set((s) => ({
-        totalModules: { ...s.totalModules, [courseId]: mods.length },
-        counts: { ...s.counts, [courseId]: count.count },
-      }));
+      const { moduleIDs } = await api.storage.completedModules(courseId);
+      set((s) => {
+        const completed = { ...s.completed };
+        for (const mid of moduleIDs) {
+          completed[`${courseId}:${mid}`] = true;
+        }
+        return {
+          totalModules: { ...s.totalModules, [courseId]: mods.length },
+          completed,
+        };
+      });
     } catch {
       showToast.error('toast.loadFailed');
     } finally {
@@ -52,13 +69,49 @@ export const useCompletionStore = create<CompletionState>((set, get) => ({
     }
   },
 
+  loadModules: async (courseId) => {
+    try {
+      const { moduleIDs } = await api.storage.completedModules(courseId);
+      set((s) => {
+        const completed = { ...s.completed };
+        for (const mid of moduleIDs) {
+          completed[`${courseId}:${mid}`] = true;
+        }
+        return { completed };
+      });
+    } catch {
+      showToast.error('toast.loadFailed');
+    }
+  },
+
+  loadAll: async (courseIds) => {
+    if (get().loaded) return;
+    const results = await Promise.all(
+      courseIds.map(async (cid) => {
+        try {
+          const { moduleIDs } = await api.storage.completedModules(cid);
+          return { cid, moduleIDs };
+        } catch {
+          return { cid, moduleIDs: [] as string[] };
+        }
+      }),
+    );
+    set((s) => {
+      const completed = { ...s.completed };
+      for (const { cid, moduleIDs } of results) {
+        for (const mid of moduleIDs) {
+          completed[`${cid}:${mid}`] = true;
+        }
+      }
+      return { completed, loaded: true };
+    });
+  },
+
   toggle: async (courseId, moduleId) => {
     const k = key(courseId, moduleId);
     try {
       const result = await api.storage.toggleCompleted(courseId, moduleId);
       set((s) => ({ completed: { ...s.completed, [k]: result.completed } }));
-      const count = await api.storage.completedCount(courseId);
-      set((s) => ({ counts: { ...s.counts, [courseId]: count.count } }));
       if (result.completed) {
         api.stats
           .logSession({
@@ -82,7 +135,7 @@ export const useCompletionStore = create<CompletionState>((set, get) => ({
 
   getProgress: (courseId) => {
     return {
-      completed: get().counts[courseId] ?? 0,
+      completed: countCompleted(get().completed, courseId),
       total: get().totalModules[courseId] ?? 0,
     };
   },

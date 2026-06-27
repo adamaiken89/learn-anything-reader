@@ -5,7 +5,7 @@ import type { ModuleMeta } from '../../bun/types';
 
 interface Props {
   modules: ModuleMeta[];
-  currentModuleId: string | number;
+  currentModuleId: string;
   onSelect: (mod: ModuleMeta) => void;
 }
 

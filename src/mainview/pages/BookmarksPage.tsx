@@ -12,7 +12,7 @@ import { useCourseStore } from '../stores/courseStore';
 interface Bookmark {
   id: string;
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   sectionID: string | null;
   title: string;
   createdAt: string;
@@ -22,7 +22,7 @@ interface Props {
   onBack: () => void;
   onOpen: (
     courseID: string,
-    moduleID: string | number,
+    moduleID: string,
     sectionID: string | null,
     courses: Course[],
   ) => void;

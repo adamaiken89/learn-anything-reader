@@ -6,7 +6,7 @@ import { useQuizEngine } from '../hooks/useQuizEngine';
 
 interface Props {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
 }
 
 export default function QuizSection({ courseId, moduleId }: Props) {

@@ -18,6 +18,7 @@ import * as Stats from './stats';
 import * as Sync from './sync';
 import { logger } from './logger';
 import type { QuizQuestion, SRSDeck } from './types';
+import { normalizeModuleId } from './types';
 import { processLessonMarkdown } from './lesson-markdown';
 
 const DEV_SERVER_PORT = 5173;
@@ -77,13 +78,13 @@ app.get('/api/stats/global', (c) => c.json(Stats.getGlobalStats()));
 app.post('/api/stats/session', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     durationMinutes: number;
     type: 'reading' | 'quiz' | 'review';
     score?: number;
     total?: number;
   };
-  Storage.addStudySession(body);
+  Storage.addStudySession({ ...body, moduleID: normalizeModuleId(body.moduleID) });
   return c.json({ ok: true });
 });
 
@@ -152,9 +153,9 @@ app.post('/api/courses/:courseId/srs/review', async (c) => {
 });
 
 app.post('/api/courses/:courseId/srs/create', async (c) => {
-  const body = (await c.req.json()) as { question: QuizQuestion; moduleId: string | number };
+  const body = (await c.req.json()) as { question: QuizQuestion; moduleId: string };
   const courseId = c.req.param('courseId');
-  const card = createSRSCard(body.question, body.moduleId, courseId);
+  const card = createSRSCard(body.question, normalizeModuleId(body.moduleId), courseId);
   const deck = CourseLoader.loadSRSDeck(courseId);
   deck.cards[card.id] = card;
   CourseLoader.saveSRSDeck(deck, courseId);
@@ -184,7 +185,7 @@ app.get('/api/storage/highlights', (c) => {
 app.post('/api/storage/highlights', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     selectedText: string;
     startOffset: number;
     endOffset: number;
@@ -192,7 +193,7 @@ app.post('/api/storage/highlights', async (c) => {
   };
   const highlight = Storage.addHighlight(
     body.courseID,
-    body.moduleID,
+    normalizeModuleId(body.moduleID),
     body.selectedText,
     body.startOffset,
     body.endOffset,
@@ -217,14 +218,14 @@ app.get('/api/storage/notes', (c) => {
 app.post('/api/storage/notes', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     content: string;
     highlightID?: string;
     sectionID?: string;
   };
   const note = Storage.addNote(
     body.courseID,
-    body.moduleID,
+    normalizeModuleId(body.moduleID),
     body.content,
     body.highlightID,
     body.sectionID,
@@ -241,14 +242,14 @@ app.put('/api/storage/notes/:id', async (c) => {
 app.post('/api/storage/annotations', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     selectedText: string;
     startOffset: number;
     endOffset: number;
     color: string;
     noteContent: string;
   };
-  const result = Storage.addAnnotation(body);
+  const result = Storage.addAnnotation({ ...body, moduleID: normalizeModuleId(body.moduleID) });
   return c.json(result, 201);
 });
 
@@ -268,14 +269,14 @@ app.get('/api/storage/bookmarks/course/:courseID', (c) =>
 app.post('/api/storage/bookmarks', async (c) => {
   const body = (await c.req.json()) as {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     title: string;
     sectionID?: string;
     scrollPosition?: number;
   };
   const bookmark = Storage.addBookmark(
     body.courseID,
-    body.moduleID,
+    normalizeModuleId(body.moduleID),
     body.title,
     body.sectionID,
     body.scrollPosition,
@@ -307,8 +308,8 @@ app.get('/api/storage/completed', (c) => {
 });
 
 app.post('/api/storage/completed', async (c) => {
-  const body = (await c.req.json()) as { courseID: string; moduleID: string | number };
-  const completed = Storage.toggleModuleCompleted(body.courseID, body.moduleID);
+  const body = (await c.req.json()) as { courseID: string; moduleID: string };
+  const completed = Storage.toggleModuleCompleted(body.courseID, normalizeModuleId(body.moduleID));
   return c.json({ completed });
 });
 
@@ -346,10 +347,10 @@ app.post('/api/gemini/ask', async (c) => {
 // --- Quiz Engine ---
 
 app.post('/api/quiz/start', async (c) => {
-  const body = (await c.req.json()) as { courseId: string; moduleId: string | number };
-  const questions = CourseLoader.loadQuiz(body.courseId, body.moduleId);
+  const body = (await c.req.json()) as { courseId: string; moduleId: string };
+  const questions = CourseLoader.loadQuiz(body.courseId, normalizeModuleId(body.moduleId));
   const engine = new QuizEngine();
-  engine.load(questions, body.courseId, body.moduleId);
+  engine.load(questions, body.courseId, normalizeModuleId(body.moduleId));
   _quizEngine = engine;
   return c.json(questions);
 });
@@ -393,11 +394,11 @@ app.get('/api/usercards', (c) => {
 app.post('/api/usercards', async (c) => {
   const body = (await c.req.json()) as {
     courseId: string;
-    moduleId: string | number;
+    moduleId: string;
     front: string;
     back: string;
   };
-  const card = Storage.addUserCard(body.courseId, body.moduleId, body.front, body.back);
+  const card = Storage.addUserCard(body.courseId, normalizeModuleId(body.moduleId), body.front, body.back);
   return c.json(card, 201);
 });
 

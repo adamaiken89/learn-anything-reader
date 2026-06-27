@@ -10,6 +10,7 @@ import {
 import { useShortcuts } from '../../hooks/useShortcuts';
 import { shortcutKey } from '../../shortcuts';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
+import { countCompleted, useCompletionStore } from '../../stores/completionStore';
 import { useCourseStore } from '../../stores/courseStore';
 import { useLessonUIStore } from '../../stores/lessonUIStore';
 import { useSettingsStore } from '../../stores/settingsStore';
@@ -50,8 +51,9 @@ export default function LessonToolbar() {
   const module = lastView?.type === 'lesson' ? lastView.module : null;
 
   const courses = useCourseStore((s) => s.courses);
-  const progress = useCourseStore((s) => s.progress);
-  const completedCount = course ? (progress[course.id] ?? 0) : 0;
+  const completedCount = useCompletionStore((s) =>
+    course ? countCompleted(s.completed, course.id) : 0,
+  );
   const totalModules = course ? course.modules.length : 0;
 
   const k = course && module ? `${course.id}:${module.id}` : '';

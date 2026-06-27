@@ -6,7 +6,7 @@ function mkHighlight(id: string, text: string, color: string): Highlight {
   return {
     id,
     courseID: 'test',
-    moduleID: 1,
+    moduleID: '01',
     selectedText: text,
     startOffset: 0,
     endOffset: text.length,

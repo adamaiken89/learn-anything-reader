@@ -6,6 +6,7 @@ import { Button } from '../components/ui';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
 import PageLayout from '../layouts/PageLayout';
+import { countCompleted, useCompletionStore } from '../stores/completionStore';
 import { useCourseStore } from '../stores/courseStore';
 
 interface Props {
@@ -23,7 +24,7 @@ export default function CourseListPage({
 }: Props) {
   const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
-  const progress = useCourseStore((s) => s.progress);
+  const completed = useCompletionStore((s) => s.completed);
   const loading = useCourseStore((s) => s.loading);
   const error = useCourseStore((s) => s.error);
   const load = useCourseStore((s) => s.load);
@@ -90,16 +91,16 @@ export default function CourseListPage({
                     </span>
                   </div>
                   {(() => {
-                    const completed = progress[course.id] || 0;
+                    const count = countCompleted(completed, course.id);
                     const total = course.modules.length;
                     if (total === 0) return null;
-                    const pct = Math.round((completed / total) * 100);
+                    const pct = Math.round((count / total) * 100);
                     return (
                       <div className="mt-3">
                         <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
                           <span>{t('courseList.progress')}</span>
                           <span>
-                            {completed}/{total} ({pct}%)
+                            {count}/{total} ({pct}%)
                           </span>
                         </div>
                         <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">

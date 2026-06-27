@@ -4,17 +4,17 @@ import type { Note } from '../../bun/types';
 import { api } from '../api';
 import { showToast } from '../toast';
 
-function key(courseId: string, moduleId: string | number) {
+function key(courseId: string, moduleId: string) {
   return `${courseId}:${moduleId}`;
 }
 
 interface NotesState {
   byModule: Record<string, Note[]>;
   loading: Record<string, boolean>;
-  load(courseId: string, moduleId: string | number): Promise<void>;
+  load(courseId: string, moduleId: string): Promise<void>;
   add(note: {
     courseID: string;
-    moduleID: string | number;
+    moduleID: string;
     content: string;
     sectionID?: string;
     highlightID?: string;

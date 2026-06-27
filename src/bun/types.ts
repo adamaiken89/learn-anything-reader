@@ -1,8 +1,13 @@
+export function normalizeModuleId(id: string | number): string {
+  if (typeof id === 'number') return String(id).padStart(2, '0');
+  return id;
+}
+
 export interface ModuleMeta {
-  id: string | number;
+  id: string;
   name: string;
   timeHours: number;
-  prerequisites: (string | number)[];
+  prerequisites: string[];
   topics: string[];
 }
 
@@ -31,7 +36,7 @@ export interface QuizQuestion {
 export interface SRSCard {
   id: string;
   questionId: string;
-  moduleId: string | number;
+  moduleId: string;
   courseId: string;
   question: string;
   answer: string;
@@ -58,7 +63,7 @@ export interface Section {
 export interface Highlight {
   id: string;
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   selectedText: string;
   startOffset: number;
   endOffset: number;
@@ -69,7 +74,7 @@ export interface Highlight {
 export interface Note {
   id: string;
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   highlightID: string | null;
   sectionID: string | null;
   content: string;
@@ -80,7 +85,7 @@ export interface Note {
 export interface UserCard {
   id: string;
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
   front: string;
   back: string;
   easeFactor: number;
@@ -95,7 +100,7 @@ export interface UserCard {
 export interface Bookmark {
   id: string;
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   sectionID: string | null;
   title: string;
   scrollPosition: number;
@@ -104,14 +109,14 @@ export interface Bookmark {
 
 export interface CompletedModule {
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   completedAt: string;
 }
 
 export interface StudySession {
   date: string;
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   durationMinutes: number;
   type: 'reading' | 'quiz' | 'review';
   score?: number;

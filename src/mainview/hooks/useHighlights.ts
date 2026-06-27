@@ -15,7 +15,7 @@ interface UseHighlightsReturn {
   deleteHighlight: (id: string) => Promise<void>;
 }
 
-export function useHighlights(courseId: string, moduleId: string | number): UseHighlightsReturn {
+export function useHighlights(courseId: string, moduleId: string): UseHighlightsReturn {
   const load = useHighlightsStore((s) => s.load);
   const add = useHighlightsStore((s) => s.add);
   const remove = useHighlightsStore((s) => s.remove);

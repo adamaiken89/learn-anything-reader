@@ -6,7 +6,7 @@ import { api } from '../../api';
 
 interface CardsTabProps {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
 }
 
 export default function CardsTab({ courseId, moduleId }: CardsTabProps) {

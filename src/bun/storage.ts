@@ -56,7 +56,7 @@ function save(data: StorageData): void {
   writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
-export function getHighlightsForModule(courseID: string, moduleID: string | number): Highlight[] {
+export function getHighlightsForModule(courseID: string, moduleID: string): Highlight[] {
   const data = load();
   return data.highlights
     .filter((h) => h.courseID === courseID && h.moduleID === moduleID)
@@ -65,7 +65,7 @@ export function getHighlightsForModule(courseID: string, moduleID: string | numb
 
 export function addHighlight(
   courseID: string,
-  moduleID: string | number,
+  moduleID: string,
   selectedText: string,
   startOffset: number,
   endOffset: number,
@@ -108,7 +108,7 @@ export function deleteHighlight(id: string): void {
 
 export function addNote(
   courseID: string,
-  moduleID: string | number,
+  moduleID: string,
   content: string,
   highlightID?: string,
   sectionID?: string,
@@ -130,7 +130,7 @@ export function addNote(
   return note;
 }
 
-export function getNotesForModule(courseID: string, moduleID: string | number): Note[] {
+export function getNotesForModule(courseID: string, moduleID: string): Note[] {
   const data = load();
   return data.notes
     .filter((n) => n.courseID === courseID && n.moduleID === moduleID)
@@ -155,7 +155,7 @@ export function deleteNote(id: string): void {
 
 export function addAnnotation(data: {
   courseID: string;
-  moduleID: string | number;
+  moduleID: string;
   selectedText: string;
   startOffset: number;
   endOffset: number;
@@ -176,7 +176,7 @@ export function addAnnotation(data: {
 
 export function addBookmark(
   courseID: string,
-  moduleID: string | number,
+  moduleID: string,
   title: string,
   sectionID?: string,
   scrollPosition: number = 0,
@@ -210,7 +210,7 @@ export function getBookmarksForCourse(courseID: string): Bookmark[] {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export function getBookmarksForModule(courseID: string, moduleID: string | number): Bookmark[] {
+export function getBookmarksForModule(courseID: string, moduleID: string): Bookmark[] {
   const data = load();
   return data.bookmarks
     .filter((b) => b.courseID === courseID && b.moduleID === moduleID)
@@ -234,17 +234,17 @@ export function setGeminiKey(key: string): void {
   save(data);
 }
 
-export function isBookmarked(courseID: string, moduleID: string | number): boolean {
+export function isBookmarked(courseID: string, moduleID: string): boolean {
   const data = load();
   return data.bookmarks.some((b) => b.courseID === courseID && b.moduleID === moduleID);
 }
 
-export function isModuleCompleted(courseID: string, moduleID: string | number): boolean {
+export function isModuleCompleted(courseID: string, moduleID: string): boolean {
   const data = load();
   return data.completedModules.some((m) => m.courseID === courseID && m.moduleID === moduleID);
 }
 
-export function toggleModuleCompleted(courseID: string, moduleID: string | number): boolean {
+export function toggleModuleCompleted(courseID: string, moduleID: string): boolean {
   const data = load();
   const idx = data.completedModules.findIndex(
     (m) => m.courseID === courseID && m.moduleID === moduleID,
@@ -259,9 +259,11 @@ export function toggleModuleCompleted(courseID: string, moduleID: string | numbe
   return true;
 }
 
-export function getCompletedModuleIDs(courseID: string): (string | number)[] {
+export function getCompletedModuleIDs(courseID: string): string[] {
   const data = load();
-  return data.completedModules.filter((m) => m.courseID === courseID).map((m) => m.moduleID);
+  return data.completedModules
+    .filter((m) => m.courseID === courseID)
+    .map((m) => m.moduleID);
 }
 
 export function getCompletedModuleCount(courseID: string): number {
@@ -331,7 +333,7 @@ function yesterday(): string {
 
 export function addUserCard(
   courseId: string,
-  moduleId: string | number,
+  moduleId: string,
   front: string,
   back: string,
 ): UserCard {
@@ -355,7 +357,7 @@ export function addUserCard(
   return card;
 }
 
-export function getUserCards(courseId?: string, moduleId?: string | number): UserCard[] {
+export function getUserCards(courseId?: string, moduleId?: string): UserCard[] {
   const data = load();
   let cards = data.userCards;
   if (courseId) cards = cards.filter((c) => c.courseId === courseId);

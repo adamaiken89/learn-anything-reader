@@ -27,9 +27,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    logger.error({ status: res.status, path, method }, `API error: ${err.error}`);
-    showToast.error('toast.apiError', { values: { message: err.error ?? `HTTP ${res.status}` } });
-    throw new Error(err.error ?? `HTTP ${res.status}`);
+    const message = err.error || `HTTP ${res.status}`;
+    logger.error({ status: res.status, path, method }, `API error: ${message}`);
+    showToast.error('toast.apiError', { values: { message } });
+    throw new Error(message);
   }
   logger.debug({ status: res.status, path }, 'API response');
   return res.json();
@@ -68,7 +69,7 @@ export const api = {
     global: () => request<GlobalStats>('/stats/global'),
     logSession: (data: {
       courseID: string;
-      moduleID: string | number;
+      moduleID: string;
       durationMinutes: number;
       type: 'reading' | 'quiz' | 'review';
       score?: number;
@@ -78,11 +79,11 @@ export const api = {
   courses: {
     list: () => request<Course[]>('/courses'),
     modules: (courseId: string) => request<ModuleMeta[]>(`/courses/${courseId}/modules`),
-    lesson: (courseId: string, moduleId: string | number) =>
+    lesson: (courseId: string, moduleId: string) =>
       request<LessonResponse>(`/courses/${courseId}/modules/${moduleId}/lesson`),
-    quiz: (courseId: string, moduleId: string | number) =>
+    quiz: (courseId: string, moduleId: string) =>
       request<QuizQuestion[]>(`/courses/${courseId}/modules/${moduleId}/quiz`),
-    sections: (courseId: string, moduleId: string | number) =>
+    sections: (courseId: string, moduleId: string) =>
       request<Section[]>(`/courses/${courseId}/modules/${moduleId}/sections`),
     srs: {
       get: (courseId: string) => request<SRSDeck>(`/courses/${courseId}/srs`),
@@ -98,7 +99,7 @@ export const api = {
           method: 'POST',
           body: JSON.stringify({ cardId, correct, deck }),
         }),
-      create: (courseId: string, question: QuizQuestion, moduleId: string | number) =>
+      create: (courseId: string, question: QuizQuestion, moduleId: string) =>
         request<SRSCard>(`/courses/${courseId}/srs/create`, {
           method: 'POST',
           body: JSON.stringify({ question, moduleId }),
@@ -106,7 +107,7 @@ export const api = {
     },
   },
   quiz: {
-    start: (courseId: string, moduleId: string | number) =>
+    start: (courseId: string, moduleId: string) =>
       request<QuizQuestion[]>('/quiz/start', {
         method: 'POST',
         body: JSON.stringify({ courseId, moduleId }),
@@ -121,13 +122,13 @@ export const api = {
     reset: () => request<OkResponse>('/quiz/reset', { method: 'POST' }),
   },
   storage: {
-    highlights: (courseID: string, moduleID: string | number) =>
+    highlights: (courseID: string, moduleID: string) =>
       request<Highlight[]>(
         `/storage/highlights?courseID=${encodeURIComponent(courseID)}&moduleID=${moduleID}`,
       ),
     addHighlight: (data: {
       courseID: string;
-      moduleID: string | number;
+      moduleID: string;
       selectedText: string;
       startOffset: number;
       endOffset: number;
@@ -135,7 +136,7 @@ export const api = {
     }) => request<Highlight>('/storage/highlights', { method: 'POST', body: JSON.stringify(data) }),
     addAnnotation: (data: {
       courseID: string;
-      moduleID: string | number;
+      moduleID: string;
       selectedText: string;
       startOffset: number;
       endOffset: number;
@@ -148,13 +149,13 @@ export const api = {
       }),
     deleteHighlight: (id: string) =>
       request<OkResponse>(`/storage/highlights/${id}`, { method: 'DELETE' }),
-    notes: (courseID: string, moduleID: string | number) =>
+    notes: (courseID: string, moduleID: string) =>
       request<Note[]>(
         `/storage/notes?courseID=${encodeURIComponent(courseID)}&moduleID=${moduleID}`,
       ),
     addNote: (data: {
       courseID: string;
-      moduleID: string | number;
+      moduleID: string;
       content: string;
       highlightID?: string;
       sectionID?: string;
@@ -168,30 +169,30 @@ export const api = {
     bookmarks: () => request<Bookmark[]>('/storage/bookmarks'),
     courseBookmarks: (courseID: string) =>
       request<Bookmark[]>(`/storage/bookmarks/course/${courseID}`),
-    moduleBookmarks: (courseID: string, moduleID: string | number) =>
+    moduleBookmarks: (courseID: string, moduleID: string) =>
       request<Bookmark[]>(`/storage/bookmarks/module/${courseID}/${moduleID}`),
     addBookmark: (data: {
       courseID: string;
-      moduleID: string | number;
+      moduleID: string;
       title: string;
       sectionID?: string;
       scrollPosition?: number;
     }) => request<Bookmark>('/storage/bookmarks', { method: 'POST', body: JSON.stringify(data) }),
     deleteBookmark: (id: string) =>
       request<OkResponse>(`/storage/bookmarks/${id}`, { method: 'DELETE' }),
-    checkBookmark: (courseID: string, moduleID: string | number) =>
+    checkBookmark: (courseID: string, moduleID: string) =>
       request<boolean>(
         `/storage/check-bookmark?courseID=${encodeURIComponent(courseID)}&moduleID=${moduleID}`,
       ),
     completedModules: (courseID: string) =>
-      request<{ moduleIDs: (string | number)[] }>(
+      request<{ moduleIDs: string[] }>(
         `/storage/completed/modules?courseID=${encodeURIComponent(courseID)}`,
       ),
-    isCompleted: (courseID: string, moduleID: string | number) =>
+    isCompleted: (courseID: string, moduleID: string) =>
       request<{ completed: boolean }>(
         `/storage/completed?courseID=${encodeURIComponent(courseID)}&moduleID=${moduleID}`,
       ),
-    toggleCompleted: (courseID: string, moduleID: string | number) =>
+    toggleCompleted: (courseID: string, moduleID: string) =>
       request<{ completed: boolean }>('/storage/completed', {
         method: 'POST',
         body: JSON.stringify({ courseID, moduleID }),
@@ -202,13 +203,13 @@ export const api = {
       ),
   },
   usercards: {
-    list: (courseId?: string, moduleId?: string | number) => {
+    list: (courseId?: string, moduleId?: string) => {
       const params = new URLSearchParams();
       if (courseId) params.set('courseId', courseId);
-      if (moduleId !== undefined) params.set('moduleId', String(moduleId));
+      if (moduleId !== undefined) params.set('moduleId', moduleId);
       return request<UserCard[]>(`/usercards?${params.toString()}`);
     },
-    create: (courseId: string, moduleId: string | number, front: string, back: string) =>
+    create: (courseId: string, moduleId: string, front: string, back: string) =>
       request<UserCard>('/usercards', {
         method: 'POST',
         body: JSON.stringify({ courseId, moduleId, front, back }),

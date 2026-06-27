@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, ModuleMeta } from '../../bun/types';
-import { api } from '../api';
 import CourseSwitcher from '../components/CourseSwitcher';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
 import PageLayout from '../layouts/PageLayout';
+import { useCompletionStore } from '../stores/completionStore';
 
 interface Props {
   course: Course;
@@ -26,14 +26,13 @@ export default function ModuleListPage({
   onOpenDashboard,
 }: Props) {
   const { t } = useTranslation();
-  const [completedIDs, setCompletedIDs] = useState<Set<string | number>>(new Set());
+  const loadModules = useCompletionStore((s) => s.loadModules);
 
   useEffect(() => {
-    api.storage
-      .completedModules(course.id)
-      .then((r) => setCompletedIDs(new Set(r.moduleIDs)))
-      .catch(() => {});
-  }, [course.id]);
+    void loadModules(course.id);
+  }, [course.id, loadModules]);
+
+  const completed = useCompletionStore((s) => s.completed);
 
   return (
     <PageLayout>
@@ -67,7 +66,7 @@ export default function ModuleListPage({
       <PageContent>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {course.modules.map((mod) => {
-            const isCompleted = completedIDs.has(mod.id);
+            const isCompleted = completed[`${course.id}:${mod.id}`] ?? false;
             return (
               <button
                 key={mod.id}

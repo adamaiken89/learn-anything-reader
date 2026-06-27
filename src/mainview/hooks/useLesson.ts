@@ -4,6 +4,7 @@ import type { MetaField } from '../../bun/lesson-markdown';
 import type { Section } from '../../bun/types';
 import { api } from '../api';
 import { logger } from '../logger';
+import { countCompleted, useCompletionStore } from '../stores/completionStore';
 import { showToast } from '../toast';
 
 type DivRef = React.RefObject<HTMLDivElement>;
@@ -50,7 +51,7 @@ interface UseLessonReturn {
 
 export function useLesson(
   courseId: string,
-  moduleId: string | number,
+  moduleId: string,
   initialSectionID?: string,
 ): UseLessonReturn {
   const [content, setContent] = useState('');
@@ -60,13 +61,19 @@ export function useLesson(
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<Section[]>([]);
   const [visibleSection, setVisibleSection] = useState<string | null>(initialSectionID ?? null);
-  const [isCompleted, setIsCompleted] = useState(false);
+
+  const storeKey = `${courseId}:${moduleId}`;
+  const isCompleted = useCompletionStore((s) => s.completed[storeKey] ?? false);
   const [optimisticIsCompleted, toggleOptimistic] = useOptimistic<boolean, 1>(
     isCompleted,
     (state) => !state,
   );
-  const [totalModules, setTotalModules] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
+  const completedCount = useCompletionStore((s) => countCompleted(s.completed, courseId));
+  const totalModules = useCompletionStore((s) => s.totalModules[courseId] ?? 0);
+  const toggle = useCompletionStore((s) => s.toggle);
+  const load = useCompletionStore((s) => s.load);
+  const loadCourse = useCompletionStore((s) => s.loadCourse);
+
   const contentRef = useRef<HTMLDivElement>(null) as DivRef;
   const sectionsRef = useRef<Section[]>([]);
 
@@ -104,23 +111,8 @@ export function useLesson(
 
   const handleToggleCompleted = useCallback(async () => {
     toggleOptimistic(1);
-    const result = await api.storage.toggleCompleted(courseId, moduleId);
-    setIsCompleted(result.completed);
-    const count = await api.storage.completedCount(courseId);
-    setCompletedCount(count.count);
-    if (result.completed) {
-      api.stats
-        .logSession({
-          courseID: courseId,
-          moduleID: moduleId,
-          durationMinutes: 10,
-          type: 'reading',
-        })
-        .catch((err) => {
-          logger.warn({ err }, 'Failed to log reading session');
-        });
-    }
-  }, [courseId, moduleId, toggleOptimistic]);
+    await toggle(courseId, moduleId);
+  }, [courseId, moduleId, toggle, toggleOptimistic]);
 
   useEffect(() => {
     setLoading(true);
@@ -144,29 +136,9 @@ export function useLesson(
         showToast.error('toast.loadFailed');
         setLoading(false);
       });
-    api.storage
-      .isCompleted(courseId, moduleId)
-      .then((r) => setIsCompleted(r.completed))
-      .catch((err) => {
-        logger.warn({ err }, 'Failed to check completion');
-        showToast.error('toast.loadFailed');
-      });
-    api.courses
-      .modules(courseId)
-      .then((mods) => {
-        setTotalModules(mods.length);
-        api.storage
-          .completedCount(courseId)
-          .then((r) => setCompletedCount(r.count))
-          .catch((err) => {
-            logger.warn({ err }, 'Failed to get completed count');
-          });
-      })
-      .catch((err) => {
-        logger.warn({ err }, 'Failed to load modules');
-        showToast.error('toast.loadFailed');
-      });
-  }, [courseId, moduleId, handleScroll]);
+    void load(courseId, moduleId);
+    void loadCourse(courseId);
+  }, [courseId, moduleId, handleScroll, load, loadCourse]);
 
   useEffect(() => {
     if (initialSectionID && content) {

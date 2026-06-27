@@ -16,7 +16,7 @@ interface UseBookmarksReturn {
 
 export function useBookmarks(
   courseId: string,
-  moduleId: string | number,
+  moduleId: string,
   visibleSection: string | null,
 ): UseBookmarksReturn {
   const load = useBookmarksStore((s) => s.load);

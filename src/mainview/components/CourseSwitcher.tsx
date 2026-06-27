@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course } from '../../bun/types';
+import { countCompleted, useCompletionStore } from '../stores/completionStore';
 import { useCourseStore } from '../stores/courseStore';
 import { selectableItemVariants } from './ui';
 
@@ -13,7 +14,7 @@ interface Props {
 export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
   const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
-  const progress = useCourseStore((s) => s.progress);
+  const completed = useCompletionStore((s) => s.completed);
   const load = useCourseStore((s) => s.load);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -47,9 +48,9 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
             <div className="p-3 text-sm text-gray-500">{t('courseSwitcher.noCourses')}</div>
           )}
           {courses.map((s) => {
-            const completed = progress[s.id] || 0;
+            const count = countCompleted(completed, s.id);
             const total = s.modules.length;
-            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
             return (
               <button
                 key={s.id}
@@ -66,7 +67,7 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
                   </span>
                   {total > 0 && (
                     <span className="text-indigo-400">
-                      {completed}/{total} ({pct}%)
+                      {count}/{total} ({pct}%)
                     </span>
                   )}
                 </div>

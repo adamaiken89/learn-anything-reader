@@ -44,7 +44,7 @@ describe('CourseListPage interaction', () => {
   test('renders course cards when loaded', async () => {
     mockFetch({
       '/courses': mockCourses,
-      '/storage/completed/count': { count: 0 },
+      '/storage/completed/modules': { moduleIDs: [] },
     });
     let container!: HTMLElement;
     await act(async () => {

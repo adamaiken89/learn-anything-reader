@@ -10,7 +10,7 @@ import { showToast } from '../../toast';
 
 interface NotesHighlightsTabProps {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
 }
 
 type MergedItem =

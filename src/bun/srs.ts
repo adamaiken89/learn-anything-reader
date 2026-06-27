@@ -33,7 +33,7 @@ export function getStarredCardsForCourse(deck: SRSDeck, courseId: string): SRSCa
 
 export function createSRSCard(
   question: QuizQuestion,
-  moduleId: string | number,
+  moduleId: string,
   courseId: string,
   now?: Date,
 ): SRSCard {

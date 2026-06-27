@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
-import { useCompletionStore } from '../../mainview/stores/completionStore';
+import { countCompleted, useCompletionStore } from '../../mainview/stores/completionStore';
 import { mockFetch, restoreFetch } from './mock-fetch';
 
 beforeEach(() => {
@@ -12,7 +12,6 @@ describe('completionStore', () => {
   test('default state', () => {
     const s = useCompletionStore.getState();
     expect(s.completed).toEqual({});
-    expect(s.counts).toEqual({});
     expect(s.totalModules).toEqual({});
   });
 
@@ -34,16 +33,16 @@ describe('completionStore', () => {
     expect(useCompletionStore.getState().get('course1', 1)).toBe(true);
   });
 
-  test('loadCourse sets counts and totalModules', async () => {
+  test('loadCourse sets totalModules and completed from API', async () => {
     mockFetch({
       '/courses/course1/modules': [{ id: 1 }, { id: 2 }, { id: 3 }],
-      '/storage/completed/count': { count: 2 },
+      '/storage/completed/modules': { moduleIDs: ['1', '2'] },
     });
     useCompletionStore.getState().loadCourse('course1');
     await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
     const s = useCompletionStore.getState();
     expect(s.totalModules['course1']).toBe(3);
-    expect(s.counts['course1']).toBe(2);
+    expect(countCompleted(s.completed, 'course1')).toBe(2);
   });
 });

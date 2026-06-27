@@ -5,7 +5,7 @@ import { useLessonContext } from '../../sections/LessonContext';
 
 interface BookmarksTabProps {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
   moduleName: string;
   courseName: string;
 }

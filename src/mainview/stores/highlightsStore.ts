@@ -4,24 +4,24 @@ import type { Highlight } from '../../bun/types';
 import { api } from '../api';
 import { showToast } from '../toast';
 
-function key(courseId: string, moduleId: string | number) {
+function key(courseId: string, moduleId: string) {
   return `${courseId}:${moduleId}`;
 }
 
 interface HighlightsState {
   byModule: Record<string, Highlight[]>;
   loading: Record<string, boolean>;
-  load(courseId: string, moduleId: string | number): Promise<void>;
+  load(courseId: string, moduleId: string): Promise<void>;
   add(
     courseId: string,
-    moduleId: string | number,
+    moduleId: string,
     text: string,
     color: string,
     startOffset?: number,
     endOffset?: number,
   ): Promise<void>;
   remove(id: string): Promise<void>;
-  getForModule(courseId: string, moduleId: string | number): Highlight[];
+  getForModule(courseId: string, moduleId: string): Highlight[];
 }
 
 export const useHighlightsStore = create<HighlightsState>((set, get) => ({

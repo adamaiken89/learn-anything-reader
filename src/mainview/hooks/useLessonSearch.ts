@@ -15,7 +15,7 @@ interface UseLessonSearchReturn {
 
 export function useLessonSearch(
   contentRef: RefObject<HTMLDivElement | null>,
-  moduleId: string | number,
+  moduleId: string,
   initialSearchQuery?: string | null,
 ): UseLessonSearchReturn {
   const [searchActive, setSearchActive] = useState(false);

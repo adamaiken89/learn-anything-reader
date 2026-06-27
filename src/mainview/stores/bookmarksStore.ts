@@ -4,25 +4,25 @@ import type { Bookmark } from '../../bun/types';
 import { api } from '../api';
 import { showToast } from '../toast';
 
-function key(courseId: string, moduleId: string | number) {
+function key(courseId: string, moduleId: string) {
   return `${courseId}:${moduleId}`;
 }
 
 interface BookmarksState {
   byModule: Record<string, Bookmark[]>;
   loading: Record<string, boolean>;
-  load(courseId: string, moduleId: string | number): Promise<void>;
+  load(courseId: string, moduleId: string): Promise<void>;
   toggle(
     courseId: string,
-    moduleId: string | number,
+    moduleId: string,
     title: string,
     sectionID: string | null,
   ): Promise<void>;
   remove(id: string): Promise<void>;
-  getForModule(courseId: string, moduleId: string | number): Bookmark[];
+  getForModule(courseId: string, moduleId: string): Bookmark[];
   getActive(
     courseId: string,
-    moduleId: string | number,
+    moduleId: string,
     sectionID: string | null,
   ): Bookmark | undefined;
 }

@@ -39,7 +39,7 @@ beforeEach(() => {
 describe('highlights', () => {
   test('addHighlight creates highlight with all fields', async () => {
     mod = await import('../storage');
-    const h = mod.addHighlight('c1', 1, 'selected text', 0, 13, 'pink');
+    const h = mod.addHighlight('c1', '01', 'selected text', 0, 13, 'pink');
     expect(h.courseID).toBe('c1');
     expect(h.moduleID).toBe(1);
     expect(h.selectedText).toBe('selected text');

@@ -9,7 +9,7 @@ interface SearchOverlayProps {
   initialCourseID?: string;
   initialCourseName?: string;
   onClose: () => void;
-  onNavigate: (courseID: string, moduleID: string | number, query?: string) => void;
+  onNavigate: (courseID: string, moduleID: string, query?: string) => void;
 }
 
 const TYPE_ICONS: Record<string, string> = {

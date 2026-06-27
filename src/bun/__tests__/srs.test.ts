@@ -13,7 +13,7 @@ import type { SRSDeck, SRSCard } from '../types';
 function makeCard(overrides: Partial<SRSCard> & { id: string }): SRSCard {
   return {
     questionId: 'q1',
-    moduleId: 1,
+    moduleId: '01',
     courseId: 'test',
     question: 'Q?',
     answer: 'A',

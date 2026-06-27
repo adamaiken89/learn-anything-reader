@@ -25,7 +25,6 @@ describe('courseStore', () => {
   test('default state', () => {
     const s = useCourseStore.getState();
     expect(s.courses).toEqual([]);
-    expect(s.progress).toEqual({});
     expect(s.loading).toBe(false);
     expect(s.error).toBeNull();
     expect(s.loaded).toBe(false);
@@ -34,7 +33,7 @@ describe('courseStore', () => {
   test('load sets courses and progress', async () => {
     mockFetch({
       '/courses': [mockCourse],
-      '/storage/completed/count': { count: 3 },
+      '/storage/completed/modules': { moduleIDs: ['1'] },
     });
     useCourseStore.getState().load();
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -64,11 +63,10 @@ describe('courseStore', () => {
   });
 
   test('reset clears all state', () => {
-    useCourseStore.setState({ courses: [mockCourse], progress: { 'math-101': 1 }, loaded: true });
+    useCourseStore.setState({ courses: [mockCourse], loaded: true });
     useCourseStore.getState().reset();
     const s = useCourseStore.getState();
     expect(s.courses).toEqual([]);
-    expect(s.progress).toEqual({});
     expect(s.loaded).toBe(false);
   });
 });

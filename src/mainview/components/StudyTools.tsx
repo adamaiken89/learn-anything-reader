@@ -13,7 +13,7 @@ type Tab = 'notes-highlights' | 'bookmarks' | 'cards' | 'ask-ai';
 
 interface StudyToolsProps {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
   onClose: () => void;
 }
 

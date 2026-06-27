@@ -7,7 +7,7 @@ import QuizSection from '../sections/QuizSection';
 
 interface QuizPageProps {
   courseId: string;
-  moduleId: string | number;
+  moduleId: string;
   onBack: () => void;
   onSwitchCourse: (course: Course) => void;
 }

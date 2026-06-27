@@ -70,7 +70,7 @@ export default function App() {
   });
 
   const handleSearchNavigate = useCallback(
-    (courseID: string, moduleID: string | number) => {
+    (courseID: string, moduleID: string) => {
       const course = courses.find((c) => c.id === courseID);
       const mod = course?.modules.find((m) => m.id === moduleID);
       if (course && mod) {

@@ -9,7 +9,7 @@ interface UseNotesReturn {
   refresh: () => Promise<void>;
 }
 
-export function useNotes(courseId: string, moduleId: string | number): UseNotesReturn {
+export function useNotes(courseId: string, moduleId: string): UseNotesReturn {
   const load = useNotesStore((s) => s.load);
   const byModule = useNotesStore((s) => s.byModule);
   const loading = useNotesStore((s) => s.loading[`${courseId}:${moduleId}`] ?? false);

@@ -36,7 +36,7 @@ export default function LessonFeature({
   }, [module.id]);
 
   const handleSearchNavigate = useCallback(
-    (courseID: string, moduleID: string | number, query?: string) => {
+    (courseID: string, moduleID: string, query?: string) => {
       const c = courses.find((x) => x.id === courseID);
       const m = c?.modules.find((x) => x.id === moduleID);
       if (c && m) {
