@@ -1,23 +1,12 @@
-import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import * as yaml from 'js-yaml';
-import { logger } from './logger';
-import { normalizeModuleId } from './utils';
-import type { Course, ModuleMeta, QuizQuestion, SRSDeck } from './types';
+import { join } from 'path';
+
 import { processLessonMarkdown } from './lesson-markdown';
+import { logger } from './logger';
+import { findSubjectsDir, normalizeModuleId } from './utils';
 
-const POSSIBLE_PATHS = [
-  join(import.meta.dir, '..', '..', 'subjects'),
-  join(import.meta.dir, '..', '..', '..', 'subjects'),
-  join(process.env.HOME || '', 'Desktop', 'courses', 'subjects'),
-];
-
-function findCoursesDir(): string | null {
-  for (const p of POSSIBLE_PATHS) {
-    if (existsSync(p)) return p;
-  }
-  return null;
-}
+import type { Course, ModuleMeta, QuizQuestion, SRSDeck } from './types';
 
 export function parseCourse(yamlStr: string, directory: string): Course | null {
   const raw = yaml.load(yamlStr) as Record<string, unknown>;
@@ -82,7 +71,7 @@ export function findModuleDir(
 }
 
 export function loadCourses(): Course[] {
-  const coursesDir = findCoursesDir();
+  const coursesDir = findSubjectsDir();
   if (!coursesDir) return [];
 
   const entries = readdirSync(coursesDir, { withFileTypes: true });
@@ -105,7 +94,7 @@ export function loadCourses(): Course[] {
 }
 
 export function loadLesson(courseId: string, moduleId: string): string {
-  const coursesDir = findCoursesDir();
+  const coursesDir = findSubjectsDir();
   if (!coursesDir) throw new Error('Courses directory not found');
   const modDir = findModuleDir(coursesDir, courseId, moduleId);
   if (!modDir) throw new Error(`Module ${moduleId} not found for course ${courseId}`);
@@ -115,7 +104,7 @@ export function loadLesson(courseId: string, moduleId: string): string {
 }
 
 export function loadQuiz(courseId: string, moduleId: string): QuizQuestion[] {
-  const coursesDir = findCoursesDir();
+  const coursesDir = findSubjectsDir();
   if (!coursesDir) throw new Error('Courses directory not found');
   const modDir = findModuleDir(coursesDir, courseId, moduleId);
   if (!modDir) throw new Error(`Module ${moduleId} not found for course ${courseId}`);
@@ -126,7 +115,7 @@ export function loadQuiz(courseId: string, moduleId: string): QuizQuestion[] {
 }
 
 export function loadSRSDeck(courseId: string): SRSDeck {
-  const coursesDir = findCoursesDir();
+  const coursesDir = findSubjectsDir();
   if (!coursesDir) return { cards: {} };
   const deckPath = join(coursesDir, courseId, 'srs', 'deck.json');
   if (!existsSync(deckPath)) return { cards: {} };
@@ -139,7 +128,7 @@ export function loadSRSDeck(courseId: string): SRSDeck {
 }
 
 export function saveSRSDeck(deck: SRSDeck, courseId: string): void {
-  const coursesDir = findCoursesDir();
+  const coursesDir = findSubjectsDir();
   if (!coursesDir) return;
   const srsDir = join(coursesDir, courseId, 'srs');
   mkdirSync(srsDir, { recursive: true });

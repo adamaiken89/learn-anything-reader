@@ -1,16 +1,18 @@
+import { execSync } from 'child_process';
 import {
-  existsSync,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-  rmSync,
   cpSync,
+  existsSync,
+  mkdirSync,
   readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
 } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
-import { getSyncConfig, saveSyncConfig } from './storage';
+
 import { logger } from './logger';
+import { getSyncConfig, saveSyncConfig } from './storage';
+import { findSubjectsDir } from './utils';
 
 const TMP_DIR = join(process.env.HOME || '', '.coursereader', 'tmp-sync');
 
@@ -43,24 +45,18 @@ function restoreSRSDirs(backups: Map<string, string>, coursesDir: string): void 
   }
 }
 
-function findCoursesDir(): string | null {
-  const possiblePaths = [
-    join(process.env.HOME || '', 'Desktop', 'courses', 'subjects'),
-    join(import.meta.dir, '..', '..', 'subjects'),
-    join(import.meta.dir, '..', '..', '..', 'subjects'),
-  ];
-  for (const p of possiblePaths) {
-    if (existsSync(p)) return p;
-  }
-  return possiblePaths[0];
-}
-
 async function getLatestRemoteCommit(repoURL: string): Promise<string> {
   const match = repoURL.match(/github\.com\/([^/]+)\/([^/]+)/);
   if (!match) throw new Error('Invalid GitHub URL format');
 
-  const [, owner, repo] = match;
+  let [, owner, repo] = match;
   const cleanRepo = repo.replace(/\.git$/, '');
+  if (owner === '') {
+    owner = 'adamaiken89';
+  }
+  if (repo === '') {
+    repo = 'course-content';
+  }
 
   const res = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits/main`, {
     headers: { Accept: 'application/vnd.github.v3+json' },
@@ -105,7 +101,7 @@ export async function syncCourses(): Promise<{
       };
     }
 
-    const coursesDir = findCoursesDir();
+    const coursesDir = findSubjectsDir();
     if (!coursesDir) {
       return { success: false, commitHash: '', message: 'Courses directory not found' };
     }

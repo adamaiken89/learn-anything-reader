@@ -31,7 +31,7 @@
   "courseList": {
     "loadingCourses": "正在載入課程...",
     "loadError": "錯誤",
-    "noCourses": "找不到課程。請將課程加入 courses/ 目錄。",
+    "noCourses": "找不到課程。請將課程加入 subjects/ 目錄。",
     "modules": "{{count}} 個單元",
     "progress": "進度"
   },

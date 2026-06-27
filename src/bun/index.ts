@@ -450,7 +450,6 @@ app.post('/api/sync/config', async (c) => {
 // --- Start server ---
 
 async function getMainViewUrl(): Promise<string> {
-  const channel = await Updater.localInfo.channel();
   if (channel === 'dev') {
     try {
       await fetch(DEV_SERVER_URL, { method: 'HEAD' });
@@ -470,13 +469,16 @@ const server = serve({
 
 logger.info({ port: API_PORT }, 'API server running');
 
-const syncConfig = Storage.getSyncConfig();
-if (syncConfig.remoteRepoURL) {
-  Sync.syncCourses()
-    .then((result) => {
-      if (!result.unchanged) logger.info({ message: result.message }, 'Auto-sync');
-    })
-    .catch((err) => logger.error({ err }, 'Auto-sync failed'));
+const channel = await Updater.localInfo.channel();
+if (channel === 'dev') {
+  const syncConfig = Storage.getSyncConfig();
+  if (syncConfig.remoteRepoURL) {
+    Sync.syncCourses()
+      .then((result) => {
+        if (!result.unchanged) logger.info({ message: result.message }, 'Auto-sync');
+      })
+      .catch((err) => logger.error({ err }, 'Auto-sync failed'));
+  }
 }
 
 try {

@@ -31,7 +31,7 @@
   "courseList": {
     "loadingCourses": "Loading courses...",
     "loadError": "Error",
-    "noCourses": "No courses found. Add courses to the courses/ directory.",
+    "noCourses": "No courses found. Add courses to the subjects/ directory.",
     "modules": "{{count}} modules",
     "progress": "Progress"
   },
