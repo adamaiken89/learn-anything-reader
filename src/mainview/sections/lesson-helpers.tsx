@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { headingId } from '../../bun/lesson-markdown';
+import MermaidDiagram from '../components/MermaidDiagram';
 
 function extractText(children: React.ReactNode): string {
   let text = '';
@@ -35,6 +36,13 @@ export const components = {
       <table>{children}</table>
     </div>
   ),
+  code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
+    if (className?.includes('language-mermaid')) {
+      const code = typeof children === 'string' ? children : String(children);
+      return <MermaidDiagram code={code.replace(/\n$/, '')} className={className} />;
+    }
+    return <code className={className}>{children}</code>;
+  },
 };
 
 export function getTextOffset(

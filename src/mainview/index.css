@@ -518,6 +518,31 @@ body {
   color: var(--hl-attr);
 }
 
+/* Mermaid diagrams */
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-error {
+  color: #ef4444;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.8em;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border-top: 1px solid rgba(239, 68, 68, 0.3);
+}
+.mermaid-loading {
+  text-align: center;
+  padding: 1rem;
+  color: #9ca3af;
+}
+
 /* Language badge on code blocks */
 .book-content pre[class*='language-']::before,
 .book-content pre > code[class*='language-']::before {
