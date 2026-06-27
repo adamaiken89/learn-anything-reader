@@ -89,3 +89,4 @@ The real scrollbar lives on `contentRef` only when `PageContent` is a flex conta
 - `vite.config.ts` root=`src/mainview`, output=`dist/`
 - API port 50001 (passed as `?apiPort=` query param)
 - `index.css`: Tailwind directives + `.book-content` + highlight.js styles
+- **Desktop-only app** (Electrobun). All I/O local. Skip lazy loading, code splitting, chunking, network optimizations. Import eagerly. Bundle once.
