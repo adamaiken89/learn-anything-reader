@@ -460,7 +460,7 @@ async function getMainViewUrl(): Promise<string> {
       logger.warn("Vite dev server not running. Run 'bun run dev:hmr' for HMR.");
     }
   }
-  return `views://mainview/index.html?apiPort=${API_PORT}`;
+  return 'views://mainview/index.html';
 }
 
 const server = serve({

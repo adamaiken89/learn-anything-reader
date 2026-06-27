@@ -39,7 +39,7 @@ export const components = {
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
     if (className?.includes('language-mermaid')) {
       const code = typeof children === 'string' ? children : String(children);
-      return <MermaidDiagram code={code.replace(/\n$/, '')} className={className} />;
+      return <MermaidDiagram code={code.replace(/\n$/, '')} />;
     }
     return <code className={className}>{children}</code>;
   },
