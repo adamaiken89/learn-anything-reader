@@ -32,7 +32,6 @@ import { THEME_TOKENS, themeToCSSVars } from '../themes';
 import LessonContext from './LessonContext';
 
 import type { PluggableList } from 'unified';
-import type { SelectionToolbarHandle } from '../components/lesson/SelectionToolbar';
 import type { Course, ModuleMeta, Note } from '../../bun/types';
 
 interface Props {
@@ -116,8 +115,6 @@ export default function LessonSection({
   const showTools = useLessonUIStore((s) => s.showTools);
   const showPomodoro = useLessonUIStore((s) => s.showPomodoro);
   const setShowTools = useLessonUIStore((s) => s.toggleTools);
-
-  const selectionToolbarRef = useRef<SelectionToolbarHandle>(null);
 
   const {
     showToolbar,
@@ -326,7 +323,7 @@ export default function LessonSection({
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'c' && selection) {
         e.preventDefault();
-        selectionToolbarRef.current?.triggerCopy();
+        navigator.clipboard.writeText(selection.text);
       }
     };
     window.addEventListener('keydown', handler);
@@ -474,7 +471,6 @@ export default function LessonSection({
 
       {showToolbar && selection && !showNoteEditor && !showCardEditor && (
         <SelectionToolbar
-          ref={selectionToolbarRef}
           x={pickerPos.x}
           y={pickerPos.y}
           selectionTop={pickerPos.selectionTop}
