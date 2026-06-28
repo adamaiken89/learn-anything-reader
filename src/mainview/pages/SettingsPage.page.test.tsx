@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { __setRPC } from '../api';
@@ -77,8 +77,9 @@ describe('SettingsPage', () => {
       error: null,
     });
     const { container } = render(<SettingsPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('Gemini API Key');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Gemini API Key');
+    });
     expect(container.textContent).toContain('Remote Content');
     expect(container.textContent).toContain('Reading Theme');
     expect(container.textContent).toContain('Font Size');
@@ -98,9 +99,9 @@ describe('SettingsPage', () => {
       error: null,
     });
     const { container } = render(<SettingsPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    const input = container.querySelector('input[type="password"]');
-    expect(input).toBeTruthy();
+    await waitFor(() => {
+      expect(container.querySelector('input[type="password"]')).toBeTruthy();
+    });
   });
 
   test('shows no API key configured when hasApiKey is false', async () => {
@@ -113,8 +114,9 @@ describe('SettingsPage', () => {
       error: null,
     });
     const { container } = render(<SettingsPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('Save');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Save');
+    });
   });
 
   test('shows theme options', async () => {
@@ -127,8 +129,9 @@ describe('SettingsPage', () => {
       error: null,
     });
     const { container } = render(<SettingsPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('Dark');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Dark');
+    });
     expect(container.textContent).toContain('OLED');
     expect(container.textContent).toContain('Nord');
     expect(container.textContent).toContain('Sepia');
@@ -148,8 +151,9 @@ describe('SettingsPage', () => {
       error: null,
     });
     const { container } = render(<SettingsPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('English (US)');
+    await waitFor(() => {
+      expect(container.textContent).toContain('English (US)');
+    });
     expect(container.textContent).toContain('English (UK)');
     expect(container.textContent).toContain('English (CA)');
     expect(container.textContent).toContain('English (AU)');

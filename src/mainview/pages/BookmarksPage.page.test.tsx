@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type { Bookmark } from '../../bun/types';
@@ -80,8 +80,9 @@ describe('BookmarksPage', () => {
     const { container } = render(
       <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
     );
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('No bookmarks');
+    await waitFor(() => {
+      expect(container.textContent).toContain('No bookmarks');
+    });
   });
 
   test('renders bookmarks list', async () => {
@@ -89,8 +90,9 @@ describe('BookmarksPage', () => {
     const { container } = render(
       <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
     );
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('Test Bookmark');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Test Bookmark');
+    });
   });
 
   test('calls onOpen when bookmark clicked', async () => {
@@ -105,7 +107,9 @@ describe('BookmarksPage', () => {
         onSwitchCourse={() => {}}
       />,
     );
-    await Bun.sleep(10);
+    await waitFor(() => {
+      expect(container.querySelector('button.w-full')).toBeTruthy();
+    });
     const btn = container.querySelector('button.w-full') as HTMLButtonElement;
     btn.click();
     expect(opened).toBeTruthy();
@@ -125,9 +129,10 @@ describe('BookmarksPage', () => {
         onSwitchCourse={() => {}}
       />,
     );
-    await Bun.sleep(10);
-    const header = container.querySelector('[data-testid="page-header"]');
-    header!.querySelector('button')!.click();
+    await waitFor(() => {
+      expect(container.querySelector('[data-testid="page-header"] button')).toBeTruthy();
+    });
+    container.querySelector('[data-testid="page-header"]')!.querySelector('button')!.click();
     expect(called).toBe(true);
   });
 });

@@ -553,6 +553,48 @@ Zustand `setState()` does not restore external singletons.
 - `../components/ui` → affects any component importing Button
 - Any Zustand store module → affects all tests that import that store
 
+## act() Wrapping Rule
+
+Every `render()` and `renderHook()` call must be wrapped in `act()` to flush
+React state updates synchronously. Without this, pending microtask updates
+(subscriptions, effects, re-renders) leak outside the React test environment
+and trigger `act()` warnings — even when the test passes.
+
+```typescript
+import { act } from '@testing-library/react';
+
+// Synchronous test — wrap render in act
+test('shows loading', () => {
+  act(() => {
+    render(<Component />);
+  });
+  expect(screen.getByText('Loading')).toBeInTheDocument();
+});
+
+// Async test — wrap entire body in act
+test('loads data', async () => {
+  await act(async () => {
+    const { container } = render(<Component />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Loaded');
+    });
+  });
+});
+
+// Hook — wrap renderHook in act
+test('returns state', () => {
+  let result: ReturnType<typeof renderHook>;
+  act(() => {
+    result = renderHook(() => useHook('arg'));
+  });
+  expect(result!.current.data).toBeNull();
+});
+```
+
+**Never use `Bun.sleep(N)` as a wait mechanism.** It bypasses React's microtask
+queue, causing updates to land outside `act()`. Use `waitFor()` instead — it
+polls the assertion deterministically without arbitrary delays.
+
 ## Conventions
 
 - **Framework:** `bun:test` (zero config, `bun test` to run)

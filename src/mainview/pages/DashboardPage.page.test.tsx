@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { __setRPC } from '../api';
@@ -76,8 +76,9 @@ describe('DashboardPage', () => {
   test('shows no data when stats are null', async () => {
     mockResponses.set('getGlobalStats', null);
     const { container } = render(<DashboardPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('No data');
+    await waitFor(() => {
+      expect(container.textContent).toContain('No data');
+    });
   });
 
   test('renders global stats when available', async () => {
@@ -90,8 +91,9 @@ describe('DashboardPage', () => {
       courseSummaries: [{ courseID: 'cs101', courseName: 'CS 101', completed: 3, total: 6 }],
     });
     const { container } = render(<DashboardPage onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('CS 101');
+    await waitFor(() => {
+      expect(container.textContent).toContain('CS 101');
+    });
     expect(container.textContent).toContain('3/6');
   });
 
@@ -115,8 +117,9 @@ describe('DashboardPage', () => {
       ],
     });
     const { container } = render(<DashboardPage courseID="cs101" onBack={() => {}} />);
-    await Bun.sleep(10);
-    expect(container.textContent).toContain('3/6');
+    await waitFor(() => {
+      expect(container.textContent).toContain('3/6');
+    });
     expect(container.textContent).toContain('85');
   });
 
