@@ -1,11 +1,16 @@
 import { fireEvent, render } from '@testing-library/react';
-import { beforeEach, describe, expect, mock,test } from 'bun:test';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { usePomodoroStore } from '../stores/pomodoroStore';
 import PomodoroTimer from './PomodoroTimer';
 
 beforeEach(() => {
-  usePomodoroStore.setState({ status: 'idle', mode: 'focus', remaining: 1500, completedSessions: 0 });
+  usePomodoroStore.setState({
+    status: 'idle',
+    mode: 'focus',
+    remaining: 1500,
+    completedSessions: 0,
+  });
 });
 
 describe('PomodoroTimer (full)', () => {

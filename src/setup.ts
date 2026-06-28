@@ -9,8 +9,6 @@ expect.extend(jestDomMatchers);
 
 void mock.module('fs', () => fsMockState);
 
-
-
 class MockElectroview {
   constructor(_config: Record<string, unknown>) {}
   static defineRPC(_config: Record<string, unknown>) {
@@ -134,8 +132,14 @@ class MockRange {
   }
   getBoundingClientRect() {
     return {
-      top: 0, left: 0, right: 0, bottom: 0,
-      width: 0, height: 0, x: 0, y: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
       toJSON: () => ({}),
     };
   }
@@ -151,8 +155,12 @@ class MockRange {
   }
   insertNode() {}
   surroundContents() {}
-  toString() { return ''; }
-  cloneRange() { return new MockRange(); }
+  toString() {
+    return '';
+  }
+  cloneRange() {
+    return new MockRange();
+  }
   collapse() {}
 }
 g.Range = MockRange as unknown as typeof Range;

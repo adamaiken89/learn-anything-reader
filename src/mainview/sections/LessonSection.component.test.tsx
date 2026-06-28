@@ -18,8 +18,7 @@ const mockRPC: RPCProxy = {
     get(_, method: string) {
       return (_p: unknown) => {
         rpcCalls.push(method);
-        if (!mockResponses.has(method))
-          return Promise.reject(new Error(`No mock for ${method}`));
+        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
         return Promise.resolve(mockResponses.get(method));
       };
     },
@@ -230,9 +229,7 @@ describe('LessonSection', () => {
   });
 
   test('renders viewer search when search is active via initialSearchQuery', async () => {
-    const { container } = render(
-      <LessonSection {...props} initialSearchQuery="test query" />,
-    );
+    const { container } = render(<LessonSection {...props} initialSearchQuery="test query" />);
     await waitFor(() => {
       expect(container.querySelector('[data-testid="viewer-search"]')).toBeTruthy();
     });

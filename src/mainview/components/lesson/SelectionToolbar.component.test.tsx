@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
-import { describe, expect, mock,test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 
 import SelectionToolbar from './SelectionToolbar';
 
@@ -31,7 +31,9 @@ describe('SelectionToolbar', () => {
 
   test('clicking create card calls onCreateCard', () => {
     const onCreateCard = mock(() => {});
-    const { getByText } = render(<SelectionToolbar {...defaultProps} onCreateCard={onCreateCard} />);
+    const { getByText } = render(
+      <SelectionToolbar {...defaultProps} onCreateCard={onCreateCard} />,
+    );
     fireEvent.click(getByText('Create Card'));
     expect(onCreateCard).toHaveBeenCalledTimes(1);
   });
@@ -52,14 +54,18 @@ describe('SelectionToolbar', () => {
 
   test('copy button does nothing without selectedText', () => {
     const onCopy = mock(() => {});
-    const { getByText } = render(<SelectionToolbar {...defaultProps} selectedText={undefined} onCopy={onCopy} />);
+    const { getByText } = render(
+      <SelectionToolbar {...defaultProps} selectedText={undefined} onCopy={onCopy} />,
+    );
     fireEvent.click(getByText('Copy'));
     expect(onCopy).not.toHaveBeenCalled();
   });
 
   test('clicking inactive color calls onSelectColor', () => {
     const onSelectColor = mock(() => {});
-    const { container } = render(<SelectionToolbar {...defaultProps} onSelectColor={onSelectColor} />);
+    const { container } = render(
+      <SelectionToolbar {...defaultProps} onSelectColor={onSelectColor} />,
+    );
     const yellowBtn = container.querySelector('button[title="yellow"]');
     expect(yellowBtn).toBeTruthy();
     fireEvent.click(yellowBtn!);
@@ -70,7 +76,12 @@ describe('SelectionToolbar', () => {
     const onDeleteHighlight = mock(() => {});
     const onSelectColor = mock(() => {});
     const { container } = render(
-      <SelectionToolbar {...defaultProps} onDeleteHighlight={onDeleteHighlight} onSelectColor={onSelectColor} activeHighlightColor="yellow" />,
+      <SelectionToolbar
+        {...defaultProps}
+        onDeleteHighlight={onDeleteHighlight}
+        onSelectColor={onSelectColor}
+        activeHighlightColor="yellow"
+      />,
     );
     const yellowBtn = container.querySelector('button[title="yellow"]');
     expect(yellowBtn).toBeTruthy();

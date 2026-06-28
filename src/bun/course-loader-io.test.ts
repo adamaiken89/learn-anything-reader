@@ -17,31 +17,31 @@ beforeEach(() => {
     existsSync: () => mockState.exists,
     readdirSync: () => mockState.modulesDirEntries,
     readFileSync: (path: string) => {
-    const syllabusMatch = path.match(/\/([^/]+)\/syllabus\.yaml$/);
-    if (syllabusMatch && syllabusMatch[1] in mockState.courseSyllabi) {
-      return mockState.courseSyllabi[syllabusMatch[1]];
-    }
-    const lessonMatch = path.match(/\/([^/]+)\/lesson\.md$/);
-    if (lessonMatch && lessonMatch[1] in mockState.moduleLesson) {
-      return mockState.moduleLesson[lessonMatch[1]];
-    }
-    const quizMatch = path.match(/\/([^/]+)\/quiz\.yaml$/);
-    if (quizMatch && quizMatch[1] in mockState.moduleQuiz) {
-      return mockState.moduleQuiz[quizMatch[1]];
-    }
-    const deckMatch = path.match(/\/([^/]+)\/srs\/deck\.json$/);
-    if (deckMatch && deckMatch[1] in mockState.srsDeckContent) {
-      return mockState.srsDeckContent[deckMatch[1]];
-    }
-    return '';
-  },
-  writeFileSync: (path: string, data: string) => {
-    mockState.writtenFiles.push({ path, data });
-  },
-  mkdirSync: () => {},
-  rmSync: () => {},
-  cpSync: (_src: string, _dest: string) => {},
-});
+      const syllabusMatch = path.match(/\/([^/]+)\/syllabus\.yaml$/);
+      if (syllabusMatch && syllabusMatch[1] in mockState.courseSyllabi) {
+        return mockState.courseSyllabi[syllabusMatch[1]];
+      }
+      const lessonMatch = path.match(/\/([^/]+)\/lesson\.md$/);
+      if (lessonMatch && lessonMatch[1] in mockState.moduleLesson) {
+        return mockState.moduleLesson[lessonMatch[1]];
+      }
+      const quizMatch = path.match(/\/([^/]+)\/quiz\.yaml$/);
+      if (quizMatch && quizMatch[1] in mockState.moduleQuiz) {
+        return mockState.moduleQuiz[quizMatch[1]];
+      }
+      const deckMatch = path.match(/\/([^/]+)\/srs\/deck\.json$/);
+      if (deckMatch && deckMatch[1] in mockState.srsDeckContent) {
+        return mockState.srsDeckContent[deckMatch[1]];
+      }
+      return '';
+    },
+    writeFileSync: (path: string, data: string) => {
+      mockState.writtenFiles.push({ path, data });
+    },
+    mkdirSync: () => {},
+    rmSync: () => {},
+    cpSync: (_src: string, _dest: string) => {},
+  });
 });
 
 type Loader = typeof import('./course-loader');

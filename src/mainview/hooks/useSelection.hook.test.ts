@@ -64,7 +64,13 @@ describe('useSelection', () => {
     });
 
     test('with null rangeCount hides toolbar', () => {
-      const sel = { isCollapsed: true, rangeCount: 0, toString: () => '', getRangeAt: () => ({} as Range), removeAllRanges: () => {} } as unknown as Selection;
+      const sel = {
+        isCollapsed: true,
+        rangeCount: 0,
+        toString: () => '',
+        getRangeAt: () => ({}) as Range,
+        removeAllRanges: () => {},
+      } as unknown as Selection;
       window.getSelection = () => sel;
       const { result } = renderHook(() => useSelection());
       act(() => result.current.handleTextSelection());
@@ -122,10 +128,26 @@ describe('useSelection', () => {
       const outsideEl = document.createElement('div');
       window.getSelection = () => {
         const range = {
-          getBoundingClientRect: () => ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}) }),
+          getBoundingClientRect: () => ({
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: 0,
+            height: 0,
+            x: 0,
+            y: 0,
+            toJSON: () => ({}),
+          }),
           commonAncestorContainer: outsideEl,
         } as unknown as Range;
-        return { isCollapsed: false, rangeCount: 1, toString: () => 'text', getRangeAt: () => range, removeAllRanges: () => {} } as unknown as Selection;
+        return {
+          isCollapsed: false,
+          rangeCount: 1,
+          toString: () => 'text',
+          getRangeAt: () => range,
+          removeAllRanges: () => {},
+        } as unknown as Selection;
       };
       const ref = { current: document.body };
       const { result } = renderHook(() => useSelection(ref));
@@ -167,7 +189,8 @@ describe('useSelection', () => {
     });
 
     test('pickerPos set correctly after handleTextSelection', () => {
-      window.getSelection = () => mockSelection('text', false, { left: 100, right: 300, top: 50, bottom: 70 });
+      window.getSelection = () =>
+        mockSelection('text', false, { left: 100, right: 300, top: 50, bottom: 70 });
       const { result } = renderHook(() => useSelection());
       act(() => result.current.handleTextSelection());
       expect(result.current.pickerPos.x).toBe(200);

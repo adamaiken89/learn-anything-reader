@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
-import { describe, expect, mock,test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 
 import type { Bookmark, Section } from '../../../bun/types';
 import SectionsPanel from './SectionsPanel';

@@ -9,20 +9,17 @@ type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
 const mockResponses = new Map<string, unknown>();
 
 const mockRPC: RPCProxy = {
-  request: new Proxy(
-    {} as Record<string, (params: unknown) => Promise<unknown>>,
-    {
-      get(_: object, method: string) {
-        return (params: unknown) => {
-          if (!mockResponses.has(method))
-            return Promise.reject(new Error(`No mock for ${method}`));
-          const response = mockResponses.get(method);
-          if (typeof response === 'function') return (response as (p: unknown) => Promise<unknown>)(params);
-          return Promise.resolve(response);
-        };
-      },
+  request: new Proxy({} as Record<string, (params: unknown) => Promise<unknown>>, {
+    get(_: object, method: string) {
+      return (params: unknown) => {
+        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
+        const response = mockResponses.get(method);
+        if (typeof response === 'function')
+          return (response as (p: unknown) => Promise<unknown>)(params);
+        return Promise.resolve(response);
+      };
     },
-  ) as Record<string, (p: unknown) => Promise<unknown>>,
+  }) as Record<string, (p: unknown) => Promise<unknown>>,
 };
 
 function mockResponse(method: string, data: unknown) {
