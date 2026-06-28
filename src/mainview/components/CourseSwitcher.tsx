@@ -20,7 +20,7 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    load();
+    void load();
   }, [load]);
 
   useEffect(() => {

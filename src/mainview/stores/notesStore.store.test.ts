@@ -1,35 +1,14 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
+import { clearMocks, deleteMock, mockResponse, setupRPC } from '../test-utils';
 import { useNotesStore } from './notesStore';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
   useNotesStore.setState({ byModule: {}, loading: {} });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 const aNote = {
   id: 'n1',
@@ -64,7 +43,7 @@ describe('notesStore', () => {
   });
 
   test('load handles API error', async () => {
-    mockResponses.delete('getNotes');
+    deleteMock('getNotes');
     await useNotesStore.getState().load('math', '01');
     expect(useNotesStore.getState().byModule['math:01']).toEqual([]);
     expect(useNotesStore.getState().loading['math:01']).toBe(false);

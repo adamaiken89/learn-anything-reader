@@ -64,4 +64,43 @@ describe('pomodoroStore', () => {
     expect(s.status).toBe('idle');
     expect(s.intervalId).toBeNull();
   });
+
+  test('tick decreases remaining by 1', async () => {
+    const origSetInterval = globalThis.setInterval;
+    let tickFn: (() => void) | null = null;
+    globalThis.setInterval = ((fn: () => void) => {
+      tickFn = fn;
+      return 42 as unknown as ReturnType<typeof setInterval>;
+    }) as typeof globalThis.setInterval;
+
+    usePomodoroStore.getState().start('focus');
+    expect(usePomodoroStore.getState().remaining).toBe(25 * 60);
+
+    tickFn!();
+    expect(usePomodoroStore.getState().remaining).toBe(25 * 60 - 1);
+
+    clearInterval(usePomodoroStore.getState().intervalId!);
+    globalThis.setInterval = origSetInterval;
+  });
+
+  test('tick at remaining=1 sets status to finished', async () => {
+    const origSetInterval = globalThis.setInterval;
+    let tickFn: (() => void) | null = null;
+    globalThis.setInterval = ((fn: () => void) => {
+      tickFn = fn;
+      return 42 as unknown as ReturnType<typeof setInterval>;
+    }) as typeof globalThis.setInterval;
+
+    usePomodoroStore.setState({ remaining: 1 });
+    usePomodoroStore.getState().start('focus');
+    usePomodoroStore.setState({ remaining: 1 });
+
+    tickFn!();
+    const s = usePomodoroStore.getState();
+    expect(s.status).toBe('finished');
+    expect(s.remaining).toBe(0);
+    expect(s.intervalId).toBeNull();
+
+    globalThis.setInterval = origSetInterval;
+  });
 });

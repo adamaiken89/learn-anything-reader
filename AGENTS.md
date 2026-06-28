@@ -65,6 +65,7 @@ src/
 - **Navigation**: React state-driven view stack. No React Router.
 - **Pages**: use `PageLayout` + `PageHeader` + `PageContent`. No inline wrappers.
 - **State management**: Zustand stores (cross-cutting), domain hooks (page-specific), useReducer (state machines), local useState (trivial UI only).
+- **Store isolation**: Stores must never import other stores. Cross-store orchestration lives in custom hooks (`hooks/useCourseListPage`, `hooks/useLessonSection`, `hooks/useSettingsPage`). Hooks compose multiple stores internally; consumers call one hook instead of 2-4 stores inline. Individual store selectors remain atomic (each `useXxxStore((s) => s.field)` triggers re-render only on that field).
 - **Subcomponents** receive data via props, never fetch directly.
 - **Markdown**: react-markdown + remarkGfm + rehypeHighlight (highlight.js).
 - **Styling**: Tailwind + `.book-content` CSS.

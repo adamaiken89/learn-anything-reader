@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { usePomodoroStore } from '../stores/pomodoroStore';
@@ -14,6 +15,7 @@ beforeEach(() => {
 });
 
 describe('PomodoroTimer (full)', () => {
+  const user = userEvent.setup();
   test('idle state shows preset buttons', () => {
     const { getByText } = render(<PomodoroTimer />);
     expect(getByText('Focus')).toBeInTheDocument();
@@ -21,11 +23,11 @@ describe('PomodoroTimer (full)', () => {
     expect(getByText('Long Break')).toBeInTheDocument();
   });
 
-  test('clicking preset starts timer', () => {
+  test('clicking preset starts timer', async () => {
     const start = mock(() => {});
     usePomodoroStore.setState({ start });
     const { getByText } = render(<PomodoroTimer />);
-    fireEvent.click(getByText('Focus'));
+    await user.click(getByText('Focus'));
     expect(start).toHaveBeenCalledWith('focus');
   });
 
@@ -59,11 +61,11 @@ describe('PomodoroTimer (full)', () => {
     expect(getByText('Stop')).toBeInTheDocument();
   });
 
-  test('calls stop on click', () => {
+  test('calls stop on click', async () => {
     const stop = mock(() => {});
     usePomodoroStore.setState({ status: 'running', stop });
     const { getByText } = render(<PomodoroTimer />);
-    fireEvent.click(getByText('Stop'));
+    await user.click(getByText('Stop'));
     expect(stop).toHaveBeenCalledTimes(1);
   });
 

@@ -1,26 +1,11 @@
 import { render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type { Bookmark } from '../../bun/types';
-import { __setRPC } from '../api';
 import i18n from '../i18n';
 import { useCourseStore } from '../stores/courseStore';
-
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+import { clearMocks, hasMock, mockResponse, setupRPC } from '../test-utils';
 
 void mock.module('../components/CourseSwitcher', () => ({
   default: ({ onSelect }: { onSelect: () => void }) => (
@@ -48,6 +33,8 @@ void mock.module('../layouts/PageContent', () => ({
   ),
 }));
 
+setupRPC();
+
 import BookmarksPage from './BookmarksPage';
 
 const mockBookmark: Bookmark = {
@@ -61,14 +48,17 @@ const mockBookmark: Bookmark = {
 };
 
 describe('BookmarksPage', () => {
+  const user = userEvent.setup();
   beforeEach(() => {
     void i18n.changeLanguage('en-US');
-    mockResponses.clear();
+    clearMocks();
+    mockResponse('getAllBookmarks', [mockBookmark]);
+    mockResponse('courses', []);
     useCourseStore.setState({ courses: [], loading: false, error: null, loaded: true });
   });
 
   test('shows loading state initially', () => {
-    mockResponses.set('getAllBookmarks', new Promise(() => {}));
+    mockResponse('getAllBookmarks', new Promise(() => {}));
     const { container } = render(
       <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
     );
@@ -76,7 +66,7 @@ describe('BookmarksPage', () => {
   });
 
   test('shows empty message when no bookmarks', async () => {
-    mockResponses.set('getAllBookmarks', []);
+    mockResponse('getAllBookmarks', []);
     const { container } = render(
       <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
     );
@@ -86,7 +76,6 @@ describe('BookmarksPage', () => {
   });
 
   test('renders bookmarks list', async () => {
-    mockResponses.set('getAllBookmarks', [mockBookmark]);
     const { container } = render(
       <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
     );
@@ -95,8 +84,7 @@ describe('BookmarksPage', () => {
     });
   });
 
-  test('calls onOpen when bookmark clicked', async () => {
-    mockResponses.set('getAllBookmarks', [mockBookmark]);
+  test('calls onOpen with correct args when bookmark clicked', async () => {
     let opened: { courseID: string; moduleID: string } | null = null;
     const { container } = render(
       <BookmarksPage
@@ -108,19 +96,34 @@ describe('BookmarksPage', () => {
       />,
     );
     await waitFor(() => {
-      expect(container.querySelector('button.w-full')).toBeTruthy();
+      expect(container.textContent).toContain('Test Bookmark');
     });
     const btn = container.querySelector('button.w-full') as HTMLButtonElement;
-    btn.click();
+    await user.click(btn);
     expect(opened).toBeTruthy();
     expect(opened!.courseID).toBe('cs101');
     expect(opened!.moduleID).toBe('mod-01');
   });
 
-  test('calls onBack when back button clicked', async () => {
-    mockResponses.set('getAllBookmarks', []);
-    let called = false;
+  test('deletes bookmark when delete clicked', async () => {
+    mockResponse('deleteBookmark', { ok: true });
     const { container } = render(
+      <BookmarksPage onBack={() => {}} onOpen={() => {}} onSwitchCourse={() => {}} />,
+    );
+    await waitFor(() => {
+      expect(container.textContent).toContain('Test Bookmark');
+    });
+    const deleteBtn = container.querySelector('button[title*="delete" i]') as HTMLButtonElement;
+    expect(deleteBtn).toBeTruthy();
+    await user.click(deleteBtn);
+    await waitFor(() => {
+      expect(hasMock('deleteBookmark')).toBe(true);
+    });
+  });
+
+  test('calls onBack when back button clicked', async () => {
+    let called = false;
+    const { getByText } = render(
       <BookmarksPage
         onBack={() => {
           called = true;
@@ -130,9 +133,9 @@ describe('BookmarksPage', () => {
       />,
     );
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="page-header"] button')).toBeTruthy();
+      expect(getByText('← Back')).toBeTruthy();
     });
-    container.querySelector('[data-testid="page-header"]')!.querySelector('button')!.click();
+    await user.click(getByText('← Back'));
     expect(called).toBe(true);
   });
 });

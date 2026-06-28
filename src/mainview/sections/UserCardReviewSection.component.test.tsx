@@ -1,24 +1,9 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { UserCard } from '../../bun/types';
-import { __setRPC } from '../api';
-
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
+import { clearMocks, hasMock, mockResponse, setupRPC } from '../test-utils';
 
 function makeCard(overrides?: Partial<UserCard>): UserCard {
   return {
@@ -38,9 +23,10 @@ function makeCard(overrides?: Partial<UserCard>): UserCard {
   };
 }
 
-beforeAll(() => __setRPC(mockRPC));
+setupRPC();
+
 beforeEach(() => {
-  mockResponses.clear();
+  clearMocks();
   mockResponse('getUserCards', []);
   mockResponse('reviewUserCard', undefined);
   mockResponse('toggleUserCardStar', undefined);
@@ -49,6 +35,7 @@ beforeEach(() => {
 import UserCardReviewSection from './UserCardReviewSection';
 
 describe('UserCardReviewSection', () => {
+  const user = userEvent.setup();
   test('shows loading state initially', () => {
     mockResponse('getUserCards', new Promise(() => {}));
     const { container } = render(<UserCardReviewSection courseId="math" />);
@@ -83,12 +70,11 @@ describe('UserCardReviewSection', () => {
 
   test('clicking show answer reveals back', async () => {
     mockResponse('getUserCards', [makeCard()]);
-    const { container } = render(<UserCardReviewSection courseId="math" />);
+    const { container, getByTestId } = render(<UserCardReviewSection courseId="math" />);
     await waitFor(() => {
       expect(container.textContent).toContain('What is 2+2?');
     });
-    const btn = container.querySelector('.bg-gray-800 button')!;
-    fireEvent.click(btn);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('4');
     });
@@ -96,33 +82,35 @@ describe('UserCardReviewSection', () => {
 
   test('clicking remembered calls review API', async () => {
     mockResponse('getUserCards', [makeCard(), makeCard({ id: 'c2' })]);
-    const { container } = render(<UserCardReviewSection courseId="math" />);
+    mockResponse('reviewUserCard', undefined);
+    const { container, getByTestId } = render(<UserCardReviewSection courseId="math" />);
     await waitFor(() => {
       expect(container.textContent).toContain('What is 2+2?');
     });
-    fireEvent.click(container.querySelector('.bg-gray-800 button')!);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('Remembered');
     });
-    fireEvent.click(container.querySelector('button.bg-emerald-700')!);
+    await user.click(getByTestId('btn-remembered'));
     await waitFor(() => {
-      expect(mockResponses.has('reviewUserCard')).toBe(true);
+      expect(hasMock('reviewUserCard')).toBe(true);
     });
   });
 
   test('clicking forgot calls review API', async () => {
     mockResponse('getUserCards', [makeCard()]);
-    const { container } = render(<UserCardReviewSection courseId="math" />);
+    mockResponse('reviewUserCard', undefined);
+    const { container, getByTestId } = render(<UserCardReviewSection courseId="math" />);
     await waitFor(() => {
       expect(container.textContent).toContain('What is 2+2?');
     });
-    fireEvent.click(container.querySelector('.bg-gray-800 button')!);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('Forgot');
     });
-    fireEvent.click(container.querySelector('button.bg-red-700')!);
+    await user.click(getByTestId('btn-forgot'));
     await waitFor(() => {
-      expect(mockResponses.has('reviewUserCard')).toBe(true);
+      expect(hasMock('reviewUserCard')).toBe(true);
     });
   });
 
@@ -137,13 +125,13 @@ describe('UserCardReviewSection', () => {
   test('star button toggles via API', async () => {
     mockResponse('getUserCards', [makeCard()]);
     mockResponse('toggleUserCardStar', { ...makeCard(), isStarred: true });
-    const { container } = render(<UserCardReviewSection courseId="math" />);
+    const { container, getByTestId } = render(<UserCardReviewSection courseId="math" />);
     await waitFor(() => {
       expect(container.textContent).toContain('Star');
     });
-    fireEvent.click(container.querySelector('button.text-gray-500')!);
+    await user.click(getByTestId('btn-star'));
     await waitFor(() => {
-      expect(mockResponses.has('toggleUserCardStar')).toBe(true);
+      expect(hasMock('toggleUserCardStar')).toBe(true);
     });
   });
 
@@ -164,7 +152,7 @@ describe('UserCardReviewSection', () => {
     const starredBtn = Array.from(container.querySelectorAll('button')).find(
       (b) => b.textContent === 'Starred',
     )!;
-    fireEvent.click(starredBtn);
+    await user.click(starredBtn);
     await waitFor(() => {
       expect(container.textContent).toContain('No starred cards');
     });
@@ -179,7 +167,7 @@ describe('UserCardReviewSection', () => {
     const dueBtn = Array.from(container.querySelectorAll('button')).find(
       (b) => b.textContent === 'Due',
     )!;
-    fireEvent.click(dueBtn);
+    await user.click(dueBtn);
     await waitFor(() => {
       expect(container.textContent).toContain('No cards due');
     });

@@ -1,26 +1,9 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
+import { clearMocks, deleteMock, mockResponse, setupRPC } from '../test-utils';
 import { useSyncStore } from './syncStore';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
   useSyncStore.setState({
@@ -30,12 +13,8 @@ beforeEach(() => {
     remoteRepoURL: '',
     error: null,
   });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 describe('syncStore', () => {
   test('loadStatus sets sync state', async () => {
@@ -55,7 +34,7 @@ describe('syncStore', () => {
   });
 
   test('loadStatus handles error', async () => {
-    mockResponses.delete('getSyncStatus');
+    deleteMock('getSyncStatus');
     await useSyncStore.getState().loadStatus();
     expect(useSyncStore.getState().error).toBeTruthy();
   });
@@ -79,13 +58,13 @@ describe('syncStore', () => {
 
   test('startSync skips if already syncing', async () => {
     useSyncStore.setState({ isSyncing: true });
-    mockResponses.delete('syncStart');
+    deleteMock('syncStart');
     await useSyncStore.getState().startSync();
     expect(useSyncStore.getState().isSyncing).toBe(true);
   });
 
   test('startSync handles exception', async () => {
-    mockResponses.delete('syncStart');
+    deleteMock('syncStart');
     await useSyncStore.getState().startSync();
     expect(useSyncStore.getState().isSyncing).toBe(false);
     expect(useSyncStore.getState().error).toBeTruthy();
@@ -99,7 +78,7 @@ describe('syncStore', () => {
   });
 
   test('setRepoURL handles error', async () => {
-    mockResponses.delete('syncSetURL');
+    deleteMock('syncSetURL');
     await useSyncStore.getState().setRepoURL('https://invalid');
     expect(useSyncStore.getState().remoteRepoURL).toBe('');
     expect(useSyncStore.getState().error).toBeTruthy();

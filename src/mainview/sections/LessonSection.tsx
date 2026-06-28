@@ -23,12 +23,11 @@ import { useHighlights } from '../hooks/useHighlights';
 import { useLesson } from '../hooks/useLesson';
 import { useLessonNav } from '../hooks/useLessonNav';
 import { useLessonSearch } from '../hooks/useLessonSearch';
+import { useLessonSection } from '../hooks/useLessonSection';
 import { useNotes } from '../hooks/useNotes';
 import { useSelection } from '../hooks/useSelection';
 import { useShortcuts } from '../hooks/useShortcuts';
 import { useHighlightsStore } from '../stores/highlightsStore';
-import { useLessonUIStore } from '../stores/lessonUIStore';
-import { useSettingsStore } from '../stores/settingsStore';
 import { THEME_TOKENS, themeToCSSVars } from '../themes';
 import { components, getTextOffset } from './lesson-helpers';
 import LessonContext from './LessonContext';
@@ -49,6 +48,23 @@ export default function LessonSection({
   const { t } = useTranslation();
 
   const {
+    isCompleted,
+    completedCount,
+    totalModules,
+    toggle,
+    showTools,
+    showPomodoro,
+    toggleTools,
+    setSearchCourseOpen,
+    focusMode,
+    theme,
+    fontSize,
+    contentWidth,
+    showSections,
+    toggleSections,
+  } = useLessonSection(course, module);
+
+  const {
     content,
     h1,
     meta,
@@ -56,12 +72,17 @@ export default function LessonSection({
     loading,
     sections,
     visibleSection,
-    isCompleted,
+    isCompleted: optimisticIsCompleted,
     contentRef,
     scrollToSection,
     handleScroll,
     handleToggleCompleted,
-  } = useLesson(course.id, module.id, initialSectionID);
+  } = useLesson(
+    course.id,
+    module.id,
+    { isCompleted, completedCount, totalModules, toggle },
+    initialSectionID,
+  );
 
   const { bookmarks, handleToggleBookmark: toggleBookmark } = useBookmarks(
     course.id,
@@ -75,10 +96,6 @@ export default function LessonSection({
   } = useHighlights(course.id, module.id);
   const { notes } = useNotes(course.id, module.id);
   const { hasPrev, hasNext, goPrev, goNext } = useLessonNav(course, module);
-
-  const showTools = useLessonUIStore((s) => s.showTools);
-  const showPomodoro = useLessonUIStore((s) => s.showPomodoro);
-  const setShowTools = useLessonUIStore((s) => s.toggleTools);
 
   const {
     showToolbar,
@@ -122,12 +139,6 @@ export default function LessonSection({
 
   const [popoverNote, setPopoverNote] = useState<{ note: Note; x: number; y: number } | null>(null);
 
-  const focusMode = useSettingsStore((s) => s.focusMode);
-  const theme = useSettingsStore((s) => s.theme);
-  const fontSize = useSettingsStore((s) => s.fontSize);
-  const contentWidth = useSettingsStore((s) => s.contentWidth);
-  const showSections = useSettingsStore((s) => s.showSections);
-  const toggleSections = useSettingsStore((s) => s.toggleSections);
   const themeVars = useMemo(() => themeToCSSVars(THEME_TOKENS[theme]), [theme]);
 
   const notesRef = useRef(notes);
@@ -275,10 +286,10 @@ export default function LessonSection({
     },
     toggleSections: () => {
       if (showToolbar) return;
-      useSettingsStore.getState().toggleSections();
+      toggleSections();
     },
     findInPage: () => setSearchActive(true),
-    courseSearch: () => useLessonUIStore.getState().setSearchCourseOpen(true),
+    courseSearch: () => setSearchCourseOpen(true),
   });
 
   useEffect(() => {
@@ -317,7 +328,7 @@ export default function LessonSection({
     >
       <div className="flex flex-1 overflow-hidden">
         {showTools && !focusMode && (
-          <StudyTools courseId={course.id} moduleId={module.id} onClose={() => setShowTools()} />
+          <StudyTools courseId={course.id} moduleId={module.id} onClose={() => toggleTools()} />
         )}
         <div className="flex-1 flex flex-col min-w-0">
           {!showSections && !focusMode && (
@@ -351,6 +362,7 @@ export default function LessonSection({
 
           <div
             className="flex-1 overflow-y-auto"
+            data-testid="lesson-content"
             ref={contentRef}
             tabIndex={-1}
             onScroll={handleScroll}
@@ -415,16 +427,17 @@ export default function LessonSection({
                     onClick={() => {
                       void handleToggleCompleted();
                     }}
+                    data-testid="complete-btn"
                     className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200"
                     style={{
-                      background: isCompleted
+                      background: optimisticIsCompleted
                         ? `linear-gradient(135deg, ${COMPLETION_GREEN}, ${COMPLETION_GREEN_DARK})`
                         : 'var(--book-code-bg)',
-                      color: isCompleted ? SECTION_ACTIVE_TEXT : 'var(--book-text)',
-                      border: `1px solid ${isCompleted ? COMPLETION_GREEN_DARK : 'var(--book-h2-border)'}`,
+                      color: optimisticIsCompleted ? SECTION_ACTIVE_TEXT : 'var(--book-text)',
+                      border: `1px solid ${optimisticIsCompleted ? COMPLETION_GREEN_DARK : 'var(--book-h2-border)'}`,
                     }}
                   >
-                    {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
+                    {optimisticIsCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
                   </button>
                 </div>
               )}

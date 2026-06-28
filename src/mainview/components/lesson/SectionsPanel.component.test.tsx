@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, mock, test } from 'bun:test';
 
 import type { Bookmark, Section } from '../../../bun/types';
@@ -27,6 +28,7 @@ const defaultBookmarks: Bookmark[] = [
 ];
 
 describe('SectionsPanel', () => {
+  const user = userEvent.setup();
   test('renders section headings', () => {
     const { getByText } = render(
       <SectionsPanel
@@ -73,7 +75,7 @@ describe('SectionsPanel', () => {
     expect(starIcons.length).toBe(1);
   });
 
-  test('clicking section calls onScrollToSection', () => {
+  test('clicking section calls onScrollToSection', async () => {
     const onScroll = mock(() => {});
     const { getByText } = render(
       <SectionsPanel
@@ -85,12 +87,12 @@ describe('SectionsPanel', () => {
         onClose={() => {}}
       />,
     );
-    fireEvent.click(getByText('Introduction'));
+    await user.click(getByText('Introduction'));
     expect(onScroll).toHaveBeenCalledTimes(1);
     expect(onScroll).toHaveBeenCalledWith('intro');
   });
 
-  test('clicking bookmark toggles bookmark', () => {
+  test('clicking bookmark toggles bookmark', async () => {
     const onToggle = mock(() => {});
     const { getByText } = render(
       <SectionsPanel
@@ -102,12 +104,12 @@ describe('SectionsPanel', () => {
         onClose={() => {}}
       />,
     );
-    fireEvent.click(getByText('★'));
+    await user.click(getByText('★'));
     expect(onToggle).toHaveBeenCalledTimes(1);
     expect(onToggle).toHaveBeenCalledWith('body', true, 'Body Content');
   });
 
-  test('clicking close calls onClose', () => {
+  test('clicking close calls onClose', async () => {
     const onClose = mock(() => {});
     const { getByText } = render(
       <SectionsPanel
@@ -119,7 +121,7 @@ describe('SectionsPanel', () => {
         onClose={onClose}
       />,
     );
-    fireEvent.click(getByText('→'));
+    await user.click(getByText('→'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

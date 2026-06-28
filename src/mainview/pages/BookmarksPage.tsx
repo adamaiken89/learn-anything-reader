@@ -23,7 +23,7 @@ export default function BookmarksPage({ onBack, onOpen, onSwitchCourse }: Props)
   const loadCourses = useCourseStore((s) => s.load);
 
   useEffect(() => {
-    loadCourses();
+    void loadCourses();
   }, [loadCourses]);
 
   useEffect(() => {

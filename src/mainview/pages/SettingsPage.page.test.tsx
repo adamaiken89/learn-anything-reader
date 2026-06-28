@@ -1,26 +1,11 @@
 import { render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
-import { __setRPC } from '../api';
 import i18n from '../i18n';
 import { useSettingsStore } from '../stores/settingsStore';
 import { useSyncStore } from '../stores/syncStore';
-
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+import { clearMocks, mockResponse, setupRPC } from '../test-utils';
 
 void mock.module('../layouts/PageLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => (
@@ -45,12 +30,23 @@ void mock.module('../layouts/PageContent', () => ({
   ),
 }));
 
+setupRPC();
+
 import SettingsPage from './SettingsPage';
 
 describe('SettingsPage', () => {
+  const user = userEvent.setup();
   beforeEach(() => {
     void i18n.changeLanguage('en-US');
-    mockResponses.clear();
+    clearMocks();
+    mockResponse('geminiHasKey', { hasKey: false });
+    mockResponse('getSyncStatus', {
+      lastSyncTime: null,
+      lastSyncedCommit: null,
+      isSyncing: false,
+      remoteRepoURL: '',
+      error: null,
+    });
     useSettingsStore.setState({
       hasApiKey: false,
       fontSize: 16,
@@ -68,14 +64,6 @@ describe('SettingsPage', () => {
   });
 
   test('renders settings sections', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
     const { container } = render(<SettingsPage onBack={() => {}} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Gemini API Key');
@@ -89,86 +77,49 @@ describe('SettingsPage', () => {
     expect(container.textContent).toContain('About');
   });
 
-  test('shows API key input and save button', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
+  test('shows API key input field', async () => {
     const { container } = render(<SettingsPage onBack={() => {}} />);
     await waitFor(() => {
       expect(container.querySelector('input[type="password"]')).toBeTruthy();
     });
   });
 
-  test('shows no API key configured when hasApiKey is false', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
+  test('shows configured indicator when hasApiKey is true', async () => {
+    useSettingsStore.setState({ hasApiKey: true });
     const { container } = render(<SettingsPage onBack={() => {}} />);
     await waitFor(() => {
-      expect(container.textContent).toContain('Save');
+      expect(container.textContent).toContain('configured');
     });
   });
 
-  test('shows theme options', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
-    const { container } = render(<SettingsPage onBack={() => {}} />);
+  test('increments font size when A+ clicked', async () => {
+    const { getByText } = render(<SettingsPage onBack={() => {}} />);
     await waitFor(() => {
-      expect(container.textContent).toContain('Dark');
+      expect(getByText('A+')).toBeTruthy();
     });
-    expect(container.textContent).toContain('OLED');
-    expect(container.textContent).toContain('Nord');
-    expect(container.textContent).toContain('Sepia');
-    expect(container.textContent).toContain('Gruvbox');
-    expect(container.textContent).toContain('Light');
-    expect(container.textContent).toContain('Solarized');
-    expect(container.textContent).toContain('Catppuccin');
+    await user.click(getByText('A+'));
+    expect(useSettingsStore.getState().fontSize).toBe(18);
   });
 
-  test('shows locale options', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
-    const { container } = render(<SettingsPage onBack={() => {}} />);
+  test('decrements font size when A- clicked', async () => {
+    const { getByText } = render(<SettingsPage onBack={() => {}} />);
     await waitFor(() => {
-      expect(container.textContent).toContain('English (US)');
+      expect(getByText('A-')).toBeTruthy();
     });
-    expect(container.textContent).toContain('English (UK)');
-    expect(container.textContent).toContain('English (CA)');
-    expect(container.textContent).toContain('English (AU)');
-    expect(container.textContent).toContain('繁體中文');
+    await user.click(getByText('A-'));
+    expect(useSettingsStore.getState().fontSize).toBe(14);
+  });
+
+  test('selects theme when theme card clicked', async () => {
+    const { getByText } = render(<SettingsPage onBack={() => {}} />);
+    await waitFor(() => {
+      expect(getByText('Light')).toBeTruthy();
+    });
+    await user.click(getByText('Light'));
+    expect(useSettingsStore.getState().theme).toBe('light');
   });
 
   test('calls onBack when back button clicked', async () => {
-    mockResponses.set('geminiHasKey', false);
-    mockResponses.set('getSyncStatus', {
-      lastSyncTime: null,
-      lastSyncedCommit: null,
-      isSyncing: false,
-      remoteRepoURL: '',
-      error: null,
-    });
     let called = false;
     const { getByText } = render(
       <SettingsPage

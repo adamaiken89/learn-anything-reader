@@ -4,7 +4,6 @@ import type { MetaField } from '../../bun/lesson-markdown';
 import type { Section } from '../../bun/types';
 import { api } from '../api';
 import { logger } from '../logger';
-import { countCompleted, useCompletionStore } from '../stores/completionStore';
 import { showToast } from '../toast';
 
 type DivRef = React.RefObject<HTMLDivElement>;
@@ -49,9 +48,17 @@ interface UseLessonReturn {
   handleToggleCompleted: () => Promise<void>;
 }
 
+interface UseLessonCompletion {
+  isCompleted: boolean;
+  completedCount: number;
+  totalModules: number;
+  toggle: (courseId: string, moduleId: string) => Promise<void>;
+}
+
 export function useLesson(
   courseId: string,
   moduleId: string,
+  completion: UseLessonCompletion,
   initialSectionID?: string,
 ): UseLessonReturn {
   const [content, setContent] = useState('');
@@ -62,17 +69,10 @@ export function useLesson(
   const [sections, setSections] = useState<Section[]>([]);
   const [visibleSection, setVisibleSection] = useState<string | null>(initialSectionID ?? null);
 
-  const storeKey = `${courseId}:${moduleId}`;
-  const isCompleted = useCompletionStore((s) => s.completed[storeKey] ?? false);
   const [optimisticIsCompleted, toggleOptimistic] = useOptimistic<boolean, 1>(
-    isCompleted,
+    completion.isCompleted,
     (state) => !state,
   );
-  const completedCount = useCompletionStore((s) => countCompleted(s.completed, courseId));
-  const totalModules = useCompletionStore((s) => s.totalModules[courseId] ?? 0);
-  const toggle = useCompletionStore((s) => s.toggle);
-  const load = useCompletionStore((s) => s.load);
-  const loadCourse = useCompletionStore((s) => s.loadCourse);
 
   const contentRef = useRef<HTMLDivElement>(null) as DivRef;
   const sectionsRef = useRef<Section[]>([]);
@@ -109,6 +109,8 @@ export function useLesson(
     logger.debug({ id, sectionsCount: sectionsRef.current.length }, 'handleScroll');
   }, []);
 
+  const { toggle } = completion;
+
   const handleToggleCompleted = useCallback(async () => {
     toggleOptimistic(1);
     await toggle(courseId, moduleId);
@@ -136,9 +138,7 @@ export function useLesson(
         showToast.error('toast.loadFailed');
         setLoading(false);
       });
-    void load(courseId, moduleId);
-    void loadCourse(courseId);
-  }, [courseId, moduleId, handleScroll, load, loadCourse]);
+  }, [courseId, moduleId, handleScroll]);
 
   useEffect(() => {
     if (initialSectionID && content) {
@@ -157,8 +157,8 @@ export function useLesson(
     sections,
     visibleSection,
     isCompleted: optimisticIsCompleted,
-    totalModules,
-    completedCount,
+    totalModules: completion.totalModules,
+    completedCount: completion.completedCount,
     contentRef,
     setVisibleSection,
     scrollToSection,

@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { api } from '../api';
 import { Button, selectableCardVariants } from '../components/ui';
+import { useSettingsPage } from '../hooks/useSettingsPage';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
 import PageLayout from '../layouts/PageLayout';
-import { useSettingsStore } from '../stores/settingsStore';
-import { useSyncStore } from '../stores/syncStore';
 import type { Theme } from '../themes';
 import { showToast } from '../toast';
 interface ThemeCard {
@@ -107,31 +106,27 @@ export default function SettingsPage({ onBack }: Props) {
   const repoRef = useRef<HTMLInputElement>(null);
   const [repoURL, setRepoURL] = useState('');
   const [repoSaved, setRepoSaved] = useState(false);
-  const hasApiKey = useSettingsStore((s) => s.hasApiKey);
-  const setHasApiKey = useSettingsStore((s) => s.setHasApiKey);
-  const theme = useSettingsStore((s) => s.theme);
-  const setTheme = useSettingsStore((s) => s.setTheme);
-  const fontSize = useSettingsStore((s) => s.fontSize);
-  const setFontSize = useSettingsStore((s) => s.setFontSize);
-  const incFontSize = useSettingsStore((s) => s.incFontSize);
-  const decFontSize = useSettingsStore((s) => s.decFontSize);
-  const contentWidth = useSettingsStore((s) => s.contentWidth);
-  const setContentWidth = useSettingsStore((s) => s.setContentWidth);
-  const syncLastTime = useSyncStore((s) => s.lastSyncTime);
-  const syncLastCommit = useSyncStore((s) => s.lastSyncedCommit);
-  const syncIsSyncing = useSyncStore((s) => s.isSyncing);
-  const syncRemoteURL = useSyncStore((s) => s.remoteRepoURL);
-  const syncError = useSyncStore((s) => s.error);
-  const loadSyncStatus = useSyncStore((s) => s.loadStatus);
-  const startSync = useSyncStore((s) => s.startSync);
-  const setRepoURLStore = useSyncStore((s) => s.setRepoURL);
-
-  useEffect(() => {
-    void api.gemini.hasKey().then((r) => {
-      setHasApiKey(r.hasKey);
-    });
-    void loadSyncStatus();
-  }, [setHasApiKey, loadSyncStatus]);
+  const {
+    hasApiKey,
+    setHasApiKey,
+    theme,
+    setTheme,
+    fontSize,
+    setFontSize,
+    incFontSize,
+    decFontSize,
+    contentWidth,
+    setContentWidth,
+    lastSyncTime: syncLastTime,
+    lastSyncedCommit: syncLastCommit,
+    isSyncing: syncIsSyncing,
+    remoteRepoURL: syncRemoteURL,
+    syncError,
+    startSync,
+    setRepoURL: setRepoURLStore,
+    locale,
+    setLocale,
+  } = useSettingsPage();
 
   useEffect(() => {
     if (syncRemoteURL) setRepoURL(syncRemoteURL);
@@ -365,8 +360,8 @@ export default function SettingsPage({ onBack }: Props) {
             ].map((l) => (
               <button
                 key={l.code}
-                onClick={() => useSettingsStore.getState().setLocale(l.code)}
-                className={`px-3 py-1.5 text-xs rounded-lg border ${selectableCardVariants({ selected: useSettingsStore.getState().locale === l.code })}`}
+                onClick={() => setLocale(l.code)}
+                className={`px-3 py-1.5 text-xs rounded-lg border ${selectableCardVariants({ selected: locale === l.code })}`}
               >
                 {l.label}
               </button>

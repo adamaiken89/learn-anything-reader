@@ -1,13 +1,11 @@
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course } from '../../bun/types';
 import { Button } from '../components/ui';
+import { countCompleted, useCourseListPage } from '../hooks/useCourseListPage';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
 import PageLayout from '../layouts/PageLayout';
-import { countCompleted, useCompletionStore } from '../stores/completionStore';
-import { useCourseStore } from '../stores/courseStore';
 
 interface Props {
   onSelectCourse: (course: Course) => void;
@@ -23,15 +21,7 @@ export default function CourseListPage({
   onOpenDashboard,
 }: Props) {
   const { t } = useTranslation();
-  const courses = useCourseStore((s) => s.courses);
-  const completed = useCompletionStore((s) => s.completed);
-  const loading = useCourseStore((s) => s.loading);
-  const error = useCourseStore((s) => s.error);
-  const load = useCourseStore((s) => s.load);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { courses, completed, loading, error } = useCourseListPage();
 
   if (loading)
     return <div className="p-8 text-center text-gray-400">{t('courseList.loadingCourses')}</div>;

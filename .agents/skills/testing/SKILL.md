@@ -29,7 +29,7 @@ description: Use when writing tests for CourseReader code. Nature-based: unit, p
 - Use factory helpers for test data (makeCard, makeDeck pattern). Prefer test-local setup functions over shared `beforeEach` (avoids scrolling fatigue).
 - One `describe` per exported function.
 - Use U.S.E. naming: `describe(unit) → describe(situation) → it(expectation)`.
-- One exit point per test case — one assertion per `it` block.
+- One behavior per `it` block — multiple assertions are fine when they verify the same behavior (e.g. checking multiple fields of the same returned object).
 - Parametrize with `test.each` for edge case matrix (reduces boilerplate, ensures coverage).
 - Test only your own code — don't test native/built-in behaviour (Date.parse, Math.round). Test your logic, not the runtime.
 - File name matches source file exactly: `srs.ts` → `srs.test.ts`.
@@ -102,28 +102,10 @@ describe('functionUnderTest', () => {
 
 ```typescript
 import { render, screen, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { __setRPC } from '../api';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { setupRPC, mockResponse, clearMocks } from '../test-utils';
 
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 void mock.module('../layouts/PageLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => (
@@ -147,7 +129,7 @@ import PageComponent from './PageComponent';
 
 describe('PageComponent', () => {
   beforeEach(() => {
-    mockResponses.clear();
+    clearMocks();
   });
 
   test('matches snapshot — loading state', () => {
@@ -198,34 +180,16 @@ describe('PageComponent', () => {
 ```typescript
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { __setRPC } from '../api';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { setupRPC, mockResponse, clearMocks } from '../test-utils';
 
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 import ComponentUnderTest from './ComponentUnderTest';
 
 describe('ComponentUnderTest', () => {
   beforeEach(() => {
-    mockResponses.clear();
+    clearMocks();
   });
 
   test('renders initial state correctly', () => {
@@ -276,34 +240,16 @@ describe('ComponentUnderTest', () => {
 
 ```typescript
 import { renderHook, act } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { __setRPC } from '../api';
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { setupRPC, mockResponse, clearMocks } from '../test-utils';
 
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 import { useTargetHook } from './useTargetHook';
 
 describe('useTargetHook', () => {
   beforeEach(() => {
-    mockResponses.clear();
+    clearMocks();
   });
 
   test('returns initial state', () => {
@@ -342,45 +288,22 @@ describe('useTargetHook', () => {
 **Template:**
 
 ```typescript
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { __setRPC } from '../api';
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { setupRPC, mockResponse, clearMocks } from '../test-utils';
 import { useTargetStore } from './targetStore';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
   useTargetStore.setState({ /* defaults */ });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 describe('targetStore', () => {
   test('action sets expected state', async () => {
     mockResponse('someMethod', { result: true });
     useTargetStore.getState().someAction();
-    await new Promise((r) => setTimeout(r, 10));
-    expect.soft(useTargetStore.getState().loading).toBe(false);
-    expect.soft(useTargetStore.getState().error).toBeNull();
+    await new Promise((r) => setTimeout(r, 0));
     expect(useTargetStore.getState().field).toEqual({ result: true });
   });
 
@@ -395,7 +318,6 @@ describe('targetStore', () => {
   test('skips fetch when already loaded', () => {
     useTargetStore.setState({ loaded: true });
     useTargetStore.getState().load();
-    expect(mockResponses.size).toBe(0);
   });
 });
 ```
@@ -435,17 +357,29 @@ test('does not crash when card explanation is null', () => {
 ```
 
 ### Error Path Tests
-API failures, malformed data, network timeouts. Use `expect.soft()` to assert
+API failures, malformed data, network timeouts. Use `deleteMock()` from
+test-utils to remove a mock (triggers "No mock" rejection), or use
+`mockErrorResponse()` to inject a specific Error. Use `expect.soft()` to assert
 multiple failure properties without early exit.
 
 ```typescript
+import { deleteMock, mockErrorResponse } from '../test-utils';
+
 test('load sets error on API failure', async () => {
-  mockResponses.delete('coursesList');
+  deleteMock('coursesList');
   useCourseStore.getState().load();
-  await new Promise((r) => setTimeout(r, 10));
-  expect.soft(useCourseStore.getState().error).toBeTruthy();
-  expect.soft(useCourseStore.getState().loading).toBe(false);
-  expect.soft(useCourseStore.getState().data).toBeNull();
+  await waitFor(() => {
+    expect(useCourseStore.getState().error).toBeTruthy();
+  });
+  expect(useCourseStore.getState().loading).toBe(false);
+});
+
+test('handles specific error message', async () => {
+  mockErrorResponse('coursesList', 'Network timeout');
+  useCourseStore.getState().load();
+  await waitFor(() => {
+    expect(useCourseStore.getState().error?.message).toBe('Network timeout');
+  });
 });
 ```
 
@@ -555,47 +489,161 @@ Zustand `setState()` does not restore external singletons.
 
 ## act() Wrapping Rule
 
-Every `render()` and `renderHook()` call must be wrapped in `act()` to flush
-React state updates synchronously. Without this, pending microtask updates
-(subscriptions, effects, re-renders) leak outside the React test environment
-and trigger `act()` warnings — even when the test passes.
+`render()` and `renderHook()` already call `act()` internally — do NOT wrap
+them in `act()`. Only wrap state mutations (user clicks, store.setState, etc.)
+in `act()` when they trigger async updates outside `waitFor()`.
 
 ```typescript
-import { act } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 
-// Synchronous test — wrap render in act
+// ✅ Correct — render is NOT wrapped in act
 test('shows loading', () => {
-  act(() => {
-    render(<Component />);
-  });
+  render(<Component />);
   expect(screen.getByText('Loading')).toBeInTheDocument();
 });
 
-// Async test — wrap entire body in act
+// ✅ Correct — waitFor handles async updates
 test('loads data', async () => {
-  await act(async () => {
-    const { container } = render(<Component />);
-    await waitFor(() => {
-      expect(container.textContent).toContain('Loaded');
-    });
+  const { container } = render(<Component />);
+  await waitFor(() => {
+    expect(container.textContent).toContain('Loaded');
   });
 });
 
-// Hook — wrap renderHook in act
-test('returns state', () => {
-  let result: ReturnType<typeof renderHook>;
-  act(() => {
-    result = renderHook(() => useHook('arg'));
-  });
-  expect(result!.current.data).toBeNull();
+// ✅ Correct — userEvent handles act() internally
+test('toggles on click', async () => {
+  render(<Toggle />);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button'));
+  expect(screen.getByText('On')).toBeInTheDocument();
 });
 ```
 
-**Never use `Bun.sleep(N)` as a wait mechanism.** It bypasses React's microtask
-queue, causing updates to land outside `act()`. Use `waitFor()` instead — it
-polls the assertion deterministically without arbitrary delays.
+**Never use `Bun.sleep(N)` or `setTimeout(r, N)` as a wait mechanism.** They
+bypass React's microtask queue, causing updates to land outside `act()`. Use
+`waitFor()` instead — it polls the assertion deterministically.
 
-## Conventions
+**For non-React store tests** (pure `useXStore.getState()` without renderHook),
+you can await a microtask flush:
+```typescript
+await new Promise(r => setTimeout(r, 0));
+expect(useStore.getState().field).toEqual(expected);
+```
+
+## Noise Reduction Rules
+
+### Rule: Use shared test-utils for RPC mocking
+Import from `../test-utils` instead of copy-pasting the mockRPC proxy in every
+file. This cuts ~15 lines per test file and ensures consistent mock behavior.
+
+```typescript
+import { setupRPC, mockResponse, clearMocks } from '../test-utils';
+```
+
+### Rule: Mock ALL RPC methods the code under test calls
+Every test must mock every RPC method the code will invoke — including methods
+called during initialization (useEffect, store.load(), etc.). Missing mocks
+cause error-path-by-accident: the test passes because the catch block handles
+the error, not because the happy path works.
+
+Bad:  mockResponse('coursesList', data) only
+Good: mockResponse('coursesList', data); mockResponse('getCompletedModuleIDs', [])
+
+How to find required mocks: read the hook/store source, list every api.* call,
+map each to its RPC method name.
+
+### Rule: Never use setTimeout as async wait
+`await new Promise(r => setTimeout(r, 10))` is flaky and bypasses React's
+microtask queue. Use `waitFor()` from @testing-library/react instead.
+
+Bad:  await new Promise(r => setTimeout(r, 10));
+      expect(store.getState().courses).toEqual(data);
+
+Good: await waitFor(() => {
+        expect(store.getState().courses).toEqual(data);
+      });
+
+For non-React code (pure store tests without renderHook), use:
+      await new Promise(r => setTimeout(r, 0));
+      // then assert — one tick is enough for Promise resolution.
+
+### Rule: No smoke tests
+"Renders without crashing" / "returns initial state" tests that only check
+`toBeDefined()` or `toBeTruthy()` add zero value. Every test must assert
+a specific behavior or state transition.
+
+Bad:  test('renders', () => { render(<C />); expect(screen.getByTestId('x')).toBeTruthy(); });
+Good: test('shows loading spinner while fetching', () => { ... expect(screen.getByText('Loading')).toBeInTheDocument(); });
+
+### Rule: Prefer getByRole/getByText/getByTestId over CSS selectors
+Never query DOM by Tailwind class names (e.g. `container.querySelector('.bg-gray-800 button')`).
+These break on any style refactor. Use:
+- `getByRole('button', { name: /show answer/i })` — best, tests accessible name
+- `getByText('Show Answer')` — tests visible text
+- `getByTestId('show-answer')` — fallback when no accessible name or text
+
+If using `querySelector`, never use `!` (non-null assertion) — use `getBy*` which throws a clear error on missing elements.
+
+Bad:  container.querySelector('button.bg-emerald-700')!
+Good: container.querySelector('[data-testid="btn-remembered"]')!
+Better: screen.getByRole('button', { name: /remembered/i })
+
+### Rule: Add data-testid to source components for test stability
+When a component has no accessible role or text to query by, add a `data-testid`
+attribute in the source component. This is the stable contract between test and
+implementation — Tailwind class changes don't break it.
+
+## Dependency Tiers
+
+When writing tests, know the mock cost of what you're testing:
+
+| Tier | Description | Mock Cost | Examples |
+|------|-------------|-----------|----------|
+| 1 | Pure state, no API | Zero mocks | `viewStore`, `lessonUIStore`, `useSelection`, `useLessonSearch`, `useShortcuts` |
+| 2 | API only, no cross-store | Mock RPC methods | `bookmarksStore`, `highlightsStore`, `notesStore`, `syncStore`, `useBookmarks`, `useHighlights`, `useNotes`, `useQuizEngine` |
+| 3 | API + cross-store | Mock RPC + cross-store state | `courseStore` (completionStore cascade), `useLesson` (5+ deps) |
+
+**Tip:** Prefer testing Tier 1-2 code. Tier 3 code should be split into
+smaller, independently testable units where possible.
+
+## Backend Unit Tests
+
+**Target:** `src/bun/*.ts` — pure business logic, parsers, storage.
+
+**Rules:**
+- Use `await import('./module')` + `mock.module()` for fs/dependency mocking.
+- Mutable stubs: create `mock(() => ...)` then `mockImplementation` in `beforeEach` for per-test control.
+- For fs operations: use `test-fs-shared.ts` helpers (`createTestFs`, `createFsFromMap`).
+- For `globalThis.fetch`: save/restore in `beforeEach`/`afterEach`.
+- Test error paths: use `mockErrorResponse()` from test-utils or delete the mock.
+- `test.each` for input matrices. `toEqual` for exact output comparison.
+
+**Example:**
+
+```typescript
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
+
+const mockReadFile = mock(() => Promise.resolve(''));
+
+void mock.module('node:fs/promises', () => ({
+  readFile: mockReadFile,
+  writeFile: mock(() => Promise.resolve(undefined)),
+}));
+
+const { parseCourse } = await import('./course-loader');
+
+describe('parseCourse', () => {
+  beforeEach(() => {
+    mockReadFile.mockImplementation(() => Promise.resolve(''));
+  });
+
+  test('parses valid YAML', async () => {
+    mockReadFile.mockImplementation(() => Promise.resolve('title: Test'));
+    const result = await parseCourse('test-dir');
+    expect(result.title).toBe('Test');
+  });
+});
+```
 
 - **Framework:** `bun:test` (zero config, `bun test` to run)
 - **DOM:** `happy-dom` via `src/setup.ts` (auto-loaded)

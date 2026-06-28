@@ -65,6 +65,7 @@ export default function ReviewSection({ courseId }: Props) {
                   <h3 className="text-lg font-medium mb-6">{currentCard.question}</h3>
                   <button
                     onClick={() => setShowAnswer(true)}
+                    data-testid="show-answer"
                     className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors"
                   >
                     {t('review.showAnswer')}
@@ -89,6 +90,7 @@ export default function ReviewSection({ courseId }: Props) {
                       onClick={() => {
                         void handleReview(false);
                       }}
+                      data-testid="btn-forgot"
                       className="px-6 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
                     >
                       {t('review.forgot')}
@@ -97,6 +99,7 @@ export default function ReviewSection({ courseId }: Props) {
                       onClick={() => {
                         void handleReview(true);
                       }}
+                      data-testid="btn-remembered"
                       className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg transition-colors"
                     >
                       {t('review.remembered')}
@@ -112,6 +115,7 @@ export default function ReviewSection({ courseId }: Props) {
                   onClick={() => {
                     void handleToggleStar();
                   }}
+                  data-testid="btn-star"
                   className="text-xs text-yellow-500 hover:text-yellow-400"
                 >
                   {t('review.unstar')}
@@ -121,6 +125,7 @@ export default function ReviewSection({ courseId }: Props) {
                   onClick={() => {
                     void handleToggleStar();
                   }}
+                  data-testid="btn-star"
                   className="text-xs text-gray-500 hover:text-gray-400"
                 >
                   {t('review.star')}

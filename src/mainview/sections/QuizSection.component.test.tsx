@@ -1,4 +1,5 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 
 import type { QuizQuestion } from '../../bun/types';
@@ -43,6 +44,7 @@ beforeEach(() => {
 import QuizSection from './QuizSection';
 
 describe('QuizSection', () => {
+  const user = userEvent.setup();
   const props = { courseId: 'cs101', moduleId: 'mod-01' };
 
   test('renders loading state', async () => {
@@ -74,7 +76,7 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Explanation q1');
     });
@@ -86,7 +88,7 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Next Question');
     });
@@ -98,11 +100,11 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Next Question');
     });
-    fireEvent.click(getByText('Next Question'));
+    await user.click(getByText('Next Question'));
     await waitFor(() => {
       expect(container.textContent).toContain('Question q2?');
     });
@@ -114,11 +116,11 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Finish Quiz');
     });
-    fireEvent.click(getByText('Finish Quiz'));
+    await user.click(getByText('Finish Quiz'));
     await waitFor(() => {
       expect(container.textContent).toContain('Quiz Complete');
       expect(container.textContent).toContain('100%');
@@ -131,11 +133,11 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Finish Quiz');
     });
-    fireEvent.click(getByText('Finish Quiz'));
+    await user.click(getByText('Finish Quiz'));
     await waitFor(() => {
       expect(container.textContent).toContain('Retry');
     });
@@ -147,15 +149,15 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('q1-B'));
+    await user.click(getByText('q1-B'));
     await waitFor(() => {
       expect(container.textContent).toContain('Finish Quiz');
     });
-    fireEvent.click(getByText('Finish Quiz'));
+    await user.click(getByText('Finish Quiz'));
     await waitFor(() => {
       expect(container.textContent).toContain('Retry');
     });
-    fireEvent.click(getByText('Retry'));
+    await user.click(getByText('Retry'));
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
       expect(container.textContent).toContain('Skip');
@@ -168,9 +170,38 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Question q1?');
     });
-    fireEvent.click(getByText('Skip'));
+    await user.click(getByText('Skip'));
     await waitFor(() => {
       expect(container.textContent).toContain('Question q2?');
+    });
+  });
+
+  test('wrong answer shows explanation and wrong styling', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container, getByText } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    await user.click(getByText('q1-A'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Explanation q1');
+    });
+  });
+
+  test('wrong answer results in 0% score', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container, getByText } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    await user.click(getByText('q1-A'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Finish Quiz');
+    });
+    await user.click(getByText('Finish Quiz'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Quiz Complete');
+      expect(container.textContent).toContain('0%');
     });
   });
 });

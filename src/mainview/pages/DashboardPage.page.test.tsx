@@ -1,24 +1,10 @@
-import { act, render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import { render, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
-import { __setRPC } from '../api';
 import i18n from '../i18n';
+import { clearMocks, mockResponse, setupRPC } from '../test-utils';
 
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 void mock.module('../layouts/PageLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => (
@@ -64,17 +50,17 @@ import DashboardPage from './DashboardPage';
 describe('DashboardPage', () => {
   beforeEach(() => {
     void i18n.changeLanguage('en-US');
-    mockResponses.clear();
+    clearMocks();
   });
 
   test('shows loading state initially', () => {
-    mockResponses.set('getGlobalStats', new Promise(() => {}));
+    mockResponse('getGlobalStats', new Promise(() => {}));
     const { container } = render(<DashboardPage onBack={() => {}} />);
     expect(container.textContent).toContain('Loading');
   });
 
   test('shows no data when stats are null', async () => {
-    mockResponses.set('getGlobalStats', null);
+    mockResponse('getGlobalStats', null);
     const { container } = render(<DashboardPage onBack={() => {}} />);
     await waitFor(() => {
       expect(container.textContent).toContain('No data');
@@ -82,7 +68,7 @@ describe('DashboardPage', () => {
   });
 
   test('renders global stats when available', async () => {
-    mockResponses.set('getGlobalStats', {
+    mockResponse('getGlobalStats', {
       totalCourses: 3,
       totalModules: 12,
       totalCompletedModules: 5,
@@ -98,7 +84,7 @@ describe('DashboardPage', () => {
   });
 
   test('renders course stats when courseID provided', async () => {
-    mockResponses.set('getCourseStats', {
+    mockResponse('getCourseStats', {
       courseID: 'cs101',
       totalModules: 6,
       completedModules: 3,
@@ -124,7 +110,7 @@ describe('DashboardPage', () => {
   });
 
   test('calls onBack when back button clicked', async () => {
-    mockResponses.set('getGlobalStats', null);
+    mockResponse('getGlobalStats', null);
     let called = false;
     const { getByText } = render(
       <DashboardPage

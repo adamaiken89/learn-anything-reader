@@ -1,24 +1,9 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { SRSCard } from '../../bun/types';
-import { __setRPC } from '../api';
-
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
+import { clearMocks, hasMock, mockResponse, setupRPC } from '../test-utils';
 
 function makeCard(id: string, overrides?: Partial<Omit<SRSCard, 'id'>>): SRSCard {
   return {
@@ -39,15 +24,17 @@ function makeCard(id: string, overrides?: Partial<Omit<SRSCard, 'id'>>): SRSCard
   };
 }
 
-beforeAll(() => __setRPC(mockRPC));
+setupRPC();
+
 beforeEach(() => {
-  mockResponses.clear();
+  clearMocks();
   mockResponse('getSRSDeck', { cards: {} });
 });
 
 import ReviewSection from './ReviewSection';
 
 describe('ReviewSection', () => {
+  const user = userEvent.setup();
   const props = { courseId: 'cs101' };
 
   test('renders loading state', async () => {
@@ -73,18 +60,13 @@ describe('ReviewSection', () => {
     expect(container.textContent).toContain('Show Answer');
   });
 
-  function clickShowAnswer(container: HTMLElement) {
-    const btn = container.querySelector('.bg-gray-800 button')!;
-    fireEvent.click(btn);
-  }
-
   test('shows answer when show answer clicked', async () => {
     mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
-    const { container } = render(<ReviewSection {...props} />);
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Show Answer');
     });
-    clickShowAnswer(container);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('Forgot');
       expect(container.textContent).toContain('Remembered');
@@ -93,11 +75,11 @@ describe('ReviewSection', () => {
 
   test('shows answer side with question, answer, explanation', async () => {
     mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
-    const { container } = render(<ReviewSection {...props} />);
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Show Answer');
     });
-    clickShowAnswer(container);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('4');
       expect(container.textContent).toContain('Simple addition');
@@ -108,17 +90,17 @@ describe('ReviewSection', () => {
     const card = makeCard('c1');
     mockResponse('getSRSDeck', { cards: { c1: card } });
     mockResponse('reviewSRSCard', { ...card, repetitions: 1, interval: 1 });
-    const { container } = render(<ReviewSection {...props} />);
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Show Answer');
     });
-    clickShowAnswer(container);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('Remembered');
     });
-    fireEvent.click(container.querySelector('button.bg-emerald-700')!);
+    await user.click(getByTestId('btn-remembered'));
     await waitFor(() => {
-      expect(mockResponses.has('reviewSRSCard')).toBe(true);
+      expect(hasMock('reviewSRSCard')).toBe(true);
     });
   });
 
@@ -126,17 +108,17 @@ describe('ReviewSection', () => {
     const card = makeCard('c1');
     mockResponse('getSRSDeck', { cards: { c1: card } });
     mockResponse('reviewSRSCard', { ...card, repetitions: 0, interval: 0 });
-    const { container } = render(<ReviewSection {...props} />);
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Show Answer');
     });
-    clickShowAnswer(container);
+    await user.click(getByTestId('show-answer'));
     await waitFor(() => {
       expect(container.textContent).toContain('Forgot');
     });
-    fireEvent.click(container.querySelector('button.bg-red-700')!);
+    await user.click(getByTestId('btn-forgot'));
     await waitFor(() => {
-      expect(mockResponses.has('reviewSRSCard')).toBe(true);
+      expect(hasMock('reviewSRSCard')).toBe(true);
     });
   });
 
@@ -158,15 +140,14 @@ describe('ReviewSection', () => {
 
   test('calls toggleStar API when star button clicked', async () => {
     mockResponse('getSRSDeck', { cards: { c1: makeCard('c1', { isStarred: true }) } });
-    mockResponse('toggleSRSStar', undefined);
-    const { container } = render(<ReviewSection {...props} />);
+    mockResponse('toggleSRSStar', makeCard('c1', { isStarred: false }));
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Unstar');
     });
-    const starBtn = container.querySelector('button.text-yellow-500')!;
-    fireEvent.click(starBtn);
+    await user.click(getByTestId('btn-star'));
     await waitFor(() => {
-      expect(mockResponses.has('toggleSRSStar')).toBe(true);
+      expect(hasMock('toggleSRSStar')).toBe(true);
     });
   });
 
@@ -188,18 +169,12 @@ describe('ReviewSection', () => {
       expect(container.textContent).toContain('All');
     });
     mockResponse('getSRSDeck', { cards: {} });
-    const dueBtn = container.querySelector('button.bg-gray-700')!;
-    fireEvent.click(dueBtn);
+    const dueBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Due',
+    )!;
+    await user.click(dueBtn);
     await waitFor(() => {
       expect(container.textContent).toContain('No cards due');
-    });
-  });
-
-  test('shows empty state messages per filter', async () => {
-    mockResponse('getSRSDeck', { cards: {} });
-    const { container } = render(<ReviewSection {...props} />);
-    await waitFor(() => {
-      expect(container.textContent).toContain('No cards in deck');
     });
   });
 });

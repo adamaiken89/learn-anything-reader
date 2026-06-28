@@ -1,35 +1,14 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
+import { clearMocks, deleteMock, mockResponse, setupRPC } from '../test-utils';
 import { useQuizEngine } from './useQuizEngine';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 const aQuestion = {
   id: 'q1',
@@ -63,7 +42,7 @@ describe('useQuizEngine', () => {
   });
 
   test('load failed shows empty questions', async () => {
-    mockResponses.delete('quizStart');
+    deleteMock('quizStart');
     const { result } = renderHook(() => useQuizEngine('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     expect(result.current.questions).toEqual([]);

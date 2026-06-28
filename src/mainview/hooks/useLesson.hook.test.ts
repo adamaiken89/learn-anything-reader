@@ -1,42 +1,14 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
-import { useCompletionStore } from '../stores/completionStore';
+import { clearMocks, mockResponse, setupRPC } from '../test-utils';
 import { useLesson } from './useLesson';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
-  useCompletionStore.setState({
-    completed: {},
-    totalModules: {},
-    loading: {},
-    loaded: false,
-  });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 const lessonData = {
   content: '# Test\n\nHello world',
@@ -46,13 +18,17 @@ const lessonData = {
   sections: [{ id: 'sec1', heading: 'Section 1', level: 2, parentID: null }],
 };
 
+const defaultCompletion = {
+  isCompleted: false,
+  completedCount: 0,
+  totalModules: 5,
+  toggle: async () => {},
+};
+
 describe('useLesson', () => {
   test('initial state has loading true', () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     expect(result.current.loading).toBe(true);
     expect(result.current.content).toBe('');
     expect(result.current.h1).toBe('');
@@ -61,10 +37,7 @@ describe('useLesson', () => {
 
   test('load populates content and sections', async () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', [{ id: '01', name: 'Intro', number: '01' }]);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.content).toBe(lessonData.content);
     expect(result.current.h1).toBe(lessonData.h1);
@@ -75,64 +48,48 @@ describe('useLesson', () => {
 
   test('load failure sets loading false', async () => {
     mockResponse('loadLesson', undefined);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.content).toBe('');
   });
 
-  test('isCompleted reads from completion store', async () => {
+  test('isCompleted reads from completion prop', async () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.isCompleted).toBe(false);
   });
 
-  test('handleToggleCompleted flips isCompleted', async () => {
+  test('handleToggleCompleted calls toggle', async () => {
+    let toggleCalled = false;
+    const toggle = async () => {
+      toggleCalled = true;
+    };
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', [{ id: '01', name: 'Intro', number: '01' }]);
-    mockResponse('getCompletedModuleIDs', []);
-    mockResponse('toggleModuleCompleted', true);
-    mockResponse('logSession', { ok: true });
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', { ...defaultCompletion, toggle }));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.isCompleted).toBe(false);
     await act(async () => {
       await result.current.handleToggleCompleted();
     });
-    expect(result.current.isCompleted).toBe(true);
+    expect(toggleCalled).toBe(true);
   });
 
   test('scrollToSection no-ops when contentRef is null', () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     expect(() => result.current.scrollToSection('sec1')).not.toThrow();
   });
 
   test('handleScroll no-ops when contentRef is null', () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion));
     expect(() => result.current.handleScroll()).not.toThrow();
   });
 
   test('initialSectionID sets visibleSection', async () => {
     mockResponse('loadLesson', lessonData);
-    mockResponse('isModuleCompleted', false);
-    mockResponse('modulesList', []);
-    mockResponse('getCompletedModuleIDs', []);
-    const { result } = renderHook(() => useLesson('math', '01', 'sec1'));
+    const { result } = renderHook(() => useLesson('math', '01', defaultCompletion, 'sec1'));
     expect(result.current.visibleSection).toBe('sec1');
     await waitFor(() => expect(result.current.loading).toBe(false));
   });

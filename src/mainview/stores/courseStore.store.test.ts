@@ -1,35 +1,14 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
+import { clearMocks, deleteMock, mockResponse, setupRPC } from '../test-utils';
 import { useCourseStore } from './courseStore';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
   useCourseStore.setState({ courses: [], loading: false, error: null, loaded: false });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 describe('courseStore', () => {
   test('load sets courses and loaded flag', async () => {
@@ -47,24 +26,26 @@ describe('courseStore', () => {
       },
     ];
     mockResponse('coursesList', courses);
-    mockResponse('getCompletedModuleIDs', []);
-    useCourseStore.getState().load();
-    await new Promise((r) => setTimeout(r, 10));
+    const result = await useCourseStore.getState().load();
+    expect(result).toEqual(courses);
     expect(useCourseStore.getState().courses).toEqual(courses);
     expect(useCourseStore.getState().loading).toBe(false);
     expect(useCourseStore.getState().loaded).toBe(true);
   });
 
-  test('load skips if already loaded', () => {
+  test('load skips if already loaded', async () => {
     useCourseStore.setState({ loaded: true });
-    useCourseStore.getState().load();
-    expect(mockResponses.size).toBe(0);
+    const result = await useCourseStore.getState().load();
+    expect(result).toEqual([]);
   });
 
   test('load sets error on failure', async () => {
-    mockResponses.delete('coursesList');
-    useCourseStore.getState().load();
-    await new Promise((r) => setTimeout(r, 10));
+    deleteMock('coursesList');
+    try {
+      await useCourseStore.getState().load();
+    } catch {
+      // expected
+    }
     expect(useCourseStore.getState().error).toBeTruthy();
     expect(useCourseStore.getState().loading).toBe(false);
   });

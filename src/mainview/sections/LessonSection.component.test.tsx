@@ -1,37 +1,33 @@
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, mock, test } from 'bun:test';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type { Course, ModuleMeta } from '../../bun/types';
-import { __setRPC } from '../api';
 import { useCompletionStore } from '../stores/completionStore';
 import { useHighlightsStore } from '../stores/highlightsStore';
 import { useLessonUIStore } from '../stores/lessonUIStore';
 import { useNotesStore } from '../stores/notesStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { clearMocks, deleteMock, mockResponse, mockRPC, setupRPC } from '../test-utils';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
 const rpcCalls: string[] = [];
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
+const trackedMockRPC = {
+  request: new Proxy(mockRPC.request, {
+    get(target, method: string) {
+      const original = Reflect.get(target, method) as (...a: unknown[]) => Promise<unknown>;
+      return (...args: unknown[]) => {
         rpcCalls.push(method);
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
+        return original(...args);
       };
     },
   }),
 };
 
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
-
-beforeAll(() => {
-  __setRPC(mockRPC);
+beforeEach(() => {
+  rpcCalls.length = 0;
 });
+
+setupRPC(trackedMockRPC);
 
 void mock.module('react-markdown', () => ({
   default: ({ children }: { children?: string }) => (
@@ -110,7 +106,7 @@ function setupDefaultMocks() {
 }
 
 beforeEach(() => {
-  mockResponses.clear();
+  clearMocks();
   rpcCalls.length = 0;
   setupDefaultMocks();
   useLessonUIStore.setState(defaultLessonUI);
@@ -154,11 +150,12 @@ function installMockSelection(mockSel: ReturnType<typeof makeMockSelection>) {
 }
 
 describe('LessonSection', () => {
+  const user = userEvent.setup();
   const props = { course: mockCourse, module: mockModuleMeta };
 
   test('renders loading state', () => {
-    mockResponses.delete('loadLesson');
-    mockResponses.set('loadLesson', new Promise(() => {}));
+    deleteMock('loadLesson');
+    mockResponse('loadLesson', new Promise(() => {}));
     const { container } = render(<LessonSection {...props} />);
     expect(container.textContent).toContain('Loading lesson');
   });
@@ -225,84 +222,78 @@ describe('LessonSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Test Heading');
     });
-    expect(container.querySelector('.fixed.right-4.w-64')).toBeTruthy();
+    expect(container.querySelector('[data-testid="sections-panel"]')).toBeTruthy();
   });
 
   test('renders viewer search when search is active via initialSearchQuery', async () => {
-    const { container } = render(<LessonSection {...props} initialSearchQuery="test query" />);
+    const { getByTestId } = render(<LessonSection {...props} initialSearchQuery="test query" />);
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="viewer-search"]')).toBeTruthy();
+      expect(getByTestId('viewer-search')).toBeTruthy();
     });
   });
 
   test('renders selection toolbar when there is a selection', async () => {
-    const { container } = render(<LessonSection {...props} />);
+    const { container, getByTestId } = render(<LessonSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Test Heading');
     });
 
-    const contentDiv = container.querySelector('.flex-1.overflow-y-auto')!;
+    const contentDiv = getByTestId('lesson-content');
     const mockSel = makeMockSelection('some selectable text', contentDiv);
     const restore = installMockSelection(mockSel);
 
     fireEvent.mouseUp(contentDiv);
 
     await waitFor(() => {
-      expect(container.querySelector('.fixed.z-50')).toBeTruthy();
+      expect(getByTestId('selection-toolbar')).toBeTruthy();
     });
     restore();
   });
 
   test('renders note editor when open', async () => {
-    const { container } = render(<LessonSection {...props} />);
+    const { container, getByTestId, getByText } = render(<LessonSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Test Heading');
     });
 
-    const contentDiv = container.querySelector('.flex-1.overflow-y-auto')!;
+    const contentDiv = getByTestId('lesson-content');
     const mockSel = makeMockSelection('note-worthy text', contentDiv);
     const restore = installMockSelection(mockSel);
 
     fireEvent.mouseUp(contentDiv);
 
     await waitFor(() => {
-      expect(container.querySelector('.fixed.z-50')).toBeTruthy();
+      expect(getByTestId('selection-toolbar')).toBeTruthy();
     });
 
-    const addNoteBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Add Note'),
-    )!;
-    fireEvent.click(addNoteBtn);
+    await user.click(getByText('Add Note'));
 
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="note-editor"]')).toBeTruthy();
+      expect(getByTestId('note-editor')).toBeTruthy();
     });
     restore();
   });
 
   test('renders card editor when open', async () => {
-    const { container } = render(<LessonSection {...props} />);
+    const { container, getByTestId, getByText } = render(<LessonSection {...props} />);
     await waitFor(() => {
       expect(container.textContent).toContain('Test Heading');
     });
 
-    const contentDiv = container.querySelector('.flex-1.overflow-y-auto')!;
+    const contentDiv = getByTestId('lesson-content');
     const mockSel = makeMockSelection('card-worthy text', contentDiv);
     const restore = installMockSelection(mockSel);
 
     fireEvent.mouseUp(contentDiv);
 
     await waitFor(() => {
-      expect(container.querySelector('.fixed.z-50')).toBeTruthy();
+      expect(getByTestId('selection-toolbar')).toBeTruthy();
     });
 
-    const createCardBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Create Card'),
-    )!;
-    fireEvent.click(createCardBtn);
+    await user.click(getByText('Create Card'));
 
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="card-editor"]')).toBeTruthy();
+      expect(getByTestId('card-editor')).toBeTruthy();
     });
     restore();
   });
@@ -319,13 +310,12 @@ describe('LessonSection', () => {
     mockResponse('toggleModuleCompleted', undefined);
     mockResponse('logSession', undefined);
 
-    const { container } = render(<LessonSection {...props} />);
+    const { getByTestId } = render(<LessonSection {...props} />);
     await waitFor(() => {
-      expect(container.textContent).toContain('Mark as Complete');
+      expect(getByTestId('complete-btn')).toBeTruthy();
     });
 
-    const btn = container.querySelector('button.w-full')!;
-    fireEvent.click(btn);
+    await user.click(getByTestId('complete-btn'));
 
     await waitFor(() => {
       expect(rpcCalls).toContain('toggleModuleCompleted');

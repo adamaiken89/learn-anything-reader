@@ -40,7 +40,10 @@ export default function SectionsPanel({
   }, [visibleSection]);
 
   return (
-    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl flex flex-col max-h-[70vh]">
+    <div
+      data-testid="sections-panel"
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl flex flex-col max-h-[70vh]"
+    >
       {sections.length > 0 && (
         <>
           <div className="shrink-0 px-2.5 py-1.5 border-b border-gray-700 flex items-center justify-between">

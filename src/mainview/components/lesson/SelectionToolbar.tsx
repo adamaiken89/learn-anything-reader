@@ -66,6 +66,7 @@ function SelectionToolbar({
   return (
     <div
       ref={menuRef}
+      data-testid="selection-toolbar"
       className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl py-1 min-w-[140px]"
       style={{
         left: position.x,

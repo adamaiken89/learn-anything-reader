@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Course, ModuleMeta } from '../bun/types';
 import SearchOverlay from './components/SearchOverlay';
 import { useShortcuts } from './hooks/useShortcuts';
+import { useCompletionStore } from './stores/completionStore';
 import { useCourseStore } from './stores/courseStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { useSyncStore } from './stores/syncStore';
@@ -44,7 +45,9 @@ export default function App() {
   }, [currentView, replace]);
 
   useEffect(() => {
-    loadCourses();
+    void loadCourses().then((courses) => {
+      void useCompletionStore.getState().loadAll(courses.map((c) => c.id));
+    });
   }, [loadCourses]);
 
   useEffect(() => {
@@ -59,7 +62,12 @@ export default function App() {
             .startSync()
             .then(() => {
               useCourseStore.getState().reset();
-              useCourseStore.getState().load();
+              void useCourseStore
+                .getState()
+                .load()
+                .then((courses) => {
+                  void useCompletionStore.getState().loadAll(courses.map((c) => c.id));
+                });
             });
         }
       });
