@@ -15,38 +15,53 @@ bun run knip             # find unused code/exports/dependencies
 
 ## Architecture
 
-React 18 + TypeScript frontend, Bun backend, packaged as desktop app via Electrobun.
+React 19 + TypeScript frontend, Bun backend, packaged as desktop app via Electrobun.
 
 ```
 src/
 ├── mainview/             # React frontend (Vite, root=src/mainview)
 │   ├── main.tsx          # React entry point
 │   ├── App.tsx           # View stack router
-│   ├── api.ts            # HTTP client → localhost:50001
+│   ├── rpc.ts            # Electrobun RPC client
+│   ├── api.ts            # API helpers (wraps rpc.ts)
 │   ├── index.css         # Tailwind + book prose styles
+│   ├── colors.ts         # Color utilities
+│   ├── themes.ts         # Theme definitions
+│   ├── logger.ts         # Frontend logger
+│   ├── toast.ts          # Toast notifications
+│   ├── shortcuts.ts      # Keyboard shortcuts (single source of truth)
+│   ├── i18n.ts           # Internationalization setup
 │   ├── layouts/          # PageLayout, PageHeader, PageContent
 │   ├── pages/            # One *Page per View union variant
 │   ├── sections/         # Complex content (Lesson, Quiz, Review, UserCardReview)
 │   ├── components/       # Leaf-level reusable UI. No routing awareness.
-│   │   ├── lesson/       # LessonToolbar, SectionsPanel, SelectionToolbar, NoteEditor, CardEditor
-│   │   ├── study-tools/  # NotesTab, HighlightsTab, BookmarksTab, CardsTab, AITab
-│   │   └── ...           # CourseSwitcher, ModuleSwitcher, SearchOverlay, StudyTools, PomodoroTimer, ui
-│   ├── hooks/            # useBookmarks, useHighlights, useLesson, useHighlightPicker, useQuizEngine, useReviewState
-│   └── stores/           # Zustand: viewStore, courseStore, settingsStore, pomodoroStore
+│   │   ├── lesson/       # LessonToolbar, SectionsPanel, SelectionToolbar, NoteEditor, CardEditor, ColorPickerRow, NotePopover, ViewerSearch
+│   │   ├── study-tools/  # NotesHighlightsTab, BookmarksTab, CardsTab, AITab
+│   │   ├── ui/           # Button, StatCard
+│   │   └── ...           # BackToCourseList, CourseSwitcher, ModuleSwitcher, ErrorBoundary, MermaidDiagram, SearchOverlay, StudyTools, PomodoroTimer
+│   ├── hooks/            # useBookmarks, useHighlights, useLesson, useQuizEngine, useReviewState, useCardReviewState, useLessonNav, useLessonSearch, useNotes, useSelection, useShortcuts
+│   └── stores/           # Zustand: viewStore, courseStore, settingsStore, pomodoroStore, bookmarksStore, completionStore, highlightsStore, lessonUIStore, notesStore, syncStore
 ├── types/                # Ambient declarations (js-yaml, three)
-└── bun/                  # Backend HTTP server (port 50001)
-    ├── index.ts          # Router + all API handlers
+└── bun/                  # Backend (Electrobun RPC handlers)
+    ├── index.ts          # RPC router + all handlers
+    ├── rpc-schema.ts     # RPC type definitions
     ├── types.ts          # Shared types
     ├── course-loader.ts  # File I/O: subjects, lessons, quizzes; YAML parse
-    ├── quiz-engine.ts    # MCQ state machine
+    ├── lesson-markdown.ts # Lesson markdown processing
+    ├── search.ts         # Search functionality
+    ├── stats.ts          # Statistics computation
+    ├── sync.ts           # Sync operations
     ├── srs.ts            # SM-2 filter helpers
     ├── storage.ts        # JSON persistence (~/.coursereader/data.json)
-    └── gemini.ts         # Gemini API client
+    ├── gemini.ts         # Gemini API client
+    ├── logger.ts         # Backend logger
+    ├── utils.ts          # Utility functions
+    └── yaml.ts           # YAML parsing utilities
 ```
 
 ## Key conventions
 
-- **Frontend → API (port 50001) → Backend handlers**. No direct file I/O from UI.
+- **Frontend → RPC → Backend handlers**. No direct file I/O from UI.
 - **Navigation**: React state-driven view stack. No React Router.
 - **Pages**: use `PageLayout` + `PageHeader` + `PageContent`. No inline wrappers.
 - **State management**: Zustand stores (cross-cutting), domain hooks (page-specific), useReducer (state machines), local useState (trivial UI only).
@@ -59,7 +74,7 @@ src/
 
 ## Course data model
 
-Subjects in `assets/subjects/<dir>/`. Dir name → `Subject.id`. Each subject:
+Subjects in `subjects/<dir>/`. Dir name → `Subject.id`. Each subject:
 
 - `syllabus.yaml`
 - `modules/<NN-name>/lesson.md`
@@ -70,15 +85,10 @@ Module dir matching: `findModuleDir` scans `modules/<id>/` for `NN-` prefix.
 
 ## Data persistence
 
-- Subjects/lessons/quizzes: file I/O from `assets/subjects/` tree
-- SRS decks: `assets/subjects/<id>/srs/deck.json`
+- Subjects/lessons/quizzes: file I/O from `subjects/` tree
+- SRS decks: `subjects/<id>/srs/deck.json`
 - Highlights, notes, bookmarks: `~/.coursereader/data.json`
 - Gemini API key: `~/.coursereader/prefs.json`
-
-## Code quality
-
-- Run `bun run knip` to find and remove unused code, exports, types, and dependencies.
-- Avoid `Record<string, any>` in tests. Define concrete recursive types (e.g. `type LocaleValue = string | { [key: string]: LocaleValue }`). Export shared types from source modules for test reuse.
 
 ## Scroll layout invariant
 
@@ -89,6 +99,5 @@ The real scrollbar lives on `contentRef` only when `PageContent` is a flex conta
 ## Quirks
 
 - `vite.config.ts` root=`src/mainview`, output=`dist/`
-- API port 50001 (passed as `?apiPort=` query param)
 - `index.css`: Tailwind directives + `.book-content` + highlight.js styles
 - **Desktop-only app** (Electrobun). All I/O local. Skip lazy loading, code splitting, chunking, network optimizations. Import eagerly. Bundle once.

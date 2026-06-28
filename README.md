@@ -1,8 +1,18 @@
-# CourseReader
+<p align="center">
+  <img src="assets/icon.svg" alt="CourseReader logo" width="128" />
+</p>
 
-Desktop study app for structured curricula with quizzes, spaced repetition, AI-powered Q&A, syntax-highlighted code, and persistent annotations.
+<h1 align="center">CourseReader</h1>
 
-Built with **Electrobun** + **React 19** + **TypeScript** + **Bun** + **Hono**.
+<p align="center">
+  Desktop study app for structured curricula with quizzes, spaced repetition, AI-powered Q&A, and persistent annotations.
+</p>
+
+<p align="center">
+  <a href="https://github.com/adamaiken89/courses/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/bun-1.0+-orange.svg" alt="Bun" /></a>
+  <a href="https://github.com/adamaiken89/courses/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
+</p>
 
 ## Features
 
@@ -22,6 +32,48 @@ Built with **Electrobun** + **React 19** + **TypeScript** + **Bun** + **Hono**.
 - **i18n** — multi-language support (English US/UK/CA/AU, 繁體中文)
 - **Focus mode** — distraction-free reading view
 
+## Requirements
+
+- [Bun](https://bun.sh/) 1.0+
+- macOS (Electrobun desktop app)
+
+## Quick start
+
+```sh
+bun install            # install dependencies
+bun run start          # build + launch desktop app
+```
+
+## Development
+
+```sh
+bun run dev            # dev mode (HMR via Vite)
+bun run dev:hmr        # Vite HMR + Electrobun concurrently
+bun run build          # production build
+bun test               # run all tests (bun:test + happy-dom)
+bun run check          # tsc + eslint + prettier
+bun run knip           # find unused code/exports/dependencies
+```
+
+## Project structure
+
+```
+src/
+├── mainview/           # React frontend (Vite)
+│   ├── layouts/        # PageLayout, PageHeader, PageContent
+│   ├── pages/          # One *Page per View union variant
+│   ├── sections/       # Lesson, Quiz, Review, UserCardReview
+│   ├── components/     # Leaf-level UI (lesson/, study-tools/, ui/)
+│   ├── hooks/          # Domain hooks (useLesson, useBookmarks, etc.)
+│   └── stores/         # Zustand stores (view, settings, course, etc.)
+└── bun/                # Backend (Electrobun RPC handlers)
+    ├── index.ts        # RPC router + all handlers
+    ├── course-loader.ts
+    ├── lesson-markdown.ts
+    ├── gemini.ts
+    └── storage.ts
+```
+
 ## Subjects
 
 | Subject                   | Modules |
@@ -35,43 +87,24 @@ Built with **Electrobun** + **React 19** + **TypeScript** + **Bun** + **Hono**.
 
 Subjects live in `subjects/<id>/` with syllabus, modules, and SRS deck.
 
-## Architecture
-
-```
-React Frontend (Vite) ──HTTP→ Bun Backend (port 50001) ──I/O→ subjects/ + ~/.coursereader/
-```
-
-- **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + Zustand (stores)
-- **Backend**: Bun HTTP server (Bun.serve) + Hono router (port 50001)
-- **Packaging**: Electrobun (desktop app shell, like Electron but lighter)
-- **Dependencies**: `react-markdown`, `remark-gfm`, `rehype-highlight`, `js-yaml`, `class-variance-authority`, `i18next`, `react-i18next`
-
-```
-src/mainview/
-├── layouts/         # PageLayout, PageHeader, PageContent
-├── pages/           # One *Page per View union variant (self-contained or wrapper)
-├── sections/        # Complex content areas (LessonSection, QuizSection, ReviewSection)
-├── components/      # Leaf-level UI (lesson/, study-tools/, ui.tsx, etc.)
-├── hooks/           # Domain hooks (useLesson, useBookmarks, useQuizEngine, etc.)
-└── stores/          # Zustand stores (view, settings, course, pomodoro)
-```
-
-## Quick start
-
-```sh
-bun install            # install dependencies
-bun run start          # build + launch desktop app
-bun run dev            # dev mode (HMR via Vite)
-bun run dev:hmr        # Vite HMR + Electrobun concurrently
-bun run build          # production build
-bun test               # run all tests (bun:test + happy-dom)
-```
-
 ## Course content
 
-Default course content: https://github.com/adamaiken89/course-content
+Default course content: <https://github.com/adamaiken89/course-content>
 
 Paste or copy link in Settings → Remote Content input box.
+
+## Tech stack
+
+| Purpose            | Library                                  |
+| ------------------ | ---------------------------------------- |
+| Desktop shell      | Electrobun                               |
+| UI                 | React 19 + TypeScript                    |
+| State management   | Zustand                                  |
+| Styling            | Tailwind CSS                             |
+| Markdown           | react-markdown + remark-gfm + rehype-highlight |
+| i18n               | i18next + react-i18next                  |
+| Diagrams           | Mermaid                                  |
+| Build              | Vite + Bun                               |
 
 ## License
 
