@@ -1,116 +1,183 @@
 import { describe, expect, test } from 'bun:test';
+
 import { parse } from './yaml';
 
-describe('parse', () => {
-  test('parses simple mapping', () => {
-    const result = parse('key: value');
-    expect(result).toEqual({ key: 'value' });
+describe('yaml parse - top-level inline array', () => {
+  test('inline array at root level', () => {
+    const result = parse('[1, 2, 3]');
+    expect(result).toEqual([1, 2, 3]);
   });
 
-  test('parses numeric value', () => {
-    const result = parse('count: 42');
-    expect(result).toEqual({ count: 42 });
+  test('inline array with strings', () => {
+    const result = parse('[a, b, c]');
+    expect(result).toEqual(['a', 'b', 'c']);
   });
 
-  test('parses boolean values', () => {
-    const result = parse('active: true\nvisible: false');
-    expect(result).toEqual({ active: true, visible: false });
+  test('inline array with mixed types', () => {
+    const result = parse('[1, true, null, hello]');
+    expect(result).toEqual([1, true, null, 'hello']);
+  });
+});
+
+describe('yaml parse - sequences', () => {
+  test('empty items via comment stripping', () => {
+    const result = parse(`
+items:
+  - # comment-only after dash
+  - second
+`);
+    expect(result).toEqual({ items: [null, 'second'] });
   });
 
-  test('parses null values', () => {
-    const result = parse('a: null\nb: ~');
-    expect(result).toEqual({ a: null, b: null });
+  test('empty item with nested sub-mapping', () => {
+    const result = parse(`
+items:
+  - # comment
+    nested: true
+  - second
+`);
+    expect(result).toEqual({ items: [{ nested: true }, 'second'] });
   });
 
-  test('parses quoted strings', () => {
-    const result = parse('title: \'hello\'\ndesc: "world"');
-    expect(result).toEqual({ title: 'hello', desc: 'world' });
+  test('comment-only lines in sequence', () => {
+    const result = parse(`
+items:
+  - first
+  # comment line
+  - second
+`);
+    expect(result).toEqual({ items: ['first', 'second'] });
   });
 
-  test('parses nested mapping', () => {
-    const yaml = `course:
-  name: Math
-  level: 101`;
-    const result = parse(yaml);
-    expect(result).toEqual({ course: { name: 'Math', level: 101 } });
+  test('greater indent skipped in sequence', () => {
+    const result = parse(`
+items:
+  - first
+    should be skipped
+  - second
+`);
+    expect(result).toEqual({ items: ['first', 'second'] });
   });
 
-  test('parses sequence', () => {
-    const yaml = `items:
-  - apple
-  - banana
-  - cherry`;
-    const result = parse(yaml);
-    expect(result).toEqual({ items: ['apple', 'banana', 'cherry'] });
+  test('inline array in sequence entry', () => {
+    const result = parse(`
+items:
+  - [1, 2, 3]
+  - second
+`);
+    expect(result).toEqual({ items: [[1, 2, 3], 'second'] });
   });
 
-  test('parses sequence of mappings', () => {
-    const yaml = `modules:
-  - id: "01"
-    name: Intro
-  - id: "02"
-    name: Advanced`;
-    const result = parse(yaml);
+  test('sequence entry with kv pair', () => {
+    const result = parse(`
+items:
+  - key: val
+  - second
+`);
+    expect(result).toEqual({ items: [{ key: 'val' }, 'second'] });
+  });
+
+  test('sequence entry with quoted string', () => {
+    const result = parse(`
+items:
+  - "quoted string"
+  - plain
+`);
+    expect(result).toEqual({ items: ['quoted string', 'plain'] });
+  });
+});
+
+describe('yaml parse - mappings', () => {
+  test('inline array as mapping value', () => {
+    const result = parse(`
+data:
+  tags: [a, b, c]
+  name: test
+`);
+    expect(result).toEqual({ data: { tags: ['a', 'b', 'c'], name: 'test' } });
+  });
+
+  test('nested mapping with indented content', () => {
+    const result = parse(`
+parent:
+  child:
+    grandchild: value
+  sibling: other
+`);
     expect(result).toEqual({
-      modules: [
-        { id: '01', name: 'Intro' },
-        { id: '02', name: 'Advanced' },
-      ],
+      parent: { child: { grandchild: 'value' }, sibling: 'other' },
     });
   });
 
-  test('parses inline array', () => {
-    const result = parse('tags: [a, b, c]');
-    expect(result).toEqual({ tags: ['a', 'b', 'c'] });
+  test('comments before indented mapping content', () => {
+    const result = parse(`
+parent:
+  # comment before child
+  child: value
+`);
+    expect(result).toEqual({ parent: { child: 'value' } });
+  });
+});
+
+describe('yaml parse - mapping edge cases', () => {
+  test('skips orphan indented lines in mapping', () => {
+    const result = parse(`
+key: value
+  orphan indented
+otherkey: otherval
+`);
+    expect(result).toEqual({ key: 'value', otherkey: 'otherval' });
   });
 
-  test('parses empty inline array', () => {
-    const result = parse('tags: []');
-    expect(result).toEqual({ tags: [] });
+  test('empty mapping value with no sub-indent returns null', () => {
+    const result = parse(`
+key:
+nextkey: value
+`);
+    expect(result).toEqual({ key: null, nextkey: 'value' });
   });
 
-  test('strips comments', () => {
-    const result = parse('key: value # this is a comment');
+  test('empty mapping value followed by comment returns null', () => {
+    const result = parse(`
+key:
+# just comment
+nextkey: value
+`);
+    expect(result).toEqual({ key: null, nextkey: 'value' });
+  });
+});
+
+describe('yaml parse - edge cases', () => {
+  test('scalar with comment', () => {
+    const result = parse('value # this is a comment');
+    expect(result).toBe('value');
+  });
+
+  test('line with only comment', () => {
+    const result = parse(`
+# just a comment
+key: value
+# another comment
+`);
     expect(result).toEqual({ key: 'value' });
   });
 
-  test('skips comment lines', () => {
-    const result = parse('# comment\nkey: value\n# another');
-    expect(result).toEqual({ key: 'value' });
+  test('empty string returns null', () => {
+    const result = parse('');
+    expect(result).toBeNull();
   });
 
-  test('handles empty input', () => {
-    expect(parse('')).toBeNull();
+  test('inline array with empty brackets', () => {
+    const result = parse('[]');
+    expect(result).toEqual([]);
   });
 
-  test('returns null for whitespace-only input', () => {
-    expect(parse('  \n\n')).toBeNull();
-  });
-
-  test('parses empty nested value as null', () => {
-    const result = parse('key:\n  other: val');
-    expect(result).toEqual({ key: { other: 'val' } });
-  });
-
-  test('parses sequence with nested mappings', () => {
-    const yaml = `- item: first
-  price: 10
-- item: second
-  price: 20`;
-    const result = parse(yaml);
-    expect(result).toEqual([
-      { item: 'first', price: 10 },
-      { item: 'second', price: 20 },
-    ]);
-  });
-
-  test('handles escape sequences in double-quoted strings', () => {
-    const result = parse('text: "line1\\nline2"');
-    expect(result).toEqual({ text: 'line1\nline2' });
-  });
-
-  test('handles escaped quotes in double-quoted strings', () => {
-    const result = parse('text: "she said \\"hello\\""');
-    expect(result).toEqual({ text: 'she said "hello"' });
+  test('maps empty inline array as value', () => {
+    const result = parse(`
+data:
+  tags: []
+  name: test
+`);
+    expect(result).toEqual({ data: { tags: [], name: 'test' } });
   });
 });

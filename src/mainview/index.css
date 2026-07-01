@@ -625,35 +625,79 @@ body {
 
 /* ── Panel slide animations ── */
 @keyframes panel-slide-left-in {
-  from { opacity: 0; transform: translateX(-100%); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes panel-slide-left-out {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(-100%); }
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
 }
 @keyframes panel-slide-right-in {
-  from { opacity: 0; transform: translateX(100%); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes panel-slide-right-out {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(100%); }
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 
-.anim-panel-slide-left { animation: panel-slide-left-in 0.25s ease-out both; }
-.anim-panel-slide-left-exit { animation: panel-slide-left-out 0.2s ease-in both; }
-.anim-panel-slide-right { animation: panel-slide-right-in 0.25s ease-out both; }
-.anim-panel-slide-right-exit { animation: panel-slide-right-out 0.2s ease-in both; }
+.anim-panel-slide-left {
+  animation: panel-slide-left-in 0.25s ease-out both;
+}
+.anim-panel-slide-left-exit {
+  animation: panel-slide-left-out 0.2s ease-in both;
+}
+.anim-panel-slide-right {
+  animation: panel-slide-right-in 0.25s ease-out both;
+}
+.anim-panel-slide-right-exit {
+  animation: panel-slide-right-out 0.2s ease-in both;
+}
 
 /* ── Dropdown animations ── */
 @keyframes dropdown-in {
-  from { opacity: 0; transform: scaleY(0.9) translateY(-4px); }
-  to { opacity: 1; transform: scaleY(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scaleY(0.9) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
 }
 @keyframes dropdown-out {
-  from { opacity: 1; transform: scaleY(1) translateY(0); }
-  to { opacity: 0; transform: scaleY(0.95) translateY(-2px); }
+  from {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.95) translateY(-2px);
+  }
 }
 
 .anim-dropdown-in {
@@ -667,48 +711,96 @@ body {
 
 /* ── Overlay animations ── */
 @keyframes overlay-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes overlay-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-.anim-overlay-in { animation: overlay-in 0.2s ease-out both; }
-.anim-overlay-out { animation: overlay-out 0.15s ease-in both; }
+.anim-overlay-in {
+  animation: overlay-in 0.2s ease-out both;
+}
+.anim-overlay-out {
+  animation: overlay-out 0.15s ease-in both;
+}
 
 /* ── Pop (scale) animations ── */
 @keyframes pop-in {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes pop-out {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(0.95); }
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
 }
 
-.anim-pop-in { animation: pop-in 0.15s ease-out both; }
-.anim-pop-out { animation: pop-out 0.12s ease-in both; }
+.anim-pop-in {
+  animation: pop-in 0.15s ease-out both;
+}
+.anim-pop-out {
+  animation: pop-out 0.12s ease-in both;
+}
 
 /* ── Fade-in-up (for search bar, sections) ── */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-.anim-fade-in-up { animation: fade-in-up 0.25s ease-out both; }
-.anim-fade-out { animation: fade-out 0.15s ease-in both; }
+.anim-fade-in-up {
+  animation: fade-in-up 0.25s ease-out both;
+}
+.anim-fade-out {
+  animation: fade-out 0.15s ease-in both;
+}
 
 /* ── Highlight flash ── */
 @keyframes highlight-flash {
-  0% { filter: brightness(1); }
-  30% { filter: brightness(1.6); }
-  100% { filter: brightness(1); }
+  0% {
+    filter: brightness(1);
+  }
+  30% {
+    filter: brightness(1.6);
+  }
+  100% {
+    filter: brightness(1);
+  }
 }
 
 .anim-highlight-flash {
@@ -718,7 +810,11 @@ body {
 
 /* ── Toolbar collapse (focus mode) ── */
 .anim-toolbar-section {
-  transition: opacity 0.25s ease, max-height 0.3s ease, margin 0.25s ease, padding 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    max-height 0.3s ease,
+    margin 0.25s ease,
+    padding 0.25s ease;
   overflow: hidden;
 }
 .anim-toolbar-section-hidden {

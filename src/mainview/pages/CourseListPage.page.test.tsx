@@ -1,28 +1,10 @@
 import { render } from '@testing-library/react';
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type { Course } from '../../bun/types';
 import i18n from '../i18n';
 import { useCompletionStore } from '../stores/completionStore';
 import { useCourseStore } from '../stores/courseStore';
-
-void mock.module('../components/ui', () => ({
-  Button: ({
-    children,
-    onClick,
-    title,
-    variant,
-  }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    title?: string;
-    variant?: string;
-  }) => (
-    <button onClick={onClick} title={title} data-variant={variant}>
-      {children}
-    </button>
-  ),
-}));
 
 void mock.module('../layouts/PageLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => (
@@ -41,6 +23,10 @@ void mock.module('../layouts/PageContent', () => ({
     <main data-testid="page-content">{children}</main>
   ),
 }));
+
+afterAll(() => {
+  mock.restore();
+});
 
 import CourseListPage from './CourseListPage';
 

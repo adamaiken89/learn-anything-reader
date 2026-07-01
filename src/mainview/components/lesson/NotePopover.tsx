@@ -37,7 +37,7 @@ export default function NotePopover({ note, x, y, onClose }: NotePopoverProps) {
   return (
     <div
       ref={ref}
-      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl max-w-xs anim-pop-in"
+      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl max-w-xs"
       style={{
         left: clampedLeft,
         top: clampedTop,

@@ -175,4 +175,101 @@ describe('syncCourses', () => {
 
     globalThis.fetch = originalFetch;
   });
+
+  test('full sync success saves config and cleans up', async () => {
+    storageData = { remoteRepoURL: 'https://github.com/owner/repo' };
+    mockSubjectsDir = '/tmp/subjects';
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mock(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ sha: 'newhash123' }),
+      } as Response),
+    ) as unknown as typeof globalThis.fetch;
+
+    mockExistsSync.mockImplementation((_p: string) => true);
+    mockReadFileSync.mockImplementation((p: string) =>
+      p.includes('data.json') ? JSON.stringify(storageData) : '{}',
+    );
+    mockReaddirSync
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([
+        { name: 'math', isDirectory: () => true },
+        { name: 'physics', isDirectory: () => true },
+      ])
+      .mockReturnValueOnce([]);
+    mockExecSync.mockImplementation(() => {});
+    mockCpSync.mockImplementation(() => {});
+
+    sync = await import('./sync');
+    const result = await sync.syncCourses();
+    expect(result.success).toBe(true);
+    expect(result.commitHash).toBe('newhash123');
+    expect(result.message).toContain('Synced 2 courses');
+    expect(mockRmSync).toHaveBeenCalledWith(expect.stringContaining('tmp-sync'), expect.anything());
+
+    globalThis.fetch = originalFetch;
+  });
+
+  test('full sync preserves SRS decks from backup', async () => {
+    storageData = { remoteRepoURL: 'https://github.com/owner/repo' };
+    mockSubjectsDir = '/tmp/subjects';
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mock(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ sha: 'newhash456' }),
+      } as Response),
+    ) as unknown as typeof globalThis.fetch;
+
+    mockExistsSync.mockImplementation((_p: string) => true);
+    mockReadFileSync.mockImplementation((p: string) =>
+      p.includes('deck.json')
+        ? '{"cards":{"c1":{}}}'
+        : p.includes('data.json')
+          ? JSON.stringify(storageData)
+          : '',
+    );
+    mockReaddirSync
+      .mockReturnValueOnce([{ name: 'math', isDirectory: () => true }])
+      .mockReturnValueOnce([{ name: 'math', isDirectory: () => true }])
+      .mockReturnValueOnce([]);
+    mockExecSync.mockImplementation(() => {});
+    mockCpSync.mockImplementation(() => {});
+
+    sync = await import('./sync');
+    const result = await sync.syncCourses();
+    expect(result.success).toBe(true);
+    expect(mockWriteFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('deck.json'),
+      '{"cards":{"c1":{}}}',
+    );
+
+    globalThis.fetch = originalFetch;
+  });
+
+  test('getLatestRemoteCommit with trailing .git', async () => {
+    storageData = { remoteRepoURL: 'https://github.com/owner/repo.git' };
+    mockSubjectsDir = '/tmp/subjects';
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = mock(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ sha: 'newhash' }),
+      } as Response),
+    ) as unknown as typeof globalThis.fetch;
+
+    mockExistsSync.mockImplementation((p: string) => p.includes('data.json'));
+    mockReaddirSync.mockReturnValue([]);
+    mockExecSync.mockImplementation(() => {});
+
+    sync = await import('./sync');
+    const result = await sync.syncCourses();
+    expect(result.success).toBe(true);
+
+    globalThis.fetch = originalFetch;
+  });
 });

@@ -45,7 +45,9 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
         <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
       {showDropdown && (
-        <div className={`absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden ${open ? 'anim-dropdown-in' : 'anim-dropdown-out'}`}>
+        <div
+          className={`absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden ${open ? 'anim-dropdown-in' : 'anim-dropdown-out'}`}
+        >
           {courses.length === 0 && (
             <div className="p-3 text-sm text-gray-500">{t('courseSwitcher.noCourses')}</div>
           )}

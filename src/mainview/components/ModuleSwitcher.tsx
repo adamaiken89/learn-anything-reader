@@ -41,7 +41,9 @@ export default function ModuleSwitcher({ modules, currentModuleId, onSelect }: P
         </span>
       </button>
       {showDropdown && (
-        <div className={`absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 max-h-[60vh] overflow-y-auto p-2 space-y-1.5 ${open ? 'anim-dropdown-in' : 'anim-dropdown-out'}`}>
+        <div
+          className={`absolute top-full left-0 mt-1 min-w-full bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 max-h-[60vh] overflow-y-auto p-2 space-y-1.5 ${open ? 'anim-dropdown-in' : 'anim-dropdown-out'}`}
+        >
           {modules.map((m) => (
             <button
               key={m.id}

@@ -22,11 +22,11 @@ import { Button } from '../ui';
 
 function ToolbarSection({ visible, children }: { visible: boolean; children: React.ReactNode }) {
   return (
-    <span
-      className={`anim-toolbar-section ${visible ? 'anim-toolbar-section-visible' : 'anim-toolbar-section-hidden'}`}
+    <div
+      className={`anim-toolbar-section flex items-center gap-2 ${visible ? 'anim-toolbar-section-visible' : 'anim-toolbar-section-hidden'}`}
     >
       {children}
-    </span>
+    </div>
   );
 }
 

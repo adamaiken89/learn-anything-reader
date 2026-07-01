@@ -65,6 +65,30 @@ describe('pomodoroStore', () => {
     expect(s.intervalId).toBeNull();
   });
 
+  test('resume sets status to running with interval', () => {
+    const origSetInterval = globalThis.setInterval;
+    let tickFn: (() => void) | null = null;
+    globalThis.setInterval = ((fn: () => void) => {
+      tickFn = fn;
+      return 42 as unknown as ReturnType<typeof setInterval>;
+    }) as typeof globalThis.setInterval;
+
+    usePomodoroStore.getState().start('focus');
+    usePomodoroStore.getState().pause();
+    expect(usePomodoroStore.getState().status).toBe('paused');
+
+    usePomodoroStore.getState().resume();
+    const s = usePomodoroStore.getState();
+    expect(s.status).toBe('running');
+    expect(s.intervalId).not.toBeNull();
+
+    // tick still works after resume
+    tickFn!();
+    expect(usePomodoroStore.getState().remaining).toBe(25 * 60 - 1);
+
+    globalThis.setInterval = origSetInterval;
+  });
+
   test('tick decreases remaining by 1', async () => {
     const origSetInterval = globalThis.setInterval;
     let tickFn: (() => void) | null = null;

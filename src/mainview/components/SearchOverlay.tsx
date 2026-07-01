@@ -38,11 +38,19 @@ export default function SearchOverlay({
 }: SearchOverlayProps) {
   const { t } = useTranslation();
   const [closing, setClosing] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleClose = useCallback(() => {
     setClosing(true);
-    setTimeout(() => onClose(), 200);
+    closeTimerRef.current = setTimeout(() => onClose(), 200);
   }, [onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
+
   const courses = useCourseStore((s) => s.courses);
   const [, startTransition] = useTransition();
   const [query, setQuery] = useState('');
@@ -192,7 +200,9 @@ export default function SearchOverlay({
   );
 
   return (
-    <div className={`fixed inset-0 z-[100] flex items-start justify-center pt-20 ${closing ? 'anim-overlay-out' : 'anim-overlay-in'}`}>
+    <div
+      className={`fixed inset-0 z-[100] flex items-start justify-center pt-20 ${closing ? 'anim-overlay-out' : 'anim-overlay-in'}`}
+    >
       <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
       <div
         className={`relative bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-lg mx-4 ${closing ? 'anim-pop-out' : 'anim-pop-in'}`}
@@ -216,7 +226,10 @@ export default function SearchOverlay({
             className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-500 outline-none"
           />
           {loading && <span className="text-xs text-gray-500">...</span>}
-          <button onClick={handleClose} className="text-xs text-gray-500 hover:text-gray-300 px-1.5">
+          <button
+            onClick={handleClose}
+            className="text-xs text-gray-500 hover:text-gray-300 px-1.5"
+          >
             ESC
           </button>
         </div>

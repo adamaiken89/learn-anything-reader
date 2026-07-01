@@ -20,6 +20,7 @@ import { rehypeHighlightText } from '../components/rehype-highlight-text';
 import { rehypeSearchText } from '../components/rehype-search-text';
 import StudyTools from '../components/StudyTools';
 import { useBookmarks } from '../hooks/useBookmarks';
+import { useDelayedUnmount } from '../hooks/useDelayedUnmount';
 import { useHighlights } from '../hooks/useHighlights';
 import { useLesson } from '../hooks/useLesson';
 import { useLessonNav } from '../hooks/useLessonNav';
@@ -28,7 +29,6 @@ import { useLessonSection } from '../hooks/useLessonSection';
 import { useNotes } from '../hooks/useNotes';
 import { useSelection } from '../hooks/useSelection';
 import { useShortcuts } from '../hooks/useShortcuts';
-import { useDelayedUnmount } from '../hooks/useDelayedUnmount';
 import { useHighlightsStore } from '../stores/highlightsStore';
 import { THEME_TOKENS, themeToCSSVars } from '../themes';
 import { components, getTextOffset } from './lesson-helpers';
@@ -143,7 +143,10 @@ export default function LessonSection({
   const showStudyTools = useDelayedUnmount(showTools && !focusMode, 250);
   const showSectionsPanel = useDelayedUnmount(showSections && !focusMode, 250);
   const showPomodoroTimer = useDelayedUnmount(showPomodoro, 200);
-  const showSelectionBar = useDelayedUnmount(!!(showToolbar && selection && !showNoteEditor && !showCardEditor), 150);
+  const showSelectionBar = useDelayedUnmount(
+    !!(showToolbar && selection && !showNoteEditor && !showCardEditor),
+    150,
+  );
   const showNotePopover = useDelayedUnmount(!!popoverNote, 150);
 
   const themeVars = useMemo(() => themeToCSSVars(THEME_TOKENS[theme]), [theme]);
@@ -395,7 +398,11 @@ export default function LessonSection({
     >
       <div className="flex flex-1 overflow-hidden">
         {showStudyTools && (
-          <div className={showTools && !focusMode ? 'anim-panel-slide-left' : 'anim-panel-slide-left-exit'}>
+          <div
+            className={
+              showTools && !focusMode ? 'anim-panel-slide-left' : 'anim-panel-slide-left-exit'
+            }
+          >
             <StudyTools courseId={course.id} moduleId={module.id} onClose={() => toggleTools()} />
           </div>
         )}
@@ -419,7 +426,13 @@ export default function LessonSection({
           )}
 
           {showSectionsPanel && (
-            <div className={showSections && !focusMode ? 'anim-panel-slide-right' : 'anim-panel-slide-right-exit'}>
+            <div
+              className={
+                showSections && !focusMode
+                  ? 'anim-panel-slide-right'
+                  : 'anim-panel-slide-right-exit'
+              }
+            >
               <SectionsPanel
                 sections={sections}
                 visibleSection={visibleSection}
@@ -444,7 +457,9 @@ export default function LessonSection({
             onMouseUp={handleTextSelectionWithAutoCopy}
           >
             {showSearch && (
-              <div className={`sticky top-0 z-10 ${searchActive ? 'anim-fade-in-up' : 'anim-fade-out'}`}>
+              <div
+                className={`sticky top-0 z-10 ${searchActive ? 'anim-fade-in-up' : 'anim-fade-out'}`}
+              >
                 <ViewerSearch
                   query={searchQuery}
                   totalMatches={totalMatches}
