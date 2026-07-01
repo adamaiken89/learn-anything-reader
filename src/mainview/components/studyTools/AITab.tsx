@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { api } from '../../api';
+import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { showToast } from '../../toast';
 
-interface AITabProps {
-  content: string;
-}
-
-export default function AITab({ content }: AITabProps) {
+export default function AITab() {
   const { t } = useTranslation();
+  const content = useLessonViewStore((s) => s.content);
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,9 +36,7 @@ export default function AITab({ content }: AITabProps) {
         className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
       />
       <button
-        onClick={() => {
-          void handleAsk();
-        }}
+        onClick={() => { void handleAsk(); }}
         disabled={!question.trim() || loading}
         className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
       >

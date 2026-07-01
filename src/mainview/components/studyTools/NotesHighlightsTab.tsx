@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Highlight } from '../../../bun/types';
-import { useLessonContext } from '../../sections/LessonContext';
 import { useHighlightsStore } from '../../stores/highlightsStore';
+import { useLessonStore } from '../../stores/lessonStore';
+import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useNotesStore } from '../../stores/notesStore';
+import { useViewStore } from '../../stores/viewStore';
 import { showToast } from '../../toast';
 import { findSectionIdForHighlight, scrollToHighlightEl } from './notesHelpers';
 
@@ -22,14 +24,16 @@ type MergedItem =
       linkedHighlight?: Highlight;
     };
 
-interface NotesHighlightsTabProps {
-  courseId: string;
-  moduleId: string;
-}
-
-export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighlightsTabProps) {
+export default function NotesHighlightsTab() {
   const { t } = useTranslation();
-  const { contentRef, scrollToSection, sections, visibleSection } = useLessonContext();
+  const visibleSection = useLessonStore((s) => s.visibleSection);
+
+  const views = useViewStore((s) => s.views);
+  const lastView = views[views.length - 1];
+  const courseId = lastView?.type === 'lesson' ? lastView.course.id : '';
+  const moduleId = lastView?.type === 'lesson' ? lastView.module.id : '';
+
+  const { contentRef, scrollToSection, sections } = useLessonViewStore();
 
   const loadNotes = useNotesStore((s) => s.load);
   const addNote = useNotesStore((s) => s.add);
@@ -44,7 +48,7 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
   const k = `${courseId}:${moduleId}`;
 
   useEffect(() => {
-    void loadNotes(courseId, moduleId);
+    if (courseId && moduleId) void loadNotes(courseId, moduleId);
   }, [courseId, moduleId, loadNotes]);
 
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -126,9 +130,7 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
         className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
       />
       <button
-        onClick={() => {
-          void handleAddNote();
-        }}
+        onClick={() => { void handleAddNote(); }}
         disabled={!newNoteContent.trim()}
         className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
       >
@@ -149,18 +151,10 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
               <>
                 <p className="text-xs text-gray-300 line-clamp-2">{item.highlight.selectedText}</p>
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.highlight.color }}
-                  />
-                  <span className="text-[10px] text-gray-500">
-                    {item.highlight.startOffset}–{item.highlight.endOffset}
-                  </span>
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.highlight.color }} />
+                  <span className="text-[10px] text-gray-500">{item.highlight.startOffset}–{item.highlight.endOffset}</span>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      void handleDeleteHighlight(item.highlight.id);
-                    }}
+                    onClick={(e) => { e.stopPropagation(); void handleDeleteHighlight(item.highlight.id); }}
                     className="text-[10px] text-red-400 hover:text-red-300"
                   >
                     {t('common.delete')}
@@ -169,9 +163,7 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
                 {(() => {
                   const sec = findSectionIdForHighlight(contentRef, item.highlight.id, sections);
                   return sec ? (
-                    <p className="text-[10px] text-gray-600 mt-1">
-                      {t('studyTools.section')} {sec.heading}
-                    </p>
+                    <p className="text-[10px] text-gray-600 mt-1">{t('studyTools.section')} {sec.heading}</p>
                   ) : null;
                 })()}
               </>
@@ -183,8 +175,7 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
                 </div>
                 {item.linkedHighlight && (
                   <p className="text-[10px] text-gray-600 italic mb-1 truncate border-l-2 border-gray-600 pl-1.5">
-                    &ldquo;{item.linkedHighlight.selectedText.slice(0, 60)}
-                    {item.linkedHighlight.selectedText.length > 60 ? '...' : ''}&rdquo;
+                    &ldquo;{item.linkedHighlight.selectedText.slice(0, 60)}{item.linkedHighlight.selectedText.length > 60 ? '...' : ''}&rdquo;
                   </p>
                 )}
                 {editingNoteId === item.note.id ? (
@@ -195,55 +186,21 @@ export default function NotesHighlightsTab({ courseId, moduleId }: NotesHighligh
                       className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-1.5 text-gray-200 resize-none h-16 focus:outline-none focus:border-indigo-500"
                     />
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          void handleUpdateNote(item.note.id);
-                        }}
-                        className="flex-1 py-0.5 text-[10px] bg-indigo-700 hover:bg-indigo-600 rounded"
-                      >
-                        {t('common.save')}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingNoteId(null);
-                          setEditingContent('');
-                        }}
-                        className="py-0.5 text-[10px] text-gray-400 hover:text-gray-200"
-                      >
-                        {t('common.cancel')}
-                      </button>
+                      <button onClick={() => { void handleUpdateNote(item.note.id); }} className="flex-1 py-0.5 text-[10px] bg-indigo-700 hover:bg-indigo-600 rounded">{t('common.save')}</button>
+                      <button onClick={() => { setEditingNoteId(null); setEditingContent(''); }} className="py-0.5 text-[10px] text-gray-400 hover:text-gray-200">{t('common.cancel')}</button>
                     </div>
                   </div>
                 ) : (
                   <>
                     <p className="text-xs text-gray-300 whitespace-pre-wrap">{item.note.content}</p>
                     <div className="flex gap-2 mt-1.5" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => {
-                          setEditingNoteId(item.note.id);
-                          setEditingContent(item.note.content);
-                        }}
-                        className="text-[10px] text-indigo-400 hover:text-indigo-300"
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        onClick={() => {
-                          void handleDeleteNote(item.note.id);
-                        }}
-                        className="text-[10px] text-red-400 hover:text-red-300"
-                      >
-                        {t('common.delete')}
-                      </button>
+                      <button onClick={() => { setEditingNoteId(item.note.id); setEditingContent(item.note.content); }} className="text-[10px] text-indigo-400 hover:text-indigo-300">{t('common.edit')}</button>
+                      <button onClick={() => { void handleDeleteNote(item.note.id); }} className="text-[10px] text-red-400 hover:text-red-300">{t('common.delete')}</button>
                     </div>
                   </>
                 )}
                 {item.note.sectionID && (
-                  <p className="text-[10px] text-gray-600 mt-1">
-                    {t('studyTools.section')}{' '}
-                    {sections.find((s) => s.id === item.note.sectionID)?.heading ??
-                      item.note.sectionID}
-                  </p>
+                  <p className="text-[10px] text-gray-600 mt-1">{t('studyTools.section')} {sections.find((s) => s.id === item.note.sectionID)?.heading ?? item.note.sectionID}</p>
                 )}
               </>
             )}
