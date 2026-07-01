@@ -3,17 +3,18 @@ import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../../bun/types';
 import { api } from '../../api';
+import { useViewStore } from '../../stores/viewStore';
 
-interface CardsTabProps {
-  courseId: string;
-  moduleId: string;
-}
-
-export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
+export default function CardsTab() {
   const { t } = useTranslation();
   const [cards, setCards] = useState<UserCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const views = useViewStore((s) => s.views);
+  const lastView = views[views.length - 1];
+  const courseId = lastView?.type === 'lesson' ? lastView.course.id : '';
+  const moduleId = lastView?.type === 'lesson' ? lastView.module.id : '';
 
   const loadCards = useCallback(() => {
     setLoading(true);
@@ -24,8 +25,8 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
   }, [courseId, moduleId]);
 
   useEffect(() => {
-    loadCards();
-  }, [loadCards]);
+    if (courseId && moduleId) loadCards();
+  }, [loadCards, courseId, moduleId]);
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -50,9 +51,7 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
               <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{card.back}</p>
             </div>
             <button
-              onClick={() => {
-                void handleDelete(card.id);
-              }}
+              onClick={() => { void handleDelete(card.id); }}
               disabled={deletingId === card.id}
               className="text-[10px] text-gray-600 hover:text-red-400 shrink-0 disabled:opacity-40"
             >
@@ -61,14 +60,10 @@ export default function CardsTab({ courseId, moduleId }: CardsTabProps) {
           </div>
           <div className="flex items-center gap-2 mt-1 text-[9px] text-gray-600">
             {card.interval > 0 && (
-              <span>
-                {t('studyTools.cardDue')}: {new Date(card.nextReviewDate).toLocaleDateString()}
-              </span>
+              <span>{t('studyTools.cardDue')}: {new Date(card.nextReviewDate).toLocaleDateString()}</span>
             )}
             {card.repetitions > 0 && (
-              <span>
-                {t('studyTools.cardReps')}: {card.repetitions}
-              </span>
+              <span>{t('studyTools.cardReps')}: {card.repetitions}</span>
             )}
           </div>
         </div>

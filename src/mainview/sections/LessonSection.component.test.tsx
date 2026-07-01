@@ -7,7 +7,7 @@ import { useCompletionStore } from '../stores/completionStore';
 import { useHighlightsStore } from '../stores/highlightsStore';
 import { useLessonStore } from '../stores/lessonStore';
 import { useNotesStore } from '../stores/notesStore';
-import { useSelectionStore } from '../stores/selectionStore';
+import { useLessonStore as useSelectionStore } from '../stores/lessonStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { clearMocks, deleteMock, mockResponse, mockRPC, setupRPC } from '../testUtils';
 

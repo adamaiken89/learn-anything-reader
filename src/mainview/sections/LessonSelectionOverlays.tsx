@@ -4,7 +4,7 @@ import { api } from '../api';
 import SelectionOverlays from '../components/lesson/SelectionOverlays';
 import { useDelayedUnmount } from '../hooks/useDelayedUnmount';
 import { useHighlights } from '../hooks/useHighlights';
-import { useSelectionStore } from '../stores/selectionStore';
+import { useLessonStore as useSelectionStore } from '../stores/lessonStore';
 import { getTextOffset } from './lessonHelpers';
 
 interface LessonSelectionOverlaysProps {

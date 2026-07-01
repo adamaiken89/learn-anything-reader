@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import rehypeHighlight from 'rehype-highlight';
 import type { PluggableList } from 'unified';
@@ -18,7 +18,8 @@ import { useLessonNav } from '../hooks/useLessonNav';
 import { useLessonSearch } from '../hooks/useLessonSearch';
 import { useLessonSection } from '../hooks/useLessonSection';
 import { useShortcuts } from '../hooks/useShortcuts';
-import { useSelectionStore } from '../stores/selectionStore';
+import { useLessonStore as useSelectionStore } from '../stores/lessonStore';
+import { useLessonViewStore } from '../stores/lessonViewStore';
 
 interface Props {
   course: Course;
@@ -49,6 +50,13 @@ export default function LessonSection({
     toggleSections,
   } = useLessonSection(course, module);
 
+  const lessonData = useLesson(
+    course.id,
+    module.id,
+    { isCompleted, completedCount, totalModules, toggle },
+    initialSectionID,
+  );
+
   const {
     content,
     h1,
@@ -61,12 +69,18 @@ export default function LessonSection({
     scrollToSection,
     handleScroll,
     handleToggleCompleted,
-  } = useLesson(
-    course.id,
-    module.id,
-    { isCompleted, completedCount, totalModules, toggle },
-    initialSectionID,
-  );
+  } = lessonData;
+
+  const synced = useRef(false);
+  if (!synced.current || content !== useLessonViewStore.getState().content) {
+    useLessonViewStore.getState().set({
+      content,
+      sections,
+      contentRef,
+      scrollToSection,
+    });
+    synced.current = true;
+  }
 
   useBookmarks(course.id, module.id, null);
   const { highlights } = useHighlights(course.id, module.id);
@@ -152,15 +166,7 @@ export default function LessonSection({
             showTools && !focusMode ? 'anim-panel-slide-left' : 'anim-panel-slide-left-exit'
           }
         >
-          <StudyTools
-            courseId={course.id}
-            moduleId={module.id}
-            content={content}
-            sections={sections}
-            contentRef={contentRef}
-            scrollToSection={scrollToSection}
-            onClose={() => toggleTools()}
-          />
+          <StudyTools onClose={() => toggleTools()} />
         </div>
       )}
 

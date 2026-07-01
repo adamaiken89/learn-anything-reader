@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 
 import type { Note } from '../../../bun/types';
 import { useHighlightsStore } from '../../stores/highlightsStore';
-import { useSelectionStore } from '../../stores/selectionStore';
+import { useLessonStore as useSelectionStore } from '../../stores/lessonStore';
 import CardEditor from './CardEditor';
 import NoteEditor from './NoteEditor';
 import NotePopover from './NotePopover';

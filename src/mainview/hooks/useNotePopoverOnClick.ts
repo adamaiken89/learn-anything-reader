@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 import { useEffect, useRef } from 'react';
 
 import type { Note } from '../../bun/types';
-import { useSelectionStore } from '../stores/selectionStore';
+import { useLessonStore as useSelectionStore } from '../stores/lessonStore';
 
 export function useNotePopoverOnClick(
   contentRef: RefObject<HTMLElement | null>,
