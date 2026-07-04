@@ -10,11 +10,13 @@ const mockSearch = (overrides?: Partial<UseLessonSearchReturn>): UseLessonSearch
   searchQuery: '',
   totalMatches: 0,
   currentMatchIndex: 0,
+  caseSensitive: false,
   setSearchActive: () => {},
   handleSearchQueryChange: () => {},
   handleSearchPrev: () => {},
   handleSearchNext: () => {},
   handleSearchClose: () => {},
+  toggleCaseSensitive: () => {},
   ...overrides,
 });
 
@@ -111,5 +113,33 @@ describe('ViewerSearch', () => {
     const { getByText } = render(<ViewerSearch search={mockSearch({ handleSearchClose })} />);
     await user.click(getByText('✕'));
     expect(handleSearchClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders case sensitivity toggle', () => {
+    const { getByText } = render(
+      <ViewerSearch search={mockSearch({ searchQuery: 'k', totalMatches: 3 })} />,
+    );
+    expect(getByText('Aa')).toBeInTheDocument();
+  });
+
+  test('clicking case toggle calls toggleCaseSensitive', async () => {
+    const toggleCaseSensitive = mock(() => {});
+    const { getByText } = render(
+      <ViewerSearch
+        search={mockSearch({ searchQuery: 'k', totalMatches: 3, toggleCaseSensitive })}
+      />,
+    );
+    await user.click(getByText('Aa'));
+    expect(toggleCaseSensitive).toHaveBeenCalledTimes(1);
+  });
+
+  test('case toggle shows active style when caseSensitive is true', () => {
+    const { getByText } = render(
+      <ViewerSearch
+        search={mockSearch({ searchQuery: 'k', totalMatches: 3, caseSensitive: true })}
+      />,
+    );
+    const btn = getByText('Aa');
+    expect(btn.className).toContain('text-orange-400');
   });
 });

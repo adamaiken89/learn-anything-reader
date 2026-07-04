@@ -75,6 +75,8 @@
     "placeholder": "在頁面中搜尋...",
     "matchCount": "第 {{current}} 筆，共 {{total}} 筆",
     "noMatches": "無符合結果",
+    "caseSensitive": "Aa",
+    "caseSensitiveTitle": "區分大小寫",
     "prev": "上一個",
     "next": "下一個"
   },

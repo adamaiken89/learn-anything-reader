@@ -50,7 +50,7 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
         onChange={(e) => search.handleSearchQueryChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t('viewerSearch.placeholder')}
-        className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-500 outline-none min-w-0"
+        className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-500 outline-none focus-visible:ring-1 focus-visible:ring-orange-400/60 min-w-0"
       />
       {search.searchQuery && (
         <span className="text-gray-500 tabular-nums whitespace-nowrap">
@@ -62,6 +62,17 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
             : t('viewerSearch.noMatches')}
         </span>
       )}
+      <button
+        onClick={search.toggleCaseSensitive}
+        className={`px-1 py-0.5 rounded transition-colors font-mono text-xs font-bold ${
+          search.caseSensitive
+            ? 'text-orange-400 bg-orange-400/10'
+            : 'text-gray-500 hover:text-gray-300'
+        }`}
+        title={t('viewerSearch.caseSensitiveTitle')}
+      >
+        {t('viewerSearch.caseSensitive')}
+      </button>
       {search.searchQuery && search.totalMatches > 0 && (
         <>
           <button

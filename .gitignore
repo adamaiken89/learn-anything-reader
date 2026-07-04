@@ -9,3 +9,10 @@ course-content/
 assets/subjects/.DS_Store
 assets/subjects/**/.DS_Store
 */**/.DS_Store
+
+# Playwright E2E
+e2e/test-results/
+e2e/playwright-report/
+
+# Playwright run artifacts
+test-results/

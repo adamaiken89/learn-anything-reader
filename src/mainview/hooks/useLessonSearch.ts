@@ -6,11 +6,13 @@ export interface UseLessonSearchReturn {
   searchQuery: string;
   currentMatchIndex: number;
   totalMatches: number;
+  caseSensitive: boolean;
   setSearchActive: (v: boolean) => void;
   handleSearchQueryChange: (q: string) => void;
   handleSearchPrev: () => void;
   handleSearchNext: () => void;
   handleSearchClose: () => void;
+  toggleCaseSensitive: () => void;
 }
 
 export function useLessonSearch(
@@ -22,12 +24,14 @@ export function useLessonSearch(
   const [searchQuery, setSearchQuery] = useState('');
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [totalMatches, setTotalMatches] = useState(0);
+  const [caseSensitive, setCaseSensitive] = useState(false);
 
   useEffect(() => {
     setSearchActive(false);
     setSearchQuery('');
     setCurrentMatchIndex(0);
     setTotalMatches(0);
+    setCaseSensitive(false);
   }, [moduleId]);
 
   useEffect(() => {
@@ -45,14 +49,14 @@ export function useLessonSearch(
     if (!el) return;
     const matches = el.querySelectorAll<HTMLElement>('mark[data-search-match]');
     setTotalMatches(matches.length);
+    matches.forEach((m) => m.removeAttribute('data-search-current'));
     if (matches.length > 0) {
       const idx = Math.min(currentMatchIndex, matches.length - 1);
       const target = matches[idx];
-      const offset =
-        target.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop - 80;
-      el.scrollTop = offset; // eslint-disable-line react-compiler/react-compiler
+      target.setAttribute('data-search-current', '');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [searchQuery, searchActive, currentMatchIndex, contentRef]);
+  }, [searchQuery, searchActive, currentMatchIndex, caseSensitive, contentRef]);
 
   const handleSearchQueryChange = useCallback((q: string) => {
     setSearchQuery(q);
@@ -72,6 +76,11 @@ export function useLessonSearch(
     setSearchQuery('');
     setCurrentMatchIndex(0);
     setTotalMatches(0);
+    setCaseSensitive(false);
+  }, []);
+
+  const toggleCaseSensitive = useCallback(() => {
+    setCaseSensitive((c) => !c);
   }, []);
 
   return {
@@ -79,10 +88,12 @@ export function useLessonSearch(
     searchQuery,
     currentMatchIndex,
     totalMatches,
+    caseSensitive,
     setSearchActive,
     handleSearchQueryChange,
     handleSearchPrev,
     handleSearchNext,
     handleSearchClose,
+    toggleCaseSensitive,
   };
 }

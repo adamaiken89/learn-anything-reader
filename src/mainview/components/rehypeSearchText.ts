@@ -13,13 +13,18 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function splitText(text: string, qlower: string): HastNode[] {
-  const regex = new RegExp(`(${escapeRegExp(qlower)})`, 'gi');
+function splitText(text: string, query: string, caseSensitive: boolean): HastNode[] {
+  const escaped = escapeRegExp(query);
+  const regex = new RegExp(`(${escaped})`, caseSensitive ? 'g' : 'gi');
   const parts = text.split(regex);
   if (parts.length <= 1) return [{ type: 'text', value: text }];
 
+  const compare = caseSensitive
+    ? (p: string) => p === query
+    : (p: string) => p.toLowerCase() === query.toLowerCase();
+
   return parts.map((part) => {
-    if (part.toLowerCase() === qlower) {
+    if (compare(part)) {
       return {
         type: 'element',
         tagName: 'mark',
@@ -34,7 +39,12 @@ function splitText(text: string, qlower: string): HastNode[] {
   });
 }
 
-function transformTree(node: HastElement, qlower: string, skip = false): void {
+function transformTree(
+  node: HastElement,
+  query: string,
+  caseSensitive: boolean,
+  skip = false,
+): void {
   if (!node?.children || !Array.isArray(node.children)) return;
 
   const newChildren: HastNode[] = [];
@@ -44,7 +54,7 @@ function transformTree(node: HastElement, qlower: string, skip = false): void {
       continue;
     }
     if (child.type === 'text' && 'value' in child && typeof child.value === 'string' && !skip) {
-      const parts = splitText(child.value, qlower);
+      const parts = splitText(child.value, query, caseSensitive);
       newChildren.push(...parts);
     } else {
       const deeper =
@@ -55,7 +65,7 @@ function transformTree(node: HastElement, qlower: string, skip = false): void {
         (child as HastElement).tagName === 'svg' ||
         (child as HastElement).tagName === 'math';
       if ('children' in child && child.children != null) {
-        transformTree(child as HastElement, qlower, deeper);
+        transformTree(child as HastElement, query, caseSensitive, deeper);
       }
       newChildren.push(child);
     }
@@ -63,12 +73,12 @@ function transformTree(node: HastElement, qlower: string, skip = false): void {
   node.children = newChildren;
 }
 
-export function rehypeSearchText(query: string) {
-  const qlower = query.trim().toLowerCase();
-  if (!qlower) return () => {};
+export function rehypeSearchText(query: string, caseSensitive = false) {
+  const q = query.trim();
+  if (!q) return () => {};
   return (tree: HastNode) => {
     if (tree && typeof tree === 'object' && 'children' in tree) {
-      transformTree(tree as HastElement, qlower);
+      transformTree(tree as HastElement, q, caseSensitive);
     }
   };
 }

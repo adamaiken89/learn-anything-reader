@@ -7,7 +7,6 @@ import type { PluggableList } from 'unified';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useAutoCopy } from '../../hooks/useAutoCopy';
-import { useDelayedUnmount } from '../../hooks/useDelayedUnmount';
 import { useHighlights } from '../../hooks/useHighlights';
 import { findVisibleHeading } from '../../hooks/useLesson';
 import { useLessonSearch } from '../../hooks/useLessonSearch';
@@ -80,26 +79,18 @@ export default function LessonContentViewer({ initialSearchQuery }: LessonConten
         rehypeHighlight,
         [rehypeHighlightText, highlights ?? []],
         ...(search.searchActive && search.searchQuery
-          ? [[rehypeSearchText, search.searchQuery]]
+          ? [[rehypeSearchText, search.searchQuery, search.caseSensitive]]
           : []),
       ] as PluggableList,
-    [highlights, search.searchActive, search.searchQuery],
+    [highlights, search.searchActive, search.searchQuery, search.caseSensitive],
   );
-
-  const showSearch = useDelayedUnmount(search.searchActive, 200);
 
   return (
     <>
-      <div className="relative flex-1 overflow-hidden">
-        {showSearch && (
-          <div
-            className={`absolute top-0 left-0 right-0 z-10 ${search.searchActive ? 'anim-fade-in-up' : 'anim-fade-out'}`}
-          >
-            <ViewerSearch search={search} />
-          </div>
-        )}
+      <div className="flex-1 flex flex-col overflow-clip">
+        {search.searchActive && <ViewerSearch search={search} />}
         <div
-          className="flex-1 overflow-y-auto h-full"
+          className="flex-1 overflow-y-auto"
           data-testid="lesson-content"
           ref={contentRef}
           tabIndex={-1}

@@ -807,3 +807,15 @@ body {
   animation: highlight-flash 0.6s ease-out;
   display: inline;
 }
+
+/* ── Search match base scroll offset (account for sticky bar) ── */
+mark[data-search-match] {
+  scroll-margin-top: 44px;
+}
+
+/* ── Search match current ── */
+mark[data-search-match][data-search-current] {
+  background-color: rgba(249, 115, 22, 0.5) !important;
+  border-color: #f97316 !important;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
+}

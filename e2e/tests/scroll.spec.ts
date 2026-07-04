@@ -1,0 +1,78 @@
+import { expect, test } from '../fixtures';
+
+test.describe('Scroll behavior', () => {
+  async function navigateToLesson(page: import('@playwright/test').Page) {
+    await page.waitForSelector('button:has-text("Introduction to Programming")');
+    await page.click('button:has-text("Introduction to Programming")');
+    await page.waitForSelector('button:has-text("Getting Started")');
+    await page.click('button:has-text("Getting Started")');
+    await page.waitForSelector('text=Welcome to Introduction to Programming');
+    await page.waitForTimeout(600);
+  }
+
+  test('scrollTop increases after scroll', async ({ page }) => {
+    await navigateToLesson(page);
+
+    const scrollTop = await page.evaluate(() => {
+      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      if (!scroller) return -1;
+      scroller.scrollTop = 500;
+      return scroller.scrollTop;
+    });
+
+    expect(scrollTop).toBeGreaterThanOrEqual(500);
+  });
+
+  test('scrollToSection via manual scrollTop', async ({ page }) => {
+    await navigateToLesson(page);
+
+    await page.waitForTimeout(300);
+
+    const scrolled = await page.evaluate(() => {
+      const sectionLink = document.querySelector('[id="best-practices-best-practices"]');
+      if (!sectionLink) return 'section-not-found';
+
+      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      if (!scroller) return 'scroller-not-found';
+
+      const offset =
+        sectionLink.getBoundingClientRect().top -
+        scroller.getBoundingClientRect().top +
+        scroller.scrollTop -
+        20;
+
+      scroller.scrollTop = offset;
+      return `scrolled-to-${scroller.scrollTop}`;
+    });
+
+    expect(scrolled).toContain('scrolled-to-');
+
+    const finalScrollTop = await page.evaluate(() => {
+      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      return scroller ? scroller.scrollTop : -1;
+    });
+
+    expect(finalScrollTop).toBeGreaterThan(1000);
+  });
+
+  test('scroll position persists after StudyTools toggle', async ({ page }) => {
+    await navigateToLesson(page);
+
+    const toggleBtn = page.locator(
+      'button:has-text("Tools"), button[aria-label="Toggle tools"], [data-testid="toggle-tools"]'
+    );
+    if (await toggleBtn.isVisible()) {
+      await toggleBtn.click();
+      await page.waitForTimeout(300);
+      await toggleBtn.click();
+      await page.waitForTimeout(300);
+    }
+
+    const afterScroll = await page.evaluate(() => {
+      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      return scroller ? scroller.scrollTop : -1;
+    });
+
+    expect(afterScroll).toBeGreaterThan(300);
+  });
+});

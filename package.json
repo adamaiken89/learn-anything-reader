@@ -10,7 +10,9 @@
 		"hmr": "vite --port 5173",
 		"build": "vite build && electrobun build --env=stable",
 		"build:canary": "vite build && electrobun build --env=canary",
-		"test": "bun test",
+		"test": "bun test --path-ignore-patterns 'e2e/**' --path-ignore-patterns 'src/mainview/__e2e__/**'",
+		"e2e": "bash scripts/e2e.sh",
+		"e2e:update": "bash scripts/e2e.sh --update",
 		"fix": "eslint src/ --fix --ext .ts,.tsx && prettier --write \"src/**/*.{ts,tsx,css,json}\"",
 		"check": "tsc --noEmit && eslint src/ --ext .ts,.tsx && prettier --check \"src/**/*.{ts,tsx,css,json}\"",
 		"knip": "knip"
@@ -36,6 +38,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@playwright/test": "^1.61.1",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
 		"@testing-library/user-event": "^14.6.1",

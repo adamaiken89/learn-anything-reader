@@ -85,4 +85,30 @@ describe('rehypeSearchText', () => {
     expect(tree.children).toHaveLength(1);
     expect((tree.children![0] as HastNode).type).toBe('text');
   });
+
+  test('case sensitive matching skips wrong case', () => {
+    const tree: HastNode = {
+      type: 'root',
+      children: [{ type: 'text', value: 'HELLO World Hello' }],
+    };
+    const handler = rehypeSearchText('Hello', true);
+    handler(tree);
+    const children = tree.children!;
+    expect(children).toHaveLength(3);
+    expect(children[0]).toEqual({ type: 'text', value: 'HELLO World ' });
+    expect(children[1].tagName).toBe('mark');
+    expect(children[1].children?.[0]).toEqual({ type: 'text', value: 'Hello' });
+  });
+
+  test('case sensitive matching finds exact case', () => {
+    const tree: HastNode = {
+      type: 'root',
+      children: [{ type: 'text', value: 'Hello World hello' }],
+    };
+    const handler = rehypeSearchText('hello', true);
+    handler(tree);
+    const children = tree.children!;
+    expect(children[1].tagName).toBe('mark');
+    expect(children[1].children?.[0]).toEqual({ type: 'text', value: 'hello' });
+  });
 });

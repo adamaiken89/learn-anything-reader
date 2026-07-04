@@ -89,8 +89,10 @@ The real scrollbar lives on `contentRef` only when `PageContent` is a flex conta
 
 - `vite.config.ts` root=`src/mainview`, output=`dist/`
 - `index.css`: Tailwind directives + `.book-content` + highlight.js styles
-- **Desktop-only app** (Electrobun). All I/O local. Skip lazy loading, code splitting, chunking, network optimizations. Import eagerly. Bundle once.
+- **Desktop-only app** (Electrobun). All I/O local. Skip lazy loading, code splitting, chunking, network optimizations. Import eagerly. Bundle once. `vite.config.ts` `rollupOptions.output.codeSplitting: false` intentional (no chunks needed).
 - **Selection overlays**: `LessonSelectionOverlays` (selection toolbar, note/card editors) appear when text selected in content viewer. Driven by `selectionchange` listener in `useSelection` + `onMouseUp` on `LessonContentViewer`.
+- **In-page search**: `useLessonSearch` effect scans `mark[data-search-match]` in DOM. Dep array MUST include `caseSensitive` — toggling case re-runs rehype (new marks) but effect won't recalculate match count without it.
+- **E2E mock RPC**: `mockRPC.ts` uses `Proxy` + handler table. Unknown methods `reject` (not silent null). Add new RPC handler key when backend adds handler.
 
 ## Test conventions
 
@@ -98,3 +100,4 @@ The real scrollbar lives on `contentRef` only when `PageContent` is a flex conta
 - **`mock.restore()` DESTROYS setup.tsx's global mocks**. Never call `mock.restore()` in individual test files — it undoes sonner/react-markdown/child_process/fs/mermaid/electrobun mocks process-wide.
 - **Page/test files must call `setupRPC()`** at module level. Without it, RPC handler defaults to `Promise.resolve(null)` (works only if another test file happened to call it first — fragile ordering dependence).
 - **Store state pollution across test files**: zustand stores persist in-memory. `localStorage.clear()` in setup.tsx afterEach prevents persistent state leakage. Some tests need explicit `useXxxStore.setState({ ... })` in beforeEach.
+- **E2E tests excluded from bun**: `e2e/tests/` Playwright tests crash under `bun test` (Playwright `test.describe` not a bun API). Exclude via `package.json` `test` script or bun config.

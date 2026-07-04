@@ -79,7 +79,7 @@ export default function LessonSection({
     return <div className="p-8 text-center text-gray-400">{t('lesson.loadingLesson')}</div>;
 
   return (
-    <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-1 overflow-clip">
       {showStudyTools && (
         <div
           className={
