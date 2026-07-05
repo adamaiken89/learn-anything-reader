@@ -54,7 +54,7 @@ export default function DashboardPage({ courseID, onBack }: DashboardPageProps) 
     return (
       <PageLayout>
         <PageHeader onBack={onBack} title={t('dashboard.courseStats')} />
-        <PageContent className="max-w-2xl mx-auto w-full">
+        <PageContent>
           <CourseStatsView stats={courseStats} />
         </PageContent>
       </PageLayout>
@@ -65,7 +65,7 @@ export default function DashboardPage({ courseID, onBack }: DashboardPageProps) 
     return (
       <PageLayout>
         <PageHeader onBack={onBack} title={t('dashboard.globalStats')} />
-        <PageContent className="max-w-2xl mx-auto w-full">
+        <PageContent>
           <GlobalStatsView stats={globalStats} />
         </PageContent>
       </PageLayout>

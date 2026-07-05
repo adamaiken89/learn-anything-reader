@@ -54,7 +54,7 @@ export function useLessonSearch(
       const idx = Math.min(currentMatchIndex, matches.length - 1);
       const target = matches[idx];
       target.setAttribute('data-search-current', '');
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [searchQuery, searchActive, currentMatchIndex, caseSensitive, contentRef]);
 

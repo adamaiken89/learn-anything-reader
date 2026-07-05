@@ -77,6 +77,7 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
         <>
           <button
             onClick={search.handleSearchPrev}
+            onMouseDown={(e) => e.preventDefault()}
             className="text-gray-400 hover:text-white px-1 py-0.5 rounded transition-colors"
             title={t('viewerSearch.prev')}
           >
@@ -84,6 +85,7 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
           </button>
           <button
             onClick={search.handleSearchNext}
+            onMouseDown={(e) => e.preventDefault()}
             className="text-gray-400 hover:text-white px-1 py-0.5 rounded transition-colors"
             title={t('viewerSearch.next')}
           >

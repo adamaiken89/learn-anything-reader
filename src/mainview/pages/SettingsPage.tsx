@@ -22,7 +22,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     <PageLayout>
       <PageHeader onBack={onBack} title={t('common.settings')} hideHeaderActions />
       <PageContent>
-        <div className="space-y-8 max-w-lg mx-auto py-8">
+        <div className="space-y-8 py-8">
           <ApiKeySection />
           <SyncSection />
           <ThemeSection />

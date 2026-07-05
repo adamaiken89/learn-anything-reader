@@ -1,5 +1,5 @@
-import { existsSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 export function normalizeModuleId(id: string | number): string {
@@ -7,19 +7,13 @@ export function normalizeModuleId(id: string | number): string {
   return id;
 }
 
-export function findSubjectsDir(): string | null {
-  const dir = dirname(fileURLToPath(import.meta.url));
-  const candidate = resolve(dir, 'subjects');
-  if (existsSync(candidate)) {
-    console.log(`Found subjects directory at: ${candidate}`);
-    return candidate;
-  }
+const COURSES_DIR = join(process.env.HOME || '', '.coursereader', 'subjects');
 
-  console.log(`Subjects directory not found in ${candidate}. Checking bundle path...`);
-  const fallback = resolve(dir, '..', 'subjects');
-  if (existsSync(fallback)) {
-    return fallback;
+export function findSubjectsDir(): string {
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  for (const candidate of [resolve(moduleDir, 'subjects'), resolve(moduleDir, '..', 'subjects')]) {
+    if (existsSync(candidate)) return candidate;
   }
-  console.log(`Subjects directory not found.`);
-  return null;
+  mkdirSync(COURSES_DIR, { recursive: true });
+  return COURSES_DIR;
 }

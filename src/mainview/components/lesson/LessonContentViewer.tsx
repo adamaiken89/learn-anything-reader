@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkBreaks from 'remark-breaks';
@@ -9,7 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAutoCopy } from '../../hooks/useAutoCopy';
 import { useHighlights } from '../../hooks/useHighlights';
 import { findVisibleHeading } from '../../hooks/useLesson';
-import { useLessonSearch } from '../../hooks/useLessonSearch';
+import type { UseLessonSearchReturn } from '../../hooks/useLessonSearch';
 import { useNotePopoverOnClick } from '../../hooks/useNotePopoverOnClick';
 import { useNotes } from '../../hooks/useNotes';
 import { useSelection } from '../../hooks/useSelection';
@@ -27,17 +27,15 @@ import LessonContentHeader from './LessonContentHeader';
 import NoteEditor from './NoteEditor';
 import NotePopover from './NotePopover';
 import SelectionToolbar from './SelectionToolbar';
-import ViewerSearch from './ViewerSearch';
 
 interface LessonContentViewerProps {
-  initialSearchQuery?: string | null;
+  search: UseLessonSearchReturn;
 }
 
-export default function LessonContentViewer({ initialSearchQuery }: LessonContentViewerProps) {
+export default function LessonContentViewer({ search }: LessonContentViewerProps) {
   const contentRef = useLessonViewStore((s) => s.contentRef);
   const bodyContent = useLessonViewStore((s) => s.bodyContent);
   const sections = useLessonViewStore((s) => s.sections);
-  const searchTrigger = useLessonViewStore((s) => s.searchTrigger);
   const courseId = useLessonViewStore((s) => s.courseId);
   const moduleId = useLessonViewStore((s) => s.moduleId);
 
@@ -57,19 +55,12 @@ export default function LessonContentViewer({ initialSearchQuery }: LessonConten
     selectionState.handleTextSelection,
   );
 
-  const search = useLessonSearch(contentRef, moduleId, initialSearchQuery);
-  const { setSearchActive } = search;
-
   const handleScroll = useCallback(() => {
     const el = contentRef.current;
     if (!el) return;
     const id = findVisibleHeading(el, sections);
     useLessonUIStore.getState().setVisibleSection(id);
   }, [contentRef, sections]);
-
-  useEffect(() => {
-    if (searchTrigger > 0) setSearchActive(true);
-  }, [searchTrigger, setSearchActive]);
 
   const highlights = useHighlightsStore((s) => s.byModule[`${courseId}:${moduleId}`]);
 
@@ -87,10 +78,9 @@ export default function LessonContentViewer({ initialSearchQuery }: LessonConten
 
   return (
     <>
-      <div className="flex-1 flex flex-col overflow-clip">
-        {search.searchActive && <ViewerSearch search={search} />}
+      <div className="flex-1 flex flex-col overflow-clip min-h-0">
         <div
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto min-h-0"
           data-testid="lesson-content"
           ref={contentRef}
           tabIndex={-1}

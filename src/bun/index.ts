@@ -15,7 +15,7 @@ import {
 import * as Search from './search';
 import * as Stats from './stats';
 import * as Sync from './sync';
-import { logger } from './logger';
+import { clearLogFiles, logger } from './logger';
 
 const DEV_SERVER_PORT = 5173;
 const DEV_SERVER_URL = `http://localhost:${DEV_SERVER_PORT}`;
@@ -146,6 +146,11 @@ const rpc = BrowserView.defineRPC<AppSchema>({
         return { ok: true as const };
       },
 
+      clearLogs: async () => {
+        clearLogFiles();
+        return { ok: true as const };
+      },
+
       geminiHasKey: () => Gemini.hasAPIKey(),
 
       geminiSetKey: async ({ key }) => {
@@ -177,7 +182,7 @@ const rpc = BrowserView.defineRPC<AppSchema>({
         };
       },
 
-      syncStart: async () => Sync.syncCourses(),
+      syncStart: async ({ force }) => Sync.syncCourses(force),
 
       syncSetURL: async ({ remoteRepoURL }) => {
         Storage.saveSyncConfig({ remoteRepoURL });
@@ -213,18 +218,6 @@ async function getMainViewUrl(): Promise<string> {
     }
   }
   return 'views://mainview/index.html';
-}
-
-const channel = await Updater.localInfo.channel();
-if (channel === 'dev') {
-  const syncConfig = Storage.getSyncConfig();
-  if (syncConfig.remoteRepoURL) {
-    Sync.syncCourses()
-      .then((result) => {
-        if (!result.unchanged) logger.info({ message: result.message }, 'Auto-sync');
-      })
-      .catch((err) => logger.error({ err }, 'Auto-sync failed'));
-  }
 }
 
 try {

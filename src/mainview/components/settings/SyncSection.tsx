@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useCompletionStore } from '../../stores/completionStore';
+import { useCourseStore } from '../../stores/courseStore';
 import { useSyncStore } from '../../stores/syncStore';
 import { showToast } from '../../toast';
 import { Button } from '../ui';
@@ -10,6 +12,7 @@ export default function SyncSection() {
   const repoRef = useRef<HTMLInputElement>(null);
   const [repoURL, setRepoURL] = useState('');
   const [repoSaved, setRepoSaved] = useState(false);
+  const [forceSync, setForceSync] = useState(false);
   const lastSyncTime = useSyncStore((s) => s.lastSyncTime);
   const lastSyncedCommit = useSyncStore((s) => s.lastSyncedCommit);
   const isSyncing = useSyncStore((s) => s.isSyncing);
@@ -98,7 +101,18 @@ export default function SyncSection() {
           variant="primary"
           size="lg"
           onClick={() => {
-            void startSync();
+            void (async () => {
+              const result = await startSync(forceSync || undefined);
+              if (result?.success) {
+                useCourseStore.getState().reset();
+                void useCourseStore
+                  .getState()
+                  .load()
+                  .then((courses) => {
+                    void useCompletionStore.getState().loadAll(courses.map((c) => c.id));
+                  });
+              }
+            })();
           }}
           disabled={isSyncing || !remoteRepoURL}
           loading={isSyncing}
@@ -112,8 +126,17 @@ export default function SyncSection() {
           </span>
         )}
       </div>
+      <label className="flex items-center gap-2 mt-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={forceSync}
+          onChange={(e) => setForceSync(e.target.checked)}
+          className="rounded bg-gray-700 border-gray-600"
+        />
+        <span className="text-xs text-gray-500">{t('settings.forceSync')}</span>
+      </label>
       {lastSyncedCommit && (
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-500 mt-1">
           {t('settings.commit')}
           {lastSyncedCommit.slice(0, 7)}
         </p>

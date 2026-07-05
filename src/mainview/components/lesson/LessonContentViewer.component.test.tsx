@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'bun:test';
 
+import type { UseLessonSearchReturn } from '../../hooks/useLessonSearch';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { mockResponse, setupRPC } from '../../testUtils';
@@ -29,24 +30,41 @@ beforeEach(() => {
   mockResponse('getHighlights', []);
 });
 
+function createMockSearch(overrides?: Partial<UseLessonSearchReturn>): UseLessonSearchReturn {
+  return {
+    searchActive: false,
+    searchQuery: '',
+    currentMatchIndex: 0,
+    totalMatches: 0,
+    caseSensitive: false,
+    setSearchActive: () => {},
+    handleSearchQueryChange: () => {},
+    handleSearchPrev: () => {},
+    handleSearchNext: () => {},
+    handleSearchClose: () => {},
+    toggleCaseSensitive: () => {},
+    ...overrides,
+  };
+}
+
 describe('LessonContentViewer', () => {
-  test('renders search bar as sibling before scroll container when search active', () => {
+  test('does not render search bar (handled by LessonSection)', () => {
     useLessonViewStore.setState({ searchTrigger: 1 });
 
-    const { container } = render(<LessonContentViewer />);
+    const { container } = render(
+      <LessonContentViewer
+        search={createMockSearch({ searchActive: true, searchQuery: 'test' })}
+      />,
+    );
 
     const scrollContainer = container.querySelector('[data-testid="lesson-content"]');
     expect(scrollContainer).toBeInTheDocument();
 
-    const searchBar = container.querySelector('[data-testid="viewer-search"]');
-    expect(searchBar).toBeInTheDocument();
-
-    expect(scrollContainer?.contains(searchBar)).toBe(false);
-    expect(scrollContainer?.previousElementSibling).toBe(searchBar);
+    expect(container.querySelector('[data-testid="viewer-search"]')).not.toBeInTheDocument();
   });
 
   test('does not render search bar when search inactive', () => {
-    const { container } = render(<LessonContentViewer />);
+    const { container } = render(<LessonContentViewer search={createMockSearch()} />);
     expect(container.querySelector('[data-testid="viewer-search"]')).not.toBeInTheDocument();
   });
 });

@@ -50,7 +50,7 @@ export default function BookmarksPage({ onBack, onOpen }: Props) {
         center={<CourseSwitcher onSelect={(course) => replace({ type: 'moduleList', course })} />}
         hideHeaderActions
       />
-      <PageContent className="max-w-2xl mx-auto px-6 py-8">
+      <PageContent>
         {bookmarks.length === 0 ? (
           <p className="text-center text-gray-500 py-12">{t('bookmarks.noBookmarks')}</p>
         ) : (

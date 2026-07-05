@@ -1,10 +1,10 @@
 import { execSync } from 'child_process';
 import {
-  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'fs';
@@ -15,6 +15,7 @@ import { getSyncConfig, saveSyncConfig } from './storage';
 import * as utilsModule from './utils';
 
 const TMP_DIR = join(process.env.HOME || '', '.coursereader', 'tmp-sync');
+const BACKUP_DIR = join(process.env.HOME || '', '.coursereader', 'subjects-bak');
 
 let _isSyncing = false;
 
@@ -46,18 +47,29 @@ function restoreSRSDirs(backups: Map<string, string>, coursesDir: string): void 
 }
 
 async function getLatestRemoteCommit(repoURL: string): Promise<string> {
-  const match = repoURL.match(/github\.com\/([^/]+)\/([^/]+)/);
+  const match = repoURL.match(/github\.com\/([^/]+)\/([^/.]+)/);
   if (!match) throw new Error('Invalid GitHub URL format');
 
   let [, owner, repo] = match;
   const cleanRepo = repo.replace(/\.git$/, '');
-  const res = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/commits/main`, {
-    headers: { Accept: 'application/vnd.github.v3+json' },
-  });
 
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-  const data = (await res.json()) as { sha: string };
-  return data.sha;
+  for (const branch of ['main', 'master']) {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${cleanRepo}/commits/${branch}`,
+      { headers: { Accept: 'application/vnd.github.v3+json' } },
+    );
+
+    if (res.ok) {
+      const data = (await res.json()) as { sha: string };
+      return data.sha;
+    }
+
+    if (res.status !== 404) {
+      throw new Error(`GitHub API error: ${res.status}`);
+    }
+  }
+
+  throw new Error('Could not find default branch (tried main, master)');
 }
 
 function gitClone(repoURL: string, destDir: string): void {
@@ -67,7 +79,26 @@ function gitClone(repoURL: string, destDir: string): void {
   });
 }
 
-export async function syncCourses(): Promise<{
+function countCourseDirs(dir: string): number {
+  if (!existsSync(dir)) return 0;
+  const entries = readdirSync(dir, { withFileTypes: true });
+  return entries.filter((e) => e.isDirectory() && !e.name.startsWith('.') && e.name !== 'srs')
+    .length;
+}
+
+function hasValidCourse(dir: string): boolean {
+  if (!existsSync(dir)) return false;
+  const entries = readdirSync(dir, { withFileTypes: true });
+  return entries.some(
+    (e) =>
+      e.isDirectory() &&
+      !e.name.startsWith('.') &&
+      e.name !== 'srs' &&
+      existsSync(join(dir, e.name, 'syllabus.yaml')),
+  );
+}
+
+export async function syncCourses(force?: boolean): Promise<{
   success: boolean;
   commitHash: string;
   message: string;
@@ -75,6 +106,8 @@ export async function syncCourses(): Promise<{
 }> {
   if (_isSyncing) return { success: false, commitHash: '', message: 'Sync already in progress' };
   _isSyncing = true;
+
+  let coursesDir: string | null = null;
 
   try {
     const config = getSyncConfig();
@@ -85,7 +118,11 @@ export async function syncCourses(): Promise<{
     }
 
     const remoteSHA = await getLatestRemoteCommit(repoURL);
-    if (remoteSHA === config.lastSyncedCommit) {
+
+    coursesDir = utilsModule.findSubjectsDir();
+    const needsForce = !coursesDir || !hasValidCourse(coursesDir);
+
+    if (!force && !needsForce && remoteSHA === config.lastSyncedCommit) {
       return {
         success: true,
         commitHash: remoteSHA,
@@ -94,7 +131,6 @@ export async function syncCourses(): Promise<{
       };
     }
 
-    const coursesDir = utilsModule.findSubjectsDir();
     if (!coursesDir) {
       return { success: false, commitHash: '', message: 'Courses directory not found' };
     }
@@ -106,26 +142,25 @@ export async function syncCourses(): Promise<{
 
     gitClone(repoURL, TMP_DIR);
 
-    const clonedEntries = readdirSync(TMP_DIR, { withFileTypes: true });
-    const courseDirs = clonedEntries.filter(
-      (e) => e.isDirectory() && !e.name.startsWith('.') && e.name !== 'srs',
-    );
+    if (!hasValidCourse(TMP_DIR)) {
+      rmSync(TMP_DIR, { recursive: true, force: true });
+      return {
+        success: false,
+        commitHash: '',
+        message: 'No valid course directories found (missing syllabus.yaml)',
+      };
+    }
 
+    if (existsSync(BACKUP_DIR)) rmSync(BACKUP_DIR, { recursive: true });
     if (existsSync(coursesDir)) {
-      const existingEntries = readdirSync(coursesDir, { withFileTypes: true });
-      for (const entry of existingEntries) {
-        if (entry.name === 'srs') continue;
-        rmSync(join(coursesDir, entry.name), { recursive: true, force: true });
-      }
-    } else {
-      mkdirSync(coursesDir, { recursive: true });
+      renameSync(coursesDir, BACKUP_DIR);
     }
 
-    for (const dir of courseDirs) {
-      cpSync(join(TMP_DIR, dir.name), join(coursesDir, dir.name), { recursive: true });
-    }
+    renameSync(TMP_DIR, coursesDir);
 
     restoreSRSDirs(backups, coursesDir);
+
+    if (existsSync(BACKUP_DIR)) rmSync(BACKUP_DIR, { recursive: true, force: true });
 
     saveSyncConfig({
       remoteRepoURL: repoURL,
@@ -133,16 +168,20 @@ export async function syncCourses(): Promise<{
       lastSyncTime: new Date().toISOString(),
     });
 
-    rmSync(TMP_DIR, { recursive: true, force: true });
+    const courseCount = countCourseDirs(coursesDir);
 
     return {
       success: true,
       commitHash: remoteSHA,
-      message: `Synced ${courseDirs.length} courses`,
+      message: `Synced ${courseCount} courses`,
     };
   } catch (err) {
     logger.error({ err: (err as Error).message }, 'Sync failed');
+    if (coursesDir && existsSync(BACKUP_DIR) && !existsSync(coursesDir)) {
+      renameSync(BACKUP_DIR, coursesDir);
+    }
     if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true, force: true });
+    if (existsSync(BACKUP_DIR)) rmSync(BACKUP_DIR, { recursive: true, force: true });
     return {
       success: false,
       commitHash: '',

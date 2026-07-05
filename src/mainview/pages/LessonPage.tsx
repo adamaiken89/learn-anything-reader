@@ -76,7 +76,7 @@ export default function LessonPage({
         toolbar={<LessonToolbar />}
       />
       <PageContent className="px-0 py-0">
-        <div key={contentKey} className={`flex flex-col ${animClass || ''}`}>
+        <div key={contentKey} className={`flex flex-col flex-1 min-h-0 ${animClass || ''}`}>
           <LessonSection course={course} module={module} initialSectionID={initialSectionID} />
         </div>
       </PageContent>

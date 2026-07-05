@@ -14,7 +14,7 @@ test.describe('Scroll behavior', () => {
     await navigateToLesson(page);
 
     const scrollTop = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       if (!scroller) return -1;
       scroller.scrollTop = 500;
       return scroller.scrollTop;
@@ -29,10 +29,10 @@ test.describe('Scroll behavior', () => {
     await page.waitForTimeout(300);
 
     const scrolled = await page.evaluate(() => {
-      const sectionLink = document.querySelector('[id="best-practices-best-practices"]');
+      const sectionLink = document.querySelector('[id="best-practices"]');
       if (!sectionLink) return 'section-not-found';
 
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       if (!scroller) return 'scroller-not-found';
 
       const offset =
@@ -48,7 +48,7 @@ test.describe('Scroll behavior', () => {
     expect(scrolled).toContain('scrolled-to-');
 
     const finalScrollTop = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       return scroller ? scroller.scrollTop : -1;
     });
 
@@ -69,7 +69,7 @@ test.describe('Scroll behavior', () => {
     }
 
     const afterScroll = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       return scroller ? scroller.scrollTop : -1;
     });
 

@@ -11,7 +11,7 @@ interface SyncState {
   remoteRepoURL: string;
   error: string | null;
   loadStatus: () => Promise<void>;
-  startSync: () => Promise<void>;
+  startSync: (force?: boolean) => Promise<{ success: boolean } | void>;
   setRepoURL: (url: string) => Promise<void>;
 }
 
@@ -40,12 +40,12 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     }
   },
 
-  startSync: async () => {
+  startSync: async (force?: boolean) => {
     if (get().isSyncing) return;
     logger.info('Starting sync');
     set({ isSyncing: true, error: null });
     try {
-      const result = await api.sync.start();
+      const result = await api.sync.start(force);
       if (result.success) {
         logger.info({ commitHash: result.commitHash }, 'Sync completed');
         showToast.success('toast.syncComplete');
@@ -54,6 +54,7 @@ export const useSyncStore = create<SyncState>((set, get) => ({
           lastSyncedCommit: result.commitHash,
           isSyncing: false,
         });
+        return { success: true };
       } else {
         logger.warn({ message: result.message }, 'Sync failed');
         showToast.error('toast.syncFailed');

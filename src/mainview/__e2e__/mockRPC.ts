@@ -85,6 +85,7 @@ const HANDLERS: Record<string, MockHandler> = {
 
   // Data
   clearAllData: () => ({ ok: true as const }),
+  clearLogs: () => ({ ok: true as const }),
 };
 
 export function createMockRPC() {

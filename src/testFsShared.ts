@@ -8,6 +8,7 @@ export const fsMockImpl = {
   unlinkSync: () => {},
   rmSync: () => {},
   cpSync: (_src: string, _dest: string) => {},
+  renameSync: (_old: string, _new: string) => {},
 };
 
 export const fsMockState = {
@@ -27,6 +28,8 @@ export const fsMockState = {
     (fsMockImpl.unlinkSync as (...a: unknown[]) => unknown)(...args),
   rmSync: (...args: unknown[]) => (fsMockImpl.rmSync as (...a: unknown[]) => unknown)(...args),
   cpSync: (...args: unknown[]) => (fsMockImpl.cpSync as (...a: unknown[]) => unknown)(...args),
+  renameSync: (...args: unknown[]) =>
+    (fsMockImpl.renameSync as (...a: unknown[]) => unknown)(...args),
 };
 
 export const mermaidMockImpl = {

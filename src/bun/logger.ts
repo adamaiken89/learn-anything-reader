@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, readdirSync, unlinkSync } from 'fs';
+import { appendFileSync, mkdirSync, readdirSync, rmSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -86,6 +86,16 @@ function log(level: string, ...args: unknown[]) {
   }
 
   writeToFile(formatEntry(level, msg, meta));
+}
+
+export function clearLogFiles() {
+  try {
+    const files = readdirSync(LOG_DIR);
+    for (const file of files) {
+      if (!file.endsWith('.log')) continue;
+      rmSync(join(LOG_DIR, file));
+    }
+  } catch {}
 }
 
 export const logger = {

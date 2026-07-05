@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, ModuleMeta } from '../../bun/types';
 import LessonContentViewer from '../components/lesson/LessonContentViewer';
 import SectionsPanel from '../components/lesson/SectionsPanel';
+import ViewerSearch from '../components/lesson/ViewerSearch';
 import PomodoroTimer from '../components/PomodoroTimer';
 import StudyTools from '../components/StudyTools';
 import { useBookmarks } from '../hooks/useBookmarks';
@@ -10,6 +12,7 @@ import { useLesson } from '../hooks/useLesson';
 import { useLessonAnimations } from '../hooks/useLessonAnimations';
 import { useLessonKeyboardShortcuts } from '../hooks/useLessonKeyboardShortcuts';
 import { useLessonNav } from '../hooks/useLessonNav';
+import { useLessonSearch } from '../hooks/useLessonSearch';
 import { useLessonSection } from '../hooks/useLessonSection';
 import { useWheelNavigation } from '../hooks/useWheelNavigation';
 import { useLessonViewStore } from '../stores/lessonViewStore';
@@ -48,7 +51,15 @@ export default function LessonSection({
     initialSectionID,
   );
 
+  const search = useLessonSearch(contentRef, module.id, initialSearchQuery);
+  const activateSearch = search.setSearchActive;
+
   const sections = useLessonViewStore((s) => s.sections);
+  const searchTrigger = useLessonViewStore((s) => s.searchTrigger);
+
+  useEffect(() => {
+    if (searchTrigger > 0) activateSearch(true);
+  }, [searchTrigger, activateSearch]);
 
   useBookmarks(course.id, module.id, null);
   const nav = useLessonNav(course, module);
@@ -79,7 +90,7 @@ export default function LessonSection({
     return <div className="p-8 text-center text-gray-400">{t('lesson.loadingLesson')}</div>;
 
   return (
-    <div className="flex flex-1 overflow-clip">
+    <div className="flex flex-1 overflow-clip min-h-0">
       {showStudyTools && (
         <div
           className={
@@ -90,7 +101,7 @@ export default function LessonSection({
         </div>
       )}
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {!showSections && !focusMode && (
           <button
             onClick={toggleSections}
@@ -133,7 +144,8 @@ export default function LessonSection({
           </div>
         )}
 
-        <LessonContentViewer initialSearchQuery={initialSearchQuery} />
+        {search.searchActive && <ViewerSearch search={search} />}
+        <LessonContentViewer search={search} />
       </div>
     </div>
   );

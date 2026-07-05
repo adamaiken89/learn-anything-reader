@@ -142,7 +142,7 @@ type ProgressRequests = {
 
 type SyncRequests = {
   getSyncStatus: { params: void; response: SyncStatus };
-  syncStart: { params: void; response: SyncResult };
+  syncStart: { params: { force?: boolean }; response: SyncResult };
   syncSetURL: { params: { remoteRepoURL: string }; response: { ok: true } };
 };
 
@@ -164,6 +164,7 @@ export type AppRequests = CourseRequests &
   SyncRequests &
   UserCardRequests & {
     clearAllData: { params: void; response: { ok: true } };
+    clearLogs: { params: void; response: { ok: true } };
   };
 
 export type AppSchema = {

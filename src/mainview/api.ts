@@ -134,6 +134,7 @@ export const api = {
     completedCount: (courseID: string) =>
       request(() => _rpcRequest.getCompletedModuleCount({ courseID }).then((v) => ({ count: v }))),
     clearAll: () => request(() => _rpcRequest.clearAllData()),
+    clearLogs: () => request(() => _rpcRequest.clearLogs()),
   },
   usercards: {
     list: (courseId?: string, moduleId?: string) =>
@@ -153,7 +154,7 @@ export const api = {
   },
   sync: {
     status: () => request(() => _rpcRequest.getSyncStatus()),
-    start: () => request(() => _rpcRequest.syncStart()),
+    start: (force?: boolean) => request(() => _rpcRequest.syncStart({ force })),
     setURL: (url: string) => request(() => _rpcRequest.syncSetURL({ remoteRepoURL: url })),
   },
 };

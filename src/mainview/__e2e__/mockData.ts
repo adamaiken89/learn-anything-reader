@@ -108,11 +108,11 @@ function getModules(courseId: string): ModuleMeta[] {
   return c ? c.modules : [];
 }
 
-const LESSON_MARKDOWN = `# Getting Started {#getting-started}
+const LESSON_MARKDOWN = `# Getting Started
 
 Welcome to Introduction to Programming! This section covers the fundamental concepts you need to begin writing code.
 
-## What is Programming? {#what-is-programming}
+## What is Programming?
 
 Programming is the art of instructing a computer to perform tasks by writing instructions in a language the computer can understand. At its core, programming involves breaking down complex problems into small, manageable steps.
 
@@ -126,7 +126,7 @@ console.log("Hello, world!");
 
 This single line tells the computer to display text on the screen. Every program, no matter how complex, is built from such simple instructions.
 
-## Setting Up Your Environment {#setup-environment}
+## Setting Up Your Environment
 
 Before writing code, you need a development environment. Here are the essential tools:
 
@@ -156,7 +156,7 @@ git config --global user.email "you@example.com"
 
 With these tools installed, you are ready to start coding. Take time to familiarize yourself with the editor interface — learn keyboard shortcuts, explore the extensions panel, and open the integrated terminal.
 
-## Your First Program {#first-program}
+## Your First Program
 
 Every programming journey begins with a "Hello, world!" program. Create a new file called \`hello.js\` and add the following code:
 
@@ -187,7 +187,7 @@ Sum: 15
 
 Congratulations — you have written and executed your first program! This simple example demonstrates functions, variables, arrays, and method calls.
 
-## Understanding Program Flow {#program-flow}
+## Understanding Program Flow
 
 Programs execute from top to bottom, line by line. This is called **sequential execution**. However, you can control the flow using several mechanisms:
 
@@ -243,7 +243,7 @@ console.log(isEven(7));     // false
 
 Understanding these building blocks is essential. Every complex program is composed of these fundamental patterns: sequence, condition, loop, and function calls.
 
-## Working with Data {#working-with-data}
+## Working with Data
 
 Programming revolves around data. Here are the common data types in JavaScript:
 
@@ -281,7 +281,7 @@ Choosing the right data structure for your problem is a key skill. Arrays are gr
 
 In the next section, we will explore how these data structures combine with control flow to build real applications. Practice writing small programs that manipulate data using loops and conditionals. The more you practice, the more natural these concepts become.
 
-## Debugging Techniques {#debugging-techniques}
+## Debugging Techniques
 
 Bugs are inevitable in programming. Learning to debug effectively is as important as learning to write code. Here are essential debugging techniques:
 
@@ -330,7 +330,7 @@ Set a breakpoint by clicking in the gutter next to a line number, then run your 
 
 Mastering these debugging techniques will save you countless hours. Every programmer spends more time debugging than writing new code, so invest in learning these skills early.
 
-## Best Practices {#best-practices}
+## Best Practices
 
 Writing code that works is only half the battle. Writing code that is readable, maintainable, and robust is what separates novice programmers from professionals.
 
