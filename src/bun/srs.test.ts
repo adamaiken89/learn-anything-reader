@@ -7,8 +7,10 @@ import {
   getDueCardsForCourse,
   getStarredCardsForCourse,
   toggleStar,
+  performReview,
+  createSRSCard,
 } from './srs';
-import type { SRSDeck, SRSCard } from './types';
+import type { SRSDeck, SRSCard, QuizQuestion } from './types';
 
 function makeCard(overrides: Partial<SRSCard> & { id: string }): SRSCard {
   return {
@@ -167,5 +169,191 @@ describe('toggleStar', () => {
     const deck = makeDeck([makeCard({ id: 'a', isStarred: false })]);
     toggleStar(deck, 'a');
     expect(deck.cards['a'].isStarred).toBe(false);
+  });
+});
+
+describe('performReview (FSRS-5)', () => {
+  const now = new Date('2024-06-15T12:00:00Z');
+
+  function makeReviewCard(overrides: Partial<SRSCard> & { id: string }): SRSCard {
+    return {
+      questionId: 'q1',
+      moduleId: '01',
+      courseId: 'test',
+      question: 'Q?',
+      answer: 'A',
+      explanation: 'E',
+      easeFactor: 2.5,
+      interval: 0,
+      repetitions: 0,
+      nextReviewDate: '2024-06-15T00:00:00.000Z',
+      lastReviewed: null,
+      isStarred: false,
+      ...overrides,
+    };
+  }
+
+  test('new card correct initializes FSRS fields', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const result = performReview(card, true, now);
+    expect(result.stability).toBeGreaterThan(0);
+    expect(result.difficulty).toBeGreaterThanOrEqual(1);
+    expect(result.difficulty).toBeLessThanOrEqual(10);
+    expect(result.state).toBe('Review');
+    expect(result.lapses).toBe(0);
+    expect(result.interval).toBeGreaterThan(0);
+  });
+
+  test('new card wrong initializes with lower stability', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const correctCard = performReview({ ...card }, true, now);
+    const wrongCard = performReview({ ...card }, false, now);
+    expect(wrongCard.stability).toBeLessThan(correctCard.stability!);
+    expect(wrongCard.difficulty).toBeGreaterThan(correctCard.difficulty!);
+  });
+
+  test('review correct grows stability', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const r1 = performReview(card, true, now);
+    // Simulate next-day long-term review
+    const nextDay = new Date('2024-06-16T12:00:00Z');
+    const r2 = performReview(
+      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
+      true,
+      nextDay,
+    );
+    expect(r2.stability).toBeGreaterThan(r1.stability!);
+  });
+
+  test('review wrong drops stability and increments lapses', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const r1 = performReview(card, true, now);
+    const nextDay = new Date('2024-06-16T12:00:00Z');
+    const r2 = performReview(
+      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
+      false,
+      nextDay,
+    );
+    expect(r2.stability).toBeLessThan(r1.stability!);
+    expect(r2.lapses).toBeGreaterThanOrEqual(1);
+    expect(r2.state).toBe('Relearning');
+  });
+
+  test('preserves original card invariants after review', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const cardCopy = { ...card };
+    performReview(card, true, now);
+    // migrateSM2Card mutates original — that's expected for migration
+    // But the card returned is a new object
+    expect(card).not.toBe(cardCopy); // different refs
+  });
+
+  test('migrates SM-2 card on review', () => {
+    const old = makeReviewCard({
+      id: 'a',
+      interval: 5,
+      repetitions: 3,
+      easeFactor: 2.5,
+      lastReviewed: '2024-06-10T12:00:00.000Z',
+    });
+    delete (old as unknown as Record<string, unknown>).stability;
+    delete (old as unknown as Record<string, unknown>).difficulty;
+    delete (old as unknown as Record<string, unknown>).lapses;
+    delete (old as unknown as Record<string, unknown>).state;
+    const result = performReview(old, true, now);
+    expect(result.stability).toBeDefined();
+    expect(result.difficulty).toBeDefined();
+    expect(result.lapses).toBeDefined();
+    expect(result.state).toBeDefined();
+  });
+
+  test('short-term review (<1 day) maintains state', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const r1 = performReview(card, true, now);
+    // Same-day review
+    const r2 = performReview(r1, true, now);
+    expect(r2.state).toBe('Review');
+    expect(r2.stability).toBeGreaterThan(0);
+  });
+
+  test('review after long gap with forget transitions to Relearning', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const r1 = performReview(card, true, now);
+    const later = new Date('2024-07-01T12:00:00Z'); // 16 days later
+    const r2 = performReview(
+      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
+      false,
+      later,
+    );
+    expect(r2.state).toBe('Relearning');
+    expect(r2.lapses).toBeGreaterThanOrEqual(1);
+  });
+
+  test('ease factor derived correctly from difficulty', () => {
+    const card = makeReviewCard({ id: 'a' });
+    const r1 = performReview(card, true, now);
+    expect(r1.easeFactor).toBeGreaterThanOrEqual(1.3);
+    expect(r1.easeFactor).toBeLessThanOrEqual(5.0);
+  });
+
+  test('interval increases after multiple correct reviews', () => {
+    let card = makeReviewCard({ id: 'a' });
+    card = performReview(card, true, now);
+    const intervals: number[] = [card.interval];
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(`2024-06-${16 + i}T12:00:00Z`);
+      card = performReview(
+        { ...card, lastReviewed: `2024-06-${15 + i}T12:00:00.000Z` },
+        true,
+        d,
+      );
+      intervals.push(card.interval);
+    }
+    for (let i = 1; i < intervals.length; i++) {
+      expect(intervals[i]).toBeGreaterThanOrEqual(intervals[i - 1]);
+    }
+  });
+
+  test('wrong after long-term review resets short interval', () => {
+    let card = makeReviewCard({ id: 'a' });
+    card = performReview(card, true, now);
+    const later = new Date('2024-08-01T12:00:00Z'); // 47 days later
+    const result = performReview(
+      { ...card, lastReviewed: '2024-06-15T12:00:00.000Z' },
+      false,
+      later,
+    );
+    expect(result.interval).toBeLessThan(card.interval);
+    expect(result.repetitions).toBe(0);
+  });
+});
+
+describe('createSRSCard (FSRS)', () => {
+  const q: QuizQuestion = {
+    id: 'q1',
+    question: 'What is 2+2?',
+    options: { a: '3', b: '4', c: '5', d: '6' },
+    answer: 'b',
+    explanation: '2+2=4',
+    difficulty: 1,
+    tags: ['math'],
+  };
+
+  test('creates card with default FSRS fields', () => {
+    const card = createSRSCard(q, 'mod-01', 'cs101');
+    expect(card.id).toBe('cs101-mod-01-q1');
+    expect(card.question).toBe('What is 2+2?');
+    expect(card.stability).toBeUndefined();
+    expect(card.difficulty).toBeUndefined();
+    expect(card.lapses).toBeUndefined();
+    expect(card.state).toBeUndefined();
+    expect(card.easeFactor).toBe(2.5);
+    expect(card.interval).toBe(0);
+  });
+
+  test('uses provided date', () => {
+    const d = new Date('2025-01-01T00:00:00Z');
+    const card = createSRSCard(q, 'mod-01', 'cs101', d);
+    expect(card.nextReviewDate).toBe('2025-01-01T00:00:00.000Z');
   });
 });

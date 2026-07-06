@@ -819,3 +819,75 @@ mark[data-search-match][data-search-current] {
   border-color: #f97316 !important;
   box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
 }
+
+/* ── Active Recall Mode ── */
+
+/* Cloze blank: click to reveal */
+.cloze-blank {
+  display: inline-block;
+  min-width: 3em;
+  padding: 0 0.4em;
+  margin: 0 1px;
+  background: var(--book-code-bg);
+  border: 1px dashed var(--book-bq-border);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--book-bq-border);
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.2s;
+}
+.cloze-blank.revealed {
+  background: transparent;
+  border-color: var(--book-code-text);
+  color: var(--book-code-text);
+  cursor: default;
+}
+
+/* Interactive block (Cloze/Predict/Spot the Mistake) */
+details.interactive-block {
+  margin: 1.2em 0;
+  border: 1px solid var(--book-h2-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--book-bq-bg);
+}
+details.interactive-block summary {
+  padding: 0.6em 1em;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--book-bq-text);
+  background: var(--book-code-bg);
+  user-select: none;
+  list-style: none;
+}
+details.interactive-block summary::-webkit-details-marker {
+  display: none;
+}
+details.interactive-block summary::before {
+  content: '▶ ';
+  font-size: 0.8em;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+details.interactive-block[open] summary::before {
+  content: '▼ ';
+}
+details.interactive-block .interactive-block-content {
+  padding: 0.8em 1em;
+}
+details.interactive-block .interactive-block-content blockquote {
+  border-left: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+details.interactive-block .interactive-block-content p:last-child {
+  margin-bottom: 0;
+}
+details.interactive-block .interactive-answer {
+  margin-top: 0.6em;
+  padding-top: 0.6em;
+  border-top: 1px dashed var(--book-h2-border);
+  font-style: italic;
+}

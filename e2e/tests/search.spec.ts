@@ -139,7 +139,7 @@ test.describe('Search bar stays visible', () => {
 
     // Click next multiple times to jump through matches across sections
     const nextBtn = page.locator('[data-testid="viewer-search"] button').filter({ hasText: '↓' });
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       await nextBtn.click();
       await page.waitForTimeout(600);
     }
@@ -391,6 +391,6 @@ test.describe('Search bar stays visible', () => {
     });
 
     console.log('DIAG:', JSON.stringify(info, null, 2));
-    expect(info.matchInfo.length).toBeGreaterThan(0);
+    expect(info && 'matchInfo' in info && Array.isArray(info.matchInfo) ? info.matchInfo.length : 0).toBeGreaterThan(0);
   });
 });

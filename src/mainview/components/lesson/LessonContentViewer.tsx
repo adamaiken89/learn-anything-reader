@@ -19,6 +19,7 @@ import { useLessonUIStore } from '../../stores/lessonUIStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { THEME_TOKENS, themeToCSSVars } from '../../themes';
+import { rehypeCloze } from '../rehypeCloze';
 import { rehypeHighlightText } from '../rehypeHighlightText';
 import { rehypeSearchText } from '../rehypeSearchText';
 import LessonContentCompletionButton from './LessonContentCompletionButton';
@@ -37,8 +38,13 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
   const courseId = useLessonViewStore((s) => s.courseId);
   const moduleId = useLessonViewStore((s) => s.moduleId);
 
-  const { contentWidth, fontSize, theme } = useSettingsStore(
-    useShallow((s) => ({ contentWidth: s.contentWidth, fontSize: s.fontSize, theme: s.theme })),
+  const { contentWidth, fontSize, theme, readingMode } = useSettingsStore(
+    useShallow((s) => ({
+      contentWidth: s.contentWidth,
+      fontSize: s.fontSize,
+      theme: s.theme,
+      readingMode: s.readingMode,
+    })),
   );
   const themeVars = themeToCSSVars(THEME_TOKENS[theme]);
 
@@ -67,11 +73,12 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
       [
         rehypeHighlight,
         [rehypeHighlightText, highlights ?? []],
+        [rehypeCloze, { active: readingMode === 'active' }],
         ...(search.searchActive && search.searchQuery
           ? [[rehypeSearchText, search.searchQuery, search.caseSensitive]]
           : []),
       ] as PluggableList,
-    [highlights, search.searchActive, search.searchQuery, search.caseSensitive],
+    [highlights, search.searchActive, search.searchQuery, search.caseSensitive, readingMode],
   );
 
   return (

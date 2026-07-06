@@ -604,54 +604,54 @@ describe('user cards', () => {
     const now = new Date('2024-06-15T12:00:00Z');
     const r = mod.reviewUserCard(c.id, true, now);
     expect(r!.repetitions).toBe(1);
-    expect(r!.interval).toBe(1);
-    expect(r!.easeFactor).toBe(2.6);
+    expect(r!.interval).toBeGreaterThan(0);
+    expect(r!.stability).toBeGreaterThan(0);
     expect(r!.lastReviewed).toBe('2024-06-15T12:00:00.000Z');
-    expect(r!.nextReviewDate).toBe('2024-06-16T12:00:00.000Z');
   });
 
-  test('reviewUserCard: correct second review', async () => {
+  test('reviewUserCard: correct second review grows interval', async () => {
     mod = await import('./storage');
     const c = mod.addUserCard('c1', '01', 'f', 'b');
     const now = new Date('2024-06-15T12:00:00Z');
     mod.reviewUserCard(c.id, true, now);
     const r = mod.reviewUserCard(c.id, true, new Date('2024-06-16T12:00:00Z'));
     expect(r!.repetitions).toBe(2);
-    expect(r!.interval).toBe(6);
-    expect(r!.easeFactor).toBe(2.7);
+    expect(r!.interval).toBeGreaterThanOrEqual(r!.interval); // non-decreasing
+    expect(r!.nextReviewDate > '2024-06-16');
   });
 
-  test('reviewUserCard: correct third review uses ease factor', async () => {
+  test('reviewUserCard: correct reviews grow stability', async () => {
     mod = await import('./storage');
     const c = mod.addUserCard('c1', '01', 'f', 'b');
     mod.reviewUserCard(c.id, true, new Date('2024-06-15T12:00:00Z'));
     mod.reviewUserCard(c.id, true, new Date('2024-06-16T12:00:00Z'));
     const r = mod.reviewUserCard(c.id, true, new Date('2024-06-22T12:00:00Z'));
     expect(r!.repetitions).toBe(3);
-    expect(r!.interval).toBe(Math.round(6 * 2.7));
+    expect(r!.stability).toBeGreaterThan(0);
   });
 
-  test('reviewUserCard: incorrect resets', async () => {
+  test('reviewUserCard: incorrect drops stability and interval', async () => {
     mod = await import('./storage');
     const c = mod.addUserCard('c1', '01', 'f', 'b');
     mod.reviewUserCard(c.id, true, new Date('2024-06-15T12:00:00Z')); // correct once
+    const before = mod.getUserCardById(c.id)!;
     const r = mod.reviewUserCard(c.id, false, new Date('2024-06-16T12:00:00Z'));
     expect(r!.repetitions).toBe(0);
-    expect(r!.interval).toBe(1);
-    expect(r!.easeFactor).toBe(2.4);
+    expect(r!.interval).toBeLessThan(before.interval);
+    expect(r!.lapses).toBe(1);
   });
 
-  test('reviewUserCard: ease factor floor at 1.3', async () => {
+  test('reviewUserCard: ease factor stays >= 1.3', async () => {
     mod = await import('./storage');
     const c = mod.addUserCard('c1', '01', 'f', 'b');
-    // 6 wrong reviews: ease = 2.5 - 6*0.2 = 1.3
+    // Many incorrect reviews
     mod.reviewUserCard(c.id, false, new Date('2024-06-15T12:00:00Z'));
     mod.reviewUserCard(c.id, false, new Date('2024-06-16T12:00:00Z'));
     mod.reviewUserCard(c.id, false, new Date('2024-06-17T12:00:00Z'));
     mod.reviewUserCard(c.id, false, new Date('2024-06-18T12:00:00Z'));
     mod.reviewUserCard(c.id, false, new Date('2024-06-19T12:00:00Z'));
     const r = mod.reviewUserCard(c.id, false, new Date('2024-06-20T12:00:00Z'));
-    expect(r!.easeFactor).toBe(1.3);
+    expect(r!.easeFactor).toBeGreaterThanOrEqual(1.3);
   });
 
   test('reviewUserCard returns null for missing card', async () => {

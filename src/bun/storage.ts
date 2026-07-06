@@ -327,7 +327,73 @@ function yesterday(): string {
   return d.toISOString().split('T')[0];
 }
 
-// --- UserCard CRUD ---
+// ── FSRS-5 helpers (shared with srs.ts) ─────────────────────────
+
+const _W = [
+  0.212, 1.2931, 2.3065, 8.2956, 8.2956, 0.8334, 3.0194,
+  0.001, 1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629,
+  1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
+];
+const _DECAY = -_W[20];
+const _FACTOR = 0.9 ** (1 / _DECAY) - 1;
+
+function _retrievability(elapsed: number, s: number): number {
+  return (1 + _FACTOR * elapsed / s) ** _DECAY;
+}
+
+function _clamp(v: number, lo = 0.001, hi = 36500): number {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function _initStability(r: number): number {
+  return _clamp(_W[r - 1]);
+}
+
+function _initDifficulty(r: number): number {
+  return Math.max(1, Math.min(10, _W[4] - Math.exp(_W[5] * (r - 1)) + 1));
+}
+
+function _recallStab(s: number, d: number, ret: number, r: number): number {
+  const hp = r === 2 ? _W[15] : 1;
+  const eb = r === 4 ? _W[16] : 1;
+  const delta = Math.exp(_W[8]) * (11 - d) * (s ** (-_W[9]))
+    * (Math.exp((1 - ret) * _W[10]) - 1) * hp * eb;
+  return _clamp(s * (1 + delta));
+}
+
+function _forgetStab(s: number, d: number, ret: number): number {
+  const lt = _W[11] * (d ** (-_W[12])) * ((s + 1) ** _W[13] - 1) * Math.exp((1 - ret) * _W[14]);
+  const st = s / Math.exp(_W[17] * _W[18]);
+  return _clamp(Math.min(lt, st));
+}
+
+function _nextDiff(d: number, r: number): number {
+  const arg1 = _W[4] - Math.exp(_W[5] * 3) + 1;
+  const dd = -_W[6] * (r - 3);
+  const arg2 = d + (10 - d) * dd / 9;
+  const nd = _W[7] * arg1 + (1 - _W[7]) * arg2;
+  return Math.max(1, Math.min(10, nd));
+}
+
+function _shortTermStab(s: number, r: number): number {
+  let inc = Math.exp(_W[17] * (r - 3 + _W[18])) * (s ** (-_W[19]));
+  if (r >= 3) inc = Math.max(inc, 1.0);
+  return _clamp(s * inc);
+}
+
+function _nextInt(s: number): number {
+  return Math.max(1, Math.min(36500, Math.round((s / _FACTOR) * (0.9 ** (1 / _DECAY) - 1))));
+}
+
+function _migrate(card: UserCard): void {
+  if (card.stability !== undefined) return;
+  card.stability = Math.max(1.0, card.interval);
+  card.difficulty = Math.max(1, Math.min(10, 5 + (2.5 - card.easeFactor) * 2));
+  card.lapses = 0;
+  card.state = card.repetitions > 0 ? 'Review' : 'New';
+}
+
+// ── UserCard CRUD ────────────────────────────────
 
 export function addUserCard(
   courseId: string,
@@ -349,6 +415,10 @@ export function addUserCard(
     lastReviewed: null,
     isStarred: false,
     createdAt: new Date().toISOString(),
+    stability: undefined,
+    difficulty: undefined,
+    lapses: 0,
+    state: 'New',
   };
   data.userCards.push(card);
   save(data);
@@ -398,24 +468,57 @@ export function reviewUserCard(id: string, correct: boolean, now?: Date): UserCa
   const data = load();
   const card = data.userCards.find((c) => c.id === id);
   if (!card) return null;
+
+  _migrate(card);
+
   const nowDate = now || new Date();
-  const updated = { ...card };
-  if (correct) {
-    updated.repetitions += 1;
-    if (updated.repetitions === 1) updated.interval = 1;
-    else if (updated.repetitions === 2) updated.interval = 6;
-    else updated.interval = Math.round(updated.interval * updated.easeFactor);
-    updated.easeFactor = Math.max(1.3, updated.easeFactor + 0.1);
-  } else {
-    updated.repetitions = 0;
-    updated.interval = 1;
-    updated.easeFactor = Math.max(1.3, updated.easeFactor - 0.2);
+  const r = correct ? 3 : 1;
+  const state = card.state || 'New';
+
+  let elapsedDays = 0;
+  if (card.lastReviewed) {
+    const lr = new Date(card.lastReviewed);
+    elapsedDays = Math.max(0, Math.floor((nowDate.getTime() - lr.getTime()) / (1000 * 60 * 60 * 24)));
   }
+
+  if (state === 'New') {
+    card.stability = _initStability(r);
+    card.difficulty = _initDifficulty(r);
+    card.lapses = 0;
+    card.state = 'Review';
+  } else if (elapsedDays < 1) {
+    if (r >= 3) {
+      card.stability = _shortTermStab(card.stability!, r);
+    } else {
+      card.stability = _forgetStab(card.stability!, card.difficulty!, 1.0);
+    }
+    card.difficulty = _nextDiff(card.difficulty!, r);
+    if (r < 3) {
+      card.lapses = (card.lapses || 0) + 1;
+      card.state = 'Relearning';
+    }
+  } else if (r >= 3) {
+    const ret = _retrievability(elapsedDays, card.stability!);
+    card.stability = _recallStab(card.stability!, card.difficulty!, ret, r);
+    card.difficulty = _nextDiff(card.difficulty!, r);
+  } else {
+    const ret = _retrievability(elapsedDays, card.stability!);
+    card.lapses = (card.lapses || 0) + 1;
+    card.stability = _forgetStab(card.stability!, card.difficulty!, ret);
+    card.difficulty = _nextDiff(card.difficulty!, r);
+    card.state = 'Relearning';
+  }
+
+  const interval = _nextInt(card.stability!);
+  card.interval = interval;
+  card.easeFactor = Math.round(Math.max(1.3, Math.min(5.0, 2.5 - (card.difficulty! - 5) * 0.15)) * 100) / 100;
+  card.repetitions = r >= 3 ? (card.repetitions || 0) + 1 : 0;
+
   const nextDate = new Date(nowDate);
-  nextDate.setDate(nextDate.getDate() + updated.interval);
-  updated.nextReviewDate = nextDate.toISOString();
-  updated.lastReviewed = nowDate.toISOString();
-  Object.assign(card, updated);
+  nextDate.setDate(nextDate.getDate() + interval);
+  card.nextReviewDate = nextDate.toISOString();
+  card.lastReviewed = nowDate.toISOString();
+
   save(data);
   return card;
 }

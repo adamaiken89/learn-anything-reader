@@ -1,3 +1,4 @@
+import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test } from 'bun:test';
@@ -45,7 +46,11 @@ beforeEach(() => {
     pickerPos: { x: 0, y: 0, selectionTop: 0 },
     selectedHighlightId: null,
   });
-  useLessonViewStore.setState({ courseId: '', moduleId: '' });
+  useLessonViewStore.setState({
+    courseId: '',
+    moduleId: '',
+    contentRef: { current: null } as React.RefObject<HTMLDivElement | null>,
+  });
 });
 
 describe('CardEditor', () => {
@@ -53,10 +58,11 @@ describe('CardEditor', () => {
 
   test('renders with selected text and placeholders', () => {
     setupStore();
-    const { getByText } = render(<CardEditor />);
+    const { getByText, getAllByText } = render(<CardEditor />);
     expect(getByText('Create Card')).toBeInTheDocument();
-    expect(getByText('Front')).toBeInTheDocument();
+    expect(getAllByText('Front')).toHaveLength(2); // tab button + label
     expect(getByText('Back')).toBeInTheDocument();
+    expect(getByText('Cloze Card')).toBeInTheDocument();
   });
 
   test('returns null when showCardEditor is false', () => {

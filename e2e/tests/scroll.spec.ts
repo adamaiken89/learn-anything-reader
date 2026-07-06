@@ -58,6 +58,13 @@ test.describe('Scroll behavior', () => {
   test('scroll position persists after StudyTools toggle', async ({ page }) => {
     await navigateToLesson(page);
 
+    // Scroll first, then toggle tools
+    await page.evaluate(() => {
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
+      if (scroller) scroller.scrollTop = 500;
+    });
+    await page.waitForTimeout(300);
+
     const toggleBtn = page.locator(
       'button:has-text("Tools"), button[aria-label="Toggle tools"], [data-testid="toggle-tools"]'
     );

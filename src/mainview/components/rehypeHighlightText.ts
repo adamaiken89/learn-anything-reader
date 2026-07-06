@@ -7,7 +7,7 @@ export type HastElement = {
   properties?: Record<string, string>;
   children: HastNode[];
 };
-export type HastRoot = { type: 'root'; children: HastNode[] };
+export type HastRoot = { type: 'root'; children: HastNode[]; [key: string]: unknown };
 export type HastNode = HastText | HastElement | HastRoot | { type: string; [key: string]: unknown };
 
 export const HIGHLIGHT_COLORS: Record<string, string> = {

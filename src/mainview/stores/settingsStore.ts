@@ -7,6 +7,7 @@ import { getStored, store } from './storageUtils';
 
 export type ContentWidth = 'narrow' | 'standard' | 'wide';
 export type TransitionStyle = 'none' | 'flip' | 'slide' | 'fade';
+export type ReadingMode = 'normal' | 'active';
 
 interface SettingsState {
   fontSize: number;
@@ -17,6 +18,7 @@ interface SettingsState {
   focusMode: boolean;
   locale: string;
   transitionStyle: TransitionStyle;
+  readingMode: ReadingMode;
   incFontSize: () => void;
   decFontSize: () => void;
   setFontSize: (v: number) => void;
@@ -28,6 +30,7 @@ interface SettingsState {
   toggleFocusMode: () => void;
   setLocale: (l: string) => void;
   setTransitionStyle: (v: TransitionStyle) => void;
+  setReadingMode: (v: ReadingMode) => void;
 }
 
 const migrateWidth = (): ContentWidth => {
@@ -47,6 +50,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   focusMode: getStored<boolean>('coursereader-focus', false),
   locale: getStored<string>('coursereader-locale', 'en-US'),
   transitionStyle: getStored<TransitionStyle>('coursereader-transition', 'none'),
+  readingMode: getStored<ReadingMode>('coursereader-reading-mode', 'normal'),
   hasApiKey: false,
 
   incFontSize: () =>
@@ -111,5 +115,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setTransitionStyle: (v) => {
     store('coursereader-transition', v);
     set({ transitionStyle: v });
+  },
+
+  setReadingMode: (v) => {
+    store('coursereader-reading-mode', v);
+    set({ readingMode: v });
   },
 }));

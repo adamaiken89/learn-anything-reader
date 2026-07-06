@@ -24,8 +24,9 @@ test.describe('Layout invariants', () => {
     await page.waitForTimeout(600);
 
     const hasOverflow = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto');
-      return !!scroller;
+      const scroller = document.querySelector('[data-testid="lesson-content"]');
+      if (!scroller) return false;
+      return scroller.className.includes('overflow-y-auto');
     });
 
     expect(hasOverflow).toBe(true);
@@ -40,7 +41,7 @@ test.describe('Layout invariants', () => {
     await page.waitForTimeout(600);
 
     const overflows = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       if (!scroller) return false;
       return scroller.scrollHeight > scroller.clientHeight + 10;
     });
@@ -57,7 +58,7 @@ test.describe('Layout invariants', () => {
     await page.waitForTimeout(600);
 
     const result = await page.evaluate(() => {
-      const scroller = document.querySelector('.overflow-y-auto') as HTMLElement;
+      const scroller = document.querySelector('[data-testid="lesson-content"]') as HTMLElement;
       if (!scroller) return 'no-scroller';
       scroller.scrollTop = 200;
       return scroller.scrollTop === 200 ? 'ok' : `got-${scroller.scrollTop}`;
