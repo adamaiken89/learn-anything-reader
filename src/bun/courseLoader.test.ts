@@ -114,6 +114,38 @@ describe('parseQuiz', () => {
   test('returns empty array for empty input', () => {
     expect(parseQuiz('')).toEqual([]);
   });
+
+  test('parses cloze type from quiz YAML', () => {
+    const yaml = `
+- id: 1
+  type: cloze
+  question: "The ___ process removes duplicates."
+  answer: "deduplication"
+  explanation: "Deduplication removes duplicate records."
+  difficulty: 2
+  tags:
+    - data
+`;
+    const result = parseQuiz(yaml);
+    expect(result[0].type).toBe('cloze');
+    expect(result[0].options).toEqual({});
+  });
+
+  test('defaults to undefined type for standard questions', () => {
+    const yaml = `
+- id: 1
+  question: "What is X?"
+  options:
+    a: "A"
+    b: "B"
+  answer: "a"
+  explanation: "Because"
+  difficulty: 1
+  tags: []
+`;
+    const result = parseQuiz(yaml);
+    expect(result[0].type).toBeUndefined();
+  });
 });
 
 describe('parseSections', () => {

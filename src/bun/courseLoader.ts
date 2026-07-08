@@ -49,6 +49,7 @@ export function parseQuiz(yamlStr: string): QuizQuestion[] {
 
   return raw.map((q) => ({
     id: String(q.id || ''),
+    type: (q.type === 'cloze' ? 'cloze' : undefined) as 'cloze' | undefined,
     question: String(q.question || ''),
     options: (q.options as Record<string, string>) || {},
     answer: String(q.answer || ''),

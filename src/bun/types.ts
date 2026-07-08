@@ -20,6 +20,7 @@ export interface Course {
 
 export interface QuizQuestion {
   id: string;
+  type?: 'multiple-choice' | 'cloze';
   question: string;
   options: Record<string, string>;
   answer: string;
