@@ -25,7 +25,7 @@ src/
 │   │   ├── lesson/       # LessonToolbar, SectionsPanel, SelectionToolbar, NoteEditor, CardEditor, ColorPickerRow, NotePopover, ViewerSearch
 │   │   ├── study-tools/  # NotesHighlightsTab, BookmarksTab, CardsTab, AITab
 │   │   ├── ui/           # Button, StatCard
-│   │   └── ...           # BackToCourseList, CourseSwitcher, ModuleSwitcher, ErrorBoundary, MermaidDiagram, SearchOverlay, StudyTools, PomodoroTimer
+│   │   └── ...           # CourseSwitcher, ModuleSwitcher, ErrorBoundary, MermaidDiagram, SearchOverlay, StudyTools, PomodoroTimer
 │   ├── hooks/            # useBookmarks, useHighlights, useLesson, useQuizEngine, useReviewState, useCardReviewState, useLessonNav, useLessonSearch, useNotes, useSelection, useShortcuts, useCourseListPage, useLessonSection, useSettingsPage
 │   └── stores/           # Zustand: viewStore, courseStore, settingsStore, pomodoroStore, bookmarksStore, completionStore, highlightsStore, lessonUIStore, notesStore, syncStore
 ├── types/                # Ambient declarations (js-yaml, three, jest-dom)
@@ -62,19 +62,24 @@ src/
 
 ## Course data model
 
-Subjects in `subjects/<dir>/`. Dir name → `Subject.id`. Each subject:
+Subjects in `.coursereader/subjects/<dir>/` (dev: `src/subjects/`). Dir name → `Subject.id`. Each subject:
 
 - `syllabus.yaml`
 - `modules/<NN-name>/lesson.md`
 - `modules/<NN-name>/quiz.yaml`
-- `srs/deck.json` (SM-2 SRS)
+- `srs/deck.json` (FSRS-5 SRS)
 
 Module dir matching: `findModuleDir` scans `modules/<id>/` for `NN-` prefix.
 
+Subjects path resolution (`src/bun/utils.ts` `findSubjectsDir`):
+1. `src/bun/subjects/` (dev, adjacent to source)
+2. `src/subjects/` (dev, one level up)
+3. `~/.coursereader/subjects/` (production fallback)
+
 ## Data persistence
 
-- Subjects/lessons/quizzes: file I/O from `subjects/` tree
-- SRS decks: `subjects/<id>/srs/deck.json`
+- Subjects/lessons/quizzes: file I/O from `.coursereader/subjects/` tree
+- SRS decks: `.coursereader/subjects/<id>/srs/deck.json`
 - Highlights, notes, bookmarks, user cards, completion: `~/.coursereader/data.json`
 - Gemini API key: `~/.coursereader/prefs.json`
 - Logs: `~/.coursereader/logs/<YYYY-MM-DD>.log`

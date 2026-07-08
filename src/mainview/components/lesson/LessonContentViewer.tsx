@@ -106,7 +106,9 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
                 ...lessonComponents,
                 span: ({ className, ...props }) => {
                   if (className?.includes('cloze-blank')) {
-                    return <ClozeBlank answer={(props as Record<string, string>).dataAnswer || ''} />;
+                    return (
+                      <ClozeBlank answer={(props as Record<string, string>).dataAnswer || ''} />
+                    );
                   }
                   return <span className={className} {...props} />;
                 },

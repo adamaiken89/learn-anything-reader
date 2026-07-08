@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { answerVariants } from '../components/ui';
@@ -135,8 +135,7 @@ export default function QuizSection({ courseId, moduleId }: Props) {
             </div>
             {hasAnswer && (
               <div className="mt-3">
-                {textInput.trim().toLowerCase() ===
-                currentQuestion.answer.trim().toLowerCase() ? (
+                {textInput.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase() ? (
                   <p className="text-emerald-400 text-sm">✓ Correct!</p>
                 ) : (
                   <p className="text-red-400 text-sm">
