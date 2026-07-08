@@ -330,15 +330,14 @@ function yesterday(): string {
 // ── FSRS-5 helpers (shared with srs.ts) ─────────────────────────
 
 const _W = [
-  0.212, 1.2931, 2.3065, 8.2956, 8.2956, 0.8334, 3.0194,
-  0.001, 1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629,
-  1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
+  0.212, 1.2931, 2.3065, 8.2956, 8.2956, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796, 1.4835,
+  0.0614, 0.2629, 1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
 ];
 const _DECAY = -_W[20];
 const _FACTOR = 0.9 ** (1 / _DECAY) - 1;
 
 function _retrievability(elapsed: number, s: number): number {
-  return (1 + _FACTOR * elapsed / s) ** _DECAY;
+  return (1 + (_FACTOR * elapsed) / s) ** _DECAY;
 }
 
 function _clamp(v: number, lo = 0.001, hi = 36500): number {
@@ -356,13 +355,13 @@ function _initDifficulty(r: number): number {
 function _recallStab(s: number, d: number, ret: number, r: number): number {
   const hp = r === 2 ? _W[15] : 1;
   const eb = r === 4 ? _W[16] : 1;
-  const delta = Math.exp(_W[8]) * (11 - d) * (s ** (-_W[9]))
-    * (Math.exp((1 - ret) * _W[10]) - 1) * hp * eb;
+  const delta =
+    Math.exp(_W[8]) * (11 - d) * s ** -_W[9] * (Math.exp((1 - ret) * _W[10]) - 1) * hp * eb;
   return _clamp(s * (1 + delta));
 }
 
 function _forgetStab(s: number, d: number, ret: number): number {
-  const lt = _W[11] * (d ** (-_W[12])) * ((s + 1) ** _W[13] - 1) * Math.exp((1 - ret) * _W[14]);
+  const lt = _W[11] * d ** -_W[12] * ((s + 1) ** _W[13] - 1) * Math.exp((1 - ret) * _W[14]);
   const st = s / Math.exp(_W[17] * _W[18]);
   return _clamp(Math.min(lt, st));
 }
@@ -370,13 +369,13 @@ function _forgetStab(s: number, d: number, ret: number): number {
 function _nextDiff(d: number, r: number): number {
   const arg1 = _W[4] - Math.exp(_W[5] * 3) + 1;
   const dd = -_W[6] * (r - 3);
-  const arg2 = d + (10 - d) * dd / 9;
+  const arg2 = d + ((10 - d) * dd) / 9;
   const nd = _W[7] * arg1 + (1 - _W[7]) * arg2;
   return Math.max(1, Math.min(10, nd));
 }
 
 function _shortTermStab(s: number, r: number): number {
-  let inc = Math.exp(_W[17] * (r - 3 + _W[18])) * (s ** (-_W[19]));
+  let inc = Math.exp(_W[17] * (r - 3 + _W[18])) * s ** -_W[19];
   if (r >= 3) inc = Math.max(inc, 1.0);
   return _clamp(s * inc);
 }
@@ -478,7 +477,10 @@ export function reviewUserCard(id: string, correct: boolean, now?: Date): UserCa
   let elapsedDays = 0;
   if (card.lastReviewed) {
     const lr = new Date(card.lastReviewed);
-    elapsedDays = Math.max(0, Math.floor((nowDate.getTime() - lr.getTime()) / (1000 * 60 * 60 * 24)));
+    elapsedDays = Math.max(
+      0,
+      Math.floor((nowDate.getTime() - lr.getTime()) / (1000 * 60 * 60 * 24)),
+    );
   }
 
   if (state === 'New') {
@@ -511,7 +513,8 @@ export function reviewUserCard(id: string, correct: boolean, now?: Date): UserCa
 
   const interval = _nextInt(card.stability!);
   card.interval = interval;
-  card.easeFactor = Math.round(Math.max(1.3, Math.min(5.0, 2.5 - (card.difficulty! - 5) * 0.15)) * 100) / 100;
+  card.easeFactor =
+    Math.round(Math.max(1.3, Math.min(5.0, 2.5 - (card.difficulty! - 5) * 0.15)) * 100) / 100;
   card.repetitions = r >= 3 ? (card.repetitions || 0) + 1 : 0;
 
   const nextDate = new Date(nowDate);

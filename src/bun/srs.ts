@@ -2,9 +2,8 @@ import type { SRSCard, SRSDeck, QuizQuestion } from './types';
 
 // FSRS-5 default parameters (21 params, from py-fsrs v6)
 const W = [
-  0.212, 1.2931, 2.3065, 8.2956, 8.2956, 0.8334, 3.0194,
-  0.001, 1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629,
-  1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
+  0.212, 1.2931, 2.3065, 8.2956, 8.2956, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796, 1.4835,
+  0.0614, 0.2629, 1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
 ];
 
 const DECAY = -W[20];
@@ -16,7 +15,7 @@ function clamp(v: number, lo = 0.001, hi = MAX_INTERVAL): number {
 }
 
 function retrievability(elapsedDays: number, stability: number): number {
-  return (1 + FACTOR * elapsedDays / stability) ** DECAY;
+  return (1 + (FACTOR * elapsedDays) / stability) ** DECAY;
 }
 
 function initStability(rating: number): number {
@@ -29,13 +28,13 @@ function initDifficulty(rating: number): number {
 }
 
 function shortTermStability(stability: number, rating: number): number {
-  let increase = Math.exp(W[17] * (rating - 3 + W[18])) * (stability ** (-W[19]));
+  let increase = Math.exp(W[17] * (rating - 3 + W[18])) * stability ** -W[19];
   if (rating >= 3) increase = Math.max(increase, 1.0);
   return clamp(stability * increase);
 }
 
 function linearDamping(deltaD: number, d: number): number {
-  return (10 - d) * deltaD / 9;
+  return ((10 - d) * deltaD) / 9;
 }
 
 function meanReversion(arg1: number, arg2: number): number {
@@ -50,25 +49,33 @@ function nextDifficulty(difficulty: number, rating: number): number {
   return Math.max(1, Math.min(10, nd));
 }
 
-function nextRecallStability(difficulty: number, stability: number, retriev: number, rating: number): number {
+function nextRecallStability(
+  difficulty: number,
+  stability: number,
+  retriev: number,
+  rating: number,
+): number {
   const hardPenalty = rating === 2 ? W[15] : 1;
   const easyBonus = rating === 4 ? W[16] : 1;
-  const delta = Math.exp(W[8]) * (11 - difficulty) * (stability ** (-W[9]))
-    * (Math.exp((1 - retriev) * W[10]) - 1)
-    * hardPenalty * easyBonus;
+  const delta =
+    Math.exp(W[8]) *
+    (11 - difficulty) *
+    stability ** -W[9] *
+    (Math.exp((1 - retriev) * W[10]) - 1) *
+    hardPenalty *
+    easyBonus;
   return clamp(stability * (1 + delta));
 }
 
 function nextForgetStability(difficulty: number, stability: number, retriev: number): number {
-  const longTerm = W[11] * (difficulty ** (-W[12]))
-    * ((stability + 1) ** W[13] - 1)
-    * Math.exp((1 - retriev) * W[14]);
+  const longTerm =
+    W[11] * difficulty ** -W[12] * ((stability + 1) ** W[13] - 1) * Math.exp((1 - retriev) * W[14]);
   const shortTerm = stability / Math.exp(W[17] * W[18]);
   return clamp(Math.min(longTerm, shortTerm));
 }
 
 function nextInterval(stability: number): number {
-  const interval = (stability / FACTOR) * ((0.9 ** (1 / DECAY)) - 1);
+  const interval = (stability / FACTOR) * (0.9 ** (1 / DECAY) - 1);
   return Math.max(1, Math.min(MAX_INTERVAL, Math.round(interval)));
 }
 
@@ -151,7 +158,10 @@ export function performReview(card: SRSCard, correct: boolean, now?: Date): SRSC
   let elapsedDays = 0;
   if (updated.lastReviewed) {
     const lr = new Date(updated.lastReviewed);
-    elapsedDays = Math.max(0, Math.floor((nowDate.getTime() - lr.getTime()) / (1000 * 60 * 60 * 24)));
+    elapsedDays = Math.max(
+      0,
+      Math.floor((nowDate.getTime() - lr.getTime()) / (1000 * 60 * 60 * 24)),
+    );
   }
 
   if (state === 'New') {
@@ -185,7 +195,8 @@ export function performReview(card: SRSCard, correct: boolean, now?: Date): SRSC
 
   const interval = nextInterval(updated.stability!);
   updated.interval = interval;
-  updated.easeFactor = Math.round(Math.max(1.3, Math.min(5.0, 2.5 - (updated.difficulty! - 5) * 0.15)) * 100) / 100;
+  updated.easeFactor =
+    Math.round(Math.max(1.3, Math.min(5.0, 2.5 - (updated.difficulty! - 5) * 0.15)) * 100) / 100;
   updated.repetitions = r >= 3 ? (updated.repetitions || 0) + 1 : 0;
 
   const nextDate = new Date(nowDate);

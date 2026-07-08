@@ -30,9 +30,9 @@ describe('PageHeader', () => {
     expect(getByText('Go Back')).toBeInTheDocument();
   });
 
-  test('renders CourseReader button', () => {
-    const { getByText } = render(<PageHeader />);
-    expect(getByText('CourseReader')).toBeInTheDocument();
+  test('renders no back button when onBack not provided', () => {
+    const { queryByText } = render(<PageHeader />);
+    expect(queryByText('← Back')).toBeNull();
   });
 
   test('renders bookmarks and settings buttons when no actions and not hidden', () => {
@@ -135,7 +135,6 @@ describe('PageHeader', () => {
     >);
     const { queryByText } = render(<PageHeader title="Should Hide" />);
     expect(queryByText('Should Hide')).toBeNull();
-    expect(queryByText('CourseReader')).toBeNull();
   });
 
   test('still shows toolbar in focus mode', () => {

@@ -165,6 +165,7 @@ export type AppRequests = CourseRequests &
   UserCardRequests & {
     clearAllData: { params: void; response: { ok: true } };
     clearLogs: { params: void; response: { ok: true } };
+    setWindowTitle: { params: { title: string }; response: { ok: true } };
   };
 
 export type AppSchema = {

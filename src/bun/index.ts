@@ -202,9 +202,16 @@ const rpc = BrowserView.defineRPC<AppSchema>({
       reviewUserCard: ({ id, correct }) => Storage.reviewUserCard(id, correct),
 
       toggleUserCardStar: ({ id }) => Storage.toggleUserCardStar(id),
+
+      setWindowTitle: async ({ title }) => {
+        mainWindow?.setTitle(title);
+        return { ok: true as const };
+      },
     },
   },
 });
+
+let mainWindow: BrowserWindow | null = null;
 
 async function getMainViewUrl(): Promise<string> {
   const channel = await Updater.localInfo.channel();
@@ -222,7 +229,7 @@ async function getMainViewUrl(): Promise<string> {
 
 try {
   const mainViewUrl = await getMainViewUrl();
-  new BrowserWindow({
+  mainWindow = new BrowserWindow({
     title: 'CourseReader',
     url: mainViewUrl,
     rpc,

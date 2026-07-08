@@ -16,6 +16,7 @@ interface Props {
 export default function ModuleListPage({ course }: Props) {
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
+  const replace = useViewStore((s) => s.replace);
   const loadModules = useCompletionStore((s) => s.loadModules);
 
   useEffect(() => {
@@ -27,6 +28,8 @@ export default function ModuleListPage({ course }: Props) {
   return (
     <PageLayout>
       <PageHeader
+        onBack={() => replace({ type: 'courseList' })}
+        backLabel={t('common.courses')}
         center={
           <CourseSwitcher
             currentCourseId={course.id}

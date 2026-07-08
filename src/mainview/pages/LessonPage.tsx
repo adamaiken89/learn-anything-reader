@@ -65,7 +65,6 @@ export default function LessonPage({
     <PageLayout>
       <PageHeader
         onBack={onBack}
-        backLabel={course.displayName}
         center={
           <ModuleSwitcher
             modules={course.modules}

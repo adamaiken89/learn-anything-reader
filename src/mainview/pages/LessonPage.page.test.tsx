@@ -83,12 +83,12 @@ describe('LessonPage', () => {
         }}
       />,
     );
-    getByText('Intro to CS').click();
+    getByText('← Back').click();
     expect(called).toBe(true);
   });
 
-  test('passes course displayName as backLabel', async () => {
+  test('renders back button', async () => {
     const { getByText } = await renderAndSettle(ui);
-    expect(getByText('Intro to CS')).toBeInTheDocument();
+    expect(getByText('← Back')).toBeInTheDocument();
   });
 });

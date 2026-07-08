@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import BackToCourseList from '../components/BackToCourseList';
 import { useSettingsStore } from '../stores/settingsStore';
 import { useViewStore } from '../stores/viewStore';
 
@@ -37,8 +36,6 @@ export default function PageHeader({
       {!focusMode && (
         <div className="px-4 py-2 flex items-center gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <BackToCourseList />
-            <div className="h-4 w-px bg-gray-600" />
             {onBack && (
               <>
                 <button

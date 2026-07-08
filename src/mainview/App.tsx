@@ -6,6 +6,7 @@ import SearchFab from './components/SearchFab';
 import SearchOverlay from './components/SearchOverlay';
 import { useAppInit } from './hooks/useAppInit';
 import { useShortcuts } from './hooks/useShortcuts';
+import { useWindowTitle } from './hooks/useWindowTitle';
 import BookmarksPage from './pages/BookmarksPage';
 import CourseListPage from './pages/CourseListPage';
 import DashboardPage from './pages/DashboardPage';
@@ -28,6 +29,7 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useAppInit();
+  useWindowTitle();
 
   useEffect(() => {
     if (currentView) {

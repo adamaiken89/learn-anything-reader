@@ -279,14 +279,31 @@ describe('performReview', () => {
   });
 
   test('correct answer: second review grows interval', () => {
-    const card = { ...baseCard, lastReviewed: '2024-06-15T12:00:00.000Z', repetitions: 1, interval: 2, stability: 2.5, difficulty: 5, state: 'Review' as const };
+    const card = {
+      ...baseCard,
+      lastReviewed: '2024-06-15T12:00:00.000Z',
+      repetitions: 1,
+      interval: 2,
+      stability: 2.5,
+      difficulty: 5,
+      state: 'Review' as const,
+    };
     const result = performReview(card, true, nextDay);
     expect(result.repetitions).toBe(2);
     expect(result.interval).toBeGreaterThanOrEqual(card.interval);
   });
 
   test('incorrect answer: drops stability, increments lapses', () => {
-    const card = { ...baseCard, lastReviewed: '2024-06-15T12:00:00.000Z', repetitions: 5, interval: 30, stability: 20, difficulty: 4, state: 'Review' as const, lapses: 0 };
+    const card = {
+      ...baseCard,
+      lastReviewed: '2024-06-15T12:00:00.000Z',
+      repetitions: 5,
+      interval: 30,
+      stability: 20,
+      difficulty: 4,
+      state: 'Review' as const,
+      lapses: 0,
+    };
     const result = performReview(card, false, nextDay);
     expect(result.repetitions).toBe(0);
     expect(result.interval).toBeLessThan(card.interval);
@@ -296,7 +313,13 @@ describe('performReview', () => {
   });
 
   test('ease factor stays >= 1.3', () => {
-    const card = { ...baseCard, lastReviewed: '2024-06-15T12:00:00.000Z', stability: 10, difficulty: 9, state: 'Review' as const };
+    const card = {
+      ...baseCard,
+      lastReviewed: '2024-06-15T12:00:00.000Z',
+      stability: 10,
+      difficulty: 9,
+      state: 'Review' as const,
+    };
     const result = performReview(card, false, nextDay);
     expect(result.easeFactor).toBeGreaterThanOrEqual(1.3);
   });

@@ -157,4 +157,7 @@ export const api = {
     start: (force?: boolean) => request(() => _rpcRequest.syncStart({ force })),
     setURL: (url: string) => request(() => _rpcRequest.syncSetURL({ remoteRepoURL: url })),
   },
+  window: {
+    setTitle: (title: string) => request(() => _rpcRequest.setWindowTitle({ title })),
+  },
 };

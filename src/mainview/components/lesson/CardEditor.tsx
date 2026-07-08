@@ -106,7 +106,9 @@ export default function CardEditor() {
         autoFocus
       />
       <label className="text-[10px] text-gray-400 block mb-0.5">
-        {clozeMode ? `${t('userCardReview.back')} (auto-filled from context)` : t('userCardReview.back')}
+        {clozeMode
+          ? `${t('userCardReview.back')} (auto-filled from context)`
+          : t('userCardReview.back')}
       </label>
       <textarea
         value={back}

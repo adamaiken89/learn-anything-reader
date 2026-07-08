@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+
 import { rehypeCloze } from './rehypeCloze';
-import type { HastNode, HastElement, HastRoot } from './rehypeHighlightText';
+import type { HastElement, HastNode, HastRoot } from './rehypeHighlightText';
 
 function h(tagName: string, children: HastNode[], props?: Record<string, string>): HastElement {
   return { type: 'element' as const, tagName, properties: props, children };
@@ -22,13 +23,11 @@ describe('rehypeCloze', () => {
     const span = p.children[0] as HastElement;
     // walkAndTransformCloze wraps text node in span
     expect(span.tagName).toBe('span');
-    const innerSpan = (span.children?.find(
-      (c) => (c as HastElement).tagName === 'span',
-    ) ?? span.children?.[0]) as HastElement;
+    const innerSpan = (span.children?.find((c) => (c as HastElement).tagName === 'span') ??
+      span.children?.[0]) as HastElement;
     // Check that at least one inner element is cloze-blank
     const clozeEl = innerSpan?.children?.find(
-      (c) =>
-        (c as HastElement).properties?.className === 'cloze-blank',
+      (c) => (c as HastElement).properties?.className === 'cloze-blank',
     ) as HastElement;
     if (clozeEl) {
       expect(clozeEl.properties?.dataAnswer).toBe('discount');
@@ -96,9 +95,7 @@ describe('rehypeCloze', () => {
   });
 
   test('skips non-interactive blockquotes', () => {
-    const bq = h('blockquote', [
-      h('p', [h('strong', [text('Note')]), text(': Regular note')]),
-    ]);
+    const bq = h('blockquote', [h('p', [h('strong', [text('Note')]), text(': Regular note')])]);
     const tree = root([bq]);
     rehypeCloze()(tree);
     const first = tree.children[0] as HastElement;
@@ -117,9 +114,7 @@ describe('rehypeCloze', () => {
     rehypeCloze({ active: false })(tree);
     const p = tree.children[0] as HastElement;
     // Should remain unchanged: text nodes not wrapped
-    const hasClozeSpan = p.children?.some(
-      (c) => (c as HastElement).tagName === 'span',
-    );
+    const hasClozeSpan = p.children?.some((c) => (c as HastElement).tagName === 'span');
     expect(hasClozeSpan).toBe(false);
   });
 

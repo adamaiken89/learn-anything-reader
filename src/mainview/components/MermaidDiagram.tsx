@@ -55,22 +55,12 @@ export default function MermaidDiagram({ code, isDark, bg }: Props) {
         dangerouslySetInnerHTML={{ __html: svg }}
         onClick={() => setShowOverlay(true)}
       />
-      {showOverlay && (
-        <MermaidOverlay svg={svg} bg={bg} onClose={() => setShowOverlay(false)} />
-      )}
+      {showOverlay && <MermaidOverlay svg={svg} bg={bg} onClose={() => setShowOverlay(false)} />}
     </>
   );
 }
 
-function MermaidOverlay({
-  svg,
-  bg,
-  onClose,
-}: {
-  svg: string;
-  bg?: string;
-  onClose: () => void;
-}) {
+function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClose: () => void }) {
   const [zoom, setZoom] = useState(1);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -176,10 +166,7 @@ function MermaidOverlay({
             ✕
           </button>
         </div>
-        <div
-          ref={contentRef}
-          className="overflow-auto flex-1 bg-gray-900 p-6"
-        >
+        <div ref={contentRef} className="overflow-auto flex-1 bg-gray-900 p-6">
           <div
             style={{ width: `${zoom * 100}%`, maxWidth: 'none', margin: '0 auto' }}
             dangerouslySetInnerHTML={{ __html: svg }}

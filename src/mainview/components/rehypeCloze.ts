@@ -41,7 +41,7 @@ function transformClozeText(text: string): HastNode[] {
       properties: {
         className: 'cloze-blank',
         dataAnswer: match[1],
-        onClick: 'this.classList.toggle(\'revealed\')',
+        onClick: "this.classList.toggle('revealed')",
       },
       children: [{ type: 'text', value: '[?]' }],
     });
@@ -83,7 +83,7 @@ function wrapInteractiveBlock(bq: HastElement): HastElement {
 
   // Find answer line (the last <p> with <em>Answer</em> or first <p> with <em>Answer</em>)
   let answerNode: HastNode | null = null;
-  let contentNodes: HastNode[] = [];
+  const contentNodes: HastNode[] = [];
   let foundAnswer = false;
   for (const c of bq.children) {
     if (c.type === 'element' && (c as HastElement).tagName === 'p') {
@@ -93,7 +93,10 @@ function wrapInteractiveBlock(bq: HastElement): HastElement {
       );
       if (strong) {
         const emText = (strong as HastElement).children?.[0];
-        if (emText?.type === 'text' && (emText as { value: string }).value.toLowerCase() === 'answer') {
+        if (
+          emText?.type === 'text' &&
+          (emText as { value: string }).value.toLowerCase() === 'answer'
+        ) {
           answerNode = c;
           foundAnswer = true;
           continue;

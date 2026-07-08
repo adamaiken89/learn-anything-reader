@@ -217,11 +217,7 @@ describe('performReview (FSRS-5)', () => {
     const r1 = performReview(card, true, now);
     // Simulate next-day long-term review
     const nextDay = new Date('2024-06-16T12:00:00Z');
-    const r2 = performReview(
-      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
-      true,
-      nextDay,
-    );
+    const r2 = performReview({ ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' }, true, nextDay);
     expect(r2.stability).toBeGreaterThan(r1.stability!);
   });
 
@@ -229,11 +225,7 @@ describe('performReview (FSRS-5)', () => {
     const card = makeReviewCard({ id: 'a' });
     const r1 = performReview(card, true, now);
     const nextDay = new Date('2024-06-16T12:00:00Z');
-    const r2 = performReview(
-      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
-      false,
-      nextDay,
-    );
+    const r2 = performReview({ ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' }, false, nextDay);
     expect(r2.stability).toBeLessThan(r1.stability!);
     expect(r2.lapses).toBeGreaterThanOrEqual(1);
     expect(r2.state).toBe('Relearning');
@@ -280,11 +272,7 @@ describe('performReview (FSRS-5)', () => {
     const card = makeReviewCard({ id: 'a' });
     const r1 = performReview(card, true, now);
     const later = new Date('2024-07-01T12:00:00Z'); // 16 days later
-    const r2 = performReview(
-      { ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' },
-      false,
-      later,
-    );
+    const r2 = performReview({ ...r1, lastReviewed: '2024-06-15T12:00:00.000Z' }, false, later);
     expect(r2.state).toBe('Relearning');
     expect(r2.lapses).toBeGreaterThanOrEqual(1);
   });
@@ -302,11 +290,7 @@ describe('performReview (FSRS-5)', () => {
     const intervals: number[] = [card.interval];
     for (let i = 0; i < 5; i++) {
       const d = new Date(`2024-06-${16 + i}T12:00:00Z`);
-      card = performReview(
-        { ...card, lastReviewed: `2024-06-${15 + i}T12:00:00.000Z` },
-        true,
-        d,
-      );
+      card = performReview({ ...card, lastReviewed: `2024-06-${15 + i}T12:00:00.000Z` }, true, d);
       intervals.push(card.interval);
     }
     for (let i = 1; i < intervals.length; i++) {
