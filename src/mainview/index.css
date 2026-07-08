@@ -525,11 +525,23 @@ body {
   display: flex;
   justify-content: center;
   margin: 1.5rem 0;
-  overflow-x: auto;
+  padding: 0.5rem 0;
+  overflow: auto;
+  max-height: 80vh;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.mermaid-diagram:hover {
+  opacity: 0.85;
 }
 .mermaid-diagram svg {
-  max-width: 100%;
+  max-width: none;
   height: auto;
+  overflow: visible;
+}
+.mermaid-diagram svg p,
+.mermaid-diagram svg span {
+  line-height: 1.35;
 }
 .mermaid-error {
   color: #ef4444;

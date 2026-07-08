@@ -347,5 +347,9 @@
     "syncFailed": "同步失敗",
     "aiFailed": "AI 請求失敗",
     "clipboardFailed": "剪貼簿存取被拒絕"
+  },
+  "mermaid": {
+    "expand": "點擊展開",
+    "downloadPng": "下載 PNG"
   }
 }

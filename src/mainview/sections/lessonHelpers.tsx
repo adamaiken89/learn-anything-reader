@@ -3,6 +3,20 @@ import { useTranslation } from 'react-i18next';
 
 import { headingId } from '../../bun/lessonMarkdown';
 import MermaidDiagram from '../components/MermaidDiagram';
+import { useSettingsStore } from '../stores/settingsStore';
+import { isThemeDark, THEME_TOKENS } from '../themes';
+
+function MermaidCode({ children }: { children?: React.ReactNode }) {
+  const theme = useSettingsStore((s) => s.theme);
+  const code = typeof children === 'string' ? children : String(children);
+  return (
+    <MermaidDiagram
+      code={code.replace(/\n$/, '')}
+      isDark={isThemeDark(theme)}
+      bg={THEME_TOKENS[theme].bg}
+    />
+  );
+}
 
 function CodeBlockWithCopy({ children }: { children?: React.ReactNode }) {
   const { t } = useTranslation();
@@ -67,8 +81,7 @@ export const components = {
   ),
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => {
     if (className?.includes('language-mermaid')) {
-      const code = typeof children === 'string' ? children : String(children);
-      return <MermaidDiagram code={code.replace(/\n$/, '')} />;
+      return <MermaidCode>{children}</MermaidCode>;
     }
     return <code className={className}>{children}</code>;
   },

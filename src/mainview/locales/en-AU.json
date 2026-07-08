@@ -347,5 +347,9 @@
     "syncFailed": "Sync failed",
     "aiFailed": "AI request failed",
     "clipboardFailed": "Clipboard access denied"
+  },
+  "mermaid": {
+    "expand": "Click to expand",
+    "downloadPng": "Download PNG"
   }
 }

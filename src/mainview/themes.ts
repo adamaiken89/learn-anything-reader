@@ -19,6 +19,7 @@ export type Theme =
   | 'night-owl';
 
 export interface ThemeTokens {
+  isDark: boolean;
   bg: string;
   text: string;
   h1: string;
@@ -64,6 +65,7 @@ export interface ThemeTokens {
 
 export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   dark: {
+    isDark: true,
     bg: 'transparent',
     text: '#e2dcd3',
     h1: '#f0e6d0',
@@ -108,6 +110,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   sepia: {
+    isDark: false,
     bg: '#fbf0d9',
     text: '#5f4b32',
     h1: '#3d2b1a',
@@ -152,6 +155,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   light: {
+    isDark: false,
     bg: '#ffffff',
     text: '#374151',
     h1: '#111827',
@@ -196,6 +200,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   oled: {
+    isDark: true,
     bg: '#000000',
     text: '#e0e0e0',
     h1: '#ffffff',
@@ -240,6 +245,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   nord: {
+    isDark: true,
     bg: '#2e3440',
     text: '#d8dee9',
     h1: '#eceff4',
@@ -284,6 +290,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   gruvbox: {
+    isDark: true,
     bg: '#282828',
     text: '#ebdbb2',
     h1: '#fbf1c7',
@@ -328,6 +335,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   'solarized-dark': {
+    isDark: true,
     bg: '#002b36',
     text: '#839496',
     h1: '#93a1a1',
@@ -372,6 +380,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   catppuccin: {
+    isDark: true,
     bg: '#1e1e2e',
     text: '#cdd6f4',
     h1: '#f5e0dc',
@@ -416,6 +425,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   dracula: {
+    isDark: true,
     bg: '#282a36',
     text: '#f8f8f2',
     h1: '#ff79c6',
@@ -460,6 +470,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   'tokyo-night': {
+    isDark: true,
     bg: '#1a1b26',
     text: '#a9b1d6',
     h1: '#c0caf5',
@@ -504,6 +515,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   'rose-pine': {
+    isDark: true,
     bg: '#1f1d2e',
     text: '#e0def4',
     h1: '#eb6f92',
@@ -548,6 +560,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   everforest: {
+    isDark: true,
     bg: '#2d353b',
     text: '#d3c6aa',
     h1: '#e69875',
@@ -592,6 +605,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   notebook: {
+    isDark: false,
     bg: '#faf8f5',
     text: '#3d3d3d',
     h1: '#1a1a1a',
@@ -636,6 +650,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   'one-dark': {
+    isDark: true,
     bg: '#282c34',
     text: '#abb2bf',
     h1: '#e5c07b',
@@ -680,6 +695,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   terminal: {
+    isDark: true,
     bg: '#0d0d0d',
     text: '#bfbfbf',
     h1: '#e0e0e0',
@@ -724,6 +740,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   monokai: {
+    isDark: true,
     bg: '#272822',
     text: '#f8f8f2',
     h1: '#f92672',
@@ -768,6 +785,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   monochrome: {
+    isDark: false,
     bg: '#f5f5f5',
     text: '#333333',
     h1: '#000000',
@@ -812,6 +830,7 @@ export const THEME_TOKENS: Record<Theme, ThemeTokens> = {
   },
 
   'night-owl': {
+    isDark: true,
     bg: '#011627',
     text: '#d6deeb',
     h1: '#ffcb8b',
@@ -921,4 +940,8 @@ export function themeToCSSVars(t: ThemeTokens): Record<string, string> {
     '--lang-badge-text': t.langBadgeText,
     '--lang-badge-bg': t.langBadgeBg,
   };
+}
+
+export function isThemeDark(theme: Theme): boolean {
+  return THEME_TOKENS[theme].isDark;
 }
