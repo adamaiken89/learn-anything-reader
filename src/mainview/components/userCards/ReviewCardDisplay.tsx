@@ -1,6 +1,39 @@
 import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../../bun/types';
+import ClozeBlank from '../lesson/ClozeBlank';
+
+function parseClozeText(
+  text: string,
+): Array<{ type: 'text'; value: string } | { type: 'blank'; answer: string }> {
+  const regex = /\[\.\.\.([^\]]+)\]/g;
+  const segments: Array<{ type: 'text'; value: string } | { type: 'blank'; answer: string }> = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) {
+      segments.push({ type: 'text', value: text.slice(last, match.index) });
+    }
+    segments.push({ type: 'blank', answer: match[1] });
+    last = regex.lastIndex;
+  }
+  if (last < text.length) {
+    segments.push({ type: 'text', value: text.slice(last) });
+  }
+  return segments.length > 0 ? segments : [{ type: 'text', value: text }];
+}
+
+function renderClozeFront(
+  segments: Array<{ type: 'text'; value: string } | { type: 'blank'; answer: string }>,
+) {
+  return segments.map((seg, i) =>
+    seg.type === 'blank' ? (
+      <ClozeBlank key={i} answer={seg.answer} />
+    ) : (
+      <span key={i}>{seg.value}</span>
+    ),
+  );
+}
 
 interface ReviewCardDisplayProps {
   card: UserCard;
@@ -22,6 +55,8 @@ export default function ReviewCardDisplay({
   onToggleStar,
 }: ReviewCardDisplayProps) {
   const { t } = useTranslation();
+  const segments = parseClozeText(card.front);
+  const hasCloze = segments.some((s) => s.type === 'blank');
 
   return (
     <div>
@@ -33,7 +68,9 @@ export default function ReviewCardDisplay({
       <div className="bg-gray-800 rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center mb-6">
         {!showAnswer ? (
           <div>
-            <h3 className="text-lg font-medium mb-6">{card.front}</h3>
+            <h3 className="text-lg font-medium mb-6">
+              {hasCloze ? renderClozeFront(segments) : card.front}
+            </h3>
             <button
               onClick={onShowAnswer}
               data-testid="show-answer"
@@ -46,7 +83,9 @@ export default function ReviewCardDisplay({
           <div className="w-full">
             <div className="mb-4 pb-4 border-b border-gray-700">
               <p className="text-sm text-gray-400 mb-1">{t('userCardReview.front')}</p>
-              <p className="text-lg font-medium">{card.front}</p>
+              <p className="text-lg font-medium">
+                {hasCloze ? renderClozeFront(segments) : card.front}
+              </p>
             </div>
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-1">{t('userCardReview.back')}</p>
