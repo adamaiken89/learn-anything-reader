@@ -41,9 +41,8 @@ function transformClozeText(text: string): HastNode[] {
       properties: {
         className: 'cloze-blank',
         dataAnswer: match[1],
-        onClick: "this.classList.toggle('revealed')",
       },
-      children: [{ type: 'text', value: '[?]' }],
+      children: [{ type: 'text', value: match[1] }],
     });
     last = regex.lastIndex;
   }

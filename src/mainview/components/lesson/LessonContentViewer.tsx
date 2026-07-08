@@ -13,7 +13,7 @@ import type { UseLessonSearchReturn } from '../../hooks/useLessonSearch';
 import { useNotePopoverOnClick } from '../../hooks/useNotePopoverOnClick';
 import { useNotes } from '../../hooks/useNotes';
 import { useSelection } from '../../hooks/useSelection';
-import { components } from '../../sections/lessonHelpers';
+import { components as lessonComponents } from '../../sections/lessonHelpers';
 import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonUIStore } from '../../stores/lessonUIStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
@@ -22,6 +22,7 @@ import { THEME_TOKENS, themeToCSSVars } from '../../themes';
 import { rehypeCloze } from '../rehypeCloze';
 import { rehypeHighlightText } from '../rehypeHighlightText';
 import { rehypeSearchText } from '../rehypeSearchText';
+import ClozeBlank from './ClozeBlank';
 import LessonContentCompletionButton from './LessonContentCompletionButton';
 import LessonContentHeader from './LessonContentHeader';
 import NotePopover from './NotePopover';
@@ -101,7 +102,15 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}
               rehypePlugins={rehypePlugins}
-              components={components}
+              components={{
+                ...lessonComponents,
+                span: ({ className, ...props }) => {
+                  if (className?.includes('cloze-blank')) {
+                    return <ClozeBlank answer={(props as Record<string, string>).dataAnswer || ''} />;
+                  }
+                  return <span className={className} {...props} />;
+                },
+              }}
             >
               {bodyContent}
             </ReactMarkdown>
