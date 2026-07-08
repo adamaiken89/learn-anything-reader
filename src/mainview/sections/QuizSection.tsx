@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 
@@ -26,6 +27,12 @@ export default function QuizSection({ courseId, moduleId }: Props) {
     retry,
   } = useQuizEngine(courseId, moduleId);
 
+  const [textInput, setTextInput] = useState('');
+
+  useEffect(() => {
+    setTextInput('');
+  }, [currentIndex]);
+
   if (status === 'loading')
     return <div className="p-8 text-center text-gray-400">{t('quiz.loadingQuiz')}</div>;
   if (questions.length === 0)
@@ -46,7 +53,11 @@ export default function QuizSection({ courseId, moduleId }: Props) {
           </p>
           <div className="space-y-3">
             {questions.map((q) => {
-              const correct = selectedAnswers[q.id] === q.answer;
+              const userAnswer = selectedAnswers[q.id];
+              const correct =
+                q.type === 'cloze'
+                  ? userAnswer?.trim().toLowerCase() === q.answer.trim().toLowerCase()
+                  : userAnswer === q.answer;
               return (
                 <div
                   key={q.id}
@@ -96,36 +107,77 @@ export default function QuizSection({ courseId, moduleId }: Props) {
         </div>
         <h2 className="text-lg font-medium mb-6">{currentQuestion?.question}</h2>
 
-        <div className="space-y-3">
-          {currentQuestion &&
-            Object.entries(currentQuestion.options).map(([key, value]) => {
-              const isSelected = selectedAnswers[currentQuestion.id] === key;
-              const showCorrect = hasAnswer && key === currentQuestion.answer;
-              const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
-              return (
+        {currentQuestion?.type === 'cloze' ? (
+          <div className="mt-4">
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && textInput.trim() && !hasAnswer) {
+                    selectAnswer(textInput.trim());
+                  }
+                }}
+                placeholder="Type your answer..."
+                disabled={hasAnswer}
+                className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+              />
+              {!hasAnswer && (
                 <button
-                  key={key}
-                  onClick={() => !hasAnswer && selectAnswer(key)}
-                  disabled={hasAnswer}
-                  className={clsx(
-                    answerVariants({
-                      state: showCorrect
-                        ? 'correct'
-                        : showWrong
-                          ? 'wrong'
-                          : isSelected
-                            ? 'selected'
-                            : 'neutral',
-                    }),
-                    !hasAnswer ? 'cursor-pointer' : 'cursor-default',
-                  )}
+                  onClick={() => textInput.trim() && selectAnswer(textInput.trim())}
+                  disabled={!textInput.trim()}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <span className="font-mono text-indigo-400 mr-2">{key}.</span>
-                  {String(value)}
+                  Check
                 </button>
-              );
-            })}
-        </div>
+              )}
+            </div>
+            {hasAnswer && (
+              <div className="mt-3">
+                {textInput.trim().toLowerCase() ===
+                currentQuestion.answer.trim().toLowerCase() ? (
+                  <p className="text-emerald-400 text-sm">✓ Correct!</p>
+                ) : (
+                  <p className="text-red-400 text-sm">
+                    ✗ Your answer: {textInput} — Correct answer: {currentQuestion.answer}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {currentQuestion &&
+              Object.entries(currentQuestion.options).map(([key, value]) => {
+                const isSelected = selectedAnswers[currentQuestion.id] === key;
+                const showCorrect = hasAnswer && key === currentQuestion.answer;
+                const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => !hasAnswer && selectAnswer(key)}
+                    disabled={hasAnswer}
+                    className={clsx(
+                      answerVariants({
+                        state: showCorrect
+                          ? 'correct'
+                          : showWrong
+                            ? 'wrong'
+                            : isSelected
+                              ? 'selected'
+                              : 'neutral',
+                      }),
+                      !hasAnswer ? 'cursor-pointer' : 'cursor-default',
+                    )}
+                  >
+                    <span className="font-mono text-indigo-400 mr-2">{key}.</span>
+                    {String(value)}
+                  </button>
+                );
+              })}
+          </div>
+        )}
 
         {hasAnswer && currentQuestion && (
           <div className="mt-4 p-3 bg-gray-750 rounded-lg">

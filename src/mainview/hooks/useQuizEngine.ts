@@ -95,7 +95,14 @@ export function useQuizEngine(courseId: string, moduleId: string): UseQuizEngine
 
   useEffect(() => {
     if (state.status === 'completed' && state.questions.length > 0) {
-      const score = state.questions.filter((q) => state.selectedAnswers[q.id] === q.answer).length;
+      const score = state.questions.filter((q) => {
+        const userAnswer = state.selectedAnswers[q.id];
+        if (userAnswer === undefined) return false;
+        if (q.type === 'cloze') {
+          return userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase();
+        }
+        return userAnswer === q.answer;
+      }).length;
       api.stats
         .logSession({
           courseID: courseId,
@@ -131,7 +138,14 @@ export function useQuizEngine(courseId: string, moduleId: string): UseQuizEngine
   const hasAnswer = currentQuestion
     ? state.selectedAnswers[currentQuestion.id] !== undefined
     : false;
-  const score = state.questions.filter((q) => state.selectedAnswers[q.id] === q.answer).length;
+  const score = state.questions.filter((q) => {
+    const userAnswer = state.selectedAnswers[q.id];
+    if (userAnswer === undefined) return false;
+    if (q.type === 'cloze') {
+      return userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase();
+    }
+    return userAnswer === q.answer;
+  }).length;
   const percentage =
     state.questions.length > 0 ? Math.round((score / state.questions.length) * 100) : 0;
 
