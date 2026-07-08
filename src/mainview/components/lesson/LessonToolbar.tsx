@@ -5,6 +5,7 @@ import FocusPomodoroControls from './FocusPomodoroControls';
 import FontSizeControl from './FontSizeControl';
 import ProgressBadge from './ProgressBadge';
 import QuizReviewButtons from './QuizReviewButtons';
+import ReadingModeToggle from './ReadingModeToggle';
 import SearchCourseButton from './SearchCourseButton';
 import ThemeControl from './ThemeControl';
 import ToolsButton from './ToolsButton';
@@ -37,6 +38,8 @@ export default function LessonToolbar() {
       </div>
       <div className="flex items-center gap-2">
         <WidthTransitionControl />
+        <div className="h-3 w-px bg-gray-600" />
+        <ReadingModeToggle />
         <div className="h-3 w-px bg-gray-600" />
         <BookmarkButton />
       </div>

@@ -62,6 +62,7 @@
     "removeBookmark": "Remove bookmark",
     "completed": "✓ Completed",
     "markAsComplete": "Mark as Complete",
+    "readingMode": "Active Recall",
     "focusMode": "Focus Mode",
     "focusModeOn": "Exit Focus",
     "focusModeOff": "Focus",
