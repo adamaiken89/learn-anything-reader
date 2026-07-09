@@ -1,5 +1,5 @@
-import CourseCard from './CourseCard';
 import { useCourseStore } from '../../stores/courseStore';
+import CourseCard from './CourseCard';
 
 export default function CourseGrid() {
   const courses = useCourseStore((s) => s.courses);

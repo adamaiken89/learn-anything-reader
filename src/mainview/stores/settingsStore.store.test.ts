@@ -18,7 +18,7 @@ describe('settingsStore', () => {
     expect(s.fontSize).toBe(16);
     expect(s.theme).toBe('dark');
     expect(s.contentWidth).toBe('standard');
-    expect(s.showSections).toBe(true);
+    expect(s.rightPanel).toBe('sections');
     expect(s.focusMode).toBe(false);
     expect(s.locale).toBe('en-US');
     expect(s.hasApiKey).toBe(false);
@@ -64,11 +64,11 @@ describe('settingsStore', () => {
     expect(JSON.parse(localStorage.getItem('coursereader-width')!)).toBe('wide');
   });
 
-  test('toggleSections flips showSections', () => {
-    useSettingsStore.getState().toggleSections();
-    expect(useSettingsStore.getState().showSections).toBe(false);
-    useSettingsStore.getState().toggleSections();
-    expect(useSettingsStore.getState().showSections).toBe(true);
+  test('setRightPanel controls right panel', () => {
+    useSettingsStore.getState().setRightPanel('sections');
+    expect(useSettingsStore.getState().rightPanel).toBe('sections');
+    useSettingsStore.getState().setRightPanel(false);
+    expect(useSettingsStore.getState().rightPanel).toBe(false);
   });
 
   test('toggleFocusMode flips focusMode and persists', () => {

@@ -1,5 +1,6 @@
 import mermaid from 'mermaid';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
@@ -61,6 +62,7 @@ export default function MermaidDiagram({ code, isDark, bg }: Props) {
 }
 
 function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const [zoom, setZoom] = useState(1);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -150,14 +152,14 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
             onClick={() => setZoom(1)}
             className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
           >
-            Reset
+            {t('mermaid.reset', { defaultValue: 'Reset' })}
           </button>
           <div className="flex-1" />
           <button
             onClick={() => void handleDownload()}
             className="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
           >
-            PNG
+            {t('mermaid.downloadPng')}
           </button>
           <button
             onClick={onClose}

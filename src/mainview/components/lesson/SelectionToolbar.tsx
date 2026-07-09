@@ -1,3 +1,4 @@
+import { Copy, Layers, Pencil } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
@@ -101,36 +102,38 @@ export default function SelectionToolbar() {
     <div
       ref={menuRef}
       data-testid="selection-toolbar"
-      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl py-1 min-w-[140px]"
-      style={{ left: position.x, top: position.y, transform: 'translateX(-50%)' }}
+      className="fixed z-50 bg-gray-900/80 backdrop-blur-md border border-gray-800/80 rounded-xl shadow-2xl py-2 px-1 min-w-[160px]"
+      style={{ left: position.x, top: position.y }}
     >
-      <ColorPickerRow
-        activeHighlightColor={activeHighlightColor}
-        onSelectColor={(color) => {
-          void handleAddHighlight(color);
-        }}
-        onDeleteHighlight={handleDelete}
-      />
+      <div className="anim-selection-toolbar-enter">
+        <ColorPickerRow
+          activeHighlightColor={activeHighlightColor}
+          onSelectColor={(color) => {
+            void handleAddHighlight(color);
+          }}
+          onDeleteHighlight={handleDelete}
+        />
 
-      <div className="h-px bg-gray-600 my-0.5" />
+        <div className="h-px bg-gray-700/50 mx-2 my-1" />
 
-      <Button variant="ghost" size="md" onClick={store.openNoteEditor} className="justify-start">
-        <span className="shrink-0">{t('icons.note')}</span>
-        <span className="truncate">{t('lesson.addNote')}</span>
-      </Button>
+        <Button variant="ghost" size="md" onClick={store.openNoteEditor} className="justify-start">
+          <Pencil size={16} className="text-gray-400 shrink-0" />
+          <span className="truncate">{t('lesson.addNote')}</span>
+        </Button>
 
-      <Button variant="ghost" size="md" onClick={store.openCardEditor} className="justify-start">
-        <span className="shrink-0">{t('icons.cards')}</span>
-        <span className="truncate">{t('lesson.createCard')}</span>
-      </Button>
+        <Button variant="ghost" size="md" onClick={store.openCardEditor} className="justify-start">
+          <Layers size={16} className="text-gray-400 shrink-0" />
+          <span className="truncate">{t('lesson.createCard')}</span>
+        </Button>
 
-      <Button variant="ghost" size="md" onClick={handleCopy} className="justify-start">
-        <span className="shrink-0">{t('icons.clipboard')}</span>
-        <span className="truncate">{copied ? t('selection.copied') : t('lesson.copy')}</span>
-      </Button>
+        <Button variant="ghost" size="md" onClick={handleCopy} className="justify-start">
+          <Copy size={16} className="text-gray-400 shrink-0" />
+          <span className="truncate">{copied ? t('selection.copied') : t('lesson.copy')}</span>
+        </Button>
 
-      {store.showNoteEditor && <NoteEditor />}
-      {store.showCardEditor && <CardEditor />}
+        {store.showNoteEditor && <NoteEditor />}
+        {store.showCardEditor && <CardEditor />}
+      </div>
     </div>
   );
 }

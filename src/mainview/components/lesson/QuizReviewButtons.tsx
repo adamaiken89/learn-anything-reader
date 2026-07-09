@@ -2,18 +2,19 @@ import { useTranslation } from 'react-i18next';
 
 import { useCurrentLesson } from '../../hooks/useCurrentLesson';
 import { useViewStore } from '../../stores/viewStore';
-import { Button } from '../ui';
 
 function QuizReviewButtons() {
   const { t } = useTranslation();
   const { course, module } = useCurrentLesson();
   const push = useViewStore((s) => s.push);
 
+  const btnClass =
+    'px-2 py-1 text-[11px] text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 transition-colors';
+
   return (
     <>
-      <Button
-        variant="secondary"
-        size="sm"
+      <button
+        className={btnClass}
         onClick={() => {
           if (!course || !module) return;
           push({ type: 'quiz', course, module });
@@ -21,10 +22,10 @@ function QuizReviewButtons() {
         title={t('common.quiz')}
       >
         {t('common.quiz')}
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
+      </button>
+      <div className="h-3 w-px bg-gray-700/50" />
+      <button
+        className={btnClass}
         onClick={() => {
           if (!course) return;
           push({ type: 'review', course });
@@ -32,7 +33,7 @@ function QuizReviewButtons() {
         title={t('common.review')}
       >
         {t('common.review')}
-      </Button>
+      </button>
     </>
   );
 }

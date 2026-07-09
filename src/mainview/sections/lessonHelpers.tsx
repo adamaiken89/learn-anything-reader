@@ -35,7 +35,7 @@ function CodeBlockWithCopy({ children }: { children?: React.ReactNode }) {
       <pre>{children}</pre>
       <button
         onClick={() => void handleCopy()}
-        className="absolute top-8 right-2 px-2 py-1 text-xs rounded bg-gray-700/80 text-gray-300 hover:bg-gray-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+        className="absolute top-2 right-2 px-2 py-1 text-xs rounded bg-gray-800/80 border border-gray-600/50 text-gray-300 hover:bg-gray-700 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
       >
         {copied ? t('selection.copied') : t('lesson.copy')}
       </button>

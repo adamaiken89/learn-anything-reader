@@ -24,7 +24,7 @@ export default function QuizPage({ courseId, moduleId, onBack }: QuizPageProps) 
           />
         }
       />
-      <PageContent>
+      <PageContent className="py-8">
         <QuizSection courseId={courseId} moduleId={moduleId} />
       </PageContent>
     </PageLayout>

@@ -43,7 +43,7 @@ export default function DashboardPage() {
     return (
       <PageLayout>
         <PageHeader title={t('dashboard.title')} actions={headerActions} />
-        <PageContent>
+        <PageContent className="py-8">
           <div className="text-center text-gray-500 py-12">{t('common.loading')}</div>
         </PageContent>
       </PageLayout>
@@ -53,7 +53,7 @@ export default function DashboardPage() {
   return (
     <PageLayout>
       <PageHeader title={t('dashboard.title')} actions={headerActions} />
-      <PageContent>
+      <PageContent className="py-8">
         {lastSession && <ResumeCard lastSession={lastSession} />}
 
         {globalStats && <StatsBar stats={globalStats} />}

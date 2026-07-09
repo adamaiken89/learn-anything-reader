@@ -32,7 +32,7 @@ export default function SectionRow({
     <button
       data-section-id={section.id}
       onClick={onScrollTo}
-      className="w-full text-left px-2.5 py-0.5 text-xs transition-colors"
+      className="w-full text-left px-2 py-1.5 text-xs transition-colors"
       style={Object.assign(
         { paddingLeft: `${(section.level - 1) * 16 + 10}px` },
         isActive

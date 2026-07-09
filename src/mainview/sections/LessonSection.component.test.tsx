@@ -34,12 +34,12 @@ const mockModuleMeta: ModuleMeta = {
   topics: ['basics'],
 };
 
-const defaultLessonUI = { showTools: false, showPomodoro: false, searchCourseOpen: false };
+const defaultLessonUI = { showPomodoro: false, searchCourseOpen: false };
 const defaultSettings = {
   focusMode: false,
   fontSize: 16,
   contentWidth: 'standard' as const,
-  showSections: false,
+  rightPanel: false as const,
   theme: 'dark' as const,
 };
 
@@ -160,28 +160,14 @@ describe('LessonSection', () => {
     expect(container.textContent).toContain('Focus');
   });
 
-  test('renders study tools when showTools is true and not focusing', async () => {
-    useLessonUIStore.setState({ showTools: true });
-    const { container } = await renderAndSettle(<LessonSection {...props} />);
-    expect(container.textContent).toContain('Study Tools');
-  });
-
-  test('hides study tools when focus mode is on', async () => {
-    useLessonUIStore.setState({ showTools: true });
-    useSettingsStore.setState({ focusMode: true });
-    const { container } = await renderAndSettle(<LessonSection {...props} />);
-    expect(container.textContent).toContain('Test Heading');
-    expect(container.textContent).not.toContain('Study Tools');
-  });
-
-  test('renders navigation panel when showSections is true', async () => {
+  test('renders navigation panel when rightPanel is sections', async () => {
     mockResponse('loadLesson', {
       h1: 'Test Heading',
       bodyContent: 'Test body content',
       meta: [],
       sections: [{ id: 's1', heading: 'Section One', level: 1, parentID: null }],
     });
-    useSettingsStore.setState({ showSections: true });
+    useSettingsStore.setState({ rightPanel: 'sections' });
     const { container } = await renderAndSettle(<LessonSection {...props} />);
     expect(container.textContent).toContain('Test Heading');
     expect(container.querySelector('[data-testid="navigation-panel"]')).toBeTruthy();
@@ -251,9 +237,9 @@ describe('LessonSection', () => {
     restore();
   });
 
-  test('renders toggle sections button when sections panel hidden and not focusing', async () => {
-    const { container } = await renderAndSettle(<LessonSection {...props} />);
-    expect(container.textContent).toContain('☰');
+  test('renders navigation panel (collapsed) when sections panel hidden', async () => {
+    const { getByTestId } = await renderAndSettle(<LessonSection {...props} />);
+    expect(getByTestId('navigation-panel')).toBeInTheDocument();
   });
 
   test('calls handleToggleCompleted when completion button clicked', async () => {

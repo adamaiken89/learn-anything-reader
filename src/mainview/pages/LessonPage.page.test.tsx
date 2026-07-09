@@ -46,6 +46,7 @@ describe('LessonPage', () => {
     mockResponse('getHighlights', []);
     mockResponse('getNotes', []);
     mockResponse('getCompletedModuleIDs', []);
+    mockResponse('getSections', []);
     mockResponse('setLastSession', { ok: true });
     useSettingsStore.setState({ focusMode: false });
     useCourseStore.setState({
@@ -55,7 +56,6 @@ describe('LessonPage', () => {
       loaded: true,
     });
     useLessonUIStore.setState({
-      showTools: false,
       showPomodoro: false,
       searchCourseOpen: false,
     });
@@ -66,9 +66,9 @@ describe('LessonPage', () => {
     expect(container.textContent).toContain('M1/1');
   });
 
-  test('renders LessonToolbar', async () => {
+  test('hides LessonToolbar in normal mode', async () => {
     const { container } = await renderAndSettle(ui);
-    expect(container.querySelector('[data-testid="lesson-toolbar"]')).toBeTruthy();
+    expect(container.querySelector('[data-testid="lesson-toolbar"]')).toBeNull();
   });
 
   test('calls onBack when back button clicked', async () => {

@@ -24,7 +24,7 @@ beforeEach(() => {
     fontSize: 16,
     theme: 'dark' as const,
     focusMode: false,
-    showSections: false,
+    rightPanel: false,
   });
   mockResponse('getNotes', []);
   mockResponse('getHighlights', []);

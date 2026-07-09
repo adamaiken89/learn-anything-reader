@@ -48,6 +48,8 @@ export default function PageHeader({
             {title && <span className="text-sm font-medium text-gray-200 truncate">{title}</span>}
           </div>
 
+          {children}
+
           {center && <div className="absolute left-1/2 -translate-x-1/2 z-50">{center}</div>}
 
           {actions && <div className="ml-auto flex items-center gap-1.5">{actions}</div>}
@@ -56,20 +58,18 @@ export default function PageHeader({
             <div className="ml-auto flex items-center gap-1.5">
               <button
                 onClick={() => push({ type: 'bookmarks' })}
-                className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
               >
                 {t('common.bookmarks')}
               </button>
               <button
                 onClick={() => push({ type: 'settings' })}
-                className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
               >
                 {t('common.settings')}
               </button>
             </div>
           )}
-
-          {children}
         </div>
       )}
       {toolbar && <div>{toolbar}</div>}

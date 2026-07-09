@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Course } from '../bun/types';
 import { api } from './api';
-import SearchFab from './components/SearchFab';
 import SearchOverlay from './components/SearchOverlay';
 import { useAppInit } from './hooks/useAppInit';
 import { useShortcuts } from './hooks/useShortcuts';
@@ -114,7 +113,6 @@ export default function App() {
   return (
     <>
       {viewContent}
-      {currentView.type !== 'dashboard' && <SearchFab onClick={() => setSearchOpen(true)} />}
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   );

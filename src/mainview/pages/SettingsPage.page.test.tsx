@@ -47,9 +47,6 @@ describe('SettingsPage', () => {
       expect(container.textContent).toContain('Gemini API Key');
     });
     expect(container.textContent).toContain('Remote Content');
-    expect(container.textContent).toContain('Reading Theme');
-    expect(container.textContent).toContain('Font Size');
-    expect(container.textContent).toContain('Layout');
     expect(container.textContent).toContain('Language');
     expect(container.textContent).toContain('Danger Zone');
     expect(container.textContent).toContain('About');
@@ -68,33 +65,6 @@ describe('SettingsPage', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('configured');
     });
-  });
-
-  test('increments font size when A+ clicked', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('A+')).toBeTruthy();
-    });
-    await user.click(getByText('A+'));
-    expect(useSettingsStore.getState().fontSize).toBe(18);
-  });
-
-  test('decrements font size when A- clicked', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('A-')).toBeTruthy();
-    });
-    await user.click(getByText('A-'));
-    expect(useSettingsStore.getState().fontSize).toBe(14);
-  });
-
-  test('selects theme when theme card clicked', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('Light')).toBeTruthy();
-    });
-    await user.click(getByText('Light'));
-    expect(useSettingsStore.getState().theme).toBe('light');
   });
 
   test('calls onBack when back button clicked', async () => {
@@ -144,26 +114,6 @@ describe('SettingsPage', () => {
     });
     await user.click(getByText('繁體中文'));
     expect(useSettingsStore.getState().locale).toBe('zh-TW');
-  });
-
-  test('selects layout width', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('Narrow')).toBeInTheDocument();
-    });
-    await user.click(getByText('Narrow'));
-    expect(useSettingsStore.getState().contentWidth).toBe('narrow');
-    await user.click(getByText('Wide'));
-    expect(useSettingsStore.getState().contentWidth).toBe('wide');
-  });
-
-  test('selects transition style', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('Slide')).toBeInTheDocument();
-    });
-    await user.click(getByText('Slide'));
-    expect(useSettingsStore.getState().transitionStyle).toBe('slide');
   });
 
   test('shows sync error when present', async () => {

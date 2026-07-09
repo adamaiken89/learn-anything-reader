@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -36,11 +37,12 @@ export default function NotePopover() {
     <div
       ref={ref}
       data-testid="note-popover"
-      className="fixed z-50 bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl max-w-xs"
+      className="fixed z-50 bg-gray-900/80 backdrop-blur-md border border-gray-800/80 rounded-xl p-3 shadow-2xl max-w-xs"
       style={{ left: clampedLeft, top: clampedTop, transform: 'translate(-50%, 0)' }}
     >
-      <p className="text-[10px] text-gray-500 mb-1.5 font-medium uppercase tracking-wide">
-        {t('icons.note')} {t('studyTools.notes')}
+      <p className="text-[10px] text-gray-500 mb-1.5 font-medium uppercase tracking-wide flex items-center gap-1.5">
+        <Pencil size={12} className="text-gray-400" />
+        {t('studyTools.notes')}
       </p>
       <p className="text-xs text-gray-200 whitespace-pre-wrap">{popoverNote.note.content}</p>
     </div>

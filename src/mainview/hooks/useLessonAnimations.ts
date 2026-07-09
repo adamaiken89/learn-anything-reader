@@ -1,14 +1,13 @@
+import type { RightPanel } from '../stores/settingsStore';
 import { useDelayedUnmount } from './useDelayedUnmount';
 
 export function useLessonAnimations(params: {
-  showTools: boolean;
   focusMode: boolean;
-  showSections: boolean;
+  rightPanel: RightPanel;
   showPomodoro: boolean;
 }) {
   return {
-    showStudyTools: useDelayedUnmount(params.showTools && !params.focusMode, 250),
-    showSectionsPanel: useDelayedUnmount(params.showSections && !params.focusMode, 250),
+    showSectionsPanel: useDelayedUnmount(params.rightPanel !== false && !params.focusMode, 250),
     showPomodoroTimer: useDelayedUnmount(params.showPomodoro, 200),
   };
 }

@@ -8,12 +8,13 @@ import { getStored, store } from './storageUtils';
 export type ContentWidth = 'narrow' | 'standard' | 'wide';
 export type TransitionStyle = 'none' | 'flip' | 'slide' | 'fade';
 export type ReadingMode = 'normal' | 'active';
+export type RightPanel = false | 'sections' | 'ai' | 'notes';
 
 interface SettingsState {
   fontSize: number;
   theme: Theme;
   contentWidth: ContentWidth;
-  showSections: boolean;
+  rightPanel: RightPanel;
   hasApiKey: boolean;
   focusMode: boolean;
   locale: string;
@@ -25,7 +26,7 @@ interface SettingsState {
   cycleTheme: () => void;
   setTheme: (t: Theme) => void;
   setContentWidth: (v: ContentWidth) => void;
-  toggleSections: () => void;
+  setRightPanel: (v: RightPanel) => void;
   setHasApiKey: (v: boolean) => void;
   toggleFocusMode: () => void;
   setLocale: (l: string) => void;
@@ -42,11 +43,21 @@ const migrateWidth = (): ContentWidth => {
   return 'standard';
 };
 
+const migrateRightPanel = (): RightPanel => {
+  const saved = getStored<unknown>('coursereader-rightpanel', undefined);
+  if (saved === 'sections' || saved === 'ai' || saved === 'notes') return saved;
+  if (saved === false) return false;
+  const old = getStored<unknown>('coursereader-sections', undefined);
+  if (old === true) return 'sections';
+  if (old === false) return false;
+  return 'sections';
+};
+
 export const useSettingsStore = create<SettingsState>((set) => ({
   fontSize: getStored<number>('coursereader-fontsize', 16),
   theme: getStored<Theme>('coursereader-theme', 'dark'),
   contentWidth: migrateWidth(),
-  showSections: getStored<boolean>('coursereader-sections', true),
+  rightPanel: migrateRightPanel(),
   focusMode: getStored<boolean>('coursereader-focus', false),
   locale: getStored<string>('coursereader-locale', 'en-US'),
   transitionStyle: getStored<TransitionStyle>('coursereader-transition', 'none'),
@@ -90,12 +101,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ contentWidth: v });
   },
 
-  toggleSections: () =>
-    set((s) => {
-      const next = !s.showSections;
-      store('coursereader-sections', next);
-      return { showSections: next };
-    }),
+  setRightPanel: (v) => {
+    store('coursereader-rightpanel', v);
+    set({ rightPanel: v });
+  },
 
   setHasApiKey: (v) => set({ hasApiKey: v }),
 

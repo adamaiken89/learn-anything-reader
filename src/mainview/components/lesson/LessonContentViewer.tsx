@@ -92,7 +92,7 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
           onScroll={handleScroll}
         >
           <div
-            className={`p-6 book-content${contentWidth === 'wide' ? ' book-content-wide' : contentWidth === 'standard' ? ' book-content-standard' : ''}`}
+            className={`px-6 book-content${contentWidth === 'wide' ? ' book-content-wide' : contentWidth === 'standard' ? ' book-content-standard' : ''}`}
             data-testid="book-content-area"
             style={{ fontSize: `${fontSize}px`, ...themeVars }}
             onMouseUp={handleTextSelectionWithAutoCopy}

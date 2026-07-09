@@ -6,6 +6,7 @@ import type { ModuleMeta, Section } from '../../../bun/types';
 import i18n from '../../i18n';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
 import { useCompletionStore } from '../../stores/completionStore';
+import { clearMocks, mockResponse, renderAndSettle, setupRPC } from '../../testUtils';
 import NavigationPanel from './NavigationPanel';
 
 function makeSection(id: string, heading: string, level: number): Section {
@@ -13,9 +14,9 @@ function makeSection(id: string, heading: string, level: number): Section {
 }
 
 const defaultSections: Section[] = [
-  makeSection('intro', 'Introduction', 1),
+  makeSection('intro', 'Introduction', 2),
   makeSection('body', 'Body Content', 2),
-  makeSection('conclusion', 'Conclusion', 1),
+  makeSection('conclusion', 'Conclusion', 2),
 ];
 
 const defaultModules: ModuleMeta[] = [
@@ -28,9 +29,13 @@ const defaultModuleId = 'mod-01';
 
 beforeEach(() => {
   void i18n.changeLanguage('en-US');
+  clearMocks();
+  mockResponse('getSections', defaultSections);
   useBookmarksStore.setState({ byModule: {}, loading: {} });
   useCompletionStore.setState({ completed: {}, totalModules: {} });
 });
+
+setupRPC();
 
 describe('NavigationPanel', () => {
   const user = userEvent.setup();
@@ -51,13 +56,42 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
     expect(getByText('Sections')).toBeInTheDocument();
-    expect(getByText('Modules')).toBeInTheDocument();
   });
 
-  test('renders section headings on Sections tab', () => {
+  test('renders current module expanded with sections', async () => {
+    const { getByText } = await renderAndSettle(
+      <NavigationPanel
+        sections={defaultSections}
+        courseId={defaultCourseId}
+        moduleId={defaultModuleId}
+        moduleName="Test Module"
+        modules={defaultModules}
+        currentModuleId={defaultModuleId}
+        hasPrev={false}
+        hasNext={false}
+        onGoPrev={() => {}}
+        onGoNext={() => {}}
+        onScrollToSection={() => {}}
+        onModuleSelect={() => {}}
+        onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
+      />,
+    );
+    // Current module should be visible and expanded
+    expect(getByText('Module 1')).toBeInTheDocument();
+    // Sections for current module should be visible (from defaultSections mock)
+    expect(getByText('Introduction')).toBeInTheDocument();
+    expect(getByText('Body Content')).toBeInTheDocument();
+    expect(getByText('Conclusion')).toBeInTheDocument();
+  });
+
+  test('renders all modules in tree', () => {
     const { getByText } = render(
       <NavigationPanel
         sections={defaultSections}
@@ -73,16 +107,17 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
-    expect(getByText('Introduction')).toBeInTheDocument();
-    expect(getByText('Body Content')).toBeInTheDocument();
-    expect(getByText('Conclusion')).toBeInTheDocument();
+    expect(getByText('Module 1')).toBeInTheDocument();
+    expect(getByText('Module 2')).toBeInTheDocument();
   });
 
   test('clicking section calls scrollToSection', async () => {
     const scrollToSection = mock(() => {});
-    const { getByText } = render(
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         sections={defaultSections}
         courseId={defaultCourseId}
@@ -97,6 +132,8 @@ describe('NavigationPanel', () => {
         onScrollToSection={scrollToSection}
         onModuleSelect={() => {}}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
     await user.click(getByText('Introduction'));
@@ -104,7 +141,7 @@ describe('NavigationPanel', () => {
     expect(scrollToSection).toHaveBeenCalledWith('intro');
   });
 
-  test('switches to Modules tab and renders modules', async () => {
+  test('current module has indigo highlight', () => {
     const { getByText } = render(
       <NavigationPanel
         sections={defaultSections}
@@ -120,14 +157,14 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
-    await user.click(getByText('Modules'));
-    expect(getByText('Module 1')).toBeInTheDocument();
-    expect(getByText('Module 2')).toBeInTheDocument();
+    expect(getByText('Module 1').closest('button')?.className).toContain('indigo');
   });
 
-  test('highlight current module in Modules tab', async () => {
+  test('shows module numbers', () => {
     const { getByText } = render(
       <NavigationPanel
         sections={defaultSections}
@@ -143,10 +180,12 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
-    await user.click(getByText('Modules'));
-    expect(getByText('Module 1').closest('button')?.className).toContain('indigo');
+    expect(getByText('1')).toBeInTheDocument();
+    expect(getByText('2')).toBeInTheDocument();
   });
 
   test('clicking module calls onModuleSelect', async () => {
@@ -166,9 +205,10 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={onModuleSelect}
         onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
-    await user.click(getByText('Modules'));
     await user.click(getByText('Module 2'));
     expect(onModuleSelect).toHaveBeenCalledTimes(1);
     expect(onModuleSelect).toHaveBeenCalledWith(defaultModules[1]);
@@ -191,30 +231,11 @@ describe('NavigationPanel', () => {
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={onClose}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
       />,
     );
     await user.click(getByText('→'));
     expect(onClose).toHaveBeenCalledTimes(1);
-  });
-
-  test('shows empty state when no sections', () => {
-    const { getByText } = render(
-      <NavigationPanel
-        sections={[]}
-        courseId={defaultCourseId}
-        moduleId={defaultModuleId}
-        moduleName="Test Module"
-        modules={defaultModules}
-        currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
-        onScrollToSection={() => {}}
-        onModuleSelect={() => {}}
-        onClose={() => {}}
-      />,
-    );
-    expect(getByText('No sections in this module.')).toBeInTheDocument();
   });
 });

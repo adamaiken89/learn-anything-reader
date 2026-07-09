@@ -19,20 +19,18 @@ export function useLessonSection(course: Course, module: ModuleMeta) {
     useShallow((s) => ({ toggle: s.toggle, load: s.load, loadCourse: s.loadCourse })),
   );
 
-  const { showTools, showPomodoro, toggleTools, setSearchCourseOpen } = useLessonUIStore(
+  const { showPomodoro, setSearchCourseOpen } = useLessonUIStore(
     useShallow((s) => ({
-      showTools: s.showTools,
       showPomodoro: s.showPomodoro,
-      toggleTools: s.toggleTools,
       setSearchCourseOpen: s.setSearchCourseOpen,
     })),
   );
 
-  const { focusMode, showSections, toggleSections } = useSettingsStore(
+  const { focusMode, rightPanel, setRightPanel } = useSettingsStore(
     useShallow((s) => ({
       focusMode: s.focusMode,
-      showSections: s.showSections,
-      toggleSections: s.toggleSections,
+      rightPanel: s.rightPanel,
+      setRightPanel: s.setRightPanel,
     })),
   );
 
@@ -46,12 +44,10 @@ export function useLessonSection(course: Course, module: ModuleMeta) {
     completedCount,
     totalModules,
     toggle,
-    showTools,
     showPomodoro,
-    toggleTools,
     setSearchCourseOpen,
     focusMode,
-    showSections,
-    toggleSections,
+    rightPanel,
+    setRightPanel,
   };
 }

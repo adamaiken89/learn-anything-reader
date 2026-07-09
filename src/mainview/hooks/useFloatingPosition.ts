@@ -18,10 +18,10 @@ export function useFloatingPosition(x: number, y: number, selectionTop: number) 
     }
     if (top < gap) top = gap;
 
-    let left = x;
     const halfW = menuRect.width / 2;
-    if (left - halfW < gap) left = gap + halfW;
-    if (left + halfW > viewportW - gap) left = viewportW - gap - halfW;
+    let left = x - halfW;
+    if (left < gap) left = gap;
+    if (left + menuRect.width > viewportW - gap) left = viewportW - gap - menuRect.width;
 
     setPosition({ x: left, y: top });
   }, [x, y, selectionTop]);

@@ -16,7 +16,8 @@
     "deleteBookmark": "Delete bookmark",
     "modules": "Modules",
     "courses": "Courses",
-    "courseReader": "CourseReader"
+    "courseReader": "CourseReader",
+    "notes": "Notes"
   },
   "landing": {
     "title": "Welcome to CourseReader",
@@ -64,7 +65,8 @@
     "searchCourse": "Search",
     "moduleBadge": "M{{current}}/{{total}}",
     "modules": "Modules",
-    "noSections": "No sections in this module."
+    "noSections": "No sections in this module.",
+    "appearance": "Appearance"
   },
   "viewerSearch": {
     "placeholder": "Find in page...",
@@ -204,6 +206,8 @@
     "confirmClearLogs": "Are you sure? Click again to confirm.",
     "clearLogsSuccess": "Logs cleared",
     "pageTransition": "Page Transition",
+    "contentWidth": "Content Width",
+    "moreInSettings": "More in Settings →",
     "transitionNone": "None",
     "transitionNoneDesc": "Instant, no animation",
     "transitionFlip": "Book Flip",
@@ -355,6 +359,7 @@
   },
   "mermaid": {
     "expand": "Click to expand",
-    "downloadPng": "Download PNG"
+    "downloadPng": "Download PNG",
+    "reset": "Reset"
   }
 }

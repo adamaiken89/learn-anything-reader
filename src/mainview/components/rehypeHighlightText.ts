@@ -11,12 +11,12 @@ export type HastRoot = { type: 'root'; children: HastNode[]; [key: string]: unkn
 export type HastNode = HastText | HastElement | HastRoot | { type: string; [key: string]: unknown };
 
 export const HIGHLIGHT_COLORS: Record<string, string> = {
-  yellow: '#facc15',
-  green: '#4ade80',
+  yellow: '#fbbf24',
+  green: '#34d399',
   blue: '#60a5fa',
   pink: '#f472b6',
   orange: '#fb923c',
-  purple: '#c084fc',
+  purple: '#a78bfa',
   cyan: '#22d3ee',
   red: '#f87171',
   note: '#ef4444',

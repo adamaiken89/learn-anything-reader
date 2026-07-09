@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 
 import type { Course, ModuleMeta } from '../../bun/types';
+import AppearancePopover from '../components/lesson/AppearancePopover';
+import CardsButton from '../components/lesson/CardsButton';
 import LessonToolbar from '../components/lesson/LessonToolbar';
+import ProgressBadge from '../components/lesson/ProgressBadge';
+import QuizReviewButtons from '../components/lesson/QuizReviewButtons';
 import SearchOverlay from '../components/SearchOverlay';
 import { useLastSession } from '../hooks/useLastSession';
 import { useLessonToolbarShortcuts } from '../hooks/useLessonToolbarShortcuts';
@@ -31,6 +36,7 @@ export default function LessonPage({
   const setSearchCourseOpen = useLessonUIStore((s) => s.setSearchCourseOpen);
   const transitionStyle = useSettingsStore((s) => s.transitionStyle);
 
+  const focusMode = useSettingsStore((s) => s.focusMode);
   useLessonToolbarShortcuts(course, module);
   useLastSession(course, module);
 
@@ -65,22 +71,64 @@ export default function LessonPage({
     return () => clearTimeout(timer);
   }, [module, course.modules, transitionStyle]);
 
+  const { rightPanel, setRightPanel } = useSettingsStore(
+    useShallow((s) => ({
+      rightPanel: s.rightPanel,
+      setRightPanel: s.setRightPanel,
+    })),
+  );
+
+  const headerBtnClass =
+    'px-2 py-1 text-[11px] rounded bg-gray-700/50 border border-gray-600/50 text-gray-400 hover:bg-gray-600/50 hover:text-gray-200 transition-colors';
+  const headerActiveClass =
+    'px-2 py-1 text-[11px] rounded bg-indigo-700/50 border-indigo-500 text-indigo-200 transition-colors';
+
+  const handlePanelToggle = (tab: 'sections' | 'ai' | 'notes') => {
+    setRightPanel(rightPanel === tab ? false : tab);
+  };
+
   return (
     <PageLayout>
-      <PageHeader
-        onBack={onBack}
-        center={
-          <span className="text-sm font-semibold text-gray-300 tabular-nums whitespace-nowrap">
-            {t('lesson.moduleBadge', {
-              current: moduleIndex + 1,
-              total: course.modules.length,
-              defaultValue: moduleBadge,
-            })}
-          </span>
-        }
-        toolbar={<LessonToolbar />}
-      />
-      <PageContent className="px-0 py-0">
+      <PageHeader onBack={onBack} toolbar={<LessonToolbar />}>
+        {!focusMode && (
+          <>
+            <AppearancePopover />
+            <div className="h-3 w-px bg-gray-600/50" />
+            {/* Segmented control: Module + Progress + Quiz + Review */}
+            <div className="flex items-center bg-gray-800/50 border border-gray-700/60 rounded-lg overflow-hidden">
+              <span className="text-[11px] font-semibold text-gray-300 tabular-nums whitespace-nowrap px-2 py-1">
+                {t('lesson.moduleBadge', {
+                  current: moduleIndex + 1,
+                  total: course.modules.length,
+                  defaultValue: moduleBadge,
+                })}
+              </span>
+              <div className="h-3 w-px bg-gray-700/50" />
+              <div className="px-2 py-1">
+                <ProgressBadge />
+              </div>
+              <div className="h-3 w-px bg-gray-700/50" />
+              <QuizReviewButtons />
+            </div>
+            <div className="ml-auto flex items-center gap-1">
+              <CardsButton />
+              <div className="h-3 w-px bg-gray-600/50" />
+              {(['sections', 'ai', 'notes'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handlePanelToggle(tab)}
+                  className={rightPanel === tab ? headerActiveClass : headerBtnClass}
+                >
+                  {tab === 'sections' && t('lesson.sections')}
+                  {tab === 'ai' && 'AI'}
+                  {tab === 'notes' && t('common.notes')}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </PageHeader>
+      <PageContent>
         <div key={contentKey} className={`flex flex-col flex-1 min-h-0 ${animClass || ''}`}>
           <LessonSection course={course} module={module} initialSectionID={initialSectionID} />
         </div>

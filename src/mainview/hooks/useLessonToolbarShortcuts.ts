@@ -3,7 +3,6 @@ import { useShallow } from 'zustand/react/shallow';
 import type { Course, ModuleMeta } from '../../bun/types';
 import { useBookmarksStore } from '../stores/bookmarksStore';
 import { useCourseStore } from '../stores/courseStore';
-import { useLessonUIStore } from '../stores/lessonUIStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { useViewStore } from '../stores/viewStore';
 import { useShortcuts } from './useShortcuts';
@@ -32,13 +31,6 @@ export function useLessonToolbarShortcuts(course: Course, module: ModuleMeta): v
       setTransitionStyle: s.setTransitionStyle,
     })),
   );
-  const { toggleTools, togglePomodoro } = useLessonUIStore(
-    useShallow((s) => ({
-      toggleTools: s.toggleTools,
-      togglePomodoro: s.togglePomodoro,
-    })),
-  );
-
   useShortcuts('lessonToolbar', {
     decFontSize,
     incFontSize,
@@ -60,8 +52,6 @@ export function useLessonToolbarShortcuts(course: Course, module: ModuleMeta): v
       }
     },
     focusMode: toggleFocusMode,
-    pomodoro: togglePomodoro,
-    tools: toggleTools,
     reviewCards: () => {
       if (!course) return;
       const found = courses.find((c) => c.id === course.id);

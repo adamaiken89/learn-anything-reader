@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { useLessonViewStore } from '../stores/lessonViewStore';
+import { useSettingsStore } from '../stores/settingsStore';
 import { useLessonKeyboardShortcuts } from './useLessonKeyboardShortcuts';
 
 let capturedListener: ((e: Partial<KeyboardEvent>) => void) | null = null;
@@ -9,6 +10,7 @@ let origAddEventListener: typeof window.addEventListener;
 
 beforeEach(() => {
   useLessonViewStore.setState({ searchTrigger: 0 });
+  useSettingsStore.setState({ rightPanel: false as const });
   capturedListener = null;
   origAddEventListener = window.addEventListener;
   window.addEventListener = mock((type: string, listener: EventListener) => {
@@ -40,7 +42,7 @@ function setup(overrides: Partial<Parameters<typeof useLessonKeyboardShortcuts>[
     goNext: mock(() => {}),
     contentRef: { current: null },
     showToolbar: false,
-    toggleSections: mock(() => {}),
+    setRightPanel: mock(() => {}),
     setSearchCourseOpen: mock(() => {}),
     ...overrides,
   };
@@ -67,10 +69,10 @@ describe('useLessonKeyboardShortcuts', () => {
     expect(goPrev).not.toHaveBeenCalled();
   });
 
-  test('calls toggleSections on s key', () => {
-    const { toggleSections } = setup();
+  test('calls setRightPanel on s key', () => {
+    const { setRightPanel } = setup();
     fireKey('s');
-    expect(toggleSections).toHaveBeenCalled();
+    expect(setRightPanel).toHaveBeenCalledWith('sections');
   });
 
   test('increments searchTrigger on Cmd+F', () => {

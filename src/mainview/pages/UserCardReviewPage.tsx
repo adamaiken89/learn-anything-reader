@@ -23,7 +23,7 @@ export default function UserCardReviewPage({ courseId, onBack }: UserCardReviewP
           />
         }
       />
-      <PageContent>
+      <PageContent className="py-8">
         <UserCardReviewSection courseId={courseId} />
       </PageContent>
     </PageLayout>

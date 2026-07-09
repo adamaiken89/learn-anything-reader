@@ -16,7 +16,8 @@
     "deleteBookmark": "刪除書籤",
     "modules": "單元",
     "courses": "課程",
-    "courseReader": "CourseReader"
+    "courseReader": "CourseReader",
+    "notes": "筆記"
   },
   "landing": {
     "title": "歡迎使用 CourseReader",
@@ -64,7 +65,8 @@
     "searchCourse": "搜尋",
     "moduleBadge": "M{{current}}/{{total}}",
     "modules": "單元",
-    "noSections": "此單元無章節。"
+    "noSections": "此單元無章節。",
+    "appearance": "外觀設定"
   },
   "viewerSearch": {
     "placeholder": "在頁面中搜尋...",
@@ -203,6 +205,8 @@
     "clearLogsDesc": "刪除 ~/.coursereader/logs 中的所有日誌檔案。有助於隱私或故障排除。",
     "confirmClearLogs": "確定嗎？再點擊一次以確認。",
     "clearLogsSuccess": "日誌已清除",
+    "contentWidth": "內容寬度",
+    "moreInSettings": "更多設定 →",
     "pageTransition": "頁面過渡",
     "transitionNone": "無",
     "transitionNoneDesc": "立即切換，無動畫",
@@ -355,6 +359,7 @@
   },
   "mermaid": {
     "expand": "點擊展開",
-    "downloadPng": "下載 PNG"
+    "downloadPng": "下載 PNG",
+    "reset": "重設"
   }
 }

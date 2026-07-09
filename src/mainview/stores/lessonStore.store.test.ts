@@ -4,7 +4,7 @@ import { useLessonUIStore } from './lessonUIStore';
 import { useSelectionStore } from './selectionStore';
 
 beforeEach(() => {
-  useLessonUIStore.setState({ showTools: false, showPomodoro: false, searchCourseOpen: false });
+  useLessonUIStore.setState({ showPomodoro: false, searchCourseOpen: false });
   useSelectionStore.setState({
     showToolbar: false,
     showNoteEditor: false,
@@ -20,16 +20,8 @@ beforeEach(() => {
 describe('lessonUIStore', () => {
   test('default state', () => {
     const s = useLessonUIStore.getState();
-    expect(s.showTools).toBe(false);
     expect(s.showPomodoro).toBe(false);
     expect(s.searchCourseOpen).toBe(false);
-  });
-
-  test('toggleTools flips showTools', () => {
-    useLessonUIStore.getState().toggleTools();
-    expect(useLessonUIStore.getState().showTools).toBe(true);
-    useLessonUIStore.getState().toggleTools();
-    expect(useLessonUIStore.getState().showTools).toBe(false);
   });
 
   test('togglePomodoro flips showPomodoro', () => {

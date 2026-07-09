@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
-import CourseTags from './CourseTags';
-import ProgressBar from './ProgressBar';
+import type { LastSession } from '../../../bun/types';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useViewStore } from '../../stores/viewStore';
-
-import type { LastSession } from '../../../bun/types';
+import CourseTags from './CourseTags';
+import ProgressBar from './ProgressBar';
 
 export default function ResumeCard({ lastSession }: { lastSession: LastSession }) {
   const { t } = useTranslation();

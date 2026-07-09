@@ -1,4 +1,6 @@
 import { useLessonViewStore } from '../stores/lessonViewStore';
+import type { RightPanel } from '../stores/settingsStore';
+import { useSettingsStore } from '../stores/settingsStore';
 import { useShortcuts } from './useShortcuts';
 
 export interface UseLessonKeyboardShortcutsParams {
@@ -8,7 +10,7 @@ export interface UseLessonKeyboardShortcutsParams {
   goNext: () => void;
   contentRef: React.RefObject<HTMLDivElement | null>;
   showToolbar: boolean;
-  toggleSections: () => void;
+  setRightPanel: (v: RightPanel) => void;
   setSearchCourseOpen: (v: boolean) => void;
 }
 
@@ -19,7 +21,7 @@ export function useLessonKeyboardShortcuts({
   goNext,
   contentRef,
   showToolbar,
-  toggleSections,
+  setRightPanel,
   setSearchCourseOpen,
 }: UseLessonKeyboardShortcutsParams): void {
   useShortcuts('lesson', {
@@ -40,8 +42,8 @@ export function useLessonKeyboardShortcuts({
       contentRef.current?.scrollBy({ top: 80, behavior: 'smooth' });
     },
     toggleSections: () => {
-      if (showToolbar) return;
-      toggleSections();
+      const current = useSettingsStore.getState().rightPanel;
+      setRightPanel(current === 'sections' ? false : 'sections');
     },
     findInPage: () =>
       useLessonViewStore

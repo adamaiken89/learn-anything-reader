@@ -18,15 +18,16 @@ function ProgressBadge() {
 
   return (
     <div className="flex items-center gap-1.5">
-      <div className="w-16 h-1 rounded-full overflow-hidden bg-gray-700">
+      <div className="w-16 h-2 rounded-full overflow-hidden bg-gray-700">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{
-            width: `${(completedCount / totalModules) * 100}%`,
+            width: `${Math.max(2, (completedCount / totalModules) * 100)}%`,
             background:
               completedCount === totalModules
                 ? `linear-gradient(90deg, ${COMPLETION_GREEN}, ${COMPLETION_GREEN_DARK})`
-                : `linear-gradient(90deg, ${ACCENT_INDIGO}, ${ACCENT_INDIGO_LIGHT})`,
+                : ACCENT_INDIGO,
+            boxShadow: completedCount > 0 ? `0 0 6px ${ACCENT_INDIGO_LIGHT}40` : 'none',
           }}
         />
       </div>

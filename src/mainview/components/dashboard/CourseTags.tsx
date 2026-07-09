@@ -18,7 +18,7 @@ export default function CourseTags({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
+    <div className="mt-2 flex flex-wrap gap-2">
       <span className="bg-indigo-900/40 border border-indigo-700/40 text-indigo-300 px-2 py-0.5 rounded-md text-[11px] font-medium">
         {formatTargetLevel(targetLevel)}
       </span>

@@ -12,7 +12,7 @@ export function ColorPickerRow({
   onDeleteHighlight,
 }: ColorPickerRowProps) {
   return (
-    <div className="flex items-center justify-center gap-2 px-3 py-2">
+    <div className="flex items-center justify-center gap-1.5 px-2 py-1.5">
       {Object.entries(HIGHLIGHT_COLORS)
         .filter(([name]) => name !== 'note')
         .map(([name, color]) => {
@@ -21,10 +21,10 @@ export function ColorPickerRow({
             <button
               key={name}
               onClick={() => (isActive ? onDeleteHighlight?.() : onSelectColor(name))}
-              className={`w-5 h-5 rounded-full border transition-transform shrink-0 ${
+              className={`w-4 h-4 rounded-full border transition-all shrink-0 ${
                 isActive
-                  ? 'border-white scale-125 ring-1 ring-white'
-                  : 'border-gray-500 hover:scale-125'
+                  ? 'border-white scale-125 ring-1 ring-white opacity-100'
+                  : 'border-gray-500 opacity-80 hover:opacity-100 hover:scale-125'
               }`}
               style={{ backgroundColor: color }}
               title={name}

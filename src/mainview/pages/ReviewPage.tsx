@@ -23,7 +23,7 @@ export default function ReviewPage({ courseId, onBack }: ReviewPageProps) {
           />
         }
       />
-      <PageContent>
+      <PageContent className="py-8">
         <ReviewSection courseId={courseId} />
       </PageContent>
     </PageLayout>

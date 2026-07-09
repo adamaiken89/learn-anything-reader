@@ -6,7 +6,6 @@ import LessonContentViewer from '../components/lesson/LessonContentViewer';
 import NavigationPanel from '../components/lesson/NavigationPanel';
 import ViewerSearch from '../components/lesson/ViewerSearch';
 import PomodoroTimer from '../components/PomodoroTimer';
-import StudyTools from '../components/StudyTools';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useLesson } from '../hooks/useLesson';
 import { useLessonAnimations } from '../hooks/useLessonAnimations';
@@ -35,16 +34,8 @@ export default function LessonSection({
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
 
-  const {
-    toggle,
-    showTools,
-    showPomodoro,
-    toggleTools,
-    setSearchCourseOpen,
-    focusMode,
-    showSections,
-    toggleSections,
-  } = useLessonSection(course, module);
+  const { toggle, showPomodoro, setSearchCourseOpen, focusMode, rightPanel, setRightPanel } =
+    useLessonSection(course, module);
 
   const { loading, contentRef, scrollToSection } = useLesson(
     course.id,
@@ -66,10 +57,9 @@ export default function LessonSection({
   useBookmarks(course.id, module.id, null);
   const nav = useLessonNav(course, module);
 
-  const { showStudyTools, showSectionsPanel, showPomodoroTimer } = useLessonAnimations({
-    showTools,
+  const { showPomodoroTimer } = useLessonAnimations({
     focusMode,
-    showSections,
+    rightPanel,
     showPomodoro,
   });
 
@@ -82,7 +72,7 @@ export default function LessonSection({
     goNext: nav.goNext,
     contentRef,
     showToolbar,
-    toggleSections,
+    setRightPanel,
     setSearchCourseOpen,
   });
 
@@ -93,26 +83,8 @@ export default function LessonSection({
 
   return (
     <div className="flex flex-1 overflow-clip min-h-0">
-      {showStudyTools && (
-        <div
-          className={
-            showTools && !focusMode ? 'anim-panel-slide-left' : 'anim-panel-slide-left-exit'
-          }
-        >
-          <StudyTools onClose={() => toggleTools()} />
-        </div>
-      )}
-
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        {!showSections && !focusMode && (
-          <button
-            onClick={toggleSections}
-            className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 shadow-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-          >
-            ☰
-          </button>
-        )}
-
         {showPomodoroTimer && (
           <div className={`relative h-0 z-40 ${showPomodoro ? 'anim-pop-in' : 'anim-pop-out'}`}>
             <div className="absolute left-4 top-2">
@@ -121,37 +93,38 @@ export default function LessonSection({
           </div>
         )}
 
-        {showSectionsPanel && (
-          <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 overflow-visible">
-            <div
-              className={
-                showSections && !focusMode
-                  ? 'anim-panel-slide-right'
-                  : 'anim-panel-slide-right-exit'
-              }
-            >
-              <NavigationPanel
-                sections={sections}
-                courseId={course.id}
-                moduleId={module.id}
-                moduleName={module.name}
-                modules={course.modules}
-                currentModuleId={module.id}
-                hasPrev={nav.hasPrev}
-                hasNext={nav.hasNext}
-                onGoPrev={nav.goPrev}
-                onGoNext={nav.goNext}
-                onScrollToSection={scrollToSection}
-                onModuleSelect={(mod) => push({ type: 'lesson', course, module: mod })}
-                onClose={toggleSections}
-              />
-            </div>
-          </div>
-        )}
-
         {search.searchActive && <ViewerSearch search={search} />}
         <LessonContentViewer search={search} />
       </div>
+
+      {/* Right Sidebar — Navigation + AI Skills */}
+      {!focusMode && (
+        <div
+          className={`${
+            rightPanel ? 'w-72' : 'w-0'
+          } overflow-hidden shrink-0 border-l border-gray-700 bg-gray-800/50 transition-all duration-300`}
+        >
+          <div className="w-72 h-full flex flex-col">
+            <NavigationPanel
+              sections={sections}
+              courseId={course.id}
+              moduleId={module.id}
+              moduleName={module.name}
+              modules={course.modules}
+              currentModuleId={module.id}
+              hasPrev={nav.hasPrev}
+              hasNext={nav.hasNext}
+              onGoPrev={nav.goPrev}
+              onGoNext={nav.goNext}
+              onScrollToSection={scrollToSection}
+              onModuleSelect={(mod) => push({ type: 'lesson', course, module: mod })}
+              onClose={() => setRightPanel(false)}
+              activeTab={rightPanel}
+              onTabChange={setRightPanel}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
