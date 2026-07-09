@@ -34,8 +34,8 @@ export default function DangerSection() {
   };
 
   return (
-    <section className="bg-red-900/30 border border-red-800 rounded-xl p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-2 text-red-400">{t('settings.dangerZone')}</h3>
+    <section className="bg-red-900/30 border border-red-800 rounded-xl p-6">
+      <h3 className="text-lg font-semibold mb-4 text-red-400">{t('settings.dangerZone')}</h3>
       <div className="space-y-4">
         <div>
           <p className="text-sm text-gray-400 mb-4">{t('settings.clearDataDesc')}</p>

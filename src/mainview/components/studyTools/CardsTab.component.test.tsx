@@ -93,9 +93,9 @@ describe('CardsTab', () => {
       makeUserCard({ id: 'c2', front: 'What is C?', back: 'C is D' }),
     ]);
     mockResponse('deleteUserCard', null);
-    const { findByText, getAllByText, queryByText } = render(<CardsTab />);
+    const { container, findByText, queryByText } = render(<CardsTab />);
     expect(await findByText('What is A?')).toBeInTheDocument();
-    const closeButtons = getAllByText('✕');
+    const closeButtons = container.querySelectorAll('.lucide-x');
     await user.click(closeButtons[0]);
     await waitFor(() => {
       expect(queryByText('What is A?')).not.toBeInTheDocument();

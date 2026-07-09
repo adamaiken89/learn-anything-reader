@@ -19,6 +19,9 @@ interface UseCardReviewStateReturn<TCard> {
   showAnswer: boolean;
   filter: FilterMode;
   currentCard: TCard | undefined;
+  sessionReviewed: number;
+  sessionCorrect: number;
+  accuracy: number;
   setShowAnswer: (v: boolean) => void;
   setFilter: (f: FilterMode) => void;
   handleReview: (correct: boolean) => Promise<void>;
@@ -35,6 +38,8 @@ export function useCardReviewState<TCard>(
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [filter, setFilter] = useState<FilterMode>('all');
+  const [sessionReviewed, setSessionReviewed] = useState(0);
+  const [sessionCorrect, setSessionCorrect] = useState(0);
 
   const loadCards = useCallback(
     (f: FilterMode) => {
@@ -63,6 +68,8 @@ export function useCardReviewState<TCard>(
     const card = cards[currentIndex];
     if (!card) return;
     await reviewCard(card, correct);
+    setSessionReviewed((r) => r + 1);
+    if (correct) setSessionCorrect((c) => c + 1);
     setShowAnswer(false);
     if (currentIndex < cards.length - 1) {
       setCurrentIndex((i) => i + 1);
@@ -80,6 +87,8 @@ export function useCardReviewState<TCard>(
 
   const currentCard = cards[currentIndex];
 
+  const accuracy = sessionReviewed > 0 ? sessionCorrect / sessionReviewed : 0;
+
   return {
     cards,
     loading,
@@ -87,6 +96,9 @@ export function useCardReviewState<TCard>(
     showAnswer,
     filter,
     currentCard,
+    sessionReviewed,
+    sessionCorrect,
+    accuracy,
     setShowAnswer,
     setFilter: (f: FilterMode) => {
       setFilter(f);

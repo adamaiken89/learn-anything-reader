@@ -3,10 +3,7 @@ import { create } from 'zustand';
 import type { Highlight } from '../../bun/types';
 import { api } from '../api';
 import { showToast } from '../toast';
-
-function key(courseId: string, moduleId: string) {
-  return `${courseId}:${moduleId}`;
-}
+import { key } from './storageUtils';
 
 interface HighlightsState {
   byModule: Record<string, Highlight[]>;

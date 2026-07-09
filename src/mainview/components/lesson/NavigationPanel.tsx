@@ -1,69 +1,37 @@
-import { Check } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Circle } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ModuleMeta, Section } from '../../../bun/types';
+import type { ModuleMeta, ModuleSession, Section } from '../../../bun/types';
 import { logger } from '../../logger';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useLessonUIStore } from '../../stores/lessonUIStore';
-import { useLessonViewStore } from '../../stores/lessonViewStore';
 import type { RightPanel } from '../../stores/settingsStore';
 import NotesHighlightsTab from '../studyTools/NotesHighlightsTab';
 import { toggleVariants } from '../ui';
+import NavigationAITab from './NavigationAITab';
 import SectionRow from './SectionRow';
 
 interface NavigationPanelProps {
-  sections: Section[];
   courseId: string;
   moduleId: string;
   moduleName: string;
   modules: ModuleMeta[];
   currentModuleId: string;
-  hasPrev: boolean;
-  hasNext: boolean;
-  onGoPrev: () => void;
-  onGoNext: () => void;
   onScrollToSection: (sectionId: string) => void;
-  onModuleSelect: (mod: ModuleMeta) => void;
+  onModuleSelect: (mod: ModuleMeta, sectionID?: string) => void;
   onClose: () => void;
   activeTab: RightPanel;
   onTabChange: (tab: RightPanel) => void;
 }
 
-const AI_SKILLS = [
-  {
-    id: 'feynman',
-    label: 'Feynman Explain',
-    prompt:
-      'Explain this section using the Feynman technique: simplify each concept as if teaching a beginner.',
-  },
-  {
-    id: 'reframe',
-    label: 'Reframe',
-    prompt:
-      'Reframe the key concepts in this lesson from a different perspective to deepen understanding.',
-  },
-  {
-    id: 'drill',
-    label: 'Drill',
-    prompt: 'Generate practice questions for this lesson to test understanding.',
-  },
-] as const;
-
-type AISkillId = (typeof AI_SKILLS)[number]['id'];
-
 export default function NavigationPanel({
-  sections: _sections,
   courseId,
   moduleId,
   moduleName,
   modules,
   currentModuleId,
-  hasPrev: _hasPrev,
-  hasNext: _hasNext,
-  onGoPrev: _onGoPrev,
-  onGoNext: _onGoNext,
   onScrollToSection,
   onModuleSelect,
   onClose,
@@ -73,28 +41,33 @@ export default function NavigationPanel({
   const { t } = useTranslation();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [allSections, setAllSections] = useState<Record<string, Section[]>>({});
-  const [activeAISkill, setActiveAISkill] = useState<AISkillId | null>(null);
-  const [aiResponse, setAiResponse] = useState<string>('');
-  const [aiLoading, setAiLoading] = useState(false);
+  const [moduleSessions, setModuleSessions] = useState<Record<string, ModuleSession>>({});
   const sectionsRef = useRef<HTMLDivElement>(null);
   const activeModRef = useRef<HTMLButtonElement>(null);
 
   const visibleSection = useLessonUIStore((s) => s.visibleSection);
   const bookmarks = useBookmarksStore((s) => s.byModule[`${courseId}:${moduleId}`]) ?? [];
   const completed = useCompletionStore((s) => s.completed);
-  const content = useLessonViewStore((s) => s.content);
 
-  // Pre-fetch sections for all modules
+  // Pre-fetch sections + module sessions
   useEffect(() => {
     const load = async () => {
       const { api } = await import('../../api');
-      const entries = await Promise.all(
-        modules.map(async (mod) => {
-          const secs = await api.courses.sections(courseId, mod.id);
-          return [mod.id, secs] as const;
-        }),
-      );
+      const [entries, sessions] = await Promise.all([
+        Promise.all(
+          modules.map(async (mod) => {
+            const secs = await api.courses.sections(courseId, mod.id);
+            return [mod.id, secs] as const;
+          }),
+        ),
+        api.session.getCourseModuleSessions(courseId),
+      ]);
       setAllSections(Object.fromEntries(entries));
+      const sessionMap: Record<string, ModuleSession> = {};
+      for (const s of sessions) {
+        sessionMap[`${courseId}:${s.moduleId}`] = s;
+      }
+      setModuleSessions(sessionMap);
     };
     void load();
   }, [courseId, modules]);
@@ -120,29 +93,6 @@ export default function NavigationPanel({
       return next;
     });
   }, []);
-
-  const handleAISkill = async (skill: AISkillId) => {
-    if (skill === activeAISkill && aiResponse) {
-      setActiveAISkill(null);
-      setAiResponse('');
-      return;
-    }
-    const info = AI_SKILLS.find((s) => s.id === skill);
-    if (!info) return;
-    setActiveAISkill(skill);
-    setAiLoading(true);
-    setAiResponse('');
-    try {
-      const res = content || '';
-      const { api } = await import('../../api');
-      const response = await api.gemini.ask(info.prompt, res);
-      setAiResponse(response.response);
-    } catch {
-      setAiResponse(t('studyTools.aiError'));
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (!visibleSection || !sectionsRef.current) return;
@@ -175,7 +125,7 @@ export default function NavigationPanel({
           </button>
         ))}
         <button onClick={onClose} className={`px-2 ${toggleVariants({ active: true })}`}>
-          →
+          <ChevronRight size={14} />
         </button>
       </div>
 
@@ -194,7 +144,8 @@ export default function NavigationPanel({
                   ref={isCurrent ? activeModRef : undefined}
                   onClick={() => {
                     if (!isCurrent) {
-                      onModuleSelect(mod);
+                      const s = moduleSessions[`${courseId}:${mod.id}`];
+                      onModuleSelect(mod, s?.sectionId ?? undefined);
                     }
                     toggleExpand(mod.id);
                   }}
@@ -213,9 +164,15 @@ export default function NavigationPanel({
                     </span>
                     {/* Completed check — Lucide icon */}
                     {isCompleted && <Check size={12} className="text-green-400 shrink-0" />}
+                    {/* Previously read indicator */}
+                    {!isCompleted && moduleSessions[`${courseId}:${mod.id}`] && (
+                      <span title={t('lesson.prevRead')}>
+                        <Circle size={8} className="text-gray-500 fill-gray-500 shrink-0" />
+                      </span>
+                    )}
                     {/* Expand arrow */}
-                    <span className="w-3 text-center text-[10px] text-gray-500">
-                      {isExpanded ? '▾' : '▸'}
+                    <span className="w-3 flex justify-center text-gray-500">
+                      {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </span>
                   </span>
                   {/* Right zone: module name (flex-1, wraps) */}
@@ -255,53 +212,7 @@ export default function NavigationPanel({
       )}
 
       {/* AI+Ask Tab */}
-      {activeTab === 'ai' && (
-        <div className="overflow-y-auto flex-1 p-2.5">
-          <div className="mb-3">
-            <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">
-              AI Power-ups
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {AI_SKILLS.map((skill) => (
-              <button
-                key={skill.id}
-                onClick={() => void handleAISkill(skill.id)}
-                className={`px-2 py-1 text-[10px] rounded-full border transition-colors ${
-                  activeAISkill === skill.id
-                    ? 'bg-indigo-700/50 border-indigo-500 text-indigo-200'
-                    : 'bg-gray-800/60 border-gray-600/50 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
-                }`}
-              >
-                {skill.label}
-              </button>
-            ))}
-          </div>
-          {activeAISkill && (
-            <div className="mb-3">
-              {aiLoading ? (
-                <div className="text-[10px] text-gray-400 animate-pulse">
-                  {t('studyTools.thinking')}
-                </div>
-              ) : aiResponse ? (
-                <div className="text-[10px] text-gray-300 leading-relaxed whitespace-pre-wrap bg-gray-800/60 rounded p-2 max-h-48 overflow-y-auto">
-                  {aiResponse}
-                </div>
-              ) : null}
-            </div>
-          )}
-          <div className="mb-2">
-            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-              Ask anything
-            </span>
-          </div>
-          <textarea
-            className="w-full bg-gray-800/60 border border-gray-600/50 rounded p-2 text-xs text-gray-300 placeholder-gray-500 resize-none focus:outline-none focus:border-indigo-500"
-            rows={3}
-            placeholder="Ask a question about this lesson..."
-          />
-        </div>
-      )}
+      {activeTab === 'ai' && <NavigationAITab />}
 
       {/* Notes Tab */}
       {activeTab === 'notes' && (

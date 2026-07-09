@@ -66,7 +66,14 @@
     "moduleBadge": "M{{current}}/{{total}}",
     "modules": "Modules",
     "noSections": "No sections in this module.",
-    "appearance": "Appearance"
+    "prevRead": "Previously read",
+    "appearance": "Appearance",
+    "goToQuiz": "Go to Quiz",
+    "clozeQuiz": "Cloze Drill",
+    "cumulativeQuiz": "Cumulative Review",
+    "quizMCQ": "MCQ",
+    "quizCloze": "Cloze",
+    "quizCumulative": "Cumulative"
   },
   "viewerSearch": {
     "placeholder": "Find in page...",
@@ -75,7 +82,8 @@
     "caseSensitive": "Aa",
     "caseSensitiveTitle": "Match case",
     "prev": "Previous match",
-    "next": "Next match"
+    "next": "Next match",
+    "close": "Close"
   },
   "selection": {
     "copied": "Copied!"
@@ -92,7 +100,19 @@
     "difficulty": "Difficulty: {{level}}",
     "skip": "Skip",
     "nextQuestion": "Next Question",
-    "finishQuiz": "Finish Quiz"
+    "finishQuiz": "Finish Quiz",
+    "backToLesson": "Back to Lesson",
+    "filterAll": "All ({{count}})",
+    "filterCorrect": "Correct ({{count}})",
+    "filterWrong": "Wrong ({{count}})",
+    "correctLabel": "Correct",
+    "incorrectLabel": "Incorrect",
+    "explanation": "Explanation",
+    "nextChapter": "Next Chapter →",
+    "backToDashboard": "Back to Dashboard",
+    "reviewCourse": "Review Cards",
+    "previousPassed": "Passed",
+    "previousFailed": "Failed"
   },
   "review": {
     "loadingCards": "Loading review cards...",
@@ -111,7 +131,13 @@
     "forgot": "Forgot",
     "remembered": "Remembered",
     "unstar": "★ Unstar",
-    "star": "☆ Star"
+    "star": "☆ Star",
+    "reviewed": "Reviewed",
+    "accuracy": "Accuracy",
+    "remaining": "Remaining",
+    "flipHint": "Space to flip",
+    "forgotHint": "F to forget",
+    "rememberedHint": "R to remember"
   },
   "userCardReview": {
     "noCards": "No cards yet",
@@ -121,6 +147,8 @@
     "cardCounter": "{{current}} / {{total}}"
   },
   "settings": {
+    "integration": "Integration",
+    "preferences": "Preferences",
     "geminiApiKey": "Gemini API Key",
     "geminiApiKeyDesc": "Required for the Ask AI feature. Get a free key at",
     "aiStudioLink": "Google AI Studio",
@@ -155,9 +183,8 @@
     "forceSync": "Force re-download (even if up to date)",
     "englishUS": "English (US)",
     "englishUK": "English (UK)",
-    "englishCA": "English (CA)",
-    "englishAU": "English (AU)",
     "chineseTW": "繁體中文",
+    "chineseCN": "简体中文",
     "themes": {
       "dark": "Dark",
       "darkDesc": "Warm dark, easy on eyes at night",
@@ -215,7 +242,8 @@
     "transitionSlide": "Slide",
     "transitionSlideDesc": "Horizontal slide between views",
     "transitionFade": "Fade",
-    "transitionFadeDesc": "Smooth cross-fade"
+    "transitionFadeDesc": "Smooth cross-fade",
+    "download": "Download"
   },
   "studyTools": {
     "title": "Study Tools",
@@ -310,14 +338,6 @@
     "continueLearning": "Continue"
   },
   "icons": {
-    "bookmarkFilled": "★",
-    "bookmarkEmpty": "☆",
-    "pomodoro": "🍅",
-    "cards": "🃏",
-    "search": "🔍",
-    "close": "✕",
-    "note": "📝",
-    "clipboard": "📋",
     "themeDark": "🌙",
     "themeOled": "🖤",
     "themeNord": "❄️",
@@ -335,17 +355,7 @@
     "themeTerminal": "💻",
     "themeMonokai": "🎨",
     "themeMonochrome": "📄",
-    "themeNightOwl": "🦉",
-    "starFilled": "★",
-    "starEmpty": "☆",
-    "searchLesson": "📄",
-    "searchHighlight": "🖍",
-    "book": "📖",
-    "review": "🔄",
-    "stats": "📊",
-    "gear": "⚙",
-    "hamburger": "☰",
-    "check": "✓"
+    "themeNightOwl": "🦉"
   },
   "toast": {
     "apiError": "API error: {{message}}",

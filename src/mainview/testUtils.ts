@@ -2,8 +2,7 @@ import { act, render } from '@testing-library/react';
 import { beforeAll } from 'bun:test';
 
 import { __setRPC } from './api';
-
-const mockResponses = new Map<string, unknown>();
+import { clearMocks, mockResponses } from './mockState';
 
 export const mockRPC = {
   request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
@@ -22,10 +21,6 @@ export function mockResponse(method: string, data: unknown) {
   mockResponses.set(method, data);
 }
 
-export function clearMocks() {
-  mockResponses.clear();
-}
-
 export function deleteMock(method: string) {
   mockResponses.delete(method);
 }
@@ -33,6 +28,8 @@ export function deleteMock(method: string) {
 export function hasMock(method: string): boolean {
   return mockResponses.has(method);
 }
+
+export { clearMocks };
 
 export function setupRPC(rpc?: { request: Record<string, (p: unknown) => Promise<unknown>> }) {
   beforeAll(() => __setRPC(rpc ?? mockRPC));

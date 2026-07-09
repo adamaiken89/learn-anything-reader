@@ -15,6 +15,7 @@ describe('ReviewPage', () => {
   };
 
   beforeEach(() => {
+    mockResponse('coursesList', []);
     mockResponse('getSRSDeck', { cards: {} });
     void i18n.changeLanguage('en-US');
     useSettingsStore.setState({ focusMode: false });

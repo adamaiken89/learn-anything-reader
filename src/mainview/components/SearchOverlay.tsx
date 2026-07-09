@@ -1,3 +1,5 @@
+import { Search } from 'lucide-react';
+import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSearchOverlay } from '../hooks/useSearchOverlay';
@@ -13,6 +15,7 @@ interface SearchOverlayProps {
 export default function SearchOverlay({ initialCourseIDs, onClose }: SearchOverlayProps) {
   const { t } = useTranslation();
   const courses = useCourseStore((s) => s.courses);
+  const dragStartY = useRef<number | null>(null);
 
   const {
     query,
@@ -31,6 +34,20 @@ export default function SearchOverlay({ initialCourseIDs, onClose }: SearchOverl
     groupedResults,
   } = useSearchOverlay({ initialCourseIDs, onClose });
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    dragStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (dragStartY.current === null) return;
+      const delta = e.changedTouches[0].clientY - dragStartY.current;
+      dragStartY.current = null;
+      if (delta > 80) handleClose();
+    },
+    [handleClose],
+  );
+
   return (
     <div
       className={`fixed inset-0 z-[100] flex items-start justify-center pt-20 ${closing ? 'anim-overlay-out' : 'anim-overlay-in'}`}
@@ -41,7 +58,9 @@ export default function SearchOverlay({ initialCourseIDs, onClose }: SearchOverl
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-700">
-          <span className="text-gray-400 text-sm">{t('icons.search')}</span>
+          <span className="text-gray-400">
+            <Search size={16} />
+          </span>
           <input
             ref={inputRef}
             type="text"
@@ -72,7 +91,12 @@ export default function SearchOverlay({ initialCourseIDs, onClose }: SearchOverl
           onEscape={() => inputRef.current?.focus()}
         />
 
-        <div className="max-h-96 overflow-y-auto" ref={resultsRef}>
+        <div
+          className="max-h-96 overflow-y-auto"
+          ref={resultsRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {results.length > 0 && (
             <div className="px-2 py-1 text-[10px] text-gray-500 border-b border-gray-700">
               {t('search.results', { count: results.length })}

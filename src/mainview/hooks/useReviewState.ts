@@ -13,6 +13,9 @@ interface UseReviewStateReturn {
   filter: FilterMode;
   deck: SRSDeck;
   currentCard: SRSCard | undefined;
+  sessionReviewed: number;
+  sessionCorrect: number;
+  accuracy: number;
   setShowAnswer: (v: boolean) => void;
   setFilter: (f: FilterMode) => void;
   handleReview: (correct: boolean) => Promise<void>;

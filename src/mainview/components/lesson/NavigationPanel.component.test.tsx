@@ -31,6 +31,7 @@ beforeEach(() => {
   void i18n.changeLanguage('en-US');
   clearMocks();
   mockResponse('getSections', defaultSections);
+  mockResponse('getCourseModuleSessions', []);
   useBookmarksStore.setState({ byModule: {}, loading: {} });
   useCompletionStore.setState({ completed: {}, totalModules: {} });
 });
@@ -43,16 +44,11 @@ describe('NavigationPanel', () => {
   test('renders tab buttons', () => {
     const { getByText } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -66,16 +62,11 @@ describe('NavigationPanel', () => {
   test('renders current module expanded with sections', async () => {
     const { getByText } = await renderAndSettle(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -94,16 +85,11 @@ describe('NavigationPanel', () => {
   test('renders all modules in tree', () => {
     const { getByText } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -119,16 +105,11 @@ describe('NavigationPanel', () => {
     const scrollToSection = mock(() => {});
     const { getByText } = await renderAndSettle(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={scrollToSection}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -144,16 +125,11 @@ describe('NavigationPanel', () => {
   test('current module has indigo highlight', () => {
     const { getByText } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -167,16 +143,11 @@ describe('NavigationPanel', () => {
   test('shows module numbers', () => {
     const { getByText } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={() => {}}
@@ -192,16 +163,11 @@ describe('NavigationPanel', () => {
     const onModuleSelect = mock(() => {});
     const { getByText } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={onModuleSelect}
         onClose={() => {}}
@@ -211,23 +177,18 @@ describe('NavigationPanel', () => {
     );
     await user.click(getByText('Module 2'));
     expect(onModuleSelect).toHaveBeenCalledTimes(1);
-    expect(onModuleSelect).toHaveBeenCalledWith(defaultModules[1]);
+    expect(onModuleSelect).toHaveBeenCalledWith(defaultModules[1], undefined);
   });
 
   test('clicking close calls onClose', async () => {
     const onClose = mock(() => {});
-    const { getByText } = render(
+    const { container } = render(
       <NavigationPanel
-        sections={defaultSections}
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
         currentModuleId={defaultModuleId}
-        hasPrev={false}
-        hasNext={false}
-        onGoPrev={() => {}}
-        onGoNext={() => {}}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
         onClose={onClose}
@@ -235,7 +196,64 @@ describe('NavigationPanel', () => {
         onTabChange={mock(() => {})}
       />,
     );
-    await user.click(getByText('→'));
+    await user.click(container.querySelector('.lucide-chevron-right')!);
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders session indicators when sessions exist', async () => {
+    mockResponse('getCourseModuleSessions', [
+      {
+        courseId: defaultCourseId,
+        moduleId: 'mod-01',
+        sectionId: 'intro',
+        scrollPosition: 100,
+        updatedAt: '2024-01-01',
+      },
+    ]);
+    const { getByText } = await renderAndSettle(
+      <NavigationPanel
+        courseId={defaultCourseId}
+        moduleId={defaultModuleId}
+        moduleName="Test Module"
+        modules={defaultModules}
+        currentModuleId={defaultModuleId}
+        onScrollToSection={() => {}}
+        onModuleSelect={() => {}}
+        onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
+      />,
+    );
+    // Module should still render
+    expect(getByText('Module 1')).toBeInTheDocument();
+  });
+
+  test('handleToggleSectionBookmark calls bookmark store toggle', async () => {
+    mockResponse('getSections', [makeSection('intro', 'Introduction', 2)]);
+    mockResponse('addBookmark', {
+      id: 'bm-1',
+      title: 'Test Module – Introduction',
+      sectionID: 'intro',
+    });
+    useBookmarksStore.setState({ byModule: {} });
+    await renderAndSettle(
+      <NavigationPanel
+        courseId={defaultCourseId}
+        moduleId={defaultModuleId}
+        moduleName="Test Module"
+        modules={defaultModules}
+        currentModuleId={defaultModuleId}
+        onScrollToSection={() => {}}
+        onModuleSelect={() => {}}
+        onClose={() => {}}
+        activeTab={'sections' as const}
+        onTabChange={mock(() => {})}
+      />,
+    );
+    // Handler calls void toggle() — fire-and-forget. Test the store directly.
+    const { toggle } = useBookmarksStore.getState();
+    await toggle(defaultCourseId, defaultModuleId, 'Test Module – Introduction', 'intro');
+    const key = `${defaultCourseId}:${defaultModuleId}`;
+    expect(useBookmarksStore.getState().byModule[key]).toBeDefined();
   });
 });

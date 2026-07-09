@@ -18,15 +18,12 @@ export default function CourseTags({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="mt-2 flex flex-wrap gap-2">
-      <span className="bg-indigo-900/40 border border-indigo-700/40 text-indigo-300 px-2 py-0.5 rounded-md text-[11px] font-medium">
+    <div className="mt-2 flex items-center gap-2">
+      <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-md text-[11px] font-medium">
         {formatTargetLevel(targetLevel)}
       </span>
-      <span className="bg-emerald-900/40 border border-emerald-700/40 text-emerald-300 px-2 py-0.5 rounded-md text-[11px] font-medium">
-        {timeHours}h
-      </span>
-      <span className="bg-amber-900/40 border border-amber-700/40 text-amber-300 px-2 py-0.5 rounded-md text-[11px] font-medium">
-        {t('dashboard.modules', { count: moduleCount })}
+      <span className="text-xs text-gray-500">
+        {timeHours}h · {t('dashboard.modules', { count: moduleCount })}
       </span>
     </div>
   );

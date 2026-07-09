@@ -13,7 +13,7 @@ export function useWindowTitle() {
   useEffect(() => {
     if (!currentView) return;
 
-    let title: string;
+    let title = 'CourseReader';
     switch (currentView.type) {
       case 'lesson': {
         const modIdx =

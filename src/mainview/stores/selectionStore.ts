@@ -46,7 +46,7 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
       return;
     }
     const text = sel.toString().trim();
-    if (!text || text.length > 500) return;
+    if (!text || text.length < 3 || text.length > 500) return;
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     set({
@@ -73,9 +73,18 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
 
   setPopoverNote: (note) => set({ popoverNote: note }),
 
-  openNoteEditor: () => set({ showNoteEditor: true, noteText: '' }),
+  openNoteEditor: () =>
+    set((state) => ({
+      showNoteEditor: !state.showNoteEditor,
+      showCardEditor: false,
+      noteText: '',
+    })),
 
-  openCardEditor: () => set({ showCardEditor: true }),
+  openCardEditor: () =>
+    set((state) => ({
+      showCardEditor: !state.showCardEditor,
+      showNoteEditor: false,
+    })),
 
   setNoteText: (text) => set({ noteText: text }),
 

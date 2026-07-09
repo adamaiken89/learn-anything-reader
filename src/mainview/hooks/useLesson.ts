@@ -71,7 +71,7 @@ export function useLesson(
       container.scrollTop -
       20;
     logger.debug({ sectionId, offset }, 'scrollToSection: scrolling');
-    container.scrollTop = offset;
+    container.scrollTo({ top: offset, behavior: 'smooth' });
     container.focus();
   }, []);
 

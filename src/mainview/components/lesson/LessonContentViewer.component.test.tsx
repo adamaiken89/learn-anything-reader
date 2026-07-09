@@ -67,4 +67,21 @@ describe('LessonContentViewer', () => {
     const { container } = render(<LessonContentViewer search={createMockSearch()} />);
     expect(container.querySelector('[data-testid="viewer-search"]')).not.toBeInTheDocument();
   });
+
+  test('renders lesson content with markdown', () => {
+    const { container } = render(<LessonContentViewer search={createMockSearch()} />);
+    expect(container.querySelector('[data-testid="lesson-content"]')).toBeInTheDocument();
+    // markdown content rendered
+    expect(container.textContent).toContain('Content here');
+  });
+
+  // ClozeBlank rendering tested separately in ClozeBlank.component.test.tsx
+  // and rehypeCloze.test.ts — react-markdown is mocked here so rehype plugins don't run
+
+  test('handleScroll no-ops when contentRef.current is null', () => {
+    useLessonViewStore.setState({ contentRef: { current: null } });
+    // Should not throw
+    const { container } = render(<LessonContentViewer search={createMockSearch()} />);
+    expect(container.querySelector('[data-testid="lesson-content"]')).toBeInTheDocument();
+  });
 });

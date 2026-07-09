@@ -113,7 +113,6 @@ export function useSearchOverlay({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
-        e.preventDefault();
         inputRef.current?.select();
         return;
       }

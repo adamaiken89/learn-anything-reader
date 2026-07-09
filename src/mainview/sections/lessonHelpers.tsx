@@ -88,19 +88,26 @@ export const components = {
 };
 
 export function getTextOffset(
-  container: HTMLElement,
+  container: Node,
   range: Range,
 ): { start: number; end: number } | null {
   try {
-    const offsetOf = (node: Node, offset: number): number => {
-      const r = document.createRange();
-      r.setStart(container, 0);
-      r.setEnd(node, offset);
-      return r.toString().length;
-    };
-    const a = offsetOf(range.startContainer, range.startOffset);
-    const b = offsetOf(range.endContainer, range.endOffset);
-    return { start: Math.min(a, b), end: Math.max(a, b) };
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    let pos = 0;
+    let start = -1;
+    let end = -1;
+
+    while (walker.nextNode()) {
+      const node = walker.currentNode as Text;
+      const len = node.length;
+      if (node === range.startContainer) start = pos + range.startOffset;
+      if (node === range.endContainer) end = pos + range.endOffset;
+      pos += len;
+      if (start >= 0 && end >= 0) break;
+    }
+
+    if (start < 0 || end < 0) return null;
+    return { start: Math.min(start, end), end: Math.max(start, end) };
   } catch {
     return null;
   }

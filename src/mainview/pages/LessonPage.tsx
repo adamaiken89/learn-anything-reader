@@ -1,3 +1,4 @@
+import { ListChecks, MoreHorizontal } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
@@ -7,8 +8,11 @@ import AppearancePopover from '../components/lesson/AppearancePopover';
 import CardsButton from '../components/lesson/CardsButton';
 import LessonToolbar from '../components/lesson/LessonToolbar';
 import ProgressBadge from '../components/lesson/ProgressBadge';
+import QuizOverlay from '../components/lesson/QuizOverlay';
 import QuizReviewButtons from '../components/lesson/QuizReviewButtons';
+import ShortcutHelp from '../components/lesson/ShortcutHelp';
 import SearchOverlay from '../components/SearchOverlay';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { useLastSession } from '../hooks/useLastSession';
 import { useLessonToolbarShortcuts } from '../hooks/useLessonToolbarShortcuts';
 import PageContent from '../layouts/PageContent';
@@ -35,6 +39,9 @@ export default function LessonPage({
   const searchCourseOpen = useLessonUIStore((s) => s.searchCourseOpen);
   const setSearchCourseOpen = useLessonUIStore((s) => s.setSearchCourseOpen);
   const transitionStyle = useSettingsStore((s) => s.transitionStyle);
+  const isMobile = useIsMobile();
+  const [showOverflowMenu, setShowOverflowMenu] = useState(false);
+  const [quizOverlayOpen, setQuizOverlayOpen] = useState(false);
 
   const focusMode = useSettingsStore((s) => s.focusMode);
   useLessonToolbarShortcuts(course, module);
@@ -93,37 +100,106 @@ export default function LessonPage({
         {!focusMode && (
           <>
             <AppearancePopover />
-            <div className="h-3 w-px bg-gray-600/50" />
+            {!isMobile && <ShortcutHelp />}
+            {!isMobile && <div className="h-3 w-px bg-gray-600/50" />}
             {/* Segmented control: Module + Progress + Quiz + Review */}
-            <div className="flex items-center bg-gray-800/50 border border-gray-700/60 rounded-lg overflow-hidden">
-              <span className="text-[11px] font-semibold text-gray-300 tabular-nums whitespace-nowrap px-2 py-1">
-                {t('lesson.moduleBadge', {
-                  current: moduleIndex + 1,
-                  total: course.modules.length,
-                  defaultValue: moduleBadge,
-                })}
-              </span>
-              <div className="h-3 w-px bg-gray-700/50" />
-              <div className="px-2 py-1">
-                <ProgressBadge />
+            {!isMobile && (
+              <div className="flex items-center bg-gray-800/50 border border-gray-700/60 rounded-lg">
+                <span className="text-[11px] font-semibold text-gray-300 tabular-nums whitespace-nowrap px-2 py-1">
+                  {t('lesson.moduleBadge', {
+                    current: moduleIndex + 1,
+                    total: course.modules.length,
+                    defaultValue: moduleBadge,
+                  })}
+                </span>
+                <div className="h-3 w-px bg-gray-700/50" />
+                <div className="px-2 py-1">
+                  <ProgressBadge />
+                </div>
+                <div className="h-3 w-px bg-gray-700/50" />
+                <QuizReviewButtons />
               </div>
-              <div className="h-3 w-px bg-gray-700/50" />
-              <QuizReviewButtons />
-            </div>
+            )}
             <div className="ml-auto flex items-center gap-1">
+              <button
+                onClick={() => setQuizOverlayOpen(true)}
+                className={headerBtnClass}
+                title={t('lesson.quizAccess', 'Quiz Access')}
+              >
+                <ListChecks size={14} className="inline mr-1" />
+                Quiz
+              </button>
               <CardsButton />
-              <div className="h-3 w-px bg-gray-600/50" />
-              {(['sections', 'ai', 'notes'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => handlePanelToggle(tab)}
-                  className={rightPanel === tab ? headerActiveClass : headerBtnClass}
-                >
-                  {tab === 'sections' && t('lesson.sections')}
-                  {tab === 'ai' && 'AI'}
-                  {tab === 'notes' && t('common.notes')}
-                </button>
-              ))}
+              {!isMobile && <div className="h-3 w-px bg-gray-600/50" />}
+              {!isMobile &&
+                (['sections', 'ai', 'notes'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => handlePanelToggle(tab)}
+                    className={rightPanel === tab ? headerActiveClass : headerBtnClass}
+                  >
+                    {tab === 'sections' && t('lesson.sections')}
+                    {tab === 'ai' && 'AI'}
+                    {tab === 'notes' && t('common.notes')}
+                  </button>
+                ))}
+              {/* Mobile: overflow menu for secondary actions */}
+              {isMobile && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowOverflowMenu((v) => !v)}
+                    className={rightPanel ? headerActiveClass : headerBtnClass}
+                  >
+                    <MoreHorizontal size={14} />
+                  </button>
+                  {showOverflowMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowOverflowMenu(false)}
+                      />
+                      <div className="absolute right-0 top-full mt-1 z-50 bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-xl shadow-2xl py-1 min-w-[140px] anim-dropdown-in">
+                        {/* Module badge */}
+                        <div className="px-3 py-1.5 text-[11px] text-gray-300 border-b border-gray-700/50">
+                          {t('lesson.moduleBadge', {
+                            current: moduleIndex + 1,
+                            total: course.modules.length,
+                            defaultValue: moduleBadge,
+                          })}
+                          <span className="ml-1.5 inline-flex items-center">
+                            <ProgressBadge />
+                          </span>
+                        </div>
+                        <QuizReviewButtons />
+                        <button
+                          onClick={() => {
+                            setQuizOverlayOpen(true);
+                            setShowOverflowMenu(false);
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-700/50 hover:text-gray-200 transition-colors"
+                        >
+                          <ListChecks size={14} className="inline mr-1" />
+                          Quiz Access
+                        </button>
+                        {(['sections', 'ai', 'notes'] as const).map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => {
+                              handlePanelToggle(tab);
+                              setShowOverflowMenu(false);
+                            }}
+                            className="w-full text-left px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-700/50 hover:text-gray-200 transition-colors"
+                          >
+                            {tab === 'sections' && t('lesson.sections')}
+                            {tab === 'ai' && 'AI'}
+                            {tab === 'notes' && t('common.notes')}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -136,6 +212,7 @@ export default function LessonPage({
       {searchCourseOpen && (
         <SearchOverlay initialCourseIDs={[course.id]} onClose={() => setSearchCourseOpen(false)} />
       )}
+      {quizOverlayOpen && <QuizOverlay onClose={() => setQuizOverlayOpen(false)} />}
     </PageLayout>
   );
 }

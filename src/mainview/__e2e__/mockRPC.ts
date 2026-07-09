@@ -62,10 +62,10 @@ const HANDLERS: Record<string, MockHandler> = {
   logSession: () => ({ ok: true as const }),
   getCourseStats: (params) => mockData.getCourseStats(p<{ courseId: string }>(params).courseId),
   getGlobalStats: () => mockData.getGlobalStats(),
+  getLastQuizSession: () => null,
   geminiHasKey: () => false,
   geminiSetKey: () => ({ ok: true as const }),
   geminiAsk: () => 'This is a mock response from the E2E test suite.',
-
   // Sync
   getSyncStatus: () => ({
     lastSyncTime: null,
@@ -87,6 +87,28 @@ const HANDLERS: Record<string, MockHandler> = {
   getLastSession: () => null,
   setLastSession: () => ({ ok: true as const }),
   clearLastSession: () => ({ ok: true as const }),
+  getModuleSession: () => null,
+  setModuleSession: () => ({ ok: true as const }),
+  getCourseModuleSessions: () => [],
+
+  // Cloze quiz
+  loadClozeQuiz: (params) => {
+    const { courseId, moduleId } = p<{ courseId: string; moduleId: string }>(params);
+    return mockData.getQuiz(courseId, moduleId).filter((q) => q.type === 'cloze');
+  },
+
+  // Cumulative quiz
+  loadCumulativeQuiz: () => ({
+    questions: mockData.getQuiz('test', '1').slice(0, 3),
+  }),
+  quizIndex: () => ({
+    modules: {
+      '01-getting-started': { mcq: true, cloze: false },
+      '02-variables': { mcq: true, cloze: true },
+      '03-control-flow': { mcq: true, cloze: false },
+    },
+    cumulativeQuizzes: [{ id: 'cumulative_quiz.yaml', milestone: 10 }],
+  }),
 
   // Data
   clearAllData: () => ({ ok: true as const }),

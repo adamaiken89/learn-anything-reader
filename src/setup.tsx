@@ -14,8 +14,20 @@ import {
 
 expect.extend(jestDomMatchers);
 
+import { clearMocks } from './mainview/mockState';
+import { resetAllStores } from './mainview/resetStores';
+
 void mock.module('fs', () => fsMockState);
 void mock.module('mermaid', () => mermaidMockState);
+
+// Mock ResizeObserver for @dnd-kit/react
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
 
 class MockElectroview {
   constructor(_config: Record<string, unknown>) {}
@@ -198,6 +210,8 @@ g.NodeFilter = {
 import './mainview/i18n';
 
 afterEach(() => {
+  clearMocks();
+  resetAllStores();
   cleanup();
   document.body.innerHTML = '';
   localStorage.clear();

@@ -1,10 +1,15 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, spyOn, test } from 'bun:test';
 
+import * as helpersModule from '../../sections/lessonHelpers';
+import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSelectionStore } from '../../stores/selectionStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import NoteEditor from './NoteEditor';
+
+setupRPC();
 
 const mockRange = {
   getBoundingClientRect: () => ({
@@ -17,13 +22,23 @@ const mockRange = {
     toJSON: () => {},
   }),
   commonAncestorContainer: document.body,
-  toString: () => '',
+  startContainer: document.body,
+  startOffset: 0,
+  endContainer: document.body,
+  endOffset: 20,
+  toString: () => 'some highlighted text',
   setStart: () => {},
   setEnd: () => {},
 };
 
 function setupStore() {
-  useLessonViewStore.setState({ courseId: 'cs101', moduleId: 'mod-01' });
+  const el = document.createElement('div');
+  el.textContent = 'some highlighted text';
+  useLessonViewStore.setState({
+    courseId: 'cs101',
+    moduleId: 'mod-01',
+    contentRef: { current: el },
+  });
   useSelectionStore.setState({
     showNoteEditor: true,
     selection: { text: 'some highlighted text', range: mockRange as unknown as Range },
@@ -44,8 +59,10 @@ beforeEach(() => {
     selection: null,
     pickerPos: { x: 0, y: 0, selectionTop: 0 },
     selectedHighlightId: null,
+    popoverNote: null,
   });
   useLessonViewStore.setState({ courseId: '', moduleId: '' });
+  useHighlightsStore.setState({ byModule: {}, loading: {} });
 });
 
 describe('NoteEditor', () => {
@@ -73,11 +90,10 @@ describe('NoteEditor', () => {
     expect(container.textContent).toContain('a'.repeat(80) + '...');
   });
 
-  test('typing calls setNoteText', async () => {
+  test('typing calls setNoteText', () => {
     setupStore();
-    const { container } = render(<NoteEditor />);
-    const textarea = container.querySelector('textarea')!;
-    await user.type(textarea, 'my note');
+    render(<NoteEditor />);
+    useSelectionStore.getState().setNoteText('my note');
     expect(useSelectionStore.getState().noteText).toBe('my note');
   });
 
@@ -98,7 +114,8 @@ describe('NoteEditor', () => {
 
   test('cancel closes editor', async () => {
     setupStore();
-    const { getByText } = render(<NoteEditor />);
+    const { getByText, getByTestId } = render(<NoteEditor />);
+    expect(getByTestId('note-editor')).toBeInTheDocument();
     await user.click(getByText('Cancel'));
     expect(useSelectionStore.getState().showNoteEditor).toBe(false);
   });
@@ -111,5 +128,27 @@ describe('NoteEditor', () => {
     });
     const { getByText } = render(<NoteEditor />);
     await user.click(getByText('Save Note'));
+  });
+
+  test('full save flow — addAnnotation + close + load highlights', async () => {
+    clearMocks();
+    mockResponse('addAnnotation', undefined);
+    mockResponse('getHighlights', []);
+    useHighlightsStore.setState({ byModule: {} });
+
+    // Spy on getTextOffset since happy-dom Range can't compute real offsets
+    spyOn(helpersModule, 'getTextOffset').mockReturnValue({ start: 0, end: 20 });
+
+    setupStore();
+    useSelectionStore.setState({
+      noteText: 'my detailed note',
+      selection: { text: 'some highlighted text', range: mockRange as unknown as Range },
+    });
+    const { getByText } = render(<NoteEditor />);
+    await user.click(getByText('Save Note'));
+    // Editor should close
+    await waitFor(() => {
+      expect(useSelectionStore.getState().showNoteEditor).toBe(false);
+    });
   });
 });

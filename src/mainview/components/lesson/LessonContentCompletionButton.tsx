@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import { COMPLETION_GREEN, COMPLETION_GREEN_DARK, SECTION_ACTIVE_TEXT } from '../../colors';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
+import { Button } from '../ui/Button';
 
 export default function LessonContentCompletionButton() {
   const { t } = useTranslation();
@@ -12,23 +12,19 @@ export default function LessonContentCompletionButton() {
   const toggle = useCompletionStore((s) => s.toggle);
 
   return (
-    <div style={{ marginTop: '3rem' }}>
-      <button
-        onClick={() => {
-          void toggle(courseId, moduleId);
-        }}
-        data-testid="complete-btn"
-        className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200"
-        style={{
-          background: isCompleted
-            ? `linear-gradient(135deg, ${COMPLETION_GREEN}, ${COMPLETION_GREEN_DARK})`
-            : 'var(--book-code-bg)',
-          color: isCompleted ? SECTION_ACTIVE_TEXT : 'var(--book-text)',
-          border: `1px solid ${isCompleted ? COMPLETION_GREEN_DARK : 'var(--book-h2-border)'}`,
-        }}
-      >
-        {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
-      </button>
-    </div>
+    <Button
+      onClick={() => {
+        void toggle(courseId, moduleId);
+      }}
+      data-testid="complete-btn"
+      variant="outline"
+      className={`font-sans ${
+        isCompleted
+          ? 'border-green-500/50 text-green-500 hover:border-green-500 hover:text-green-400'
+          : ''
+      }`}
+    >
+      {isCompleted ? t('lesson.completed') : t('lesson.markAsComplete')}
+    </Button>
   );
 }

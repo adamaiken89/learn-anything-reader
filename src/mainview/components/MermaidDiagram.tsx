@@ -1,5 +1,6 @@
+import { X } from 'lucide-react';
 import mermaid from 'mermaid';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
@@ -63,8 +64,11 @@ export default function MermaidDiagram({ code, isDark, bg }: Props) {
 
 function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClose: () => void }) {
   const { t } = useTranslation();
-  const [zoom, setZoom] = useState(1);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const dragStart = useRef({ startX: 0, startY: 0, panX: 0, panY: 0 });
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -74,34 +78,72 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  // Auto-fit: measure SVG natural width vs container, set zoom to fit
+  // Default to 150% zoom, centered
   useEffect(() => {
-    const container = contentRef.current;
-    if (!container) return;
-
-    const match = svg.match(/width="([^"]+)"/);
-    if (!match) return;
-
-    const raw = match[1];
-    let svgWidth: number;
-    if (raw.endsWith('px')) {
-      svgWidth = parseFloat(raw);
-    } else if (raw.endsWith('em') || raw.endsWith('rem')) {
-      svgWidth = parseFloat(raw) * 16;
-    } else {
-      svgWidth = parseFloat(raw);
-    }
-
-    if (isNaN(svgWidth) || svgWidth <= 0) return;
-
     requestAnimationFrame(() => {
-      const containerWidth = container.clientWidth - 48; // minus padding
-      if (containerWidth > 0) {
-        const fit = containerWidth / svgWidth;
-        setZoom(Math.max(0.25, Math.min(3, fit)));
-      }
+      setZoom(1.5);
+      setPan({ x: 0, y: 0 });
     });
   }, [svg]);
+
+  // Window-level pan tracking during drag
+  useEffect(() => {
+    if (!isPanning) return;
+    const onMove = (e: MouseEvent) => {
+      setPan({
+        x: dragStart.current.panX + (e.clientX - dragStart.current.startX),
+        y: dragStart.current.panY + (e.clientY - dragStart.current.startY),
+      });
+    };
+    const onUp = () => setIsPanning(false);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [isPanning]);
+
+  const applyZoomWithCenterAnchor = useCallback(
+    (newZoom: number) => {
+      const rect = contentRef.current?.getBoundingClientRect();
+      const cx = rect ? rect.width / 2 : window.innerWidth / 2;
+      const cy = rect ? rect.height / 2 : window.innerHeight / 2;
+      setPan({
+        x: cx - (cx - pan.x) * (newZoom / zoom),
+        y: cy - (cy - pan.y) * (newZoom / zoom),
+      });
+      setZoom(newZoom);
+    },
+    [zoom, pan.x, pan.y],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest('button')) return;
+      e.preventDefault();
+      setIsPanning(true);
+      dragStart.current = { startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y };
+    },
+    [pan.x, pan.y],
+  );
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const newZoom = Math.max(0.5, Math.min(5, zoom * Math.exp(-e.deltaY * 0.002)));
+      const rect = contentRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      setPan({
+        x: mx - (mx - pan.x) * (newZoom / zoom),
+        y: my - (my - pan.y) * (newZoom / zoom),
+      });
+      setZoom(newZoom);
+    },
+    [zoom, pan.x, pan.y],
+  );
 
   const handleDownload = async () => {
     const blob = new Blob([svg], { type: 'image/svg+xml' });
@@ -136,20 +178,23 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 border-b border-gray-700 text-sm text-gray-300 shrink-0">
           <button
-            onClick={() => setZoom((z) => Math.max(0.25, z - 0.25))}
-            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
-          >
-            −
-          </button>
-          <span className="w-16 text-center">{Math.round(zoom * 100)}%</span>
-          <button
-            onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
+            onClick={() => applyZoomWithCenterAnchor(Math.min(5, zoom * 1.25))}
             className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
           >
             +
           </button>
+          <span className="w-16 text-center">{Math.round(zoom * 100)}%</span>
           <button
-            onClick={() => setZoom(1)}
+            onClick={() => applyZoomWithCenterAnchor(Math.max(0.5, zoom / 1.25))}
+            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+          >
+            −
+          </button>
+          <button
+            onClick={() => {
+              setZoom(1);
+              setPan({ x: 0, y: 0 });
+            }}
             className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
           >
             {t('mermaid.reset', { defaultValue: 'Reset' })}
@@ -165,16 +210,23 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
             onClick={onClose}
             className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
         <div
           ref={contentRef}
-          className="overflow-auto flex-1 bg-gray-900 flex items-center justify-center p-10"
+          className="overflow-hidden flex-1 bg-gray-900 p-10"
+          onMouseDown={handleMouseDown}
+          onWheel={handleWheel}
         >
           <div
             className="mermaid-diagram"
-            style={{ width: `${zoom * 100}%`, maxWidth: 'none' }}
+            data-testid="mermaid-overlay-svg"
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: '0 0',
+              cursor: isPanning ? 'grabbing' : 'grab',
+            }}
             dangerouslySetInnerHTML={{ __html: svg }}
           />
         </div>

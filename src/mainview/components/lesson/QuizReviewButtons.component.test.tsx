@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { Course } from '../../../bun/types';
 import { useViewStore } from '../../stores/viewStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import QuizReviewButtons from './QuizReviewButtons';
+
+setupRPC();
 
 const course: Course = {
   id: 'c1',
@@ -22,17 +25,21 @@ const mod = course.modules[0];
 
 beforeEach(() => {
   useViewStore.setState({ views: [] });
+  clearMocks();
+  mockResponse('hasClozeQuiz', false);
+  mockResponse('hasCumulativeQuiz', false);
 });
 
 describe('QuizReviewButtons', () => {
   const user = userEvent.setup();
 
-  test('quiz button pushes quiz view', async () => {
+  test('quiz popover opens and MCQ pushes quiz view', async () => {
     useViewStore.setState({
       views: [{ type: 'lesson', course, module: mod }],
     });
     const { getByText } = render(<QuizReviewButtons />);
     await user.click(getByText('Quiz'));
+    await user.click(getByText('MCQ'));
     const views = useViewStore.getState().views;
     expect(views[views.length - 1].type).toBe('quiz');
   });
@@ -47,17 +54,23 @@ describe('QuizReviewButtons', () => {
     expect(views[views.length - 1].type).toBe('review');
   });
 
-  test('quiz button does nothing without course/module', async () => {
-    useViewStore.setState({ views: [{ type: 'dashboard' }] });
+  test('quiz popover shows cloze when available', async () => {
+    mockResponse('hasClozeQuiz', true);
+    useViewStore.setState({
+      views: [{ type: 'lesson', course, module: mod }],
+    });
     const { getByText } = render(<QuizReviewButtons />);
     await user.click(getByText('Quiz'));
-    expect(useViewStore.getState().views).toHaveLength(1);
+    expect(getByText('Cloze')).toBeTruthy();
   });
 
-  test('review button does nothing without course', async () => {
-    useViewStore.setState({ views: [{ type: 'dashboard' }] });
-    const { getByText } = render(<QuizReviewButtons />);
-    await user.click(getByText('Review'));
-    expect(useViewStore.getState().views).toHaveLength(1);
+  test('quiz popover hides cloze when not available', async () => {
+    mockResponse('hasClozeQuiz', false);
+    useViewStore.setState({
+      views: [{ type: 'lesson', course, module: mod }],
+    });
+    const { getByText, queryByText } = render(<QuizReviewButtons />);
+    await user.click(getByText('Quiz'));
+    expect(queryByText('Cloze')).toBeNull();
   });
 });

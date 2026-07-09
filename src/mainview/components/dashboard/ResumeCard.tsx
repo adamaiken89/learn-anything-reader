@@ -1,3 +1,4 @@
+import { ArrowRight, Target } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { LastSession } from '../../../bun/types';
@@ -32,7 +33,7 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
   return (
     <button
       onClick={handleContinue}
-      className="w-full text-left bg-gray-800 hover:bg-gray-750 border border-indigo-700 rounded-xl p-5 mb-6 transition-colors group cursor-pointer"
+      className="w-full text-left bg-gray-800 hover:bg-gray-750 border border-indigo-700 rounded-lg p-5 mb-4 transition-colors group cursor-pointer"
     >
       <div className="flex flex-col md:flex-row md:gap-6">
         <div className="md:w-1/2 lg:w-1/3">
@@ -61,7 +62,10 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
 
         <div className="mt-4 md:mt-0 md:flex-1 flex flex-col justify-between">
           <div>
-            <p className="text-xs font-semibold text-gray-400 mb-2">🎯 {t('dashboard.nextUp')}</p>
+            <p className="text-xs font-semibold text-gray-400 mb-2">
+              <Target size={12} className="inline mr-1" />
+              {t('dashboard.nextUp')}
+            </p>
             {nextModule ? (
               <p className="text-xs text-gray-300 leading-relaxed">
                 {t('dashboard.nextModule', { module: nextModule.name })}
@@ -72,7 +76,7 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
           </div>
           <div className="mt-3 md:mt-auto">
             <span className="inline-block bg-white text-gray-900 hover:bg-gray-100 font-medium text-xs px-4 py-2 rounded-lg shadow-sm transition-all duration-200">
-              {t('dashboard.continueLearning')} ➔
+              {t('dashboard.continueLearning')} <ArrowRight size={14} className="inline" />
             </span>
           </div>
         </div>

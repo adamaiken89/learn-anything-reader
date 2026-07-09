@@ -21,7 +21,7 @@ describe('shortcuts', () => {
   });
 
   test('each shortcut has valid scope', () => {
-    const scopes = ['global', 'lesson', 'lessonToolbar'];
+    const scopes = ['global', 'lesson', 'lessonToolbar', 'quiz'];
     for (const s of SHORTCUTS) {
       expect(scopes).toContain(s.scope);
     }

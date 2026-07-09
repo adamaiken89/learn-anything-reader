@@ -1,12 +1,35 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { mermaidMockImpl } from '../../testFsShared';
+import { setupRPC } from '../testUtils';
 import MermaidDiagram from './MermaidDiagram';
+
+setupRPC();
+
+function renderDiagram() {
+  const utils = render(<MermaidDiagram code="graph TD; A-->B;" />);
+  return utils;
+}
+
+async function waitForSvg(utils: ReturnType<typeof renderDiagram>) {
+  await waitFor(async () => {
+    expect(await utils.findByTestId('mermaid-diagram')).toBeInTheDocument();
+  });
+}
+
+async function openOverlay(utils: ReturnType<typeof renderDiagram>) {
+  await waitForSvg(utils);
+  fireEvent.click(utils.getByTestId('mermaid-diagram'));
+  await waitFor(() => {
+    expect(utils.getByText((c) => c.includes('%'))).toBeInTheDocument();
+  });
+}
 
 describe('MermaidDiagram', () => {
   beforeEach(() => {
-    mermaidMockImpl.render = (..._args: unknown[]) => Promise.resolve({ svg: '<svg>mock</svg>' });
+    mermaidMockImpl.render = (..._args: unknown[]) =>
+      Promise.resolve({ svg: '<svg width="800" height="600">mock</svg>' });
   });
 
   test('renders loading state', () => {
@@ -28,5 +51,82 @@ describe('MermaidDiagram', () => {
     await waitFor(async () => {
       expect(await findByTestId('mermaid-error')).toBeInTheDocument();
     });
+  });
+
+  test('opens overlay on diagram click', async () => {
+    const utils = renderDiagram();
+    await openOverlay(utils);
+    expect(utils.getByTestId('mermaid-overlay-svg')).toBeInTheDocument();
+  });
+
+  test('pan moves SVG transform on drag', async () => {
+    const utils = renderDiagram();
+    await openOverlay(utils);
+
+    const container = utils.container.querySelector('.overflow-hidden.flex-1') as HTMLElement;
+    expect(container).toBeTruthy();
+
+    fireEvent.mouseDown(container, { clientX: 100, clientY: 100 });
+    fireEvent.mouseMove(window, { clientX: 150, clientY: 120 });
+    fireEvent.mouseUp(window);
+
+    const svgEl = utils.getByTestId('mermaid-overlay-svg');
+    const transform = svgEl.style.transform;
+    expect(transform).toContain('translate(50px, 20px)');
+  });
+
+  test('zoom in button increases zoom', async () => {
+    const utils = renderDiagram();
+    await openOverlay(utils);
+
+    const zoomInBtn = Array.from(utils.container.querySelectorAll('button')).find(
+      (b) => b.textContent === '+',
+    );
+    expect(zoomInBtn).toBeTruthy();
+    fireEvent.click(zoomInBtn!);
+
+    const zoomText = utils.getByText((c) => c.includes('%'));
+    const pct = parseInt(zoomText.textContent || '');
+    expect(pct).toBeGreaterThan(100);
+  });
+
+  test('zoom out button decreases zoom', async () => {
+    const utils = renderDiagram();
+    await openOverlay(utils);
+
+    const zoomInBtn = Array.from(utils.container.querySelectorAll('button')).find(
+      (b) => b.textContent === '+',
+    );
+    fireEvent.click(zoomInBtn!);
+
+    const zoomOutBtn = Array.from(utils.container.querySelectorAll('button')).find(
+      (b) => b.textContent === '−',
+    );
+    expect(zoomOutBtn).toBeTruthy();
+    fireEvent.click(zoomOutBtn!);
+
+    const zoomText = utils.getByText((c) => c.includes('%'));
+    const pct = parseInt(zoomText.textContent || '');
+    expect(pct).toBe(150);
+  });
+
+  test('reset returns to 1x zoom', async () => {
+    const utils = renderDiagram();
+    await openOverlay(utils);
+
+    const zoomInBtn = Array.from(utils.container.querySelectorAll('button')).find(
+      (b) => b.textContent === '+',
+    );
+    fireEvent.click(zoomInBtn!);
+
+    const resetBtn = Array.from(utils.container.querySelectorAll('button')).find(
+      (b) => b.textContent?.toLowerCase() === 'reset',
+    );
+    expect(resetBtn).toBeTruthy();
+    fireEvent.click(resetBtn!);
+
+    const zoomText = utils.getByText((c) => c.includes('%'));
+    const pct = parseInt(zoomText.textContent || '');
+    expect(pct).toBe(100);
   });
 });

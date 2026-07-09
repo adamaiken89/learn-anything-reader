@@ -22,6 +22,29 @@ export const HIGHLIGHT_COLORS: Record<string, string> = {
   note: '#ef4444',
 };
 
+function makeMark(h: Highlight, text: string): HastElement {
+  const isNote = h.color === 'note';
+  return {
+    type: 'element',
+    tagName: 'mark',
+    properties: {
+      style: isNote
+        ? `color: #ef4444; text-decoration: underline; text-decoration-color: #ef4444; text-underline-offset: 3px; cursor: pointer`
+        : `background-color: ${HIGHLIGHT_COLORS[h.color] || h.color}; color: #1f2937; border-radius: 2px; padding: 0 2px`,
+      dataHighlightId: h.id,
+      ...(isNote ? { dataNoteId: h.id } : {}),
+    },
+    children: [{ type: 'text', value: text }],
+  };
+}
+
+function isMermaidCode(el: HastElement): boolean {
+  const cls = el.properties?.className;
+  if (!cls) return false;
+  const classes = Array.isArray(cls) ? cls : [cls];
+  return classes.some((c) => typeof c === 'string' && c.includes('language-mermaid'));
+}
+
 function splitText(text: string, highlights: Highlight[]): HastNode[] {
   for (const h of highlights) {
     const trimmed = h.selectedText.trim();
@@ -30,19 +53,7 @@ function splitText(text: string, highlights: Highlight[]): HastNode[] {
 
     const nodes: HastNode[] = [];
     if (idx > 0) nodes.push(...splitText(text.slice(0, idx), highlights));
-    const isNote = h.color === 'note';
-    nodes.push({
-      type: 'element',
-      tagName: 'mark',
-      properties: {
-        style: isNote
-          ? `color: #ef4444; text-decoration: underline; text-decoration-color: #ef4444; text-underline-offset: 3px; cursor: pointer`
-          : `background-color: ${HIGHLIGHT_COLORS[h.color] || h.color}; color: #1f2937; border-radius: 2px; padding: 0 2px`,
-        dataHighlightId: h.id,
-        ...(isNote ? { dataNoteId: h.id } : {}),
-      },
-      children: [{ type: 'text', value: trimmed }],
-    });
+    nodes.push(makeMark(h, trimmed));
     const remaining = text.slice(idx + trimmed.length);
     if (remaining) nodes.push(...splitText(remaining, highlights));
     return nodes;
@@ -63,13 +74,23 @@ function transformTree(node: HastElement, highlights: Highlight[], skip = false)
       const parts = splitText(child.value, highlights);
       newChildren.push(...parts);
     } else {
-      const deeper =
-        skip ||
-        (child as HastElement).tagName === 'mark' ||
-        (child as HastElement).tagName === 'pre' ||
-        (child as HastElement).tagName === 'code';
+      const el = child as HastElement;
+      if (el.tagName === 'code' && isMermaidCode(el)) {
+        newChildren.push(child);
+        continue;
+      }
+      if (
+        el.tagName === 'pre' &&
+        el.children?.some(
+          (c) => (c as HastElement).tagName === 'code' && isMermaidCode(c as HastElement),
+        )
+      ) {
+        newChildren.push(child);
+        continue;
+      }
+      const deeper = skip || el.tagName === 'mark' || el.tagName === 'blockquote';
       if ('children' in child && child.children != null) {
-        transformTree(child as HastElement, highlights, deeper);
+        transformTree(el, highlights, deeper);
       }
       newChildren.push(child);
     }
@@ -77,11 +98,104 @@ function transformTree(node: HastElement, highlights: Highlight[], skip = false)
   node.children = newChildren;
 }
 
+function applyHighlightsByOffset(node: HastElement, highlights: Highlight[]): void {
+  if (!node?.children || !Array.isArray(node.children)) return;
+
+  const sorted = [...highlights].sort((a, b) => a.startOffset - b.startOffset);
+  let pos = 0;
+
+  function walk(children: HastNode[], skip: boolean): HastNode[] {
+    const out: HastNode[] = [];
+
+    for (const child of children) {
+      if (child == null || typeof child !== 'object') {
+        out.push(child);
+        continue;
+      }
+
+      if (child.type === 'text' && 'value' in child && typeof child.value === 'string') {
+        const textStart = pos;
+        const textEnd = pos + child.value.length;
+        pos = textEnd;
+
+        if (skip) {
+          out.push(child);
+          continue;
+        }
+
+        const overlapping = sorted.filter(
+          (h) => h.startOffset < textEnd && h.endOffset > textStart,
+        );
+
+        if (overlapping.length === 0) {
+          out.push(child);
+        } else {
+          let cursor = 0;
+          for (const h of overlapping) {
+            const localS = Math.max(0, h.startOffset - textStart);
+            const localE = Math.min(child.value.length, h.endOffset - textStart);
+            if (localS > cursor)
+              out.push({ type: 'text', value: child.value.slice(cursor, localS) });
+            out.push(makeMark(h, child.value.slice(localS, localE)));
+            cursor = localE;
+          }
+          if (cursor < child.value.length) {
+            out.push({ type: 'text', value: child.value.slice(cursor) });
+          }
+        }
+      } else {
+        const el = child as HastElement;
+        if (el.tagName === 'code' && isMermaidCode(el)) {
+          out.push(child);
+          continue;
+        }
+        if (
+          el.tagName === 'pre' &&
+          el.children?.some(
+            (c) => (c as HastElement).tagName === 'code' && isMermaidCode(c as HastElement),
+          )
+        ) {
+          out.push(child);
+          continue;
+        }
+        const deeper = skip || el.tagName === 'mark' || el.tagName === 'blockquote';
+        if (el.children && Array.isArray(el.children)) {
+          el.children = walk(el.children, deeper);
+        }
+        out.push(child);
+      }
+    }
+
+    return out;
+  }
+
+  node.children = walk(node.children, false);
+}
+
 export function rehypeHighlightText(highlights: Highlight[]) {
   return (tree: HastNode) => {
     if (highlights.length === 0) return;
-    if (tree && typeof tree === 'object' && 'children' in tree) {
-      transformTree(tree as HastElement, highlights);
+    if (!tree || typeof tree !== 'object' || !('children' in tree)) return;
+
+    const root = tree as HastElement;
+
+    const offsetHighlights: Highlight[] = [];
+    const textHighlights: Highlight[] = [];
+
+    for (const h of highlights) {
+      if (h.endOffset > 0) {
+        offsetHighlights.push(h);
+      } else {
+        textHighlights.push(h);
+      }
+    }
+
+    if (offsetHighlights.length > 0) {
+      applyHighlightsByOffset(root, offsetHighlights);
+    }
+
+    if (textHighlights.length > 0) {
+      transformTree(root, textHighlights, false);
     }
   };
 }

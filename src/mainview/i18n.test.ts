@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
-import enAU from './locales/en-AU.json';
-import enCA from './locales/en-CA.json';
 import enGB from './locales/en-GB.json';
 import enUS from './locales/en-US.json';
+import zhCN from './locales/zh-CN.json';
 import zhTW from './locales/zh-TW.json';
 
-const locales = { 'en-US': enUS, 'en-GB': enGB, 'en-CA': enCA, 'en-AU': enAU, 'zh-TW': zhTW };
+const locales = { 'en-US': enUS, 'en-GB': enGB, 'zh-TW': zhTW, 'zh-CN': zhCN };
 
 type LocaleValue = string | { [key: string]: LocaleValue };
 type Locale = { [key: string]: LocaleValue };

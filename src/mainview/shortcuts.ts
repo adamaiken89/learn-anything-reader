@@ -1,7 +1,7 @@
 export interface Shortcut {
   key: string;
   id: string;
-  scope: 'global' | 'lesson' | 'lessonToolbar';
+  scope: 'global' | 'lesson' | 'lessonToolbar' | 'quiz';
   /** Requires Cmd/Ctrl */
   mod?: boolean;
 }
@@ -32,6 +32,11 @@ export const SHORTCUTS: Shortcut[] = [
   { key: 's', id: 'toggleSections', scope: 'lesson' },
   { key: 'f', id: 'findInPage', scope: 'lesson', mod: true },
   { key: 'g', id: 'courseSearch', scope: 'lesson', mod: true },
+
+  // ── Quiz ──
+  { key: 'Enter', id: 'quizSubmit', scope: 'quiz' },
+  { key: ' ', id: 'quizSubmitSpace', scope: 'quiz' },
+  { key: 'Escape', id: 'quizSkip', scope: 'quiz' },
 ];
 
 const ID_TO_SHORTCUT: Record<string, Shortcut> = {};
@@ -46,7 +51,7 @@ export function shortcutKey(id: string): string | undefined {
 // Duplicate detection — check SHORTCUTS array for overlapping keys
 const KEY_SCOPE = new Map<string, string[]>();
 for (const s of SHORTCUTS) {
-  const key = s.mod ? `mod+${s.key}` : s.key;
+  const key = s.mod ? `mod+${s.key}@${s.scope}` : `${s.key}@${s.scope}`;
   const existing = KEY_SCOPE.get(key) ?? [];
   existing.push(`${s.id} (${s.scope})`);
   KEY_SCOPE.set(key, existing);

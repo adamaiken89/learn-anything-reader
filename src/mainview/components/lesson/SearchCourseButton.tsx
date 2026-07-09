@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useLessonUIStore } from '../../stores/lessonUIStore';
@@ -14,7 +15,7 @@ function SearchCourseButton() {
       onClick={() => setSearchCourseOpen(true)}
       title={t('lesson.searchCourse')}
     >
-      {t('icons.search')} {t('lesson.searchCourse')}
+      <Search size={14} /> {t('lesson.searchCourse')}
     </Button>
   );
 }

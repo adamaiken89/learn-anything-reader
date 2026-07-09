@@ -23,6 +23,7 @@ export default function NoteEditor() {
   const courseId = useLessonViewStore((s) => s.courseId);
   const moduleId = useLessonViewStore((s) => s.moduleId);
   const contentRef = useLessonViewStore((s) => s.contentRef);
+  const markdownRef = useLessonViewStore((s) => s.markdownRef);
 
   const selectedText = store.selection?.text ?? '';
 
@@ -47,8 +48,8 @@ export default function NoteEditor() {
             const sel = useSelectionStore.getState().selection;
             const nt = useSelectionStore.getState().noteText;
             if (!sel || !nt.trim()) return;
-            const el = contentRef.current;
-            const offsets = el ? getTextOffset(el, sel.range) : null;
+            const root = markdownRef.current ?? contentRef.current;
+            const offsets = root ? getTextOffset(root, sel.range) : null;
             if (!offsets) return;
             void api.storage.addAnnotation({
               courseID: courseId,

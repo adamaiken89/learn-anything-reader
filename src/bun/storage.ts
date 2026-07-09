@@ -4,6 +4,7 @@ import type {
   Note,
   Bookmark,
   CompletedModule,
+  ModuleSession,
   StudySession,
   UserCard,
   LastSession,
@@ -26,6 +27,7 @@ interface StorageData {
   lastSyncedCommit?: string | null;
   lastSyncTime?: string | null;
   lastSession?: LastSession | null;
+  moduleSessions?: Record<string, ModuleSession>;
 }
 
 function load(): StorageData {
@@ -289,6 +291,15 @@ export function addStudySession(
   data.studySessions.push(full);
   save(data);
   return full;
+}
+
+export function getLastQuizSession(courseID: string, moduleID: string): StudySession | null {
+  const data = load();
+  const sessions = data.studySessions
+    .filter((s) => s.courseID === courseID && s.moduleID === moduleID && s.type === 'quiz');
+  if (sessions.length === 0) return null;
+  sessions.sort((a, b) => b.date.localeCompare(a.date));
+  return sessions[0];
 }
 
 export function getStudySessions(courseID: string, days?: number): StudySession[] {
@@ -585,6 +596,29 @@ export function clearLastSession(): void {
   const data = load();
   data.lastSession = null;
   save(data);
+}
+
+export function getModuleSession(courseId: string, moduleId: string): ModuleSession | null {
+  const data = load();
+  const key = `${courseId}:${moduleId}`;
+  return data.moduleSessions?.[key] ?? null;
+}
+
+export function setModuleSession(session: ModuleSession): void {
+  const data = load();
+  const key = `${session.courseId}:${session.moduleId}`;
+  if (!data.moduleSessions) data.moduleSessions = {};
+  data.moduleSessions[key] = session;
+  save(data);
+}
+
+export function getCourseModuleSessions(courseId: string): ModuleSession[] {
+  const data = load();
+  if (!data.moduleSessions) return [];
+  return Object.entries(data.moduleSessions)
+    .filter(([k]) => k.startsWith(`${courseId}:`))
+    .map(([, v]) => v)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export function saveSyncConfig(config: {

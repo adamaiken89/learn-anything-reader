@@ -1,3 +1,4 @@
+import { Bookmark, Search, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,23 +19,27 @@ export default function DashboardPage() {
   const push = useViewStore((s) => s.push);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const headerBtnClass =
-    'px-3 py-1.5 text-sm bg-gray-800/50 border border-gray-700 text-gray-400 hover:bg-gray-700/50 hover:text-gray-300 rounded-lg transition-colors';
+  const iconBtn =
+    'p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700/60 rounded-md transition-colors';
 
   const headerActions = (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-0.5">
+      <button onClick={() => setSearchOpen(true)} className={iconBtn} title={t('app.search')}>
+        <Search size={14} />
+      </button>
       <button
-        onClick={() => setSearchOpen(true)}
-        className={headerBtnClass}
-        title={t('app.search')}
+        onClick={() => push({ type: 'bookmarks' })}
+        className={iconBtn}
+        title={t('common.bookmarks')}
       >
-        {t('app.search')}
+        <Bookmark size={14} />
       </button>
-      <button onClick={() => push({ type: 'bookmarks' })} className={headerBtnClass}>
-        {t('common.bookmarks')}
-      </button>
-      <button onClick={() => push({ type: 'settings' })} className={headerBtnClass}>
-        {t('common.settings')}
+      <button
+        onClick={() => push({ type: 'settings' })}
+        className={iconBtn}
+        title={t('common.settings')}
+      >
+        <Settings size={14} />
       </button>
     </div>
   );
@@ -43,8 +48,16 @@ export default function DashboardPage() {
     return (
       <PageLayout>
         <PageHeader title={t('dashboard.title')} actions={headerActions} />
-        <PageContent className="py-8">
-          <div className="text-center text-gray-500 py-12">{t('common.loading')}</div>
+        <PageContent className="py-4 px-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-24 bg-gray-700/50 rounded-lg" />
+            <div className="h-16 bg-gray-700/50 rounded-lg" />
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-32 bg-gray-700/50 rounded-lg" />
+              ))}
+            </div>
+          </div>
         </PageContent>
       </PageLayout>
     );
@@ -53,12 +66,18 @@ export default function DashboardPage() {
   return (
     <PageLayout>
       <PageHeader title={t('dashboard.title')} actions={headerActions} />
-      <PageContent className="py-8">
-        {lastSession && <ResumeCard lastSession={lastSession} />}
+      <PageContent className="py-4">
+        <div className="anim-fade-in-up">
+          {lastSession && <ResumeCard lastSession={lastSession} />}
+        </div>
 
-        {globalStats && <StatsBar stats={globalStats} />}
+        <div className="anim-fade-in-up" style={{ animationDelay: '80ms' }}>
+          {globalStats && <StatsBar stats={globalStats} />}
+        </div>
 
-        {courses.length === 0 ? <EmptyState /> : <CourseGrid />}
+        <div className="anim-fade-in-up" style={{ animationDelay: '160ms' }}>
+          {courses.length === 0 ? <EmptyState /> : <CourseGrid />}
+        </div>
       </PageContent>
 
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}

@@ -1,3 +1,4 @@
+import { Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { PomodoroMode } from '../stores/pomodoroStore';
@@ -73,7 +74,9 @@ export default function PomodoroTimer({ compact = false }: Props) {
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 shadow-lg w-48">
       <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-xs text-red-400">{t('icons.pomodoro')}</span>
+        <span className="text-xs text-red-400">
+          <Timer size={14} />
+        </span>
         <span className="text-[10px] font-semibold text-gray-300">{t('pomodoro.title')}</span>
         <span className="text-[10px] text-gray-500 ml-auto">
           {t('pomodoro.session', { count: completedSessions })}

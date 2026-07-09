@@ -3,10 +3,7 @@ import { create } from 'zustand';
 import { api } from '../api';
 import { logger } from '../logger';
 import { showToast } from '../toast';
-
-function key(courseId: string, moduleId: string) {
-  return `${courseId}:${moduleId}`;
-}
+import { key } from './storageUtils';
 
 export function countCompleted(completed: Record<string, boolean>, courseId: string): number {
   const prefix = courseId + ':';

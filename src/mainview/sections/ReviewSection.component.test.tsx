@@ -40,7 +40,8 @@ describe('ReviewSection', () => {
   test('renders loading state', async () => {
     mockResponse('getSRSDeck', new Promise(() => {}));
     const { container } = render(<ReviewSection {...props} />);
-    expect(container.textContent).toContain('Loading review cards');
+    const skeletons = container.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   test('renders empty state when no cards', async () => {
@@ -175,6 +176,128 @@ describe('ReviewSection', () => {
     await user.click(dueBtn);
     await waitFor(() => {
       expect(container.textContent).toContain('No cards due');
+    });
+  });
+
+  test('shows flip container with front face', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('What is 2+2?');
+    });
+    expect(container.querySelector('.flip-container')).toBeInTheDocument();
+    expect(container.querySelector('.flip-inner')).toBeInTheDocument();
+  });
+
+  test('card flip adds is-flipped class when show answer clicked', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Show Answer');
+    });
+    await user.click(getByTestId('show-answer'));
+    await waitFor(() => {
+      const inner = container.querySelector('.flip-inner');
+      expect(inner?.classList.contains('is-flipped')).toBe(true);
+    });
+  });
+
+  test('shows session stats bar with reviewed and accuracy', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Reviewed');
+      expect(container.textContent).toContain('Accuracy');
+      expect(container.textContent).toContain('Remaining');
+    });
+  });
+
+  test('forgot button adds toss-left class', async () => {
+    const card = makeCard('c1');
+    mockResponse('getSRSDeck', { cards: { c1: card } });
+    mockResponse('reviewSRSCard', { ...card, repetitions: 0, interval: 0 });
+    const { container, getByTestId } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Show Answer');
+    });
+    await user.click(getByTestId('show-answer'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Forgot');
+    });
+    await user.click(getByTestId('btn-forgot'));
+    await waitFor(() => {
+      const flipContainer = container.querySelector('.flip-container');
+      expect(flipContainer?.classList.contains('anim-card-toss-left')).toBe(true);
+    });
+  });
+
+  test('keyboard Space flips card', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Show Answer');
+    });
+    await user.keyboard(' ');
+    await waitFor(() => {
+      const inner = container.querySelector('.flip-inner');
+      expect(inner?.classList.contains('is-flipped')).toBe(true);
+    });
+  });
+
+  test('keyboard 1 triggers forgot', async () => {
+    const card = makeCard('c1');
+    mockResponse('getSRSDeck', { cards: { c1: card } });
+    mockResponse('reviewSRSCard', { ...card, repetitions: 0, interval: 0 });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Show Answer');
+    });
+    await user.keyboard(' ');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Forgot');
+    });
+    await user.keyboard('1');
+    await waitFor(() => {
+      expect(hasMock('reviewSRSCard')).toBe(true);
+    });
+  });
+
+  test('keyboard 2 triggers remembered', async () => {
+    const card = makeCard('c1');
+    mockResponse('getSRSDeck', { cards: { c1: card } });
+    mockResponse('reviewSRSCard', { ...card, repetitions: 1, interval: 1 });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Show Answer');
+    });
+    await user.keyboard(' ');
+    await waitFor(() => {
+      expect(container.textContent).toContain('Remembered');
+    });
+    await user.keyboard('2');
+    await waitFor(() => {
+      expect(hasMock('reviewSRSCard')).toBe(true);
+    });
+  });
+
+  test('keyboard s toggles star', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1', { isStarred: false }) } });
+    mockResponse('toggleSRSStar', makeCard('c1', { isStarred: true }));
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Star');
+    });
+    await user.keyboard('s');
+    await waitFor(() => {
+      expect(hasMock('toggleSRSStar')).toBe(true);
+    });
+  });
+
+  test('shows progress bar', async () => {
+    mockResponse('getSRSDeck', { cards: { c1: makeCard('c1') } });
+    const { container } = render(<ReviewSection {...props} />);
+    await waitFor(() => {
+      expect(container.querySelector('[style*="width"]')).toBeInTheDocument();
     });
   });
 });

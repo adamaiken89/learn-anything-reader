@@ -1,4 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test } from 'bun:test';
 
@@ -108,11 +108,10 @@ describe('SettingsPage', () => {
   });
 
   test('selects language when locale button clicked', async () => {
-    const { getByText } = render(<SettingsPage onBack={() => {}} />);
-    await waitFor(() => {
-      expect(getByText('繁體中文')).toBeInTheDocument();
-    });
-    await user.click(getByText('繁體中文'));
+    const { findAllByText } = render(<SettingsPage onBack={() => {}} />);
+    const buttons = await findAllByText('繁體中文');
+    expect(buttons.length).toBeGreaterThanOrEqual(1);
+    await user.click(buttons[0]);
     expect(useSettingsStore.getState().locale).toBe('zh-TW');
   });
 
@@ -134,5 +133,41 @@ describe('SettingsPage', () => {
       );
       expect(urlInput).toHaveValue('https://github.com/user/repo');
     });
+  });
+
+  test('calls onBack when Escape pressed', async () => {
+    let called = false;
+    const { container } = render(
+      <SettingsPage
+        onBack={() => {
+          called = true;
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(container.textContent).toContain('Gemini API Key');
+    });
+    act(() => {
+      fireEvent.keyDown(container, { key: 'Escape' });
+    });
+    expect(called).toBe(true);
+  });
+
+  test('renders category headers', async () => {
+    const { container } = render(<SettingsPage onBack={() => {}} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Integration');
+    });
+    expect(container.textContent).toContain('Preferences');
+  });
+
+  test('renders appearance section with theme grid', async () => {
+    const { container } = render(<SettingsPage onBack={() => {}} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Reading Theme');
+    });
+    expect(container.textContent).toContain('Font Size');
+    expect(container.textContent).toContain('Content Width');
+    expect(container.textContent).toContain('Page Transition');
   });
 });

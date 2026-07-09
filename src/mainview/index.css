@@ -47,6 +47,69 @@ body {
   background: #6b7280;
 }
 
+/* Hide scrollbar (used in focus mode) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* Quiz background texture */
+.quiz-bg {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(148, 163, 184, 0.04) 1px,
+    transparent 0
+  );
+  background-size: 28px 28px;
+}
+
+/* Segmented progress pill pulse */
+@keyframes progress-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.progress-pill-active {
+  animation: progress-pulse 1.5s ease-in-out infinite;
+}
+
+/* Quiz container card — subtle elevation for golden-width center */
+.quiz-container-card {
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(51, 65, 85, 0.45);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
 /* Lesson metadata card */
 .lesson-meta {
   display: flex;
@@ -869,6 +932,14 @@ mark[data-search-match][data-search-current] {
   min-height: 1.4em;
   user-select: none;
 }
+@media (hover: none) and (pointer: coarse) {
+  .cloze-blank.cloze-blank-hidden {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
 .cloze-blank.cloze-blank-hidden:hover {
   background: color-mix(in srgb, var(--book-link, #6366f1) 20%, transparent);
 }
@@ -882,6 +953,94 @@ mark[data-search-match][data-search-current] {
   padding: 2px 6px;
   font-weight: 500;
   cursor: default;
+}
+
+/* Reveal All button — inside cloze blockquote */
+.cloze-reveal-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.5em;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--book-link, #6366f1);
+  background: color-mix(in srgb, var(--book-link, #6366f1) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--book-link, #6366f1) 20%, transparent);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cloze-reveal-all-btn:hover {
+  background: color-mix(in srgb, var(--book-link, #6366f1) 15%, transparent);
+}
+
+/* Token pool — draggable answer chips */
+.cloze-token-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.75em;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--book-link, #6366f1) 6%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--book-link, #6366f1) 20%, transparent);
+  border-radius: 6px;
+}
+
+.cloze-token {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--book-link, #6366f1);
+  background: color-mix(in srgb, var(--book-link, #6366f1) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--book-link, #6366f1) 25%, transparent);
+  border-radius: 4px;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.15s;
+}
+.cloze-token:hover {
+  background: color-mix(in srgb, var(--book-link, #6366f1) 20%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.cloze-token:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+/* Drop target highlight */
+.cloze-blank.cloze-drag-over {
+  background: color-mix(in srgb, #22c55e 20%, transparent) !important;
+  border-left-color: #22c55e !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #22c55e 30%, transparent);
+}
+
+/* Wrong answer shake */
+.cloze-blank.cloze-wrong {
+  animation: cloze-shake 0.4s ease;
+  border-left-color: #ef4444 !important;
+  background: color-mix(in srgb, #ef4444 15%, transparent) !important;
+}
+@keyframes cloze-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 /* Interactive block (Cloze/Predict/Spot the Mistake) */
@@ -930,4 +1089,165 @@ details.interactive-block .interactive-answer {
   padding-top: 0.6em;
   border-top: 1px dashed var(--book-h2-border);
   font-style: italic;
+}
+
+/* Predict block — flat, no collapsible stack */
+.interactive-predict {
+  margin: 1.2em 0;
+  padding: 0.8em 1em;
+  border: 1px solid var(--book-h2-border);
+  border-radius: 8px;
+  background: var(--book-bq-bg);
+}
+.predict-badge {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--book-bq-text);
+}
+.interactive-predict .interactive-answer,
+.interactive-spot-the-mistake .interactive-answer {
+  margin-top: 0.6em;
+  padding-top: 0.6em;
+  border-top: 1px dashed var(--book-h2-border);
+  font-style: italic;
+}
+
+/* Spot the Mistake block — flat, no collapsible stack */
+.interactive-spot-the-mistake {
+  margin: 1.2em 0;
+  padding: 0.8em 1em;
+  border: 1px solid var(--book-h2-border);
+  border-radius: 8px;
+  background: var(--book-bq-bg);
+}
+.mistake-badge {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--book-bq-text);
+}
+
+/* ── Card flip ── */
+.flip-container {
+  perspective: 1000px;
+}
+.flip-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-front,
+.flip-back {
+  backface-visibility: hidden;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+/* ── Card toss ── */
+@keyframes card-toss-left {
+  to {
+    transform: translateX(-120%) rotate(-15deg) scale(0.8);
+    opacity: 0;
+  }
+}
+@keyframes card-toss-right {
+  to {
+    transform: translateX(120%) rotate(15deg) scale(0.8);
+    opacity: 0;
+  }
+}
+.anim-card-toss-left {
+  animation: card-toss-left 0.3s ease-in forwards;
+}
+.anim-card-toss-right {
+  animation: card-toss-right 0.3s ease-in forwards;
+}
+
+/* ── Quiz confetti ── */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+}
+.anim-confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100;
+  animation: confetti-fall ease-out forwards;
+}
+
+/* ── Micro-interactions ── */
+button:active {
+  transform: scale(0.97);
+}
+.card-hover-lift {
+  transition:
+    transform 150ms,
+    box-shadow 150ms;
+}
+.card-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Score ring ── */
+.score-ring {
+  transition: stroke-dashoffset 1s ease-out;
+}
+
+/* ── Question transition ── */
+.question-entrance {
+  animation: fade-in-up 0.25s ease-out both;
+}
+
+/* ── Progress bar ── */
+.reading-progress-bar {
+  transition: width 150ms ease-out;
+}
+
+/* ── Touch / Mobile ── */
+@media (hover: none) and (pointer: coarse) {
+  /* Kill hover-only reveals on touch */
+  .group:hover > .opacity-0,
+  .group:hover > .invisible {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* Widen tap targets to 44px minimum (Apple HIG) */
+  button,
+  a,
+  [role='button'] {
+    min-height: 44px;
+  }
+
+  /* Prevent text selection on interactive elements */
+  .no-select-on-touch {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Safe area insets for devices with notches / Dynamic Island */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
 }

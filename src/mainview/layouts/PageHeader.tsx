@@ -1,3 +1,4 @@
+import { Bookmark, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -30,43 +31,45 @@ export default function PageHeader({
   const focusMode = useSettingsStore((s) => s.focusMode);
 
   return (
-    <header className="relative z-40 bg-gray-800 border-b border-gray-700 shrink-0 min-h-7 flex flex-col">
+    <header className="relative z-40 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/60 shrink-0 min-h-[28px] flex flex-col">
       {!focusMode && (
-        <div className="px-4 py-2 flex items-center gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="px-3 py-1.5 flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
             {onBack && (
               <>
                 <button
                   onClick={onBack}
-                  className="text-gray-400 hover:text-white transition-colors text-sm shrink-0"
+                  className="text-gray-400 hover:text-white transition-colors text-xs shrink-0"
                 >
                   {backLabel ?? t('common.back')}
                 </button>
-                <div className="h-4 w-px bg-gray-600" />
+                <div className="h-3 w-px bg-gray-600" />
               </>
             )}
-            {title && <span className="text-sm font-medium text-gray-200 truncate">{title}</span>}
+            {title && <span className="text-xs font-medium text-gray-200 truncate">{title}</span>}
           </div>
 
           {children}
 
           {center && <div className="absolute left-1/2 -translate-x-1/2 z-50">{center}</div>}
 
-          {actions && <div className="ml-auto flex items-center gap-1.5">{actions}</div>}
+          {actions && <div className="ml-auto flex items-center gap-1">{actions}</div>}
 
           {!hideHeaderActions && !actions && (
-            <div className="ml-auto flex items-center gap-1.5">
+            <div className="ml-auto flex items-center gap-0.5">
               <button
                 onClick={() => push({ type: 'bookmarks' })}
-                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                title={t('common.bookmarks')}
+                className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700/60 rounded-md transition-colors"
               >
-                {t('common.bookmarks')}
+                <Bookmark size={14} />
               </button>
               <button
                 onClick={() => push({ type: 'settings' })}
-                className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                title={t('common.settings')}
+                className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700/60 rounded-md transition-colors"
               >
-                {t('common.settings')}
+                <Settings size={14} />
               </button>
             </div>
           )}

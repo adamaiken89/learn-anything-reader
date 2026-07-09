@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../../bun/types';
@@ -62,7 +63,11 @@ export default function ReviewCardDisplay({
     <div>
       <div className="text-xs text-gray-500 mb-2 text-center">
         {t('userCardReview.cardCounter', { current: currentIndex + 1, total: totalCards })}
-        {card.isStarred && <span className="ml-2 text-yellow-500">{t('icons.starFilled')}</span>}
+        {card.isStarred && (
+          <span className="ml-2 text-yellow-500">
+            <Star size={14} fill="currentColor" />
+          </span>
+        )}
       </div>
 
       <div className="bg-gray-800 rounded-xl p-8 min-h-[200px] flex flex-col items-center justify-center text-center mb-6">

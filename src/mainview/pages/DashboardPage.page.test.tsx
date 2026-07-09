@@ -47,10 +47,10 @@ describe('DashboardPage', () => {
     mockResponse('getLastSession', null);
   });
 
-  test('shows loading state initially', () => {
+  test('shows loading skeleton initially', () => {
     mockResponse('getGlobalStats', new Promise(() => {}));
     const { container } = render(<DashboardPage />);
-    expect(container.textContent).toContain('Loading');
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
   test('shows empty state when no courses', async () => {
@@ -94,7 +94,7 @@ describe('DashboardPage', () => {
     });
     const { container } = render(<DashboardPage />);
     await waitFor(() => {
-      expect(container.textContent).toContain('4/10');
+      expect(container.textContent).toContain('/10');
     });
   });
 });

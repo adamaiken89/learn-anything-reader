@@ -1,3 +1,4 @@
+import type { Course, ModuleMeta } from '../../bun/types';
 import CourseSwitcher from '../components/CourseSwitcher';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
@@ -6,12 +7,12 @@ import QuizSection from '../sections/QuizSection';
 import { useViewStore } from '../stores/viewStore';
 
 interface QuizPageProps {
-  courseId: string;
-  moduleId: string;
+  course: Course;
+  module: ModuleMeta;
   onBack: () => void;
 }
 
-export default function QuizPage({ courseId, moduleId, onBack }: QuizPageProps) {
+export default function QuizPage({ course, module, onBack }: QuizPageProps) {
   const replace = useViewStore((s) => s.replace);
   return (
     <PageLayout>
@@ -19,13 +20,13 @@ export default function QuizPage({ courseId, moduleId, onBack }: QuizPageProps) 
         onBack={onBack}
         center={
           <CourseSwitcher
-            currentCourseId={courseId}
-            onSelect={(course) => replace({ type: 'lesson', course, module: course.modules[0] })}
+            currentCourseId={course.id}
+            onSelect={(c) => replace({ type: 'lesson', course: c, module: c.modules[0] })}
           />
         }
       />
-      <PageContent className="py-8">
-        <QuizSection courseId={courseId} moduleId={moduleId} />
+      <PageContent className="quiz-bg">
+        <QuizSection courseId={course.id} moduleId={module.id} course={course} module={module} />
       </PageContent>
     </PageLayout>
   );

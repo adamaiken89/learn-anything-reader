@@ -143,10 +143,12 @@ describe('SearchOverlay', () => {
   });
 
   test('removes course filter chip', async () => {
-    const { getByText } = render(<SearchOverlay initialCourseIDs={['math']} onClose={() => {}} />);
+    const { container, getByText } = render(
+      <SearchOverlay initialCourseIDs={['math']} onClose={() => {}} />,
+    );
 
     expect(getByText('Mathematics')).toBeInTheDocument();
-    const closeBtn = getByText('✕');
+    const closeBtn = container.querySelector('.lucide-x')!;
     await user.click(closeBtn);
     expect(getByText('No course filter — searching all courses')).toBeInTheDocument();
   });

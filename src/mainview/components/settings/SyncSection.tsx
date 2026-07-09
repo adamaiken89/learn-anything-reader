@@ -27,13 +27,12 @@ export default function SyncSection() {
 
   const handleRepoKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
-      e.preventDefault();
       repoRef.current?.select();
     }
   }, []);
 
   return (
-    <section className="bg-gray-800 rounded-xl p-6 mb-6">
+    <section className="bg-gray-800 rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4">{t('settings.remoteContent')}</h3>
       <p className="text-sm text-gray-400 mb-4">{t('settings.remoteContentDesc')}</p>
       <div className="flex gap-2 mb-3">
@@ -48,7 +47,7 @@ export default function SyncSection() {
         />
         <Button
           variant="secondary"
-          size="md"
+          size="lg"
           onClick={() => {
             void (async () => {
               try {
@@ -65,7 +64,7 @@ export default function SyncSection() {
         </Button>
         <Button
           variant="secondary"
-          size="md"
+          size="lg"
           onClick={() => {
             void (async () => {
               try {

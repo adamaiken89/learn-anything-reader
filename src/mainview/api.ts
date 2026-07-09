@@ -1,5 +1,5 @@
 import type { AppRequests } from '../bun/rpcSchema';
-import type { LastSession, QuizQuestion, SRSDeck } from '../bun/types';
+import type { LastSession, ModuleSession, QuizQuestion, SRSDeck } from '../bun/types';
 import { logger } from './logger';
 import { rpc as defaultRpc } from './rpc';
 import { showToast } from './toast';
@@ -37,6 +37,8 @@ export const api = {
   stats: {
     course: (courseId: string) => request(() => _rpcRequest.getCourseStats({ courseId })),
     global: () => request(() => _rpcRequest.getGlobalStats()),
+    lastQuizSession: (courseID: string, moduleID: string) =>
+      request(() => _rpcRequest.getLastQuizSession({ courseID, moduleID })),
     logSession: (data: {
       courseID: string;
       moduleID: string;
@@ -70,6 +72,14 @@ export const api = {
   quiz: {
     start: (courseId: string, moduleId: string) =>
       request(() => _rpcRequest.quizStart({ courseId, moduleId })),
+    cloze: (courseId: string, moduleId: string) =>
+      request(() => _rpcRequest.loadClozeQuiz({ courseId, moduleId })),
+    hasCloze: (courseId: string, moduleId: string) =>
+      request(() => _rpcRequest.hasClozeQuiz({ courseId, moduleId })),
+    cumulative: (courseId: string, id?: string) =>
+      request(() => _rpcRequest.loadCumulativeQuiz({ courseId, id })),
+    hasCumulative: (courseId: string) => request(() => _rpcRequest.hasCumulativeQuiz({ courseId })),
+    index: (courseId: string) => request(() => _rpcRequest.quizIndex({ courseId })),
   },
   storage: {
     highlights: (courseID: string, moduleID: string) =>
@@ -161,6 +171,12 @@ export const api = {
     get: () => request(() => _rpcRequest.getLastSession()),
     set: (session: LastSession) => request(() => _rpcRequest.setLastSession(session)),
     clear: () => request(() => _rpcRequest.clearLastSession()),
+    getModuleSession: (courseId: string, moduleId: string) =>
+      request(() => _rpcRequest.getModuleSession({ courseId, moduleId })),
+    setModuleSession: (session: ModuleSession) =>
+      request(() => _rpcRequest.setModuleSession(session)),
+    getCourseModuleSessions: (courseId: string) =>
+      request(() => _rpcRequest.getCourseModuleSessions({ courseId })),
   },
   window: {
     setTitle: (title: string) => request(() => _rpcRequest.setWindowTitle({ title })),

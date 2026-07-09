@@ -15,6 +15,7 @@ describe('UserCardReviewPage', () => {
   };
 
   beforeEach(() => {
+    mockResponse('coursesList', []);
     mockResponse('getUserCards', []);
     void i18n.changeLanguage('en-US');
     useSettingsStore.setState({ focusMode: false });

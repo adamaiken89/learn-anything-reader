@@ -5,14 +5,18 @@ import type { SearchResult } from './search';
 import type {
   Bookmark,
   Course,
+  CumulativeQuiz,
   Highlight,
   LastSession,
   ModuleMeta,
+  ModuleSession,
   Note,
+  QuizIndex,
   QuizQuestion,
   Section,
   SRSCard,
   SRSDeck,
+  StudySession,
   UserCard,
 } from './types';
 
@@ -43,6 +47,14 @@ type CourseRequests = {
   modulesList: { params: { courseId: string }; response: ModuleMeta[] };
   loadLesson: { params: { courseId: string; moduleId: string }; response: LessonResponse };
   loadQuiz: { params: { courseId: string; moduleId: string }; response: QuizQuestion[] };
+  loadClozeQuiz: { params: { courseId: string; moduleId: string }; response: QuizQuestion[] };
+  hasClozeQuiz: { params: { courseId: string; moduleId: string }; response: boolean };
+  loadCumulativeQuiz: {
+    params: { courseId: string; id?: string };
+    response: CumulativeQuiz;
+  };
+  hasCumulativeQuiz: { params: { courseId: string }; response: boolean };
+  quizIndex: { params: { courseId: string }; response: QuizIndex };
   getSections: { params: { courseId: string; moduleId: string }; response: Section[] };
   search: { params: { query: string; courseID?: string }; response: SearchResult[] };
   quizStart: { params: { courseId: string; moduleId: string }; response: QuizQuestion[] };
@@ -136,6 +148,10 @@ type ProgressRequests = {
   };
   getCourseStats: { params: { courseId: string }; response: CourseStats };
   getGlobalStats: { params: void; response: GlobalStats };
+  getLastQuizSession: {
+    params: { courseID: string; moduleID: string };
+    response: StudySession | null;
+  };
   geminiHasKey: { params: void; response: boolean };
   geminiSetKey: { params: { key: string }; response: { ok: true } };
   geminiAsk: { params: { question: string; context: string }; response: string };
@@ -170,6 +186,12 @@ export type AppRequests = CourseRequests &
     getLastSession: { params: void; response: LastSession | null };
     setLastSession: { params: LastSession; response: { ok: true } };
     clearLastSession: { params: void; response: { ok: true } };
+    getModuleSession: {
+      params: { courseId: string; moduleId: string };
+      response: ModuleSession | null;
+    };
+    setModuleSession: { params: ModuleSession; response: { ok: true } };
+    getCourseModuleSessions: { params: { courseId: string }; response: ModuleSession[] };
   };
 
 export type AppSchema = {

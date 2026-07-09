@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -57,7 +58,7 @@ export default function CardsTab() {
               disabled={deletingId === card.id}
               className="text-[10px] text-gray-600 hover:text-red-400 shrink-0 disabled:opacity-40"
             >
-              {t('icons.close')}
+              <X size={12} />
             </button>
           </div>
           <div className="flex items-center gap-2 mt-1 text-[9px] text-gray-600">

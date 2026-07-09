@@ -1,3 +1,4 @@
+import { Bookmark as BookmarkIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { Bookmark } from '../../../bun/types';
@@ -33,7 +34,7 @@ function BookmarkButton() {
       }}
       title={t('lesson.bookmarkModule')}
     >
-      {hasActiveBookmark ? t('icons.bookmarkFilled') : t('icons.bookmarkEmpty')}{' '}
+      <BookmarkIcon size={14} fill={hasActiveBookmark ? 'currentColor' : 'none'} />{' '}
       {t('lesson.bookmark')}
     </Button>
   );

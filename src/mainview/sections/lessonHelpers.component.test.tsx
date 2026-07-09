@@ -204,11 +204,11 @@ describe('getTextOffset', () => {
     document.body.removeChild(container);
   });
 
-  test('returns null when range cannot compute offset', () => {
+  test('returns null when container has no text nodes', () => {
     const container = document.createElement('div');
     const range = document.createRange();
-    // Range with no text content returns start=0 end=0, not null
+    // Empty container has no SHOW_TEXT nodes → TreeWalker finds nothing
     const result = getTextOffset(container, range);
-    expect(result).toEqual({ start: 0, end: 0 });
+    expect(result).toBeNull();
   });
 });

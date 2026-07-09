@@ -5,9 +5,12 @@ import type { Course } from '../bun/types';
 import { api } from './api';
 import SearchOverlay from './components/SearchOverlay';
 import { useAppInit } from './hooks/useAppInit';
+import { useClipboardFallback } from './hooks/useClipboardFallback';
 import { useShortcuts } from './hooks/useShortcuts';
 import { useWindowTitle } from './hooks/useWindowTitle';
 import BookmarksPage from './pages/BookmarksPage';
+import ClozeQuizPage from './pages/ClozeQuizPage';
+import CumulativeQuizPage from './pages/CumulativeQuizPage';
 import DashboardPage from './pages/DashboardPage';
 import LessonPage from './pages/LessonPage';
 import QuizPage from './pages/QuizPage';
@@ -27,6 +30,7 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useAppInit();
+  useClipboardFallback();
   useWindowTitle();
 
   useEffect(() => {
@@ -74,10 +78,18 @@ export default function App() {
         );
 
       case 'quiz':
+        return <QuizPage course={currentView.course} module={currentView.module} onBack={pop} />;
+
+      case 'clozeQuiz':
         return (
-          <QuizPage
-            courseId={currentView.course.id}
-            moduleId={currentView.module.id}
+          <ClozeQuizPage course={currentView.course} module={currentView.module} onBack={pop} />
+        );
+
+      case 'cumulativeQuiz':
+        return (
+          <CumulativeQuizPage
+            course={currentView.course}
+            cumulativeQuizId={currentView.cumulativeQuizId}
             onBack={pop}
           />
         );
@@ -112,7 +124,9 @@ export default function App() {
 
   return (
     <>
-      {viewContent}
+      <div key={currentView.type} className="anim-fade-in-up" style={{ animationDuration: '0.2s' }}>
+        {viewContent}
+      </div>
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   );

@@ -3,10 +3,7 @@ import { create } from 'zustand';
 import type { Bookmark } from '../../bun/types';
 import { api } from '../api';
 import { showToast } from '../toast';
-
-function key(courseId: string, moduleId: string) {
-  return `${courseId}:${moduleId}`;
-}
+import { key } from './storageUtils';
 
 interface BookmarksState {
   byModule: Record<string, Bookmark[]>;

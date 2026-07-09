@@ -1,3 +1,7 @@
+export function key(courseId: string, moduleId: string): string {
+  return `${courseId}:${moduleId}`;
+}
+
 export function getStored<T>(key: string, fallback: T): T {
   try {
     return JSON.parse(localStorage.getItem(key)!) ?? fallback;

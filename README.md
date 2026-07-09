@@ -5,7 +5,7 @@
 <h1 align="center">CourseReader</h1>
 
 <p align="center">
-  Desktop study app for structured curricula with quizzes, spaced repetition, AI-powered Q&A, and persistent annotations.
+  Desktop study app for structured curricula with quizzes, spaced repetition, and persistent annotations.
 </p>
 
 <p align="center">
@@ -16,21 +16,14 @@
 
 ## Features
 
-- **Course browser** — course list → module list → lesson, with course/module switchers
-- **Quizzes** — MCQ per module, instant scoring
-- **Spaced repetition** — SM-2 algorithm via SRS deck (JSON), star cards, filter by due/starred/all
-- **User card review** — create and review custom flashcards
-- **AI assistant** — ask Gemini 2.0 Flash about lesson content in sidebar
-- **Annotations** — highlights, notes, and bookmarks per module via JSON persistence
-- **Syntax highlighting** — code blocks rendered via highlight.js (custom dark theme)
-- **Reader navigation** — prev/next module and section buttons, font size controls (10–28px)
-- **Book-like reading** — 8 themes (Dark, OLED, Nord, Sepia, Gruvbox, Light, Solarized, Catppuccin), decorative headers, blockquotes, wide mode toggle
-- **Search** — ⌘K global search across lessons, notes, and highlights, with section-level scroll-to on navigate
-- **Pomodoro timer** — focus/break timer with session tracking
-- **Dashboard** — per-course and global study stats
-- **Bookmarks page** — browse and jump to saved bookmarks
-- **i18n** — multi-language support (English US/UK/CA/AU, 繁體中文)
-- **Focus mode** — distraction-free reading view
+- **Course reading** — structured curricula with book-like prose, 18 themes, adjustable font size, section navigation, and in-lesson search
+- **Module quizzes** — MCQs per module with instant scoring
+- **Spaced repetition** — SM-2 flashcard deck with due/starred/all filters + custom user cards
+- **Annotations** — persistent highlights, notes, and bookmarks per module
+- **Search** — ⌘K global search across lessons, notes, and highlights with section-level scroll-to
+- **Study tools** — pomodoro timer, focus mode, per-course/global stats, keyboard shortcuts
+
+See [`docs/`](docs/) for detailed architecture, conventions, and reading experience.
 
 ## Requirements
 
@@ -53,40 +46,6 @@ bun run build          # production build
 bun test               # run all tests (bun:test + happy-dom)
 bun run check          # tsc + eslint + prettier
 bun run knip           # find unused code/exports/dependencies
-```
-
-## Project structure
-
-```bash
-src/
-├── mainview/            # React frontend (Vite, root=src/mainview)
-│   ├── pages/           # 8 page components (CourseList, Lesson, Quiz, etc.)
-│   ├── sections/        # Complex content: Lesson, Quiz, Review, UserCardReview
-│   ├── layouts/         # PageLayout, PageHeader, PageContent
-│   ├── components/      # Leaf-level UI
-│   │   ├── lesson/      # LessonToolbar, SectionsPanel, NoteEditor, etc.
-│   │   ├── study-tools/ # NotesHighlightsTab, BookmarksTab, CardsTab, AITab
-│   │   └── ui/          # Button, StatCard
-│   ├── hooks/           # Domain hooks (useLesson, useBookmarks, etc.)
-│   ├── stores/           # 10 Zustand stores (view, settings, course, etc.)
-│   ├── locales/         # 5 locale files (en-US, en-GB, en-AU, en-CA, zh-TW)
-│   ├── App.tsx          # View stack router
-│   ├── api.ts / rpc.ts  # RPC client → backend
-│   ├── i18n.ts          # Internationalization (i18next)
-│   ├── shortcuts.ts     # Keyboard shortcuts (single source of truth)
-│   └── index.css        # Tailwind + book content styles
-└── bun/                 # Backend (Electrobun RPC handlers)
-    ├── index.ts         # RPC router
-    ├── rpc-schema.ts    # RPC type definitions
-    ├── course-loader.ts # File I/O: subjects, lessons, quizzes; YAML parse
-    ├── lesson-markdown.ts # Markdown processing
-    ├── storage.ts       # JSON persistence (~/.coursereader/data.json)
-    ├── gemini.ts        # Gemini AI client
-    ├── search.ts        # Full-text search
-    ├── stats.ts         # Statistics
-    ├── srs.ts           # SM-2 algorithm
-    ├── sync.ts          # Remote content sync
-    └── yaml.ts          # YAML parsing
 ```
 
 ## Subjects

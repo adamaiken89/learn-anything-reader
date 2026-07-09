@@ -108,46 +108,76 @@ function wrapInteractiveBlock(bq: HastElement): HastElement {
     contentNodes.push(c);
   }
 
-  // For cloze: keep blockquote format, just hide answer line
+  // For cloze: keep blockquote format, hide answer line, add reveal-all button
   if (label === 'cloze') {
     return {
       ...bq,
-      children: contentNodes,
+      children: [
+        ...contentNodes,
+        {
+          type: 'element',
+          tagName: 'button',
+          properties: {
+            className: 'cloze-reveal-all-btn',
+            type: 'button',
+          },
+          children: [{ type: 'text', value: 'Reveal All' }],
+        } as HastNode,
+      ],
     } as HastElement;
   }
 
-  // For predict/spot the mistake: wrap in <details>
-  const summaryLabel = label === 'predict' ? '🔮 Predict' : '⚠️ Spot the Mistake';
+  // For predict: flat div with badge, no collapsible stack
+  if (label === 'predict') {
+    return {
+      type: 'element',
+      tagName: 'div',
+      properties: { className: 'interactive-predict' },
+      children: [
+        {
+          type: 'element',
+          tagName: 'span',
+          properties: { className: 'predict-badge' },
+          children: [{ type: 'text', value: '🔮 ' }],
+        },
+        ...contentNodes,
+        ...(answerNode
+          ? [
+              {
+                type: 'element',
+                tagName: 'div',
+                properties: { className: 'interactive-answer' },
+                children: [answerNode],
+              } as HastNode,
+            ]
+          : []),
+      ],
+    } as HastElement;
+  }
 
+  // For spot the mistake: flat div with badge, no collapsible stack
   return {
     type: 'element',
-    tagName: 'details',
-    properties: { className: `interactive-block interactive-${label.replace(/\s+/g, '-')}` },
+    tagName: 'div',
+    properties: { className: 'interactive-spot-the-mistake' },
     children: [
       {
         type: 'element',
-        tagName: 'summary',
-        properties: {},
-        children: [{ type: 'text', value: `${summaryLabel}: Try to recall before revealing` }],
+        tagName: 'span',
+        properties: { className: 'mistake-badge' },
+        children: [{ type: 'text', value: '⚠️ ' }],
       },
-      {
-        type: 'element',
-        tagName: 'div',
-        properties: { className: 'interactive-block-content' },
-        children: [
-          ...contentNodes,
-          ...(answerNode
-            ? [
-                {
-                  type: 'element',
-                  tagName: 'div',
-                  properties: { className: 'interactive-answer' },
-                  children: [answerNode],
-                } as HastNode,
-              ]
-            : []),
-        ],
-      },
+      ...contentNodes,
+      ...(answerNode
+        ? [
+            {
+              type: 'element',
+              tagName: 'div',
+              properties: { className: 'interactive-answer' },
+              children: [answerNode],
+            } as HastNode,
+          ]
+        : []),
     ],
   } as HastElement;
 }

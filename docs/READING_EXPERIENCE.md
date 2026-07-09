@@ -4,7 +4,7 @@ Book-like prose styles defined via CSS custom properties in `.book-content` CSS 
 
 ## Themes
 
-12 themes: Dark, OLED, Nord, Sepia, Gruvbox, Light, Solarized Dark, Catppuccin, Dracula, Tokyo Night, Rose Pine, Everforest
+18 themes: Dark, OLED, Nord, Sepia, Gruvbox, Light, Solarized Dark, Catppuccin, Dracula, Tokyo Night, Rose Pine, Everforest, Notebook, One Dark, Terminal, Monokai, Monochrome, Night Owl
 
 - Theme type defined in `themes.ts` as `Theme` union
 - `cycleTheme()` for LessonToolbar, `setTheme(t)` for SettingsPage grid

@@ -1,3 +1,4 @@
+import { Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useLessonUIStore } from '../../stores/lessonUIStore';
@@ -27,7 +28,7 @@ function FocusPomodoroControls() {
         onClick={togglePomodoro}
         title={t('pomodoro.title')}
       >
-        {t('icons.pomodoro')}
+        <Timer size={14} />
       </Button>
     </>
   );

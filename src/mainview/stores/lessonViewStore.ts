@@ -7,6 +7,7 @@ interface LessonViewState {
   content: string;
   sections: Section[];
   contentRef: React.RefObject<HTMLDivElement | null>;
+  markdownRef: React.RefObject<HTMLDivElement | null>;
   scrollToSection: (sectionId: string) => void;
   h1: string;
   meta: MetaField[];
@@ -18,6 +19,7 @@ interface LessonViewState {
   setContent: (content: string) => void;
   setSections: (sections: Section[]) => void;
   setContentRef: (ref: React.RefObject<HTMLDivElement | null>) => void;
+  setMarkdownRef: (ref: React.RefObject<HTMLDivElement | null>) => void;
   setScrollToSection: (fn: (sectionId: string) => void) => void;
   setH1: (h1: string) => void;
   setMeta: (meta: MetaField[]) => void;
@@ -32,6 +34,7 @@ export const useLessonViewStore = create<LessonViewState>((set) => ({
   content: '',
   sections: [],
   contentRef: { current: null } as React.RefObject<HTMLDivElement | null>,
+  markdownRef: { current: null } as React.RefObject<HTMLDivElement | null>,
   scrollToSection: () => {},
   h1: '',
   meta: [],
@@ -43,6 +46,7 @@ export const useLessonViewStore = create<LessonViewState>((set) => ({
   setContent: (content) => set({ content }),
   setSections: (sections) => set({ sections }),
   setContentRef: (contentRef) => set({ contentRef }),
+  setMarkdownRef: (markdownRef) => set({ markdownRef }),
   setScrollToSection: (scrollToSection) => set({ scrollToSection }),
   setH1: (h1) => set({ h1 }),
   setMeta: (meta) => set({ meta }),

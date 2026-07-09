@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -88,7 +89,7 @@ export default function CourseFilterChips({
             onClick={() => removeCourse(id)}
             className="text-indigo-300 hover:text-white ml-0.5"
           >
-            {t('icons.close')}
+            <X size={12} />
           </button>
         </span>
       ))}

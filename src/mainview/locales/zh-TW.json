@@ -66,7 +66,14 @@
     "moduleBadge": "M{{current}}/{{total}}",
     "modules": "單元",
     "noSections": "此單元無章節。",
-    "appearance": "外觀設定"
+    "prevRead": "已閱讀過",
+    "appearance": "外觀設定",
+    "goToQuiz": "前往測驗",
+    "clozeQuiz": "填空練習",
+    "cumulativeQuiz": "綜合複習",
+    "quizMCQ": "選擇題",
+    "quizCloze": "填空題",
+    "quizCumulative": "綜合測驗"
   },
   "viewerSearch": {
     "placeholder": "在頁面中搜尋...",
@@ -75,7 +82,8 @@
     "caseSensitive": "Aa",
     "caseSensitiveTitle": "區分大小寫",
     "prev": "上一個",
-    "next": "下一個"
+    "next": "下一個",
+    "close": "關閉"
   },
   "selection": {
     "copied": "已複製！"
@@ -92,7 +100,19 @@
     "difficulty": "難度：{{level}}",
     "skip": "跳過",
     "nextQuestion": "下一題",
-    "finishQuiz": "完成測驗"
+    "finishQuiz": "完成測驗",
+    "backToLesson": "返回課文",
+    "filterAll": "全部 ({{count}})",
+    "filterCorrect": "正確 ({{count}})",
+    "filterWrong": "錯誤 ({{count}})",
+    "correctLabel": "正確",
+    "incorrectLabel": "錯誤",
+    "explanation": "解釋",
+    "nextChapter": "下一章 →",
+    "backToDashboard": "返回儀表板",
+    "reviewCourse": "複習卡片",
+    "previousPassed": "已通過",
+    "previousFailed": "未通過"
   },
   "review": {
     "loadingCards": "正在載入複習卡片...",
@@ -111,7 +131,13 @@
     "forgot": "忘記了",
     "remembered": "記住了",
     "unstar": "★ 取消收藏",
-    "star": "☆ 收藏"
+    "star": "☆ 收藏",
+    "reviewed": "已複習",
+    "accuracy": "正確率",
+    "remaining": "剩餘",
+    "flipHint": "空白鍵翻轉",
+    "forgotHint": "F 忘記了",
+    "rememberedHint": "R 記住了"
   },
   "userCardReview": {
     "noCards": "尚無卡片",
@@ -121,6 +147,8 @@
     "cardCounter": "第 {{current}} 張，共 {{total}} 張"
   },
   "settings": {
+    "integration": "整合",
+    "preferences": "偏好設定",
     "geminiApiKey": "Gemini API 金鑰",
     "geminiApiKeyDesc": "Ask AI 功能需要此金鑰。前往以下網站免費取得金鑰",
     "aiStudioLink": "Google AI Studio",
@@ -155,9 +183,8 @@
     "forceSync": "強制重新下載（即使已是最新）",
     "englishUS": "English (US)",
     "englishUK": "English (UK)",
-    "englishCA": "English (CA)",
-    "englishAU": "English (AU)",
     "chineseTW": "繁體中文",
+    "chineseCN": "简体中文",
     "themes": {
       "dark": "深色",
       "darkDesc": "溫暖的深色，夜間閱讀不傷眼",
@@ -215,7 +242,8 @@
     "transitionSlide": "滑動",
     "transitionSlideDesc": "水平滑動切換",
     "transitionFade": "淡入淡出",
-    "transitionFadeDesc": "平滑交叉淡入淡出"
+    "transitionFadeDesc": "平滑交叉淡入淡出",
+    "download": "下載"
   },
   "studyTools": {
     "title": "學習工具",
@@ -310,14 +338,6 @@
     "continueLearning": "繼續學習"
   },
   "icons": {
-    "bookmarkFilled": "★",
-    "bookmarkEmpty": "☆",
-    "pomodoro": "🍅",
-    "cards": "🃏",
-    "search": "🔍",
-    "close": "✕",
-    "note": "📝",
-    "clipboard": "📋",
     "themeDark": "🌙",
     "themeOled": "🖤",
     "themeNord": "❄️",
@@ -335,17 +355,7 @@
     "themeTerminal": "💻",
     "themeMonokai": "🎨",
     "themeMonochrome": "📄",
-    "themeNightOwl": "🦉",
-    "starFilled": "★",
-    "starEmpty": "☆",
-    "searchLesson": "📄",
-    "searchHighlight": "🖍",
-    "book": "📖",
-    "review": "🔄",
-    "stats": "📊",
-    "gear": "⚙",
-    "hamburger": "☰",
-    "check": "✓"
+    "themeNightOwl": "🦉"
   },
   "toast": {
     "apiError": "API 錯誤：{{message}}",

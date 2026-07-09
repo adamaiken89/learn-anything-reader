@@ -13,11 +13,12 @@
 		"test": "bun test --path-ignore-patterns 'e2e/**' --path-ignore-patterns 'src/mainview/__e2e__/**'",
 		"e2e": "bash scripts/e2e.sh",
 		"e2e:update": "bash scripts/e2e.sh --update",
-		"fix": "eslint src/ --fix --ext .ts,.tsx && prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-		"check": "tsc --noEmit && eslint src/ --ext .ts,.tsx && prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+		"fix": "eslint src/ --fix --ext .ts,.tsx && prettier --write \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" \"src/**/locales/*.json\"",
+		"check": "tsc --noEmit && eslint src/ --ext .ts,.tsx && prettier --check \"src/**/*.ts\" \"src/**/*.tsx\" \"src/**/*.css\" \"src/**/locales/*.json\"",
 		"knip": "knip"
 	},
 	"dependencies": {
+		"@dnd-kit/react": "^0.5.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"electrobun": "^1.18.1",
@@ -47,6 +48,7 @@
 		"@types/mdast": "^4.0.4",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
+		"@typescript/native": "npm:typescript@^7.0.2",
 		"@vitejs/plugin-react": "^6.0.3",
 		"autoprefixer": "^10.5.0",
 		"babel-plugin-react-compiler": "^1.0.0",
@@ -62,7 +64,7 @@
 		"postcss": "^8.5.15",
 		"prettier": "^3.8.4",
 		"tailwindcss": "^3.4.19",
-		"typescript": "^5.9.3",
+		"typescript": "6.0.2",
 		"typescript-eslint": "^8.62.0",
 		"vite": "^8.1.0"
 	}

@@ -85,7 +85,7 @@ describe('rehypeCloze', () => {
     expect(hasAnswer).toBe(false);
   });
 
-  test('wraps Predict blockquote in details', () => {
+  test('wraps Predict blockquote in flat div', () => {
     const bq = h('blockquote', [
       h('p', [h('strong', [text('Predict')]), text(': What happens?')]),
       h('p', [text('Context...')]),
@@ -93,11 +93,11 @@ describe('rehypeCloze', () => {
     ]);
     const tree = root([bq]);
     rehypeCloze()(tree);
-    const details = tree.children[0] as HastElement;
-    expect(details.tagName).toBe('details');
+    const el = tree.children[0] as HastElement;
+    expect(el.tagName).toBe('div');
   });
 
-  test('wraps Spot the Mistake blockquote in details', () => {
+  test('wraps Spot the Mistake blockquote in flat div with badge', () => {
     const bq = h('blockquote', [
       h('p', [h('strong', [text('Spot the Mistake')]), text(': Scenario')]),
       h('p', [text('Wrong analysis...')]),
@@ -105,8 +105,12 @@ describe('rehypeCloze', () => {
     ]);
     const tree = root([bq]);
     rehypeCloze()(tree);
-    const details = tree.children[0] as HastElement;
-    expect(details.tagName).toBe('details');
+    const el = tree.children[0] as HastElement;
+    expect(el.tagName).toBe('div');
+    expect(el.properties?.className).toBe('interactive-spot-the-mistake');
+    const badge = el.children?.[0] as HastElement;
+    expect(badge.tagName).toBe('span');
+    expect(badge.properties?.className).toBe('mistake-badge');
   });
 
   test('skips non-interactive blockquotes', () => {
@@ -124,19 +128,18 @@ describe('rehypeCloze', () => {
     expect(pre.tagName).toBe('pre');
   });
 
-  test('Predict blockquote wraps in details with summary', () => {
+  test('Predict blockquote has predict-badge', () => {
     const bq = h('blockquote', [
       h('p', [h('strong', [text('Predict')]), text(': test')]),
       h('p', [h('em', [text('Answer')]), text(': test')]),
     ]);
     const tree = root([bq]);
     rehypeCloze()(tree);
-    const details = tree.children[0] as HastElement;
-    expect(details.tagName).toBe('details');
-    const summary = details.children?.[0] as HastElement;
-    expect(summary.tagName).toBe('summary');
-    const summaryText = summary.children?.[0] as { value?: string };
-    expect(summaryText.value).toContain('Predict');
+    const el = tree.children[0] as HastElement;
+    expect(el.tagName).toBe('div');
+    const badge = el.children?.[0] as HastElement;
+    expect(badge.tagName).toBe('span');
+    expect(badge.properties?.className).toBe('predict-badge');
   });
 
   test('handles empty root gracefully', () => {
@@ -151,17 +154,16 @@ describe('rehypeCloze', () => {
     expect(tree).toBeDefined();
   });
 
-  test('Predict answer hidden inside interactive-answer div', () => {
+  test('Predict answer inside interactive-answer div', () => {
     const bq = h('blockquote', [
       h('p', [h('strong', [text('Predict')]), text(': Q?')]),
       h('p', [h('em', [text('Answer')]), text(': A!')]),
     ]);
     const tree = root([bq]);
     rehypeCloze()(tree);
-    const details = tree.children[0] as HastElement;
-    expect(details.tagName).toBe('details');
-    const contentDiv = details.children?.[1] as HastElement;
-    const answerDiv = contentDiv.children?.find(
+    const el = tree.children[0] as HastElement;
+    expect(el.tagName).toBe('div');
+    const answerDiv = el.children?.find(
       (c) => (c as HastElement).properties?.className === 'interactive-answer',
     );
     expect(answerDiv).toBeDefined();

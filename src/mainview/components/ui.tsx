@@ -14,19 +14,22 @@ export const toggleVariants = cva('px-2 py-0.5 text-xs rounded transition-colors
   },
 });
 
-export const answerVariants = cva('w-full text-left p-3 rounded-lg border transition-colors', {
-  variants: {
-    state: {
-      correct: 'bg-emerald-900/30 border-emerald-600',
-      wrong: 'bg-red-900/30 border-red-600',
-      selected: 'bg-indigo-900/30 border-indigo-600',
-      neutral: 'bg-gray-750 border-gray-600 hover:border-gray-500',
+export const answerVariants = cva(
+  'w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-3',
+  {
+    variants: {
+      state: {
+        correct: 'bg-emerald-500/10 border-emerald-500/40 text-emerald-100',
+        wrong: 'bg-red-500/10 border-red-500/40 text-red-100 animate-[shake_0.3s_ease-in-out]',
+        selected: 'bg-blue-500/10 border-blue-400/50 text-blue-100',
+        neutral: 'bg-gray-800/60 border-gray-600/50 hover:border-gray-400 hover:bg-gray-700/40',
+      },
+    },
+    defaultVariants: {
+      state: 'neutral',
     },
   },
-  defaultVariants: {
-    state: 'neutral',
-  },
-});
+);
 
 export const filterVariants = cva('px-3 py-1 text-xs rounded transition-colors', {
   variants: {

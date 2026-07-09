@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +43,9 @@ export default function CourseSwitcher({ currentCourseId, onSelect }: Props) {
         className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-center gap-2 min-w-[380px]"
       >
         <span className="truncate">{current?.displayName ?? t('common.modules')}</span>
-        <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
+        <span className={`text-xs transition-transform ${open ? 'rotate-180' : ''}`}>
+          <ChevronDown size={14} />
+        </span>
       </button>
       {showDropdown && (
         <div

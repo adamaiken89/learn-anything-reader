@@ -10,6 +10,7 @@ export type { TextSelection };
 export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>) {
   const rafRef = useRef<number>(0);
   const hideRafRef = useRef<number>(0);
+  const isMouseDownRef = useRef(false);
 
   const actions = useSelectionStore(
     useShallow((s) => ({
@@ -33,6 +34,20 @@ export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>)
   );
 
   useEffect(() => {
+    const onMouseDown = () => {
+      isMouseDownRef.current = true;
+    };
+
+    const onMouseUp = () => {
+      isMouseDownRef.current = false;
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      const container = scrollContainerRef?.current;
+      if (!container || !container.contains(range.commonAncestorContainer)) return;
+      useSelectionStore.getState().handleTextSelection();
+    };
+
     const onSelectionChange = () => {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.rangeCount) {
@@ -49,11 +64,18 @@ export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>)
                 (active as HTMLElement).isContentEditable)
             )
               return;
-            useSelectionStore.getState().resetSelection();
+            const toolbar = document.querySelector('[data-testid="selection-toolbar"]');
+            if (toolbar?.contains(active)) return;
+            const st = useSelectionStore.getState();
+            if (st.showNoteEditor || st.showCardEditor) return;
+            st.resetSelection();
           }
         });
         return;
       }
+
+      if (isMouseDownRef.current) return;
+
       cancelAnimationFrame(hideRafRef.current);
       const range = sel.getRangeAt(0);
       const container = scrollContainerRef?.current;
@@ -61,10 +83,15 @@ export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>)
       if (!container.contains(range.commonAncestorContainer)) return;
       useSelectionStore.getState().handleTextSelection();
     };
+
     document.addEventListener('selectionchange', onSelectionChange);
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup', onMouseUp);
     return () => {
       cancelAnimationFrame(hideRafRef.current);
       document.removeEventListener('selectionchange', onSelectionChange);
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mouseup', onMouseUp);
     };
   }, [scrollContainerRef]);
 

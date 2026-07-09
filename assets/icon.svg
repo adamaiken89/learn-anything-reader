@@ -11,7 +11,7 @@
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" rx="200" fill="url(#bg)"/>
-  <g transform="translate(512,512)">
+  <g transform="translate(512,512) scale(0.85)">
     <!-- Book spine -->
     <rect x="-8" y="-260" width="16" height="520" rx="3" fill="#e2e8f0"/>
     <!-- Left page -->

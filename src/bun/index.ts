@@ -40,6 +40,17 @@ const rpc = BrowserView.defineRPC<AppSchema>({
 
       loadQuiz: ({ courseId, moduleId }) => CourseLoader.loadQuiz(courseId, moduleId),
 
+      loadClozeQuiz: ({ courseId, moduleId }) => CourseLoader.loadClozeQuiz(courseId, moduleId),
+
+      hasClozeQuiz: ({ courseId, moduleId }) => CourseLoader.hasClozeQuiz(courseId, moduleId),
+
+      loadCumulativeQuiz: ({ courseId, id }) =>
+        CourseLoader.loadCumulativeQuiz(courseId, id),
+
+      hasCumulativeQuiz: ({ courseId }) => CourseLoader.hasCumulativeQuiz(courseId),
+
+      quizIndex: ({ courseId }) => CourseLoader.getQuizIndex(courseId),
+
       getSections: ({ courseId, moduleId }) => {
         const content = CourseLoader.loadLesson(courseId, moduleId);
         return processLessonMarkdown(content).sections;
@@ -172,6 +183,9 @@ const rpc = BrowserView.defineRPC<AppSchema>({
 
       getGlobalStats: () => Stats.getGlobalStats(),
 
+      getLastQuizSession: ({ courseID, moduleID }) =>
+        Storage.getLastQuizSession(courseID, moduleID),
+
       getSyncStatus: () => {
         const config = Storage.getSyncConfig();
         return {
@@ -214,6 +228,15 @@ const rpc = BrowserView.defineRPC<AppSchema>({
         Storage.clearLastSession();
         return { ok: true as const };
       },
+
+      getModuleSession: ({ courseId, moduleId }) => Storage.getModuleSession(courseId, moduleId),
+
+      setModuleSession: async (session) => {
+        Storage.setModuleSession(session);
+        return { ok: true as const };
+      },
+
+      getCourseModuleSessions: ({ courseId }) => Storage.getCourseModuleSessions(courseId),
 
       setWindowTitle: async ({ title }) => {
         mainWindow?.setTitle(title);

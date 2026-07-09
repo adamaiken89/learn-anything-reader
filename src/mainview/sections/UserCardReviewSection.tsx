@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../bun/types';
 import { api } from '../api';
-import FilterBar from '../components/userCards/FilterBar';
+import FilterBar from '../components/FilterBar';
 import ReviewCardDisplay from '../components/userCards/ReviewCardDisplay';
 import type { FilterMode } from '../hooks/useCardReviewState';
 import { useCardReviewState } from '../hooks/useCardReviewState';

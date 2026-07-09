@@ -16,3 +16,4 @@ e2e/playwright-report/
 
 # Playwright run artifacts
 test-results/
+src/scripts/sources/

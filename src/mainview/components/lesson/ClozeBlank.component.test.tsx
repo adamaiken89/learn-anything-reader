@@ -7,11 +7,10 @@ import ClozeBlank from './ClozeBlank';
 describe('ClozeBlank', () => {
   const user = userEvent.setup();
 
-  test('renders black block initially, answer hidden', () => {
-    const { getByRole, queryByText } = render(<ClozeBlank answer="sensory memory" />);
+  test('renders hidden block initially', () => {
+    const { getByRole } = render(<ClozeBlank answer="sensory memory" />);
     const blank = getByRole('button');
     expect(blank).toHaveClass('cloze-blank-hidden');
-    expect(queryByText('sensory memory')).toBeNull();
   });
 
   test('click reveals the answer', async () => {

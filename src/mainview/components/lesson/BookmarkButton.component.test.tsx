@@ -1,11 +1,14 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { Bookmark, Course } from '../../../bun/types';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
 import { useViewStore } from '../../stores/viewStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import BookmarkButton from './BookmarkButton';
+
+setupRPC();
 
 const course: Course = {
   id: 'c1',
@@ -22,6 +25,7 @@ const course: Course = {
 const mod = course.modules[0];
 
 beforeEach(() => {
+  clearMocks();
   useViewStore.setState({
     views: [{ type: 'lesson', course, module: mod }],
   });
@@ -53,7 +57,7 @@ describe('BookmarkButton', () => {
     expect(getByText(/Bookmark/)).toBeInTheDocument();
   });
 
-  test('toggle calls remove when bookmark exists', async () => {
+  test('toggle removes when bookmark exists', async () => {
     const bm: Bookmark = {
       id: 'bm-1',
       courseID: 'c1',
@@ -63,21 +67,31 @@ describe('BookmarkButton', () => {
       scrollPosition: 0,
       createdAt: '2024-01-01T00:00:00.000Z',
     };
-    useBookmarksStore.setState({
-      byModule: { 'c1:mod-1': [bm] },
-    });
-    const remove = mock(() => Promise.resolve());
-    useBookmarksStore.setState({ remove } as never);
+    useBookmarksStore.setState({ byModule: { 'c1:mod-1': [bm] } });
+    mockResponse('deleteBookmark', undefined);
     const { getByText } = render(<BookmarkButton />);
     await user.click(getByText(/Bookmark/));
-    expect(remove).toHaveBeenCalledWith('bm-1');
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    expect(useBookmarksStore.getState().byModule['c1:mod-1']).toEqual([]);
   });
 
-  test('toggle calls addBookmark when no bookmark exists', async () => {
-    const toggle = mock(() => Promise.resolve());
-    useBookmarksStore.setState({ toggle } as never);
+  test('toggle adds when no bookmark exists', async () => {
+    mockResponse('addBookmark', {
+      id: 'bm-2',
+      courseID: 'c1',
+      moduleID: 'mod-1',
+      sectionID: undefined,
+      title: 'Mod',
+      scrollPosition: 0,
+      createdAt: '2024-01-01T00:00:00.000Z',
+    });
     const { getByText } = render(<BookmarkButton />);
     await user.click(getByText(/Bookmark/));
-    expect(toggle).toHaveBeenCalledWith('c1', 'mod-1', 'Mod', null);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    expect(useBookmarksStore.getState().byModule['c1:mod-1']).toHaveLength(1);
   });
 });

@@ -21,7 +21,7 @@ export default function ApiKeySection() {
   };
 
   return (
-    <section className="bg-gray-800 rounded-xl p-6 mb-6">
+    <section className="bg-gray-800 rounded-xl p-6">
       <h3 className="text-lg font-semibold mb-4">{t('settings.geminiApiKey')}</h3>
       <p className="text-sm text-gray-400 mb-4">
         {t('settings.geminiApiKeyDesc')}{' '}

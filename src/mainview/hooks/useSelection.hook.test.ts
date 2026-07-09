@@ -191,6 +191,32 @@ describe('useSelection', () => {
       expect(useSelectionStore.getState().selection).toBeNull();
     });
 
+    test('does not reset when note editor is open', () => {
+      window.getSelection = () => mockSelection('', true);
+      const input = document.createElement('input');
+      Object.defineProperty(document, 'activeElement', {
+        get: () => input,
+        configurable: true,
+      });
+      useSelectionStore.setState({
+        showToolbar: true,
+        showNoteEditor: true,
+        selection: { text: 'hi', range: new Range() },
+      });
+      renderHook(() => useSelection());
+      act(() => {
+        document.dispatchEvent(new Event('selectionchange'));
+      });
+      act(() => {
+        document.dispatchEvent(new Event('selectionchange'));
+      });
+      delete (document as { activeElement?: unknown }).activeElement;
+      const s = useSelectionStore.getState();
+      expect(s.showToolbar).toBe(true);
+      expect(s.selection).not.toBeNull();
+      expect(s.showNoteEditor).toBe(true);
+    });
+
     test('no-op when container ref is null', () => {
       window.getSelection = () => mockSelection('text', false);
       const { result } = renderHook(() => useSelection());

@@ -1,9 +1,27 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 
 import type { Course, ModuleMeta } from '../../bun/types';
+import { __setRPC } from '../api';
 import { useViewStore } from '../stores/viewStore';
 import { useLessonNav } from './useLessonNav';
+
+const mockResponses = new Map<string, unknown>();
+const mockRPC = {
+  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
+    get(_, method: string) {
+      return (_p: unknown) => {
+        const response = mockResponses.get(method);
+        return Promise.resolve(response);
+      };
+    },
+  }),
+};
+beforeAll(() => __setRPC(mockRPC));
+beforeEach(() => {
+  mockResponses.clear();
+  mockResponses.set('getModuleSession', null);
+});
 
 const mockModules: ModuleMeta[] = [
   { id: 'm1', name: 'Module 1', timeHours: 1, prerequisites: [], topics: ['a'] },
@@ -53,9 +71,11 @@ describe('useLessonNav', () => {
     expect(result.current.hasNext).toBe(false);
   });
 
-  test('goPrev pushes previous module view', () => {
+  test('goPrev pushes previous module view', async () => {
     const { result } = renderHook(() => useLessonNav(course, mockModules[1]));
-    act(() => result.current.goPrev());
+    await act(async () => {
+      await result.current.goPrev();
+    });
     const views = useViewStore.getState().views;
     expect(views).toHaveLength(1);
     expect(views[0]).toMatchObject({ type: 'lesson', course });
@@ -71,9 +91,11 @@ describe('useLessonNav', () => {
     expect('module' in views[0] ? (views[0] as { module: ModuleMeta }).module.id : null).toBe('m2');
   });
 
-  test('goPrev does nothing when at first module', () => {
+  test('goPrev does nothing when at first module', async () => {
     const { result } = renderHook(() => useLessonNav(course, mockModules[0]));
-    act(() => result.current.goPrev());
+    await act(async () => {
+      await result.current.goPrev();
+    });
     expect(useViewStore.getState().views).toEqual([]);
   });
 

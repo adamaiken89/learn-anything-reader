@@ -34,30 +34,30 @@ describe('PageHeader', () => {
     expect(queryByText('← Back')).toBeNull();
   });
 
-  test('renders bookmarks and settings buttons when no actions and not hidden', () => {
-    const { getByText } = render(<PageHeader />);
-    expect(getByText('Bookmarks')).toBeInTheDocument();
-    expect(getByText('Settings')).toBeInTheDocument();
+  test('renders bookmarks and settings icon buttons when no actions and not hidden', () => {
+    const { getByTitle } = render(<PageHeader />);
+    expect(getByTitle('Bookmarks')).toBeInTheDocument();
+    expect(getByTitle('Settings')).toBeInTheDocument();
   });
 
   test('hides default actions when hideHeaderActions', () => {
-    const { queryByText } = render(<PageHeader hideHeaderActions />);
-    expect(queryByText('Bookmarks')).toBeNull();
-    expect(queryByText('Settings')).toBeNull();
+    const { queryByTitle } = render(<PageHeader hideHeaderActions />);
+    expect(queryByTitle('Bookmarks')).toBeNull();
+    expect(queryByTitle('Settings')).toBeNull();
   });
 
   test('hides default actions when actions prop provided', () => {
-    const { queryByText } = render(<PageHeader actions={<button>Custom</button>} />);
-    expect(queryByText('Bookmarks')).toBeNull();
-    expect(queryByText('Settings')).toBeNull();
+    const { queryByTitle } = render(<PageHeader actions={<button>Custom</button>} />);
+    expect(queryByTitle('Bookmarks')).toBeNull();
+    expect(queryByTitle('Settings')).toBeNull();
   });
 
   test('renders custom actions instead of defaults', () => {
-    const { getByText, queryByText } = render(
+    const { getByText, queryByTitle } = render(
       <PageHeader actions={<button>Custom Action</button>} />,
     );
     expect(getByText('Custom Action')).toBeInTheDocument();
-    expect(queryByText('Bookmarks')).toBeNull();
+    expect(queryByTitle('Bookmarks')).toBeNull();
   });
 
   test('renders center content', () => {
@@ -66,19 +66,21 @@ describe('PageHeader', () => {
   });
 
   test('clicking bookmarks pushes bookmarks view', async () => {
-    const push = mock(() => {});
-    useViewStore.setState({ push } as Partial<ReturnType<typeof useViewStore.getState>>);
-    const { getByText } = render(<PageHeader />);
-    await user.click(getByText('Bookmarks'));
-    expect(push).toHaveBeenCalledWith({ type: 'bookmarks' });
+    useViewStore.setState(useViewStore.getInitialState());
+    const { getByTitle } = render(<PageHeader />);
+    await user.click(getByTitle('Bookmarks'));
+    const views = useViewStore.getState().views;
+    expect(views).toHaveLength(1);
+    expect(views[0]).toEqual({ type: 'bookmarks' });
   });
 
   test('clicking settings pushes settings view', async () => {
-    const push = mock(() => {});
-    useViewStore.setState({ push } as Partial<ReturnType<typeof useViewStore.getState>>);
-    const { getByText } = render(<PageHeader />);
-    await user.click(getByText('Settings'));
-    expect(push).toHaveBeenCalledWith({ type: 'settings' });
+    useViewStore.setState(useViewStore.getInitialState());
+    const { getByTitle } = render(<PageHeader />);
+    await user.click(getByTitle('Settings'));
+    const views = useViewStore.getState().views;
+    expect(views).toHaveLength(1);
+    expect(views[0]).toEqual({ type: 'settings' });
   });
 
   test('clicking back calls onBack', async () => {

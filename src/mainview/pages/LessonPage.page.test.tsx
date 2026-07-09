@@ -47,7 +47,9 @@ describe('LessonPage', () => {
     mockResponse('getNotes', []);
     mockResponse('getCompletedModuleIDs', []);
     mockResponse('getSections', []);
+    mockResponse('getCourseModuleSessions', []);
     mockResponse('setLastSession', { ok: true });
+    mockResponse('setModuleSession', { ok: true });
     useSettingsStore.setState({ focusMode: false });
     useCourseStore.setState({
       courses: [mockCourse],

@@ -59,7 +59,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   contentWidth: migrateWidth(),
   rightPanel: migrateRightPanel(),
   focusMode: getStored<boolean>('coursereader-focus', false),
-  locale: getStored<string>('coursereader-locale', 'en-US'),
+  locale: localStorage.getItem('coursereader-locale') || 'en-US',
   transitionStyle: getStored<TransitionStyle>('coursereader-transition', 'none'),
   readingMode: getStored<ReadingMode>('coursereader-reading-mode', 'normal'),
   hasApiKey: false,
@@ -116,7 +116,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }),
 
   setLocale: (l) => {
-    store('coursereader-locale', l);
+    localStorage.setItem('coursereader-locale', l);
     void i18n.changeLanguage(l);
     set({ locale: l });
   },

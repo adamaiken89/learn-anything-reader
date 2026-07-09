@@ -85,6 +85,6 @@ describe('settingsStore', () => {
   test('setLocale changes locale and persists', () => {
     useSettingsStore.getState().setLocale('zh-TW');
     expect(useSettingsStore.getState().locale).toBe('zh-TW');
-    expect(JSON.parse(localStorage.getItem('coursereader-locale')!)).toBe('zh-TW');
+    expect(localStorage.getItem('coursereader-locale')).toBe('zh-TW');
   });
 });

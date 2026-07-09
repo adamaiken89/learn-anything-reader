@@ -6,12 +6,14 @@ import { useLessonUIStore } from '../stores/lessonUIStore';
 import { useLessonViewStore } from '../stores/lessonViewStore';
 
 function write(course: Course, module: ModuleMeta, sectionId: string, scrollPosition: number) {
-  return api.session.set({
-    course,
-    module,
+  const updatedAt = new Date().toISOString();
+  void api.session.set({ course, module, sectionId, scrollPosition, updatedAt });
+  void api.session.setModuleSession({
+    courseId: course.id,
+    moduleId: module.id,
     sectionId,
     scrollPosition,
-    updatedAt: new Date().toISOString(),
+    updatedAt,
   });
 }
 

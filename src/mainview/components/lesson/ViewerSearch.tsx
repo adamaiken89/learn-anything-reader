@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,7 +19,6 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
-        e.preventDefault();
         inputRef.current?.select();
         return;
       }
@@ -42,7 +42,9 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
       data-testid="viewer-search"
       className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-750 border-b border-gray-700 text-xs shrink-0"
     >
-      <span className="text-gray-400 text-sm">{t('icons.search')}</span>
+      <span className="text-gray-400">
+        <Search size={14} />
+      </span>
       <input
         ref={inputRef}
         type="text"
@@ -81,7 +83,7 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
             className="text-gray-400 hover:text-white px-1 py-0.5 rounded transition-colors"
             title={t('viewerSearch.prev')}
           >
-            ↑
+            <ChevronUp size={14} />
           </button>
           <button
             onClick={search.handleSearchNext}
@@ -89,16 +91,16 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
             className="text-gray-400 hover:text-white px-1 py-0.5 rounded transition-colors"
             title={t('viewerSearch.next')}
           >
-            ↓
+            <ChevronDown size={14} />
           </button>
         </>
       )}
       <button
         onClick={search.handleSearchClose}
         className="text-gray-500 hover:text-gray-300 px-1.5 py-0.5 rounded transition-colors"
-        title={t('icons.close')}
+        title={t('viewerSearch.close')}
       >
-        {t('icons.close')}
+        <X size={14} />
       </button>
     </div>
   );

@@ -375,6 +375,7 @@ function makeDeck(cards: SRSCard[]): SRSDeck {
 | `store.setState()` | Reset Zustand state | None — direct state | `useXStore.setState({ ...defaults })` |
 | `mock()` from bun:test | Mock individual functions | None — local scope | `const fn = mock(() => Promise.resolve(null))` |
 | `spyOn()` on module namespace | Mock internal module exports | None — per-instance | `spyOn(utilsModule, 'findSubjectsDir').mockImplementation(...)` |
+| `spyOn(store.getState(), 'fn')` | Spy on store method without replacing | None — auto-restore | `spyOn(useViewStore.getState(), 'push').mockImplementation(() => {})` |
 | Factory helpers | Build test data with defaults | None — pure functions | `makeCard({ id: 'a', isStarred: true })` |
 
 ## Anti-pollution Rules
@@ -388,6 +389,7 @@ No `mock.module` in test files. Only `src/setup.tsx` uses `mock.module` for exte
 4. **Real component rendering + store state** — control visibility via `useSettingsStore.setState({ focusMode: false })`
 5. **Never `mock.restore()`** — destroys setup.tsx's global mocks process-wide
 6. **Always call `setupRPC()`** at module level in any test file that uses RPC
+7. **Never replace store methods via `setState({ fn: mockFn } as never)`** — poisons the global zustand singleton for all subsequent test files. Use `spyOn` + `mockRestore()` instead, or assert store state directly.
 
 **`mock.module` ONLY in `src/setup.tsx`** for these external libs:
 - `fs` — file system operations
@@ -398,6 +400,52 @@ No `mock.module` in test files. Only `src/setup.tsx` uses `mock.module` for exte
 - `child_process` — backend exec (delegates to `mockExecSyncImpl.fn`)
 
 Shared test state: `src/testFsShared.ts` contains `fsMockImpl`, `mermaidMockImpl`, `toastCallState`, `mockExecSyncImpl` — mutable stubs that setup.tsx's global mocks delegate to.
+
+## Store Method Mocking
+
+### Anti-pattern: replacing store functions via setState
+
+DO NOT replace store methods by merging into setState:
+```ts
+// ❌ BAD — poisons global store for all test files in bun's single process
+const push = mock(() => {});
+useViewStore.setState({ push } as never);
+```
+
+This mutates the zustand singleton. In bun (single-process runner), the mock leaks to all subsequent test files. Their `beforeEach` typically only resets data fields (`views: []`), not functions (`push`), so the poisoned mock silently persists.
+
+### Hard rule: zero leakage
+
+Every test must leave shared state exactly as it found it. This means:
+- `beforeEach` resets all stores the test touches (not just the ones it reads)
+- No `setState({ fn: mockFn } as never)` — replaces the function globally, leaks to all subsequent files
+- If you MUST mock a store method, use `spyOn` + `mockRestore()` in `afterEach`
+
+### Preferred: assert store state changes
+
+Click the component, then assert the store state changed:
+```ts
+// ✅ GOOD — tests real behavior, no pollution
+render(<Component />);
+await user.click(getByText('Action'));
+expect(useViewStore.getState().views[0]).toEqual({ type: 'settings' });
+```
+
+### When mocking is needed: use spyOn
+
+If you must prevent side effects or verify call args without state change:
+```ts
+const pushSpy = spyOn(useViewStore.getState(), 'push').mockImplementation(() => {});
+// ... test ...
+pushSpy.mockRestore(); // always restore
+```
+
+### Rule of thumb
+
+- Testing navigation → assert `useViewStore.getState().views`
+- Testing store writes → assert `useXStore.getState().field`
+- Testing API calls → `mockResponse()` + assert store state
+- Only mock a store method when you need call-arg verification AND must prevent side effects
 
 ## act() Wrapping Rule
 

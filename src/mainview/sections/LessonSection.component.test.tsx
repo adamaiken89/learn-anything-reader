@@ -56,6 +56,8 @@ function setupDefaultMocks() {
   mockResponse('getModuleBookmarks', []);
   mockResponse('getHighlights', []);
   mockResponse('getNotes', []);
+  mockResponse('getSections', []);
+  mockResponse('getCourseModuleSessions', []);
 }
 
 beforeEach(() => {

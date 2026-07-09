@@ -1,12 +1,15 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useNotesStore } from '../../stores/notesStore';
 import { useViewStore } from '../../stores/viewStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import NotesHighlightsTab from './NotesHighlightsTab';
+
+setupRPC();
 
 const mockHighlight = {
   id: 'h1',
@@ -45,6 +48,7 @@ describe('NotesHighlightsTab', () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
+    clearMocks();
     useLessonViewStore.setState({
       content: '',
       sections: [],
@@ -70,21 +74,13 @@ describe('NotesHighlightsTab', () => {
         },
       ],
     });
-    useNotesStore.setState({
-      byModule: {},
-      loading: {},
-      load: mock(() => Promise.resolve()),
-      add: mock(() => Promise.resolve()),
-      update: mock(() => Promise.resolve()),
-      remove: mock(() => Promise.resolve()),
-    });
-    useHighlightsStore.setState({
-      byModule: {},
-      remove: mock(() => Promise.resolve()),
-    });
+    useNotesStore.setState({ byModule: {}, loading: {} });
+    useHighlightsStore.setState({ byModule: {}, loading: {} });
   });
 
   test('renders empty state', async () => {
+    mockResponse('getNotes', []);
+    mockResponse('getHighlights', []);
     const { findByText } = render(<NotesHighlightsTab />);
     expect(
       await findByText('No annotations yet. Select text to highlight or add a note.'),
@@ -92,12 +88,15 @@ describe('NotesHighlightsTab', () => {
   });
 
   test('renders loading state', () => {
+    mockResponse('getNotes', []);
+    mockResponse('getHighlights', []);
     useNotesStore.setState({ loading: { 'math:01': true } });
     const { getByText } = render(<NotesHighlightsTab />);
     expect(getByText('Loading notes...')).toBeInTheDocument();
   });
 
   test('renders highlights from store', async () => {
+    mockResponse('getNotes', []);
     useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
     const { findByText, getByText } = render(<NotesHighlightsTab />);
     expect(await findByText('important concept')).toBeInTheDocument();
@@ -105,60 +104,71 @@ describe('NotesHighlightsTab', () => {
   });
 
   test('renders notes from store', async () => {
-    useNotesStore.setState({ byModule: { 'math:01': [mockNote] } });
+    mockResponse('getNotes', [mockNote]);
+    mockResponse('getHighlights', []);
     const { findByText } = render(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
   });
 
   test('renders note with linked highlight', async () => {
+    mockResponse('getNotes', [mockNoteLinked]);
     useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
-    useNotesStore.setState({ byModule: { 'math:01': [mockNoteLinked] } });
-    const { findAllByText } = render(<NotesHighlightsTab />);
-    const matches = await findAllByText(/important concept/);
-    expect(matches.length).toBeGreaterThanOrEqual(1);
+    const { findByText } = render(<NotesHighlightsTab />);
+    expect(await findByText('linked note')).toBeInTheDocument();
   });
 
   test('adds note when save clicked', async () => {
-    const add = mock(() => Promise.resolve());
-    useNotesStore.setState({ add });
+    mockResponse('getNotes', []);
+    mockResponse('getHighlights', []);
+    const created = { ...mockNote, id: 'n-new', content: 'new test note' };
+    mockResponse('addNote', created);
     const { container, findByText } = render(<NotesHighlightsTab />);
     const textarea = container.querySelector('textarea')!;
     await user.type(textarea, 'new test note');
     await user.click(await findByText('Save Note'));
-    expect(add).toHaveBeenCalledWith({
-      courseID: 'math',
-      moduleID: '01',
-      content: 'new test note',
-      sectionID: undefined,
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
     });
+    const notes = useNotesStore.getState().byModule['math:01'] ?? [];
+    expect(notes.some((n) => n.content === 'new test note')).toBe(true);
   });
 
   test('save note button disabled when textarea empty', () => {
+    mockResponse('getNotes', []);
+    mockResponse('getHighlights', []);
     const { getByText } = render(<NotesHighlightsTab />);
     expect(getByText('Save Note')).toBeDisabled();
   });
 
   test('deletes highlight', async () => {
-    const remove = mock(() => Promise.resolve());
-    useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] }, remove });
+    mockResponse('getNotes', []);
+    useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
+    mockResponse('deleteHighlight', undefined);
     const { findByText, getByText } = render(<NotesHighlightsTab />);
     expect(await findByText('important concept')).toBeInTheDocument();
     await user.click(getByText('Delete'));
-    expect(remove).toHaveBeenCalledWith('h1');
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    expect(useHighlightsStore.getState().byModule['math:01'] ?? []).toHaveLength(0);
   });
 
   test('deletes note', async () => {
-    const remove = mock(() => Promise.resolve());
-    useNotesStore.setState({ byModule: { 'math:01': [mockNote] }, remove });
+    mockResponse('getNotes', [mockNote]);
+    mockResponse('getHighlights', []);
+    mockResponse('deleteNote', undefined);
     const { findByText, getByText } = render(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(getByText('Delete'));
-    expect(remove).toHaveBeenCalledWith('n1');
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    expect(useNotesStore.getState().byModule['math:01'] ?? []).toHaveLength(0);
   });
 
   test('edits a note', async () => {
-    const update = mock(() => Promise.resolve());
-    useNotesStore.setState({ byModule: { 'math:01': [mockNote] }, update });
+    mockResponse('getNotes', [mockNote]);
+    mockResponse('getHighlights', []);
     const { findByText, getByText, container } = render(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(getByText('Edit'));
@@ -170,8 +180,9 @@ describe('NotesHighlightsTab', () => {
   });
 
   test('save edit updates note', async () => {
-    const update = mock(() => Promise.resolve());
-    useNotesStore.setState({ byModule: { 'math:01': [mockNote] }, update });
+    mockResponse('getNotes', [mockNote]);
+    mockResponse('getHighlights', []);
+    mockResponse('updateNote', undefined);
     const { findByText, container } = render(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(await findByText('Edit'));
@@ -179,6 +190,10 @@ describe('NotesHighlightsTab', () => {
     await user.clear(textareas[1]);
     await user.type(textareas[1], 'updated content');
     await user.click(await findByText('Save'));
-    expect(update).toHaveBeenCalledWith('n1', 'updated content');
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    const notes = useNotesStore.getState().byModule['math:01'] ?? [];
+    expect(notes.some((n) => n.content === 'updated content')).toBe(true);
   });
 });

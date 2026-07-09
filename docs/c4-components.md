@@ -9,8 +9,7 @@ C4Component
   Container_Boundary(fe, "Frontend (React 19 + TypeScript + Vite)") {
 
     Boundary(pages, "Pages (src/mainview/pages/)") {
-      Component(courseList, "CourseListPage", "React component", "Course grid with module stats, search/bookmarks/dashboard entry")
-      Component(moduleList, "ModuleListPage", "React component", "Module cards with completion status, ← All Courses")
+      Component(dashboard, "DashboardPage", "React component", "Course grid + module cards with stats, search/bookmarks/quick links")
       Component(lessonPage, "LessonPage", "React component", "Page transition wrapper, ModuleSwitcher + LessonSection")
       Component(quizPage, "QuizPage", "React component", "QuizSection wrapper with course/module context")
       Component(reviewPage, "ReviewPage", "React component", "ReviewSection wrapper for SRS review")
@@ -36,7 +35,7 @@ C4Component
     Boundary(stores, "Zustand Stores (src/mainview/stores/)") {
       Component(viewStore, "useViewStore", "Zustand store", "View stack: push, pop, replace, popToRoot")
       Component(courseStore, "useCourseStore", "Zustand store", "Course list, load/reset/refresh")
-      Component(settingsStore, "useSettingsStore", "Zustand store", "Font size (10-28px), theme (12 themes), content width, focus mode, transitions, locale")
+      Component(settingsStore, "useSettingsStore", "Zustand store", "Font size (10-28px), theme (18 themes), content width, focus mode, transitions, locale")
       Component(pomodoroStore, "usePomodoroStore", "Zustand store", "Focus/break timer with session tracking")
       Component(bookmarksStore, "useBookmarksStore", "Zustand store", "Bookmark CRUD, course/module filtering")
       Component(completionStore, "useCompletionStore", "Zustand store", "Module completion status per course")
@@ -58,7 +57,7 @@ C4Component
       Component(useNotes, "useNotes", "React hook", "Note CRUD via RPC, wraps notesStore")
       Component(useSelection, "useSelection", "React hook", "Text selection detection, highlight/note creation")
       Component(useShortcuts, "useShortcuts", "React hook", "Keyboard shortcut binding by scope")
-      Component(useCourseListPage, "useCourseListPage", "React hook", "Orchestrates courseStore + viewStore for course list")
+      Component(useDashboard, "useDashboard", "React hook", "Orchestrates courseStore + viewStore + completionStore for dashboard")
       Component(useLessonSection, "useLessonSection", "React hook", "Orchestrates lessonUIStore + notesStore + highlightsStore")
       Component(useSettingsPage, "useSettingsPage", "React hook", "Orchestrates settingsStore + courseStore for settings")
     }
@@ -101,7 +100,7 @@ C4Component
 
     Boundary(styles, "Styles") {
       Component(tailwind, "Tailwind CSS", "Utility framework", "All layout and component styles")
-      Component(themes, "themes.ts", "Theme tokens + CSS vars", "12 themes via CSS custom properties: Theme → CSS vars mapping")
+      Component(themes, "themes.ts", "Theme tokens + CSS vars", "18 themes via CSS custom properties: Theme → CSS vars mapping")
       Component(bookContent, "book-content CSS", "Custom CSS (index.css)", "Theme-driven prose styles via CSS variables, highlight.js overrides")
     }
   }
@@ -196,13 +195,12 @@ C4Component
 
 | Page | File | Responsibility |
 |------|------|----------------|
-| CourseListPage | `src/mainview/pages/CourseListPage.tsx` | Course grid with module stats, search/bookmarks/dashboard/quick links |
-| ModuleListPage | `src/mainview/pages/ModuleListPage.tsx` | Module cards, completion status, ← All Courses |
+| DashboardPage | `src/mainview/pages/DashboardPage.tsx` | Course grid + module cards with stats, search/bookmarks/quick links |
 | LessonPage | `src/mainview/pages/LessonPage.tsx` | Page transition animations (flip/slide/fade), ModuleSwitcher + LessonSection |
 | QuizPage | `src/mainview/pages/QuizPage.tsx` | QuizSection wrapper, passes course/module context |
 | ReviewPage | `src/mainview/pages/ReviewPage.tsx` | ReviewSection wrapper for SRS review |
 | UserCardReviewPage | `src/mainview/pages/UserCardReviewPage.tsx` | UserCardReviewSection wrapper for custom flash card review |
-| SettingsPage | `src/mainview/pages/SettingsPage.tsx` | Gemini API key, theme grid (12), font size, page transitions, content width, focus mode, remote sync, locale |
+| SettingsPage | `src/mainview/pages/SettingsPage.tsx` | Gemini API key, theme grid (18), font size, page transitions, content width, focus mode, remote sync, locale |
 | BookmarksPage | `src/mainview/pages/BookmarksPage.tsx` | Bookmark list grouped by course, open/delete |
 | DashboardPage | `src/mainview/pages/DashboardPage.tsx` | Per-course + global stats, recent sessions, streak |
 
@@ -260,13 +258,13 @@ C4Component
 | ErrorBoundary | `src/mainview/components/ErrorBoundary.tsx` | Error boundary wrapper |
 | rehype-search-text | `src/mainview/components/rehype-search-text.ts` | rehype plugin for search match highlighting in lesson content |
 
-### State Management (10 stores, src/mainview/stores/)
+### State Management (12 stores, src/mainview/stores/)
 
 | Store | File | Responsibility |
 |-------|------|----------------|
 | useViewStore | `src/mainview/stores/viewStore.ts` | View stack: push/pop/replace/popToRoot |
 | useCourseStore | `src/mainview/stores/courseStore.ts` | Course list load/reset |
-| useSettingsStore | `src/mainview/stores/settingsStore.ts` | Font size (10-28px), theme (12), content width, focus mode, transitions, locale |
+| useSettingsStore | `src/mainview/stores/settingsStore.ts` | Font size (10-28px), theme (18), content width, focus mode, transitions, locale |
 | usePomodoroStore | `src/mainview/stores/pomodoroStore.ts` | Focus/break timer state |
 | useBookmarksStore | `src/mainview/stores/bookmarksStore.ts` | Bookmark CRUD with course/module filtering |
 | useCompletionStore | `src/mainview/stores/completionStore.ts` | Module completion status per course |
@@ -275,7 +273,7 @@ C4Component
 | useNotesStore | `src/mainview/stores/notesStore.ts` | Note CRUD per module |
 | useSyncStore | `src/mainview/stores/syncStore.ts` | Remote content sync status |
 
-### Hooks (14 hooks, src/mainview/hooks/)
+### Hooks (23 hooks, src/mainview/hooks/)
 
 | Hook | File | Responsibility |
 |------|------|----------------|
@@ -290,7 +288,7 @@ C4Component
 | useNotes | `src/mainview/hooks/useNotes.ts` | Note CRUD via RPC, wraps notesStore |
 | useSelection | `src/mainview/hooks/useSelection.ts` | Text selection detection, highlight/note creation |
 | useShortcuts | `src/mainview/hooks/useShortcuts.ts` | Keyboard shortcut binding by scope |
-| useCourseListPage | `src/mainview/hooks/useCourseListPage.ts` | Orchestrates courseStore + viewStore |
+| useDashboard | `src/mainview/hooks/useDashboard.ts` | Orchestrates courseStore + viewStore + completionStore |
 | useLessonSection | `src/mainview/hooks/useLessonSection.ts` | Orchestrates lessonUIStore + notesStore + highlightsStore |
 | useSettingsPage | `src/mainview/hooks/useSettingsPage.ts` | Orchestrates settingsStore + courseStore |
 
@@ -329,9 +327,9 @@ C4Component
 
 ### Themes (src/mainview/themes.ts)
 
-12 themes via CSS custom properties (not CSS classes):
+18 themes via CSS custom properties (not CSS classes):
 
-dark, oled, nord, sepia, gruvbox, light, solarized-dark, catppuccin, dracula, tokyo-night, rose-pine, everforest
+dark, oled, nord, sepia, gruvbox, light, solarized-dark, catppuccin, dracula, tokyo-night, rose-pine, everforest, notebook, one-dark, terminal, monokai, monochrome, night-owl
 
 Each theme defines ~40 CSS variables via `themeToCSSVars()`, consumed by `.book-content` in `index.css`.
 

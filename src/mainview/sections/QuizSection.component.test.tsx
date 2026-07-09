@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 
-import type { QuizQuestion } from '../../bun/types';
+import type { Course, ModuleMeta, QuizQuestion } from '../../bun/types';
 import { __setRPC } from '../api';
 
 const mockResponses = new Map<string, unknown>();
@@ -43,9 +43,28 @@ beforeEach(() => {
 
 import QuizSection from './QuizSection';
 
+const mockModule: ModuleMeta = {
+  id: 'mod-01',
+  name: 'Module 1',
+  timeHours: 10,
+  prerequisites: [],
+  topics: [],
+};
+const mockCourse: Course = {
+  id: 'cs101',
+  course: 'cs101',
+  displayName: 'CS 101',
+  timeBudgetHours: 100,
+  targetLevel: 'beginner',
+  domain: 'computer science',
+  prerequisites: [],
+  learningObjectives: [],
+  modules: [mockModule],
+};
+
 describe('QuizSection', () => {
   const user = userEvent.setup();
-  const props = { courseId: 'cs101', moduleId: 'mod-01' };
+  const props = { courseId: 'cs101', moduleId: 'mod-01', course: mockCourse, module: mockModule };
 
   test('renders loading state', async () => {
     mockResponse('quizStart', new Promise(() => {}));
@@ -202,6 +221,315 @@ describe('QuizSection', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('Quiz Complete');
       expect(container.textContent).toContain('0%');
+    });
+  });
+
+  test('renders score ring SVG on completion', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container, getByText } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    await user.click(getByText('q1-B'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Finish Quiz');
+    });
+    await user.click(getByText('Finish Quiz'));
+    await waitFor(() => {
+      const svg = container.querySelector('svg');
+      expect(svg).toBeInTheDocument();
+    });
+  });
+
+  test('confetti renders only at 100% score', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container, getByText } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    await user.click(getByText('q1-B'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Finish Quiz');
+    });
+    await user.click(getByText('Finish Quiz'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('100%');
+      const confetti = document.querySelector('.anim-confetti-piece');
+      expect(confetti).toBeInTheDocument();
+    });
+  });
+
+  test('no confetti when score below 100%', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container, getByText } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    await user.click(getByText('q1-A'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('Finish Quiz');
+    });
+    await user.click(getByText('Finish Quiz'));
+    await waitFor(() => {
+      expect(container.textContent).toContain('0%');
+      const confetti = document.querySelector('.anim-confetti-piece');
+      expect(confetti).not.toBeInTheDocument();
+    });
+  });
+
+  test('no pre-highlight on load', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+    expect(optionBtns.length).toBe(4);
+    optionBtns.forEach((btn) => {
+      expect(btn.className).not.toContain('ring-indigo');
+    });
+  });
+
+  test('ArrowDown from no highlight moves to first option', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    expect(optionBtns[0].className).not.toContain('ring-indigo');
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('ArrowUp from no highlight wraps to last option', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(optionBtns[3].className).toContain('ring-indigo');
+  });
+
+  test('ArrowRight from no highlight moves to first option', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    expect(optionBtns[0].className).not.toContain('ring-indigo');
+
+    await user.keyboard('{ArrowRight}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('ArrowLeft from no highlight goes to top-right', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowLeft}');
+
+    expect(optionBtns[1].className).toContain('ring-indigo');
+  });
+
+  test('ArrowRight moves to next column in same row', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[0].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowRight}');
+
+    expect(optionBtns[1].className).toContain('ring-indigo');
+  });
+
+  test('ArrowRight at right edge stays', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowRight}');
+    expect(optionBtns[1].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowRight}');
+
+    expect(optionBtns[1].className).toContain('ring-indigo');
+  });
+
+  test('ArrowDown moves to same column in next row', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[0].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(optionBtns[2].className).toContain('ring-indigo');
+  });
+
+  test('ArrowDown at bottom row stays', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[2].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowDown}');
+
+    expect(optionBtns[2].className).toContain('ring-indigo');
+  });
+
+  test('ArrowLeft at left edge stays', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[0].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowLeft}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('ArrowUp at top row stays', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[0].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('ArrowUp moves to same column in prev row', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[2].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowUp}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('ArrowUp from top row stays at top', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    const buttons = container.querySelectorAll('button');
+    const optionBtns = Array.from(buttons).filter((b) => b.textContent?.match(/^[A-D]\./));
+
+    await user.keyboard('{ArrowDown}');
+    expect(optionBtns[0].className).toContain('ring-indigo');
+
+    await user.keyboard('{ArrowUp}');
+    await user.keyboard('{ArrowUp}');
+
+    expect(optionBtns[0].className).toContain('ring-indigo');
+  });
+
+  test('Enter without highlight does nothing', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+
+    await user.keyboard('{Enter}');
+
+    expect(container.textContent).not.toContain('Explanation');
+  });
+
+  test('ArrowDown then Enter selects highlighted option', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('Explanation q1');
+    });
+  });
+
+  test('letter key A-D selects answer directly', async () => {
+    mockResponse('quizStart', [makeQuestion('q1')]);
+    const { container } = render(<QuizSection {...props} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Question q1?');
+    });
+    expect(container.textContent).not.toContain('Explanation');
+
+    await user.keyboard('b');
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('Explanation q1');
     });
   });
 });

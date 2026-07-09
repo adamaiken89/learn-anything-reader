@@ -5,6 +5,8 @@ import type { Course, ModuleMeta } from '../../bun/types';
 export type View =
   | { type: 'lesson'; course: Course; module: ModuleMeta; sectionID?: string }
   | { type: 'quiz'; course: Course; module: ModuleMeta }
+  | { type: 'clozeQuiz'; course: Course; module: ModuleMeta }
+  | { type: 'cumulativeQuiz'; course: Course; cumulativeQuizId?: string }
   | { type: 'review'; course: Course }
   | { type: 'userCardReview'; course: Course }
   | { type: 'settings' }

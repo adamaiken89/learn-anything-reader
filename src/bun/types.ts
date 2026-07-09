@@ -20,13 +20,22 @@ export interface Course {
 
 export interface QuizQuestion {
   id: string;
-  type?: 'multiple-choice' | 'cloze';
+  type?: 'multiple-choice' | 'cloze' | 'tf';
   question: string;
   options: Record<string, string>;
   answer: string;
   explanation: string;
   difficulty: number;
   tags: string[];
+}
+
+export interface CumulativeQuiz {
+  questions: QuizQuestion[];
+}
+
+export interface QuizIndex {
+  modules: Record<string, { mcq: boolean; cloze: boolean }>;
+  cumulativeQuizzes: Array<{ id: string; milestone: number }>;
 }
 
 export interface SRSCard {
@@ -125,6 +134,14 @@ export interface CompletedModule {
 export interface LastSession {
   course: Course;
   module: ModuleMeta;
+  sectionId: string;
+  scrollPosition: number;
+  updatedAt: string;
+}
+
+export interface ModuleSession {
+  courseId: string;
+  moduleId: string;
   sectionId: string;
   scrollPosition: number;
   updatedAt: string;

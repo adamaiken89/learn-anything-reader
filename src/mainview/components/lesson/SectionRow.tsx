@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { Section } from '../../../bun/types';
@@ -63,7 +64,7 @@ export default function SectionRow({
           }}
           title={isBookmarked ? t('lesson.removeBookmark') : t('lesson.bookmarkSection')}
         >
-          {isBookmarked ? t('icons.starFilled') : t('icons.starEmpty')}
+          <Star size={12} fill={isBookmarked ? 'currentColor' : 'none'} />
         </span>
       </div>
     </button>

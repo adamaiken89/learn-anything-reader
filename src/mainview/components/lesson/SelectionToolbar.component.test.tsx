@@ -1,11 +1,14 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSelectionStore } from '../../stores/selectionStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import SelectionToolbar from './SelectionToolbar';
+
+setupRPC();
 
 let textNode: Text;
 let contentEl: HTMLDivElement;
@@ -58,17 +61,17 @@ function setupStore() {
 }
 
 beforeEach(() => {
+  clearMocks();
   setupStore();
 });
 
 describe('SelectionToolbar', () => {
   const user = userEvent.setup();
 
-  test('renders all action buttons', () => {
+  test('renders action buttons', () => {
     const { getByText } = render(<SelectionToolbar />);
     expect(getByText('Add Note')).toBeInTheDocument();
     expect(getByText('Create Card')).toBeInTheDocument();
-    expect(getByText('Copy')).toBeInTheDocument();
   });
 
   test('clicking note button opens note editor', async () => {
@@ -83,17 +86,6 @@ describe('SelectionToolbar', () => {
     expect(useSelectionStore.getState().showCardEditor).toBe(true);
   });
 
-  test('clicking copy copies selected text to clipboard', async () => {
-    const writeText = mock(() => Promise.resolve());
-    Object.assign(navigator.clipboard, { writeText });
-
-    const { getByText } = render(<SelectionToolbar />);
-    await user.click(getByText('Copy'));
-
-    expect(writeText).toHaveBeenCalledWith('selected text');
-    Object.assign(navigator.clipboard, { writeText: writeText });
-  });
-
   test('returns null when showToolbar is false', () => {
     useSelectionStore.setState({ showToolbar: false });
     const { container } = render(<SelectionToolbar />);
@@ -106,23 +98,58 @@ describe('SelectionToolbar', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  test('clicking inactive color calls addHighlight', async () => {
-    const add = mock(() => Promise.resolve());
-    const origAdd = useHighlightsStore.getState().add;
-    useHighlightsStore.setState({ add });
+  test('clicking inactive color adds highlight', async () => {
+    const created = {
+      id: 'h-new',
+      courseID: 'cs101',
+      moduleID: 'mod-01',
+      selectedText: 'selected text',
+      color: 'yellow',
+      startOffset: 0,
+      endOffset: 13,
+      createdAt: '',
+    };
+    mockResponse('addHighlight', created);
+    const { container } = render(<SelectionToolbar />);
+    const yellowBtn = container.querySelector('button[title="yellow"]');
+    expect(yellowBtn).toBeTruthy();
+    await user.click(yellowBtn!);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    const highlights = useHighlightsStore.getState().byModule['cs101:mod-01'] ?? [];
+    expect(highlights.some((h) => h.color === 'yellow')).toBe(true);
+  });
+
+  test('clicking highlight color copies text to clipboard', async () => {
+    const writeText = mock(() => Promise.resolve());
+    Object.assign(navigator.clipboard, { writeText });
+
+    mockResponse('addHighlight', {
+      id: 'h-new',
+      courseID: 'cs101',
+      moduleID: 'mod-01',
+      selectedText: 'selected text',
+      color: 'yellow',
+      startOffset: 0,
+      endOffset: 13,
+      createdAt: '',
+    });
 
     const { container } = render(<SelectionToolbar />);
     const yellowBtn = container.querySelector('button[title="yellow"]');
     expect(yellowBtn).toBeTruthy();
     await user.click(yellowBtn!);
-    expect(add).toHaveBeenCalled();
-    useHighlightsStore.setState({ add: origAdd });
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+
+    expect(writeText).toHaveBeenCalledWith('selected text');
+    Object.assign(navigator.clipboard, { writeText });
   });
 
-  test('clicking active color calls deleteHighlight', async () => {
-    const remove = mock(() => Promise.resolve());
-    const origRemove = useHighlightsStore.getState().remove;
-    useHighlightsStore.setState({ remove });
+  test('clicking active color deletes highlight', async () => {
     useHighlightsStore.setState({
       byModule: {
         'cs101:mod-01': [
@@ -140,6 +167,7 @@ describe('SelectionToolbar', () => {
       },
     });
     useSelectionStore.setState({ selectedHighlightId: 'h1' });
+    mockResponse('deleteHighlight', undefined);
 
     const origGetSelection = window.getSelection;
     window.getSelection = () =>
@@ -156,8 +184,10 @@ describe('SelectionToolbar', () => {
     const yellowBtn = container.querySelector('button[title="yellow"]');
     expect(yellowBtn).toBeTruthy();
     await user.click(yellowBtn!);
-    expect(remove).toHaveBeenCalledWith('h1');
-    useHighlightsStore.setState({ remove: origRemove });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+    expect(useHighlightsStore.getState().byModule['cs101:mod-01'] ?? []).toHaveLength(0);
     window.getSelection = origGetSelection;
   });
 });

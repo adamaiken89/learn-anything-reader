@@ -5,7 +5,10 @@ import React from 'react';
 
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSelectionStore } from '../../stores/selectionStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import CardEditor from './CardEditor';
+
+setupRPC();
 
 const mockRange = {
   getBoundingClientRect: () => ({
@@ -18,7 +21,11 @@ const mockRange = {
     toJSON: () => {},
   }),
   commonAncestorContainer: document.body,
-  toString: () => '',
+  startContainer: document.body,
+  startOffset: 0,
+  endContainer: document.body,
+  endOffset: 20,
+  toString: () => 'selected text',
   setStart: () => {},
   setEnd: () => {},
 };
@@ -87,6 +94,31 @@ describe('CardEditor', () => {
     setupStore();
     const { getByText } = render(<CardEditor />);
     await user.click(getByText('Cancel'));
+    expect(useSelectionStore.getState().showCardEditor).toBe(false);
+  });
+
+  test('save in normal mode — closes editor', async () => {
+    clearMocks();
+    mockResponse('addUserCard', { id: 'card-1' });
+    setupStore();
+    const { container, getByText } = render(<CardEditor />);
+    // Front is auto-filled from selection.text. Back needs typing.
+    const textareas = container.querySelectorAll('textarea');
+    await user.type(textareas[1], 'A JS library for UIs');
+    await user.click(getByText('Save'));
+    expect(useSelectionStore.getState().showCardEditor).toBe(false);
+  });
+
+  test('save in cloze mode — closes editor', async () => {
+    clearMocks();
+    mockResponse('addUserCard', { id: 'card-2' });
+    setupStore();
+    const { container, getByText } = render(<CardEditor />);
+    await user.click(getByText('Cloze Card'));
+    // Front is auto-filled from selection.text. Back needs typing.
+    const textareas = container.querySelectorAll('textarea');
+    await user.type(textareas[1], 'A JS library');
+    await user.click(getByText('Save'));
     expect(useSelectionStore.getState().showCardEditor).toBe(false);
   });
 });

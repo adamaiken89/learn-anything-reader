@@ -83,35 +83,35 @@ describe('ViewerSearch', () => {
   });
 
   test('renders next/prev buttons when matches exist', () => {
-    const { getByText } = render(
+    const { container } = render(
       <ViewerSearch search={mockSearch({ searchQuery: 'k', totalMatches: 3 })} />,
     );
-    expect(getByText('↑')).toBeInTheDocument();
-    expect(getByText('↓')).toBeInTheDocument();
+    expect(container.querySelector('.lucide-chevron-up')).toBeInTheDocument();
+    expect(container.querySelector('.lucide-chevron-down')).toBeInTheDocument();
   });
 
   test('clicking next calls handleSearchNext', async () => {
     const handleSearchNext = mock(() => {});
-    const { getByText } = render(
+    const { container } = render(
       <ViewerSearch search={mockSearch({ searchQuery: 'k', totalMatches: 3, handleSearchNext })} />,
     );
-    await user.click(getByText('↓'));
+    await user.click(container.querySelector('.lucide-chevron-down')!);
     expect(handleSearchNext).toHaveBeenCalledTimes(1);
   });
 
   test('clicking prev calls handleSearchPrev', async () => {
     const handleSearchPrev = mock(() => {});
-    const { getByText } = render(
+    const { container } = render(
       <ViewerSearch search={mockSearch({ searchQuery: 'k', totalMatches: 3, handleSearchPrev })} />,
     );
-    await user.click(getByText('↑'));
+    await user.click(container.querySelector('.lucide-chevron-up')!);
     expect(handleSearchPrev).toHaveBeenCalledTimes(1);
   });
 
   test('close button calls handleSearchClose', async () => {
     const handleSearchClose = mock(() => {});
-    const { getByText } = render(<ViewerSearch search={mockSearch({ handleSearchClose })} />);
-    await user.click(getByText('✕'));
+    const { container } = render(<ViewerSearch search={mockSearch({ handleSearchClose })} />);
+    await user.click(container.querySelector('.lucide-x')!);
     expect(handleSearchClose).toHaveBeenCalledTimes(1);
   });
 
