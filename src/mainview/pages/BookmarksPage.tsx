@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Bookmark, Course } from '../../bun/types';
 import { api } from '../api';
 import CourseSwitcher from '../components/CourseSwitcher';
+import { loadingIndicator } from '../components/ui/variants/loading';
 import PageContent from '../layouts/PageContent';
 import PageHeader from '../layouts/PageHeader';
 import PageLayout from '../layouts/PageLayout';
@@ -40,8 +41,7 @@ export default function BookmarksPage({ onBack, onOpen }: Props) {
     setBookmarks((prev) => prev.filter((b) => b.id !== id));
   };
 
-  if (loading)
-    return <div className="p-8 text-center text-gray-400">{t('bookmarks.loadingBookmarks')}</div>;
+  if (loading) return <div className={loadingIndicator()}>{t('bookmarks.loadingBookmarks')}</div>;
 
   return (
     <PageLayout>

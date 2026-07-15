@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next';
 import type { Course, QuizQuestion } from '../../bun/types';
 import { api } from '../api';
 import QuizCompletionView from '../components/quiz/QuizCompletionView';
+import { loadingIndicator } from '../components/ui/variants/loading';
+import {
+  quizCompletionContainer,
+  quizCtaButton,
+  quizNavButton,
+} from '../components/ui/variants/quiz';
 import { useQuizEngine } from '../hooks/useQuizEngine';
 import { useViewStore } from '../stores/viewStore';
 
@@ -127,7 +133,7 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
   }, [handleKeyDown]);
 
   if (status === 'loading') {
-    return <div className="p-8 text-center text-gray-400">{t('quiz.loadingQuiz')}</div>;
+    return <div className={loadingIndicator()}>{t('quiz.loadingQuiz')}</div>;
   }
 
   if (questions.length === 0) {
@@ -164,7 +170,7 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
   const isCloze = currentQuestion?.type === 'cloze';
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 flex-1 flex flex-col justify-center">
+    <div className={quizCompletionContainer()}>
       <div className="quiz-container-card p-6">
         <div className="flex justify-end mb-3">
           <span className="text-xs text-gray-500 font-medium tabular-nums">
@@ -321,17 +327,10 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
         </div>
 
         <div className="flex justify-between items-center">
-          <button
-            onClick={skipQuestion}
-            className="px-3 py-2 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-          >
+          <button onClick={skipQuestion} className={quizNavButton()}>
             {t('quiz.skip')} <span className="text-[10px] text-gray-600 ml-0.5">[Esc]</span>
           </button>
-          <button
-            onClick={nextQuestion}
-            disabled={!hasAnswer}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+          <button onClick={nextQuestion} disabled={!hasAnswer} className={quizCtaButton()}>
             {currentIndex < questions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishQuiz')}{' '}
             <span className="text-[10px] opacity-60 ml-1 inline-flex items-center">
               <CornerDownLeft size={10} />

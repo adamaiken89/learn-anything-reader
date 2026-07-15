@@ -10,7 +10,7 @@ import { useCompletionStore } from '../../stores/completionStore';
 import { useLessonUIStore } from '../../stores/lessonUIStore';
 import type { RightPanel } from '../../stores/settingsStore';
 import NotesHighlightsTab from '../studyTools/NotesHighlightsTab';
-import { toggleVariants } from '../ui';
+import { toggleVariants } from '../ui/variants/toggle';
 import NavigationAITab from './NavigationAITab';
 import SectionRow from './SectionRow';
 

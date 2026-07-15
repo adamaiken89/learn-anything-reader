@@ -6,7 +6,7 @@ import type { Course } from '../../bun/types';
 import { useDelayedUnmount } from '../hooks/useDelayedUnmount';
 import { countCompleted, useCompletionStore } from '../stores/completionStore';
 import { useCourseStore } from '../stores/courseStore';
-import { selectableItemVariants } from './ui';
+import { selectableItemVariants } from './ui/variants/card';
 
 interface Props {
   currentCourseId?: string;

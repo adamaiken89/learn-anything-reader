@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { api } from '../../api';
 import { showToast } from '../../toast';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 type ConfirmState = 'clearData' | 'clearLogs' | null;
 

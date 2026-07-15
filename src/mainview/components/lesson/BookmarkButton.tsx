@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Bookmark } from '../../../bun/types';
 import { useCurrentLesson } from '../../hooks/useCurrentLesson';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 const EMPTY_BOOKMARKS: Bookmark[] = [];
 

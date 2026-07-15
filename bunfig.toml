@@ -1,5 +1,5 @@
 [test]
-preload = "./src/setup.tsx"
+preload = ["./src/setup.tsx"]
 coverageThreshold = 0.9
 coveragePathIgnorePatterns = ["**/testFsShared.ts", "**/setup.tsx"]
 pathIgnorePatterns = ["e2e/**", "src/mainview/__e2e__/**"]

@@ -7,7 +7,6 @@ export const ACCENT_INDIGO = '#6366f1';
 export const ACCENT_INDIGO_LIGHT = '#818cf8';
 
 // Warning
-export const WARNING_AMBER = '#f59e0b';
 export const BOOKMARK_AMBER = '#fbbf24';
 
 // Dashboard

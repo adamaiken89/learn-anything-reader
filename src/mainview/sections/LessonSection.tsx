@@ -8,6 +8,7 @@ import NavigationPanel from '../components/lesson/NavigationPanel';
 import ViewerSearch from '../components/lesson/ViewerSearch';
 import PomodoroTimer from '../components/PomodoroTimer';
 import BottomSheet from '../components/ui/BottomSheet';
+import { loadingIndicator } from '../components/ui/variants/loading';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useLesson } from '../hooks/useLesson';
@@ -82,8 +83,7 @@ export default function LessonSection({
 
   useWheelNavigation({ contentRef, nav });
 
-  if (loading)
-    return <div className="p-8 text-center text-gray-400">{t('lesson.loadingLesson')}</div>;
+  if (loading) return <div className={loadingIndicator()}>{t('lesson.loadingLesson')}</div>;
 
   return (
     <div className="flex flex-1 overflow-clip min-h-0">

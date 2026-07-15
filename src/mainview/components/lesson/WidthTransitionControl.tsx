@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { TransitionStyle } from '../../stores/settingsStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 function WidthTransitionControl() {
   const { t } = useTranslation();

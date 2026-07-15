@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
+import { textareaVariants } from '../ui/variants/textarea';
+
 interface NoteEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -16,7 +18,7 @@ export default function NoteEditor({ value, onChange, onSave, placeholder }: Not
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? t('studyTools.addNote')}
-        className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
+        className={textareaVariants({ bg: '800', height: 'md' })}
       />
       <button
         onClick={() => void onSave()}

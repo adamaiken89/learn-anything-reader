@@ -2,10 +2,7 @@ import type { RefObject } from 'react';
 import { useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { TextSelection } from '../stores/selectionStore';
 import { useSelectionStore } from '../stores/selectionStore';
-
-export type { TextSelection };
 
 export function useSelection(scrollContainerRef?: RefObject<HTMLElement | null>) {
   const rafRef = useRef<number>(0);

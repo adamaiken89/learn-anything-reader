@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import type { Note } from '../../bun/types';
 
-export interface TextSelection {
+interface TextSelection {
   text: string;
   range: Range;
 }

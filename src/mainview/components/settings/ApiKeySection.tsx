@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { api } from '../../api';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 export default function ApiKeySection() {
   const { t } = useTranslation();

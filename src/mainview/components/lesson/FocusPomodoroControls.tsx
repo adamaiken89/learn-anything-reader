@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useLessonUIStore } from '../../stores/lessonUIStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 function FocusPomodoroControls() {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import type { FilterMode } from '../hooks/useCardReviewState';
-import { filterVariants } from './ui';
+import { filterVariants } from './ui/variants/filter';
 
 interface FilterBarProps {
   filter: FilterMode;

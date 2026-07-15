@@ -2,7 +2,7 @@ import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useLessonUIStore } from '../../stores/lessonUIStore';
-import { Button } from '../ui';
+import { Button } from '../ui/Button';
 
 function SearchCourseButton() {
   const { t } = useTranslation();

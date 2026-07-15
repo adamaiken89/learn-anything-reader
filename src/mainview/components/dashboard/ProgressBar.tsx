@@ -1,16 +1,4 @@
-import { cva } from 'class-variance-authority';
-
-const progressBarVariants = cva('bg-gray-700 rounded overflow-hidden', {
-  variants: {
-    size: {
-      sm: 'h-1.5',
-      md: 'h-2',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
+import { progressBarVariants } from '../ui/variants/progress';
 
 export default function ProgressBar({ pct, size = 'md' }: { pct: number; size?: 'sm' | 'md' }) {
   return (

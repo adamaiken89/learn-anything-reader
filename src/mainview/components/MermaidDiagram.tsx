@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
+const TOOLBAR_BTN = 'px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer';
+
 let counter = 0;
 
 interface Props {
@@ -179,14 +181,14 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
         <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 border-b border-gray-700 text-sm text-gray-300 shrink-0">
           <button
             onClick={() => applyZoomWithCenterAnchor(Math.min(5, zoom * 1.25))}
-            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+            className={TOOLBAR_BTN}
           >
             +
           </button>
           <span className="w-16 text-center">{Math.round(zoom * 100)}%</span>
           <button
             onClick={() => applyZoomWithCenterAnchor(Math.max(0.5, zoom / 1.25))}
-            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+            className={TOOLBAR_BTN}
           >
             −
           </button>
@@ -195,7 +197,7 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
               setZoom(1);
               setPan({ x: 0, y: 0 });
             }}
-            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+            className={TOOLBAR_BTN}
           >
             {t('mermaid.reset', { defaultValue: 'Reset' })}
           </button>
@@ -206,10 +208,7 @@ function MermaidOverlay({ svg, bg, onClose }: { svg: string; bg?: string; onClos
           >
             {t('mermaid.downloadPng')}
           </button>
-          <button
-            onClick={onClose}
-            className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
-          >
+          <button onClick={onClose} className={TOOLBAR_BTN}>
             <X size={16} />
           </button>
         </div>

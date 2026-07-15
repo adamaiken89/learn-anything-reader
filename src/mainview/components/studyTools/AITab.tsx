@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { showToast } from '../../toast';
+import { textareaVariants } from '../ui/variants/textarea';
 
 export default function AITab() {
   const { t } = useTranslation();
@@ -33,7 +34,7 @@ export default function AITab() {
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         placeholder={t('studyTools.askQuestion')}
-        className="w-full bg-gray-800 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
+        className={textareaVariants({ bg: '800', height: 'md' })}
       />
       <button
         onClick={() => {

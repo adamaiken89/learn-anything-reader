@@ -1,8 +1,20 @@
+import { cva } from 'class-variance-authority';
 import { Check, Lightbulb, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { QuizQuestion, StudySession } from '../../../bun/types';
+
+const completionBtn = cva('px-5 py-2.5 rounded-[10px] text-sm font-medium transition-colors', {
+  variants: {
+    color: {
+      primary: 'bg-indigo-600 hover:bg-indigo-500',
+      secondary: 'bg-gray-600 hover:bg-gray-500',
+      tertiary: 'bg-gray-700 hover:bg-gray-600',
+      success: 'bg-emerald-600 hover:bg-emerald-500',
+    },
+  },
+});
 
 const CONFETTI_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#8b5cf6'];
 const CIRCUMFERENCE = 2 * Math.PI * 54;
@@ -187,32 +199,20 @@ export default function QuizCompletionView({
           ))}
         </div>
         <div className="flex gap-3 mt-6 justify-center flex-wrap">
-          <button
-            onClick={onRetry}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-[10px] text-sm font-medium transition-colors"
-          >
+          <button onClick={onRetry} className={completionBtn({ color: 'primary' })}>
             {t('quiz.retry')}
           </button>
           {onBackToLesson ? (
-            <button
-              onClick={onBackToLesson}
-              className="px-5 py-2.5 bg-gray-600 hover:bg-gray-500 rounded-[10px] text-sm font-medium transition-colors"
-            >
+            <button onClick={onBackToLesson} className={completionBtn({ color: 'secondary' })}>
               {t('quiz.backToLesson')}
             </button>
           ) : onBackToDashboard ? (
-            <button
-              onClick={onBackToDashboard}
-              className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-[10px] text-sm font-medium transition-colors"
-            >
+            <button onClick={onBackToDashboard} className={completionBtn({ color: 'tertiary' })}>
               {t('quiz.backToDashboard')}
             </button>
           ) : null}
           {onNextChapter ? (
-            <button
-              onClick={onNextChapter}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-[10px] text-sm font-medium transition-colors"
-            >
+            <button onClick={onNextChapter} className={completionBtn({ color: 'success' })}>
               {t('quiz.nextChapter')}
             </button>
           ) : null}

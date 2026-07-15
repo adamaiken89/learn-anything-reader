@@ -4,7 +4,7 @@ import { beforeAll } from 'bun:test';
 import { __setRPC } from './api';
 import { clearMocks, defaultMocks, mockResponses } from './mockState';
 
-export const mockRPC = {
+const mockRPC = {
   request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
     get(_, method: string) {
       return (params: unknown) => {

@@ -6,6 +6,7 @@ import { getTextOffset } from '../../sections/lessonHelpers';
 import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSelectionStore } from '../../stores/selectionStore';
+import { textareaVariants } from '../ui/variants/textarea';
 
 export default function NoteEditor() {
   const { t } = useTranslation();
@@ -39,7 +40,7 @@ export default function NoteEditor() {
         value={store.noteText}
         onChange={(e) => store.setNoteText(e.target.value)}
         placeholder={t('studyTools.addNote')}
-        className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-16 focus:outline-none focus:border-indigo-500"
+        className={textareaVariants()}
         autoFocus
       />
       <div className="flex gap-2 mt-1.5">

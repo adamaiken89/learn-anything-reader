@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { api } from '../../api';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useSelectionStore } from '../../stores/selectionStore';
+import { textareaVariants } from '../ui/variants/textarea';
 
 function getSurroundingText(container: HTMLElement, range: Range, chars = 100): string {
   try {
@@ -102,7 +103,7 @@ export default function CardEditor() {
         value={front}
         onChange={(e) => setFront(e.target.value)}
         placeholder={t('studyTools.cardFront')}
-        className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-16 focus:outline-none focus:border-indigo-500 mb-2"
+        className={textareaVariants({ height: 'sm' }) + ' mb-2'}
         autoFocus
       />
       <label className="text-[10px] text-gray-400 block mb-0.5">
@@ -114,7 +115,7 @@ export default function CardEditor() {
         value={back}
         onChange={(e) => setBack(e.target.value)}
         placeholder={t('studyTools.cardBack')}
-        className="w-full bg-gray-700 border border-gray-600 rounded text-xs p-2 text-gray-200 placeholder-gray-500 resize-none h-20 focus:outline-none focus:border-indigo-500"
+        className={textareaVariants({ height: 'md' })}
       />
       <div className="flex gap-2 mt-1.5">
         <button

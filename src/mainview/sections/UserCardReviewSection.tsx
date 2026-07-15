@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { UserCard } from '../../bun/types';
 import { api } from '../api';
 import FilterBar from '../components/FilterBar';
+import { loadingIndicator } from '../components/ui/variants/loading';
 import ReviewCardDisplay from '../components/userCards/ReviewCardDisplay';
 import type { FilterMode } from '../hooks/useCardReviewState';
 import { useCardReviewState } from '../hooks/useCardReviewState';
@@ -50,8 +51,7 @@ export default function UserCardReviewSection({ courseId }: Props) {
     isStarred: useCallback((c: UserCard) => c.isStarred, []),
   });
 
-  if (loading)
-    return <div className="p-8 text-center text-gray-400">{t('review.loadingCards')}</div>;
+  if (loading) return <div className={loadingIndicator()}>{t('review.loadingCards')}</div>;
 
   return (
     <div className="max-w-xl mx-auto">
