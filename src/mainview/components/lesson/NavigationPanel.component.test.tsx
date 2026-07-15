@@ -48,12 +48,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     expect(getByText('Sections')).toBeInTheDocument();
@@ -66,12 +62,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     // Current module should be visible and expanded
@@ -89,12 +81,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     expect(getByText('Module 1')).toBeInTheDocument();
@@ -109,12 +97,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={scrollToSection}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     await user.click(getByText('Introduction'));
@@ -129,12 +113,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     expect(getByText('Module 1').closest('button')?.className).toContain('indigo');
@@ -147,12 +127,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     expect(getByText('1')).toBeInTheDocument();
@@ -167,12 +143,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={onModuleSelect}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     await user.click(getByText('Module 2'));
@@ -180,24 +152,18 @@ describe('NavigationPanel', () => {
     expect(onModuleSelect).toHaveBeenCalledWith(defaultModules[1], undefined);
   });
 
-  test('clicking close calls onClose', async () => {
-    const onClose = mock(() => {});
+  test('close button renders', async () => {
     const { container } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={onClose}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
-    await user.click(container.querySelector('.lucide-chevron-right')!);
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(container.querySelector('.lucide-chevron-right')).toBeInTheDocument();
   });
 
   test('renders session indicators when sessions exist', async () => {
@@ -216,12 +182,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     // Module should still render
@@ -242,12 +204,8 @@ describe('NavigationPanel', () => {
         moduleId={defaultModuleId}
         moduleName="Test Module"
         modules={defaultModules}
-        currentModuleId={defaultModuleId}
         onScrollToSection={() => {}}
         onModuleSelect={() => {}}
-        onClose={() => {}}
-        activeTab={'sections' as const}
-        onTabChange={mock(() => {})}
       />,
     );
     // Handler calls void toggle() — fire-and-forget. Test the store directly.

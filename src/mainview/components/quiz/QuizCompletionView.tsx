@@ -1,4 +1,5 @@
 import { cva } from 'class-variance-authority';
+import clsx from 'clsx';
 import { Check, Lightbulb, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,6 @@ interface QuestionResult {
 }
 
 interface Props {
-  percentage: number;
   score: number;
   total: number;
   previousSession: StudySession | null;
@@ -38,7 +38,6 @@ interface Props {
 }
 
 export default function QuizCompletionView({
-  percentage,
   score,
   total,
   previousSession,
@@ -50,6 +49,7 @@ export default function QuizCompletionView({
 }: Props) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
+  const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
   const isPerfect = percentage === 100;
 
   const correctCount = questionResults.filter((r) => r.isCorrect).length;
@@ -126,11 +126,12 @@ export default function QuizCompletionView({
         {previousSession?.score !== undefined && previousSession.total && (
           <div className="flex items-center justify-center gap-1.5 mb-5">
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+              className={clsx(
+                'text-xs font-semibold px-2 py-0.5 rounded-full',
                 previousSession.score / previousSession.total >= 0.8
                   ? 'text-emerald-400 bg-emerald-500/10'
-                  : 'text-rose-400 bg-rose-500/10'
-              }`}
+                  : 'text-rose-400 bg-rose-500/10',
+              )}
             >
               {previousSession.score / previousSession.total >= 0.8
                 ? `✓ ${t('quiz.previousPassed')}`
@@ -145,11 +146,12 @@ export default function QuizCompletionView({
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
+                className={clsx(
+                  'px-3 py-1 text-xs rounded-lg font-medium transition-colors',
                   filter === f
                     ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/30'
-                    : 'text-gray-500 hover:text-gray-300 border border-gray-700/50'
-                }`}
+                    : 'text-gray-500 hover:text-gray-300 border border-gray-700/50',
+                )}
               >
                 {t(`quiz.filter${f.charAt(0).toUpperCase() + f.slice(1)}`, {
                   count,
@@ -163,19 +165,21 @@ export default function QuizCompletionView({
           {filteredResults.map(({ question: q, isCorrect, userAnswer }) => (
             <div
               key={q.id}
-              className={`text-left p-4 rounded-[10px] text-sm border ${
+              className={clsx(
+                'text-left p-4 rounded-[10px] text-sm border',
                 isCorrect
                   ? 'border-emerald-500/20 bg-emerald-500/[0.03]'
-                  : 'border-rose-500/30 bg-rose-500/[0.04]'
-              }`}
+                  : 'border-rose-500/30 bg-rose-500/[0.04]',
+              )}
             >
               <div className="flex items-center justify-between gap-2 mb-3">
                 <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
+                  className={clsx(
+                    'text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1',
                     isCorrect
                       ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-rose-500/10 text-rose-400'
-                  }`}
+                      : 'bg-rose-500/10 text-rose-400',
+                  )}
                 >
                   {isCorrect ? <Check size={12} /> : <X size={12} />}
                   {isCorrect

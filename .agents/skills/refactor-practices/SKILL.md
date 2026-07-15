@@ -33,6 +33,9 @@ Patterns derived from CourseReader refactor. Apply when cleaning up or building 
 1. Does current component use prop at all? If not → remove.
 2. Is child the only consumer? If yes → child reads from store.
 3. Is store dependency appropriate? (cross-cutting concern, not render-specific)
+4. **1:1 prop-to-store mapping**: If parent reads store value X and passes it as a prop, and child uses that prop the same way, child should read the store directly instead. Eliminates both prop AND parent's store subscription for that field.
+
+**Example**: NavigationPanel received `activeTab`/`onTabChange`/`onClose` as props — all mapped 1:1 to `settingsStore.rightPanel`/`setRightPanel`. Fix: NavigationPanel reads `rightPanel`/`setRightPanel` from store directly. 4 props eliminated (also dropped redundant `currentModuleId` which was always equal to `moduleId`).
 
 ## 3. Store alias → delete
 
@@ -133,7 +136,8 @@ When refactoring:
 | Pattern | File | Key lines |
 |---------|------|-----------|
 | Component split | `components/lesson/LessonToolbar.tsx` | composes 10 sub-comps |
-| Prop elimination | `components/StudyTools.tsx` | subscribes to viewStore |
+| Prop elimination (store sub) | `components/StudyTools.tsx` | subscribes to viewStore |
+| Prop elimination (1:1 map) | `components/lesson/NavigationPanel.tsx` | reads rightPanel/setRightPanel from settingsStore |
 | Store alias deleted | `stores/selectionStore.ts` | deleted |
 | useShallow | `hooks/useSelection.ts` | `useShallow((s) => ({...}))` |
 | useOptimistic | `hooks/useLesson.ts` | `useOptimistic(initialCompleted, ...)` |

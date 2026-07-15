@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { Highlight, Section } from '../../../bun/types';
+import type { Highlight } from '../../../bun/types';
+import { useLessonViewStore } from '../../stores/lessonViewStore';
 
 interface NoteItemProps {
   note: {
@@ -12,7 +13,6 @@ interface NoteItemProps {
     createdAt: string;
   };
   linkedHighlight?: Highlight;
-  sections: Section[];
   onUpdate: (id: string, content: string) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
 }
@@ -20,11 +20,11 @@ interface NoteItemProps {
 export default function NoteItem({
   note,
   linkedHighlight,
-  sections,
   onUpdate,
   onDelete,
 }: NoteItemProps) {
   const { t } = useTranslation();
+  const sections = useLessonViewStore((s) => s.sections);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
 

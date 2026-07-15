@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import { Check, CornerDownLeft, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,9 +7,12 @@ import { api } from '../api';
 import QuizCompletionView from '../components/quiz/QuizCompletionView';
 import { loadingIndicator } from '../components/ui/variants/loading';
 import {
+  optionButtonClass,
+  progressSegmentClass,
   quizCompletionContainer,
   quizCtaButton,
   quizNavButton,
+  radioIndicatorClass,
 } from '../components/ui/variants/quiz';
 import { useQuizEngine } from '../hooks/useQuizEngine';
 import { useViewStore } from '../stores/viewStore';
@@ -35,7 +37,6 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
     currentQuestion,
     hasAnswer,
     score,
-    percentage,
     selectAnswer,
     nextQuestion,
     skipQuestion,
@@ -156,7 +157,6 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
 
     return (
       <QuizCompletionView
-        percentage={percentage}
         score={score}
         total={questions.length}
         previousSession={null}
@@ -182,14 +182,7 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
           {questions.map((_, i) => (
             <div
               key={i}
-              className={clsx(
-                'h-1.5 flex-1 rounded-full transition-all duration-300',
-                i < currentIndex
-                  ? 'bg-indigo-500'
-                  : i === currentIndex
-                    ? 'bg-indigo-400 progress-pill-active'
-                    : 'bg-gray-700',
-              )}
+              className={progressSegmentClass(i < currentIndex, i === currentIndex)}
             />
           ))}
         </div>
@@ -266,39 +259,19 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
                   const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
 
                   return (
-                    <button
-                      key={key}
-                      onClick={() => !hasAnswer && selectAnswer(key)}
-                      disabled={hasAnswer}
-                      className={clsx(
-                        'group w-full text-left px-4 py-3.5 rounded-[10px] border-2 transition-all duration-200 flex items-center gap-4',
-                        'text-[15px] font-medium',
-                        showCorrect
-                          ? 'bg-emerald-500/8 border-emerald-500/30 text-emerald-100'
-                          : showWrong
-                            ? 'bg-red-500/8 border-red-500/30 text-red-100 animate-[shake_0.3s_ease-in-out]'
-                            : isSelected
-                              ? 'bg-indigo-500/10 border-indigo-400/40 text-indigo-100'
-                              : isHighlighted
-                                ? 'bg-indigo-500/15 border-indigo-400/70 text-indigo-100 ring-2 ring-indigo-400/50 hover:bg-indigo-500/20'
-                                : 'bg-gray-800/50 border-gray-600/40 text-gray-200 hover:border-gray-400 hover:bg-gray-700/40',
-                        !hasAnswer ? 'cursor-pointer' : 'cursor-default',
-                      )}
-                    >
-                      <span
-                        className={clsx(
-                          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-bold transition-all',
-                          showCorrect
-                            ? 'border-emerald-400 bg-emerald-500/20 text-emerald-300'
-                            : showWrong
-                              ? 'border-red-400 bg-red-500/20 text-red-300'
-                              : isSelected
-                                ? 'border-indigo-400 bg-indigo-500/20 text-indigo-300'
-                                : isHighlighted
-                                  ? 'border-indigo-400'
-                                  : 'border-gray-500 group-hover:border-indigo-300 group-hover:bg-indigo-500/10',
-                        )}
-                      >
+                  <button
+                    key={key}
+                    onClick={() => !hasAnswer && selectAnswer(key)}
+                    disabled={hasAnswer}
+                    className={optionButtonClass({
+                      showCorrect,
+                      showWrong,
+                      isSelected,
+                      isHighlighted,
+                      hasAnswer,
+                    })}
+                  >
+                    <span className={radioIndicatorClass({ showCorrect, showWrong, isSelected, isHighlighted })}>
                         {showCorrect && <Check size={12} />}
                         {showWrong && <X size={12} />}
                       </span>

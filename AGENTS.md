@@ -54,6 +54,7 @@ src/
 - **State management**: Zustand stores (cross-cutting), domain hooks (page-specific), useReducer (state machines), local useState (trivial UI only).
 - **Store isolation**: Stores must never import other stores. Cross-store orchestration lives in custom hooks (`hooks/useLessonSection`, `hooks/useSettingsPage`). Hooks compose multiple stores internally; consumers call one hook instead of 2-4 stores inline. Individual store selectors remain atomic (each `useXxxStore((s) => s.field)` triggers re-render only on that field).
 - **Subcomponents** receive data via props, never fetch directly.
+- **Store-internal components**: if a component consumes store values that its parent already reads and passes as props (1:1 mapping), the child should read the store directly and drop the prop. Example: `NavigationPanel` reads `rightPanel`/`setRightPanel` from `settingsStore` directly instead of receiving `activeTab`/`onTabChange` + `onClose` props.
 - **Markdown**: react-markdown + remarkGfm + rehypeHighlight (highlight.js). Mermaid diagrams rendered via `MermaidDiagram` component.
 - **Styling**: Tailwind + `.book-content` CSS (via CSS custom properties).
 - **TypeScript strict mode**.

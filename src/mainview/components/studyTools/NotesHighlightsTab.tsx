@@ -36,7 +36,7 @@ export default function NotesHighlightsTab() {
   const courseId = lastView?.type === 'lesson' ? lastView.course.id : '';
   const moduleId = lastView?.type === 'lesson' ? lastView.module.id : '';
 
-  const { contentRef, scrollToSection, sections } = useLessonViewStore();
+  const { contentRef, scrollToSection } = useLessonViewStore();
 
   const loadNotes = useNotesStore((s) => s.load);
   const addNote = useNotesStore((s) => s.add);
@@ -132,15 +132,12 @@ export default function NotesHighlightsTab() {
             {item.kind === 'highlight' ? (
               <HighlightItem
                 highlight={item.highlight}
-                contentRef={contentRef}
-                sections={sections}
                 onDelete={handleDeleteHighlight}
               />
             ) : (
               <NoteItem
                 note={item.note}
                 linkedHighlight={item.linkedHighlight}
-                sections={sections}
                 onUpdate={handleUpdateNote}
                 onDelete={handleDeleteNote}
               />

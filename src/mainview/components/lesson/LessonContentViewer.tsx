@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
@@ -153,7 +154,11 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
           onScroll={handleScroll}
         >
           <div
-            className={`px-3 sm:px-6 book-content${contentWidth === 'wide' ? ' book-content-wide' : contentWidth === 'standard' ? ' book-content-standard' : ''}`}
+            className={clsx(
+              'px-3 sm:px-6 book-content',
+              contentWidth === 'wide' && 'book-content-wide',
+              contentWidth === 'standard' && 'book-content-standard',
+            )}
             data-testid="book-content-area"
             style={{ fontSize: `${fontSize}px`, ...themeVars }}
             onMouseUp={handleTextSelectionWithAutoCopy}

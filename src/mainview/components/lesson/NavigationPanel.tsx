@@ -8,7 +8,7 @@ import { logger } from '../../logger';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useLessonUIStore } from '../../stores/lessonUIStore';
-import type { RightPanel } from '../../stores/settingsStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import NotesHighlightsTab from '../studyTools/NotesHighlightsTab';
 import { toggleVariants } from '../ui/variants/toggle';
 import NavigationAITab from './NavigationAITab';
@@ -19,12 +19,8 @@ interface NavigationPanelProps {
   moduleId: string;
   moduleName: string;
   modules: ModuleMeta[];
-  currentModuleId: string;
   onScrollToSection: (sectionId: string) => void;
   onModuleSelect: (mod: ModuleMeta, sectionID?: string) => void;
-  onClose: () => void;
-  activeTab: RightPanel;
-  onTabChange: (tab: RightPanel) => void;
 }
 
 export default function NavigationPanel({
@@ -32,12 +28,8 @@ export default function NavigationPanel({
   moduleId,
   moduleName,
   modules,
-  currentModuleId,
   onScrollToSection,
   onModuleSelect,
-  onClose,
-  activeTab,
-  onTabChange,
 }: NavigationPanelProps) {
   const { t } = useTranslation();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
@@ -49,6 +41,8 @@ export default function NavigationPanel({
   const visibleSection = useLessonUIStore((s) => s.visibleSection);
   const bookmarks = useBookmarksStore((s) => s.byModule[`${courseId}:${moduleId}`]) ?? [];
   const completed = useCompletionStore((s) => s.completed);
+  const rightPanel = useSettingsStore((s) => s.rightPanel);
+  const setRightPanel = useSettingsStore((s) => s.setRightPanel);
 
   // Pre-fetch sections + module sessions
   useEffect(() => {
@@ -71,15 +65,15 @@ export default function NavigationPanel({
   // Auto-expand current module on mount / when it changes
   useEffect(() => {
     setExpandedModules((prev) => {
-      if (prev.has(currentModuleId)) return prev;
-      return new Set(prev).add(currentModuleId);
+      if (prev.has(moduleId)) return prev;
+      return new Set(prev).add(moduleId);
     });
-  }, [currentModuleId]);
+  }, [moduleId]);
 
   // Scroll active module into view
   useEffect(() => {
     activeModRef.current?.scrollIntoView({ block: 'nearest' });
-  }, [currentModuleId]);
+  }, [moduleId]);
 
   const toggleExpand = useCallback((modId: string) => {
     setExpandedModules((prev) => {
@@ -108,9 +102,9 @@ export default function NavigationPanel({
         {(['sections', 'ai', 'notes'] as const).map((tab) => (
           <button
             key={tab}
-            onClick={() => onTabChange(tab)}
+            onClick={() => setRightPanel(tab)}
             className={`flex-1 text-[11px] font-medium py-1 px-2 transition-colors ${
-              activeTab === tab
+              rightPanel === tab
                 ? 'text-indigo-400 border-b-2 border-indigo-500 bg-indigo-900/10'
                 : 'text-gray-400 hover:text-white hover:bg-gray-700/30'
             }`}
@@ -120,16 +114,16 @@ export default function NavigationPanel({
             {tab === 'notes' && 'Notes'}
           </button>
         ))}
-        <button onClick={onClose} className={`px-2 ${toggleVariants({ active: true })}`}>
+        <button onClick={() => setRightPanel(false)} className={`px-2 ${toggleVariants({ active: true })}`}>
           <ChevronRight size={14} />
         </button>
       </div>
 
       {/* Sections Tab */}
-      {activeTab === 'sections' && (
+      {rightPanel === 'sections' && (
         <div className="overflow-y-auto flex-1" ref={sectionsRef}>
           {modules.map((mod) => {
-            const isCurrent = mod.id === currentModuleId;
+            const isCurrent = mod.id === moduleId;
             const isExpanded = isCurrent || expandedModules.has(mod.id);
             const isCompleted = completed[`${courseId}:${mod.id}`] ?? false;
             const modSections = allSections[mod.id] ?? [];
@@ -208,10 +202,10 @@ export default function NavigationPanel({
       )}
 
       {/* AI+Ask Tab */}
-      {activeTab === 'ai' && <NavigationAITab />}
+      {rightPanel === 'ai' && <NavigationAITab />}
 
       {/* Notes Tab */}
-      {activeTab === 'notes' && (
+      {rightPanel === 'notes' && (
         <div className="overflow-y-auto flex-1">
           <NotesHighlightsTab />
         </div>

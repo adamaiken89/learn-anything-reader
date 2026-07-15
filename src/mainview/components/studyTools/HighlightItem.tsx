@@ -1,22 +1,20 @@
 import { useTranslation } from 'react-i18next';
 
-import type { Highlight, Section } from '../../../bun/types';
+import type { Highlight } from '../../../bun/types';
+import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { findSectionIdForHighlight } from './notesHelpers';
 
 interface HighlightItemProps {
   highlight: Highlight;
-  contentRef: React.RefObject<HTMLDivElement | null>;
-  sections: Section[];
   onDelete: (id: string) => void | Promise<void>;
 }
 
 export default function HighlightItem({
   highlight,
-  contentRef,
-  sections,
   onDelete,
 }: HighlightItemProps) {
   const { t } = useTranslation();
+  const { contentRef, sections } = useLessonViewStore();
   const sec = findSectionIdForHighlight(contentRef, highlight.id, sections);
 
   return (

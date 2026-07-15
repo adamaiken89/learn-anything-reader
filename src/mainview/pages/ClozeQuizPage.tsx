@@ -20,12 +20,7 @@ export default function ClozeQuizPage({ course, module, onBack }: Props) {
         }
       />
       <PageContent className="quiz-bg">
-        <ClozeQuizSection
-          courseId={course.id}
-          moduleId={module.id}
-          course={course}
-          module={module}
-        />
+        <ClozeQuizSection course={course} module={module} />
       </PageContent>
     </PageLayout>
   );

@@ -133,14 +133,10 @@ export default function LessonSection({
               moduleId={module.id}
               moduleName={module.name}
               modules={course.modules}
-              currentModuleId={module.id}
               onScrollToSection={scrollToSection}
               onModuleSelect={(mod, sectionID) =>
                 push({ type: 'lesson', course, module: mod, sectionID })
               }
-              onClose={() => setRightPanel(false)}
-              activeTab={rightPanel}
-              onTabChange={setRightPanel}
             />
           </div>
         </div>
@@ -154,7 +150,6 @@ export default function LessonSection({
             moduleId={module.id}
             moduleName={module.name}
             modules={course.modules}
-            currentModuleId={module.id}
             onScrollToSection={(id) => {
               scrollToSection(id);
               setRightPanel(false);
@@ -163,9 +158,6 @@ export default function LessonSection({
               push({ type: 'lesson', course, module: mod, sectionID });
               setRightPanel(false);
             }}
-            onClose={() => setRightPanel(false)}
-            activeTab={rightPanel}
-            onTabChange={setRightPanel}
           />
         </BottomSheet>
       )}

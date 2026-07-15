@@ -1,5 +1,6 @@
 import type { DragEndEvent } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/react';
+import clsx from 'clsx';
 import { CornerDownLeft } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +10,7 @@ import { api } from '../api';
 import QuizCompletionView from '../components/quiz/QuizCompletionView';
 import { loadingIndicator } from '../components/ui/variants/loading';
 import {
+  progressSegmentClass,
   quizCompletionContainer,
   quizCtaButton,
   quizNavButton,
@@ -16,8 +18,6 @@ import {
 import { useViewStore } from '../stores/viewStore';
 
 interface Props {
-  courseId: string;
-  moduleId: string;
   course: Course;
   module: ModuleMeta;
 }
@@ -61,11 +61,12 @@ function DragToken({ id, label, isUsed }: { id: string; label: string; isUsed: b
   return (
     <span
       ref={ref}
-      className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border cursor-grab transition-all select-none ${
+      className={clsx(
+        'inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border cursor-grab transition-all select-none',
         isDragging
           ? 'opacity-40 border-indigo-500/50 bg-indigo-600/20 text-indigo-300'
-          : 'border-gray-600/50 bg-gray-800/60 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-200 hover:bg-gray-700/60'
-      }`}
+          : 'border-gray-600/50 bg-gray-800/60 text-gray-300 hover:border-indigo-500/40 hover:text-indigo-200 hover:bg-gray-700/60',
+      )}
     >
       {label}
     </span>
@@ -90,22 +91,20 @@ function DropBlank({
   return (
     <span
       ref={ref}
-      className={`inline-flex items-center min-w-[8em] mx-0.5 px-2 py-0.5 rounded border-b-2 transition-all font-medium ${
-        isDropTarget && !isFilled
-          ? 'border-emerald-400 bg-emerald-500/10'
-          : isFilled && isCorrect
-            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300'
-            : isFilled && isWrong
-              ? 'border-red-500 bg-red-500/10 text-red-300'
-              : 'border-indigo-500/40 bg-indigo-500/5'
-      }`}
+      className={clsx(
+        'inline-flex items-center min-w-[8em] mx-0.5 px-2 py-0.5 rounded border-b-2 transition-all font-medium',
+        isDropTarget && !isFilled && 'border-emerald-400 bg-emerald-500/10',
+        isFilled && isCorrect && 'border-emerald-500 bg-emerald-500/10 text-emerald-300',
+        isFilled && isWrong && 'border-red-500 bg-red-500/10 text-red-300',
+        !isFilled && !isDropTarget && 'border-indigo-500/40 bg-indigo-500/5',
+      )}
     >
       {isFilled ? <span>{filledValue}</span> : <span>&nbsp;</span>}
     </span>
   );
 }
 
-export default function ClozeQuizSection({ courseId, moduleId, course, module }: Props) {
+export default function ClozeQuizSection({ course, module }: Props) {
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
   const currentIdx = course.modules.findIndex((m) => m.id === module.id);
@@ -122,14 +121,14 @@ export default function ClozeQuizSection({ courseId, moduleId, course, module }:
 
   useEffect(() => {
     api.stats
-      .lastQuizSession(courseId, moduleId)
+      .lastQuizSession(course.id, module.id)
       .then(setPreviousSession)
       .catch(() => {});
-  }, [courseId, moduleId]);
+  }, [course.id, module.id]);
 
   useEffect(() => {
     api.quiz
-      .cloze(courseId, moduleId)
+      .cloze(course.id, module.id)
       .then((qs) => {
         setQuestions(qs);
         setStatus('ready');
@@ -138,7 +137,7 @@ export default function ClozeQuizSection({ courseId, moduleId, course, module }:
         setQuestions([]);
         setStatus('ready');
       });
-  }, [courseId, moduleId]);
+  }, [course.id, module.id]);
 
   // Reset on question change
   useEffect(() => {
@@ -205,8 +204,6 @@ export default function ClozeQuizSection({ courseId, moduleId, course, module }:
     if (ua === undefined) return false;
     return ua.trim().toLowerCase() === q.answer.trim().toLowerCase();
   }).length;
-
-  const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
 
   // Handle drag end
   const handleDragEnd = useCallback(
@@ -294,7 +291,6 @@ export default function ClozeQuizSection({ courseId, moduleId, course, module }:
 
     return (
       <QuizCompletionView
-        percentage={percentage}
         score={score}
         total={questions.length}
         previousSession={previousSession}
@@ -323,13 +319,7 @@ export default function ClozeQuizSection({ courseId, moduleId, course, module }:
             {questions.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                  i < currentIndex
-                    ? 'bg-indigo-500'
-                    : i === currentIndex
-                      ? 'bg-indigo-400 progress-pill-active'
-                      : 'bg-gray-700'
-                }`}
+                className={progressSegmentClass(i < currentIndex, i === currentIndex)}
               />
             ))}
           </div>
