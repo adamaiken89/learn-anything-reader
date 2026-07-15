@@ -23,11 +23,12 @@ src/
 │   ├── sections/         # Complex content: Lesson, Quiz, Review, UserCardReview
 │   ├── components/       # Leaf-level reusable UI. No routing awareness.
 │   │   ├── lesson/       # LessonToolbar, NavigationPanel, SelectionToolbar, NoteEditor, CardEditor, ColorPickerRow, NotePopover, ViewerSearch
+│   │   ├── quiz/         # QuizProgressBar, QuizMCQGrid, QuizClozeInput, QuizExplanation, QuizBottomNav
 │   │   ├── study-tools/  # NotesHighlightsTab, BookmarksTab, CardsTab, AITab
 │   │   ├── ui/           # Button, StatCard
-│   │   └── ...           # CourseSwitcher, ErrorBoundary, MermaidDiagram, SearchOverlay, StudyTools, PomodoroTimer
+│   │   └── ...           # CourseSwitcher, ErrorBoundary, MermaidDiagram, MermaidOverlay, SearchOverlay, StudyTools, PomodoroTimer
 │   ├── hooks/            # 22+ domain hooks (useLesson, useBookmarks, useHighlights, useQuizEngine, useReviewState, useCardReviewState, useLessonNav, useLessonSearch, useLessonSection, useLessonAnimations, useLessonKeyboardShortcuts, useNotes, useSelection, useShortcuts, useSettingsPage, useDashboard, useWheelNavigation, useSearchOverlay, useCurrentLesson, useAppInit, useAutoCopy, useCountUp, useClipboardFallback, etc.)
-│   └── stores/           # Zustand (12): viewStore, lessonViewStore, courseStore, settingsStore, pomodoroStore, bookmarksStore, completionStore, highlightsStore, lessonUIStore, notesStore, syncStore, selectionStore
+│   └── stores/           # Zustand (13): viewStore, lessonViewStore, courseStore, settingsStore, pomodoroStore, bookmarksStore, completionStore, highlightsStore, lessonUIStore, notesStore, syncStore, selectionStore, quizStore
 ├── types/                # Ambient declarations (js-yaml, three, jest-dom)
 └── bun/                  # Backend (Electrobun RPC handlers)
     ├── index.ts          # RPC router + all handlers
@@ -52,6 +53,7 @@ src/
 - **Navigation**: React state-driven view stack. No React Router. Page transitions (flip/slide/fade/none) on LessonPage.
 - **Pages**: use `PageLayout` + `PageHeader` + `PageContent`. No inline wrappers.
 - **State management**: Zustand stores (cross-cutting), domain hooks (page-specific), useReducer (state machines), local useState (trivial UI only).
+  - **Props vs store**: Default to props for direct parent→child data flow. Use Zustand when: (a) 3+ siblings read same state, (b) deeply nested children need access, or (c) parent reads store and passes 1:1 to child (store-internal pattern). Session-local state (quiz, review) can use either — pick whichever reduces boilerplate for the specific case.
 - **Store isolation**: Stores must never import other stores. Cross-store orchestration lives in custom hooks (`hooks/useLessonSection`, `hooks/useSettingsPage`). Hooks compose multiple stores internally; consumers call one hook instead of 2-4 stores inline. Individual store selectors remain atomic (each `useXxxStore((s) => s.field)` triggers re-render only on that field).
 - **Subcomponents** receive data via props, never fetch directly.
 - **Store-internal components**: if a component consumes store values that its parent already reads and passes as props (1:1 mapping), the child should read the store directly and drop the prop. Example: `NavigationPanel` reads `rightPanel`/`setRightPanel` from `settingsStore` directly instead of receiving `activeTab`/`onTabChange` + `onClose` props.

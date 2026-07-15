@@ -1,110 +1,42 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import type { QuizQuestion } from '../../bun/types';
 import { api } from '../api';
 import { logger } from '../logger';
+import { useQuizStore } from '../stores/quizStore';
 import { showToast } from '../toast';
 
 type QuizLoader = (courseId: string, moduleId: string) => Promise<QuizQuestion[]>;
 
-type QuizStatus = 'loading' | 'ready' | 'completed';
+export function useQuizEngine(courseId: string, moduleId: string, loader?: QuizLoader) {
+  const setQuestions = useQuizStore((s) => s.setQuestions);
+  const loadFailed = useQuizStore((s) => s.loadFailed);
+  const reset = useQuizStore((s) => s.reset);
+  const status = useQuizStore((s) => s.status);
+  const questions = useQuizStore((s) => s.questions);
+  const selectedAnswers = useQuizStore((s) => s.selectedAnswers);
 
-interface QuizState {
-  status: QuizStatus;
-  questions: QuizQuestion[];
-  currentIndex: number;
-  selectedAnswers: Record<string, string>;
-}
-
-type QuizAction =
-  | { type: 'LOADED'; questions: QuizQuestion[] }
-  | { type: 'LOAD_FAILED' }
-  | { type: 'SELECT_ANSWER'; answer: string }
-  | { type: 'NEXT' }
-  | { type: 'SKIP' }
-  | { type: 'RETRY' };
-
-function quizReducer(state: QuizState, action: QuizAction): QuizState {
-  switch (action.type) {
-    case 'LOADED':
-      return { ...state, status: 'ready', questions: action.questions };
-    case 'LOAD_FAILED':
-      return { ...state, status: 'ready', questions: [] };
-    case 'SELECT_ANSWER': {
-      const q = state.questions[state.currentIndex];
-      if (!q) return state;
-      return {
-        ...state,
-        selectedAnswers: { ...state.selectedAnswers, [q.id]: action.answer },
-      };
-    }
-    case 'NEXT': {
-      if (state.currentIndex < state.questions.length - 1) {
-        return { ...state, currentIndex: state.currentIndex + 1 };
-      }
-      return { ...state, status: 'completed' };
-    }
-    case 'SKIP': {
-      if (state.currentIndex < state.questions.length - 1) {
-        return { ...state, currentIndex: state.currentIndex + 1 };
-      }
-      return { ...state, status: 'completed' };
-    }
-    case 'RETRY':
-      return { ...state, status: 'ready', currentIndex: 0, selectedAnswers: {} };
-    default:
-      return state;
-  }
-}
-
-const INITIAL: QuizState = {
-  status: 'loading',
-  questions: [],
-  currentIndex: 0,
-  selectedAnswers: {},
-};
-
-interface UseQuizEngineReturn {
-  status: QuizStatus;
-  questions: QuizQuestion[];
-  currentIndex: number;
-  selectedAnswers: Record<string, string>;
-  currentQuestion: QuizQuestion | undefined;
-  hasAnswer: boolean;
-  score: number;
-  percentage: number;
-  selectAnswer: (answer: string) => void;
-  nextQuestion: () => void;
-  skipQuestion: () => void;
-  retry: () => void;
-}
-
-export function useQuizEngine(
-  courseId: string,
-  moduleId: string,
-  loader?: QuizLoader,
-): UseQuizEngineReturn {
-  const [state, dispatch] = useReducer(quizReducer, INITIAL);
   const loaderRef = useRef(loader);
   loaderRef.current = loader;
 
   useEffect(() => {
+    reset();
     const loadFn = loaderRef.current ?? api.quiz.start;
     loadFn(courseId, moduleId)
       .then((qs) => {
-        dispatch({ type: 'LOADED', questions: qs });
+        setQuestions(qs);
       })
       .catch((err) => {
         logger.warn({ err }, 'Quiz load failed');
         showToast.error('toast.loadFailed');
-        dispatch({ type: 'LOAD_FAILED' });
+        loadFailed();
       });
-  }, [courseId, moduleId]);
+  }, [courseId, moduleId, reset, setQuestions, loadFailed]);
 
   useEffect(() => {
-    if (state.status === 'completed' && state.questions.length > 0) {
-      const score = state.questions.filter((q) => {
-        const userAnswer = state.selectedAnswers[q.id];
+    if (status === 'completed' && questions.length > 0) {
+      const scoreVal = questions.filter((q) => {
+        const userAnswer = selectedAnswers[q.id];
         if (userAnswer === undefined) return false;
         if (q.type === 'cloze') {
           return userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase();
@@ -115,60 +47,14 @@ export function useQuizEngine(
         .logSession({
           courseID: courseId,
           moduleID: moduleId,
-          durationMinutes: Math.ceil(state.questions.length * 1.5),
+          durationMinutes: Math.ceil(questions.length * 1.5),
           type: 'quiz',
-          score,
-          total: state.questions.length,
+          score: scoreVal,
+          total: questions.length,
         })
         .catch((err) => {
           logger.warn({ err }, 'Failed to log quiz session');
         });
     }
-  }, [state.status, courseId, moduleId, state.questions, state.selectedAnswers]);
-
-  const selectAnswer = useCallback((answer: string) => {
-    dispatch({ type: 'SELECT_ANSWER', answer });
-  }, []);
-
-  const nextQuestion = useCallback(() => {
-    dispatch({ type: 'NEXT' });
-  }, []);
-
-  const skipQuestion = useCallback(() => {
-    dispatch({ type: 'SKIP' });
-  }, []);
-
-  const retry = useCallback(() => {
-    dispatch({ type: 'RETRY' });
-  }, []);
-
-  const currentQuestion = state.questions[state.currentIndex];
-  const hasAnswer = currentQuestion
-    ? state.selectedAnswers[currentQuestion.id] !== undefined
-    : false;
-  const score = state.questions.filter((q) => {
-    const userAnswer = state.selectedAnswers[q.id];
-    if (userAnswer === undefined) return false;
-    if (q.type === 'cloze') {
-      return userAnswer.trim().toLowerCase() === q.answer.trim().toLowerCase();
-    }
-    return userAnswer === q.answer;
-  }).length;
-  const percentage =
-    state.questions.length > 0 ? Math.round((score / state.questions.length) * 100) : 0;
-
-  return {
-    status: state.status,
-    questions: state.questions,
-    currentIndex: state.currentIndex,
-    selectedAnswers: state.selectedAnswers,
-    currentQuestion,
-    hasAnswer,
-    score,
-    percentage,
-    selectAnswer,
-    nextQuestion,
-    skipQuestion,
-    retry,
-  };
+  }, [status, courseId, moduleId, questions, selectedAnswers]);
 }

@@ -9,10 +9,7 @@ interface HighlightItemProps {
   onDelete: (id: string) => void | Promise<void>;
 }
 
-export default function HighlightItem({
-  highlight,
-  onDelete,
-}: HighlightItemProps) {
+export default function HighlightItem({ highlight, onDelete }: HighlightItemProps) {
   const { t } = useTranslation();
   const { contentRef, sections } = useLessonViewStore();
   const sec = findSectionIdForHighlight(contentRef, highlight.id, sections);

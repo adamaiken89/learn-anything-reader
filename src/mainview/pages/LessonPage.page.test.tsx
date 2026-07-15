@@ -94,4 +94,11 @@ describe('LessonPage', () => {
     const { getByText } = await renderAndSettle(ui);
     expect(getByText('← Back')).toBeInTheDocument();
   });
+
+  test('snapshot — loaded', async () => {
+    const { container } = await renderAndSettle(ui);
+    expect(container.textContent).toContain('M1/1');
+    expect(container.textContent).toContain('← Back');
+    expect(container.querySelector('[data-testid="markdown"]')).toBeTruthy();
+  });
 });

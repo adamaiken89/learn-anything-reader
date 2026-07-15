@@ -1,20 +1,18 @@
-import { Check, CornerDownLeft, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, QuizQuestion } from '../../bun/types';
 import { api } from '../api';
+import QuizBottomNav from '../components/quiz/QuizBottomNav';
+import QuizClozeInput from '../components/quiz/QuizClozeInput';
 import QuizCompletionView from '../components/quiz/QuizCompletionView';
+import QuizExplanation from '../components/quiz/QuizExplanation';
+import QuizMCQGrid from '../components/quiz/QuizMCQGrid';
+import QuizProgressBar from '../components/quiz/QuizProgressBar';
 import { loadingIndicator } from '../components/ui/variants/loading';
-import {
-  optionButtonClass,
-  progressSegmentClass,
-  quizCompletionContainer,
-  quizCtaButton,
-  quizNavButton,
-  radioIndicatorClass,
-} from '../components/ui/variants/quiz';
+import { quizCompletionContainer } from '../components/ui/variants/quiz';
 import { useQuizEngine } from '../hooks/useQuizEngine';
+import { useQuizStore } from '../stores/quizStore';
 import { useViewStore } from '../stores/viewStore';
 
 interface Props {
@@ -29,32 +27,24 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
   const { t } = useTranslation();
   const push = useViewStore((s) => s.push);
 
-  const {
-    status,
-    questions,
-    currentIndex,
-    selectedAnswers,
-    currentQuestion,
-    hasAnswer,
-    score,
-    selectAnswer,
-    nextQuestion,
-    skipQuestion,
-    retry,
-  } = useQuizEngine(course.id, cumulativeQuizId ?? '', loader);
+  useQuizEngine(course.id, cumulativeQuizId ?? '', loader);
 
-  const [textInput, setTextInput] = useState('');
+  const status = useQuizStore((s) => s.status);
+  const questions = useQuizStore((s) => s.questions);
+  const currentIndex = useQuizStore((s) => s.currentIndex);
+  const selectedAnswers = useQuizStore((s) => s.selectedAnswers);
+  const currentQuestion = useQuizStore((s) => s.currentQuestion);
+  const score = useQuizStore((s) => s.score);
+  const selectAnswer = useQuizStore((s) => s.selectAnswer);
+  const nextQuestion = useQuizStore((s) => s.nextQuestion);
+  const skipQuestion = useQuizStore((s) => s.skipQuestion);
+  const retry = useQuizStore((s) => s.retry);
+  const hasAnswer = useQuizStore((s) => s.hasAnswer);
+
   const [highlightedIdx, setHighlightedIdx] = useState(-1);
-
-  useEffect(() => {
-    setTextInput('');
-    setHighlightedIdx(-1);
-  }, [currentIndex]);
 
   const handleRetry = useCallback(() => {
     retry();
-    setTextInput('');
-    setHighlightedIdx(-1);
   }, [retry]);
 
   const handleKeyDown = useCallback(
@@ -125,7 +115,16 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
         skipQuestion();
       }
     },
-    [status, currentQuestion, hasAnswer, highlightedIdx, selectAnswer, nextQuestion, skipQuestion],
+    [
+      status,
+      currentQuestion,
+      hasAnswer,
+      highlightedIdx,
+      selectAnswer,
+      nextQuestion,
+      skipQuestion,
+      setHighlightedIdx,
+    ],
   );
 
   useEffect(() => {
@@ -167,8 +166,6 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
     );
   }
 
-  const isCloze = currentQuestion?.type === 'cloze';
-
   return (
     <div className={quizCompletionContainer()}>
       <div className="quiz-container-card p-6">
@@ -178,14 +175,7 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
           </span>
         </div>
 
-        <div className="flex gap-1.5 mb-5">
-          {questions.map((_, i) => (
-            <div
-              key={i}
-              className={progressSegmentClass(i < currentIndex, i === currentIndex)}
-            />
-          ))}
-        </div>
+        <QuizProgressBar />
 
         <div key={currentIndex} className="question-entrance">
           <div className="mb-5">
@@ -202,114 +192,12 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
             </h2>
           </div>
 
-          {isCloze ? (
-            <div className="mb-5">
-              <div className="flex gap-2 items-center">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && textInput.trim() && !hasAnswer) {
-                      selectAnswer(textInput.trim());
-                    }
-                  }}
-                  placeholder="Type your answer..."
-                  disabled={hasAnswer}
-                  className="flex-1 bg-gray-800/50 border-2 border-gray-600/40 rounded-[10px] px-4 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 disabled:opacity-50 text-[15px] font-medium"
-                />
-                {!hasAnswer && (
-                  <button
-                    onClick={() => textInput.trim() && selectAnswer(textInput.trim())}
-                    disabled={!textInput.trim()}
-                    className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-[10px] text-sm font-medium transition-colors disabled:opacity-50"
-                  >
-                    Check
-                  </button>
-                )}
-              </div>
-              {hasAnswer && (
-                <div className="mt-3">
-                  {textInput.trim().toLowerCase() ===
-                  currentQuestion?.answer.trim().toLowerCase() ? (
-                    <p className="text-emerald-400 text-sm flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full border-2 border-emerald-400 bg-emerald-500/20 flex items-center justify-center">
-                        <Check size={12} />
-                      </span>
-                      Correct!
-                    </p>
-                  ) : (
-                    <p className="text-red-400 text-sm flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full border-2 border-red-400 bg-red-500/20 flex items-center justify-center">
-                        <X size={12} />
-                      </span>
-                      Your answer: {textInput} — Correct answer: {currentQuestion?.answer}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            currentQuestion && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                {Object.entries(currentQuestion.options).map(([key, value], idx) => {
-                  const isSelected = selectedAnswers[currentQuestion.id] === key;
-                  const isHighlighted = idx === highlightedIdx && !hasAnswer;
-                  const showCorrect = hasAnswer && key === currentQuestion.answer;
-                  const showWrong = hasAnswer && isSelected && key !== currentQuestion.answer;
-
-                  return (
-                  <button
-                    key={key}
-                    onClick={() => !hasAnswer && selectAnswer(key)}
-                    disabled={hasAnswer}
-                    className={optionButtonClass({
-                      showCorrect,
-                      showWrong,
-                      isSelected,
-                      isHighlighted,
-                      hasAnswer,
-                    })}
-                  >
-                    <span className={radioIndicatorClass({ showCorrect, showWrong, isSelected, isHighlighted })}>
-                        {showCorrect && <Check size={12} />}
-                        {showWrong && <X size={12} />}
-                      </span>
-                      <span className="text-gray-400">{key}.</span>
-                      <span>{String(value)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )
-          )}
+          <QuizMCQGrid highlightedIdx={highlightedIdx} />
+          <QuizClozeInput />
         </div>
 
-        <div className="min-h-[72px] rounded-[10px] overflow-hidden mb-5">
-          {hasAnswer && currentQuestion ? (
-            <div className="bg-gray-800/40 rounded-[10px] p-4 border border-gray-700/30 animate-fade-in-up">
-              <p className="text-sm text-gray-300 leading-relaxed">{currentQuestion.explanation}</p>
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-[11px] text-gray-600 italic">
-                {t('quiz.sidebar.revealHint', 'Answer to reveal explanation')}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-between items-center">
-          <button onClick={skipQuestion} className={quizNavButton()}>
-            {t('quiz.skip')} <span className="text-[10px] text-gray-600 ml-0.5">[Esc]</span>
-          </button>
-          <button onClick={nextQuestion} disabled={!hasAnswer} className={quizCtaButton()}>
-            {currentIndex < questions.length - 1 ? t('quiz.nextQuestion') : t('quiz.finishQuiz')}{' '}
-            <span className="text-[10px] opacity-60 ml-1 inline-flex items-center">
-              <CornerDownLeft size={10} />
-            </span>
-          </button>
-        </div>
+        <QuizExplanation />
+        <QuizBottomNav />
       </div>
     </div>
   );

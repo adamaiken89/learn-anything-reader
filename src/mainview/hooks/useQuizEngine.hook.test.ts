@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'bun:test';
 
+import { useQuizStore } from '../stores/quizStore';
 import { clearMocks, deleteMock, mockResponse, setupRPC } from '../testUtils';
 import { useQuizEngine } from './useQuizEngine';
 
@@ -9,6 +10,7 @@ setupRPC();
 beforeEach(() => {
   clearMocks();
   mockResponse('logSession', { ok: true });
+  useQuizStore.getState().reset();
 });
 
 const aQuestion = {
@@ -21,22 +23,26 @@ const aQuestion = {
   explanation: '2+2=4',
 };
 
+function useTestQuiz(courseId: string, moduleId: string) {
+  useQuizEngine(courseId, moduleId);
+  return useQuizStore();
+}
+
 describe('useQuizEngine', () => {
   test('initial state has status loading', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     expect(result.current.status).toBe('loading');
     expect(result.current.questions).toEqual([]);
     expect(result.current.currentIndex).toBe(0);
     expect(result.current.currentQuestion).toBeUndefined();
     expect(result.current.score).toBe(0);
-    expect(result.current.percentage).toBe(0);
     await waitFor(() => expect(result.current.status).toBe('ready'));
   });
 
   test('loads questions and transitions to ready', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     expect(result.current.questions).toEqual([aQuestion]);
     expect(result.current.currentQuestion).toEqual(aQuestion);
@@ -49,7 +55,7 @@ describe('useQuizEngine', () => {
     console.warn = () => {};
 
     deleteMock('quizStart');
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     expect(result.current.questions).toEqual([]);
 
@@ -59,7 +65,7 @@ describe('useQuizEngine', () => {
 
   test('selectAnswer records answer', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.selectAnswer('b'));
     expect(result.current.selectedAnswers['q1']).toBe('b');
@@ -67,7 +73,7 @@ describe('useQuizEngine', () => {
 
   test('selectAnswer updates hasAnswer', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     expect(result.current.hasAnswer).toBe(false);
     act(() => result.current.selectAnswer('b'));
@@ -76,7 +82,7 @@ describe('useQuizEngine', () => {
 
   test('nextQuestion increments index', async () => {
     mockResponse('quizStart', [aQuestion, { ...aQuestion, id: 'q2', question: 'Q2?' }]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.nextQuestion());
     expect(result.current.currentIndex).toBe(1);
@@ -85,7 +91,7 @@ describe('useQuizEngine', () => {
 
   test('nextQuestion on last question sets completed', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.nextQuestion());
     expect(result.current.status).toBe('completed');
@@ -93,7 +99,7 @@ describe('useQuizEngine', () => {
 
   test('skipQuestion increments index', async () => {
     mockResponse('quizStart', [aQuestion, { ...aQuestion, id: 'q2', question: 'Q2?' }]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.skipQuestion());
     expect(result.current.currentIndex).toBe(1);
@@ -101,7 +107,7 @@ describe('useQuizEngine', () => {
 
   test('skipQuestion on last question sets completed', async () => {
     mockResponse('quizStart', [aQuestion]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.skipQuestion());
     expect(result.current.status).toBe('completed');
@@ -109,7 +115,7 @@ describe('useQuizEngine', () => {
 
   test('retry resets to first question', async () => {
     mockResponse('quizStart', [aQuestion, { ...aQuestion, id: 'q2', question: 'Q2?' }]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.selectAnswer('b'));
     act(() => result.current.nextQuestion());
@@ -120,17 +126,16 @@ describe('useQuizEngine', () => {
     expect(result.current.selectedAnswers).toEqual({});
   });
 
-  test('score and percentage computed correctly', async () => {
+  test('score computed correctly', async () => {
     mockResponse('quizStart', [
       aQuestion,
       { ...aQuestion, id: 'q2', question: 'Q2?', answer: 'c' },
     ]);
-    const { result } = renderHook(() => useQuizEngine('math', '01'));
+    const { result } = renderHook(() => useTestQuiz('math', '01'));
     await waitFor(() => expect(result.current.status).toBe('ready'));
     act(() => result.current.selectAnswer('b'));
     act(() => result.current.nextQuestion());
     act(() => result.current.selectAnswer('a'));
     expect(result.current.score).toBe(1);
-    expect(result.current.percentage).toBe(50);
   });
 });

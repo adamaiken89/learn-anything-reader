@@ -65,4 +65,11 @@ describe('QuizPage', () => {
     });
     expect(called).toBe(true);
   });
+
+  test('snapshot — loaded', async () => {
+    const { container } = await renderAndSettle(<QuizPage {...defaultProps} />);
+    const switcher = container.querySelector('[data-course-id="cs101"]');
+    expect(switcher).toBeTruthy();
+    expect(container.textContent).toContain('← Back');
+  });
 });

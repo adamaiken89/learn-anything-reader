@@ -20,6 +20,7 @@ export function resetAllStores() {
     importStore<{ useSelectionStore: unknown }>('./stores/selectionStore').useSelectionStore,
     importStore<{ useSettingsStore: unknown }>('./stores/settingsStore').useSettingsStore,
     importStore<{ useSyncStore: unknown }>('./stores/syncStore').useSyncStore,
+    importStore<{ useQuizStore: unknown }>('./stores/quizStore').useQuizStore,
   ];
 
   for (const store of stores) {

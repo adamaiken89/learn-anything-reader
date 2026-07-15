@@ -22,8 +22,6 @@ interface Props {
   module: ModuleMeta;
 }
 
-// Parse question text: supports both {term} and {blank} patterns
-// Returns segments + extracted answers
 function parseClozeText(text: string): {
   segments: Array<{ type: 'text' | 'blank'; value: string }>;
   answers: string[];
@@ -39,10 +37,8 @@ function parseClozeText(text: string): {
     }
     const term = match[1];
     if (term.toLowerCase() === 'blank') {
-      // {blank} — answer comes from question.answer field
       segments.push({ type: 'blank', value: '' });
     } else {
-      // {term} — the term IS the answer
       segments.push({ type: 'blank', value: term });
       answers.push(term);
     }
@@ -54,7 +50,6 @@ function parseClozeText(text: string): {
   return { segments, answers };
 }
 
-// Draggable token component
 function DragToken({ id, label, isUsed }: { id: string; label: string; isUsed: boolean }) {
   const { ref, isDragging } = useDraggable({ id });
   if (isUsed) return null;
@@ -73,7 +68,6 @@ function DragToken({ id, label, isUsed }: { id: string; label: string; isUsed: b
   );
 }
 
-// Droppable blank component
 function DropBlank({
   blankId,
   filledValue,
@@ -139,7 +133,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
       });
   }, [course.id, module.id]);
 
-  // Reset on question change
   useEffect(() => {
     setFilledBlanks({});
     setWrongBlankIdx(null);
@@ -147,22 +140,18 @@ export default function ClozeQuizSection({ course, module }: Props) {
 
   const currentQuestion = questions[currentIndex];
 
-  // Parse question into segments + extract inline answers
   const { segments, answers: inlineAnswers } = useMemo(
     () =>
       currentQuestion ? parseClozeText(currentQuestion.question) : { segments: [], answers: [] },
     [currentQuestion],
   );
 
-  // Determine which answers to use for token pool
-  // If {term} patterns exist → use inline answers; if {blank} → use answer field
   const questionAnswers = useMemo(() => {
     if (inlineAnswers.length > 0) return inlineAnswers;
     if (currentQuestion?.answer) return [currentQuestion.answer];
     return [];
   }, [inlineAnswers, currentQuestion]);
 
-  // Build token pool: correct answers + distractors from other questions
   const tokenPool = useMemo(() => {
     if (!currentQuestion || questionAnswers.length === 0) return [];
     const distractors = questions.map((q) => q.answer).filter((a) => !questionAnswers.includes(a));
@@ -170,7 +159,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
     return pool.sort(() => Math.random() - 0.5);
   }, [questions, currentQuestion, questionAnswers]);
 
-  // Check if all blanks are filled
   const allBlanksFilled = questionAnswers.every((_, i) => filledBlanks[i] !== undefined);
   const hasAnswer = allBlanksFilled;
 
@@ -205,7 +193,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
     return ua.trim().toLowerCase() === q.answer.trim().toLowerCase();
   }).length;
 
-  // Handle drag end
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { source, target } = event.operation;
@@ -214,7 +201,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
       const draggedToken = String(source.id);
       const targetId = String(target.id);
 
-      // Parse blank index from target id: "blank-{index}"
       const blankIdxMatch = targetId.match(/^blank-(\d+)$/);
       if (!blankIdxMatch) return;
       const blankIdx = Number(blankIdxMatch[1]);
@@ -223,15 +209,12 @@ export default function ClozeQuizSection({ course, module }: Props) {
       if (expectedAnswer === undefined) return;
 
       if (draggedToken === expectedAnswer) {
-        // Correct! Fill this blank
         const newFilled = { ...filledBlanks, [blankIdx]: draggedToken };
         setFilledBlanks(newFilled);
 
-        // Build combined answer for scoring
         const fullAnswer = questionAnswers.map((a, i) => newFilled[i] || a).join(', ');
         selectAnswer(fullAnswer);
       } else {
-        // Wrong — shake the blank
         setWrongBlankIdx(blankIdx);
         setTimeout(() => setWrongBlankIdx(null), 600);
       }
@@ -239,7 +222,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
     [currentQuestion, questionAnswers, filledBlanks, selectAnswer],
   );
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (status !== 'ready' || !currentQuestion) return;
@@ -317,10 +299,7 @@ export default function ClozeQuizSection({ course, module }: Props) {
 
           <div className="flex gap-1.5 mb-5">
             {questions.map((_, i) => (
-              <div
-                key={i}
-                className={progressSegmentClass(i < currentIndex, i === currentIndex)}
-              />
+              <div key={i} className={progressSegmentClass(i < currentIndex, i === currentIndex)} />
             ))}
           </div>
 
@@ -334,14 +313,12 @@ export default function ClozeQuizSection({ course, module }: Props) {
                   {t('quiz.difficulty', { level: currentQuestion?.difficulty })}
                 </span>
               </div>
-              {/* Question text with droppable blanks */}
               <h2 className="text-[20px] font-semibold text-white leading-relaxed tracking-tight">
                 {segments.map((seg, i) =>
                   seg.type === 'text' ? (
                     <span key={i}>{seg.value}</span>
                   ) : (
                     (() => {
-                      // Find blank index (count blanks up to this position)
                       const blankIdx =
                         segments.slice(0, i + 1).filter((s) => s.type === 'blank').length - 1;
                       const answer = questionAnswers[blankIdx];
@@ -361,7 +338,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
               </h2>
             </div>
 
-            {/* Token pool */}
             {tokenPool.length > 0 && (
               <div className="mb-5">
                 <div className="flex flex-wrap gap-2 items-center">
@@ -378,7 +354,6 @@ export default function ClozeQuizSection({ course, module }: Props) {
             )}
           </div>
 
-          {/* Explanation — only after answering */}
           {hasAnswer && currentQuestion?.explanation && (
             <div className="mb-5 animate-fade-in-up">
               <div className="bg-gray-800/40 rounded-[10px] p-4 border border-gray-700/30">

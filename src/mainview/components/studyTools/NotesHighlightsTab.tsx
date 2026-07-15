@@ -130,10 +130,7 @@ export default function NotesHighlightsTab() {
             onClick={() => handleNavigate(item)}
           >
             {item.kind === 'highlight' ? (
-              <HighlightItem
-                highlight={item.highlight}
-                onDelete={handleDeleteHighlight}
-              />
+              <HighlightItem highlight={item.highlight} onDelete={handleDeleteHighlight} />
             ) : (
               <NoteItem
                 note={item.note}

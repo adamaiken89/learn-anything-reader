@@ -99,4 +99,29 @@ describe('DashboardPage', () => {
       expect(container.textContent).toContain('/10');
     });
   });
+
+  test('snapshot — loading', () => {
+    mockResponse('getGlobalStats', new Promise(() => {}));
+    const { container } = render(<DashboardPage />);
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
+    expect(container.textContent).toContain('Dashboard');
+  });
+
+  test('snapshot — loaded with courses', async () => {
+    useCourseStore.setState({ courses: [mockCourse] });
+    mockResponse('getGlobalStats', {
+      totalCourses: 1,
+      totalModules: 1,
+      totalCompletedModules: 0,
+      totalStudyMinutes: 60,
+      streak: 3,
+      courseSummaries: [],
+    });
+    const { container } = render(<DashboardPage />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Intro to CS');
+    });
+    expect(container.textContent).toContain('Dashboard');
+    expect(container.querySelector('.animate-pulse')).toBeNull();
+  });
 });

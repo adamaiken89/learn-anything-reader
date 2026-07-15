@@ -17,12 +17,7 @@ interface NoteItemProps {
   onDelete: (id: string) => void | Promise<void>;
 }
 
-export default function NoteItem({
-  note,
-  linkedHighlight,
-  onUpdate,
-  onDelete,
-}: NoteItemProps) {
+export default function NoteItem({ note, linkedHighlight, onUpdate, onDelete }: NoteItemProps) {
   const { t } = useTranslation();
   const sections = useLessonViewStore((s) => s.sections);
   const [editing, setEditing] = useState(false);

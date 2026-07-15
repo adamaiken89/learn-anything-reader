@@ -170,4 +170,15 @@ describe('SettingsPage', () => {
     expect(container.textContent).toContain('Content Width');
     expect(container.textContent).toContain('Page Transition');
   });
+
+  test('snapshot — loaded', async () => {
+    const { container } = render(<SettingsPage onBack={() => {}} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Gemini API Key');
+    });
+    expect(container.textContent).toContain('Integration');
+    expect(container.textContent).toContain('Preferences');
+    expect(container.textContent).toContain('Danger Zone');
+    expect(container.textContent).toContain('About');
+  });
 });

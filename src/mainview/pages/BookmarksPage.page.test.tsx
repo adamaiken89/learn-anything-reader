@@ -103,4 +103,19 @@ describe('BookmarksPage', () => {
     await user.click(getByText('← Back'));
     expect(called).toBe(true);
   });
+
+  test('snapshot — loading', () => {
+    mockResponse('getAllBookmarks', new Promise(() => {}));
+    const { container } = render(<BookmarksPage onBack={() => {}} onOpen={() => {}} />);
+    expect(container.textContent).toContain('Loading bookmarks');
+  });
+
+  test('snapshot — loaded with bookmarks', async () => {
+    const { container } = render(<BookmarksPage onBack={() => {}} onOpen={() => {}} />);
+    await waitFor(() => {
+      expect(container.textContent).toContain('Test Bookmark');
+    });
+    expect(container.textContent).toContain('← Back');
+    expect(container.querySelector('button.w-full')).toBeTruthy();
+  });
 });

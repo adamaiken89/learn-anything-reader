@@ -43,4 +43,11 @@ describe('UserCardReviewPage', () => {
     });
     expect(called).toBe(true);
   });
+
+  test('snapshot — loaded', async () => {
+    const { container } = await renderAndSettle(<UserCardReviewPage {...defaultProps} />);
+    const switcher = container.querySelector('[data-course-id="cs101"]');
+    expect(switcher).toBeTruthy();
+    expect(container.textContent).toContain('← Back');
+  });
 });
