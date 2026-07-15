@@ -6,7 +6,7 @@ import { useHighlightsStore } from '../../stores/highlightsStore';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
 import { useNotesStore } from '../../stores/notesStore';
 import { useViewStore } from '../../stores/viewStore';
-import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
+import { clearMocks, mockResponse, renderAndSettle, setupRPC } from '../../testUtils';
 import NotesHighlightsTab from './NotesHighlightsTab';
 
 setupRPC();
@@ -81,14 +81,14 @@ describe('NotesHighlightsTab', () => {
   test('renders empty state', async () => {
     mockResponse('getNotes', []);
     mockResponse('getHighlights', []);
-    const { findByText } = render(<NotesHighlightsTab />);
+    const { findByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(
       await findByText('No annotations yet. Select text to highlight or add a note.'),
     ).toBeInTheDocument();
   });
 
   test('renders loading state', () => {
-    mockResponse('getNotes', []);
+    mockResponse('getNotes', new Promise(() => {}));
     mockResponse('getHighlights', []);
     useNotesStore.setState({ loading: { 'math:01': true } });
     const { getByText } = render(<NotesHighlightsTab />);
@@ -98,7 +98,7 @@ describe('NotesHighlightsTab', () => {
   test('renders highlights from store', async () => {
     mockResponse('getNotes', []);
     useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
-    const { findByText, getByText } = render(<NotesHighlightsTab />);
+    const { findByText, getByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('important concept')).toBeInTheDocument();
     expect(getByText('10\u201328')).toBeInTheDocument();
   });
@@ -106,14 +106,14 @@ describe('NotesHighlightsTab', () => {
   test('renders notes from store', async () => {
     mockResponse('getNotes', [mockNote]);
     mockResponse('getHighlights', []);
-    const { findByText } = render(<NotesHighlightsTab />);
+    const { findByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
   });
 
   test('renders note with linked highlight', async () => {
     mockResponse('getNotes', [mockNoteLinked]);
     useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
-    const { findByText } = render(<NotesHighlightsTab />);
+    const { findByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('linked note')).toBeInTheDocument();
   });
 
@@ -122,21 +122,19 @@ describe('NotesHighlightsTab', () => {
     mockResponse('getHighlights', []);
     const created = { ...mockNote, id: 'n-new', content: 'new test note' };
     mockResponse('addNote', created);
-    const { container, findByText } = render(<NotesHighlightsTab />);
+    const { container, findByText } = await renderAndSettle(<NotesHighlightsTab />);
     const textarea = container.querySelector('textarea')!;
     await user.type(textarea, 'new test note');
     await user.click(await findByText('Save Note'));
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
-    });
+    await act(async () => {});
     const notes = useNotesStore.getState().byModule['math:01'] ?? [];
     expect(notes.some((n) => n.content === 'new test note')).toBe(true);
   });
 
-  test('save note button disabled when textarea empty', () => {
+  test('save note button disabled when textarea empty', async () => {
     mockResponse('getNotes', []);
     mockResponse('getHighlights', []);
-    const { getByText } = render(<NotesHighlightsTab />);
+    const { getByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(getByText('Save Note')).toBeDisabled();
   });
 
@@ -144,12 +142,10 @@ describe('NotesHighlightsTab', () => {
     mockResponse('getNotes', []);
     useHighlightsStore.setState({ byModule: { 'math:01': [mockHighlight] } });
     mockResponse('deleteHighlight', undefined);
-    const { findByText, getByText } = render(<NotesHighlightsTab />);
+    const { findByText, getByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('important concept')).toBeInTheDocument();
     await user.click(getByText('Delete'));
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
-    });
+    await act(async () => {});
     expect(useHighlightsStore.getState().byModule['math:01'] ?? []).toHaveLength(0);
   });
 
@@ -157,19 +153,17 @@ describe('NotesHighlightsTab', () => {
     mockResponse('getNotes', [mockNote]);
     mockResponse('getHighlights', []);
     mockResponse('deleteNote', undefined);
-    const { findByText, getByText } = render(<NotesHighlightsTab />);
+    const { findByText, getByText } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(getByText('Delete'));
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
-    });
+    await act(async () => {});
     expect(useNotesStore.getState().byModule['math:01'] ?? []).toHaveLength(0);
   });
 
   test('edits a note', async () => {
     mockResponse('getNotes', [mockNote]);
     mockResponse('getHighlights', []);
-    const { findByText, getByText, container } = render(<NotesHighlightsTab />);
+    const { findByText, getByText, container } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(getByText('Edit'));
     const textareas = container.querySelectorAll('textarea');
@@ -183,16 +177,14 @@ describe('NotesHighlightsTab', () => {
     mockResponse('getNotes', [mockNote]);
     mockResponse('getHighlights', []);
     mockResponse('updateNote', undefined);
-    const { findByText, container } = render(<NotesHighlightsTab />);
+    const { findByText, container } = await renderAndSettle(<NotesHighlightsTab />);
     expect(await findByText('my note content')).toBeInTheDocument();
     await user.click(await findByText('Edit'));
     const textareas = container.querySelectorAll('textarea');
     await user.clear(textareas[1]);
     await user.type(textareas[1], 'updated content');
     await user.click(await findByText('Save'));
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 10));
-    });
+    await act(async () => {});
     const notes = useNotesStore.getState().byModule['math:01'] ?? [];
     expect(notes.some((n) => n.content === 'updated content')).toBe(true);
   });

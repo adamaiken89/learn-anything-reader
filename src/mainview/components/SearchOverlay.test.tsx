@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
@@ -138,8 +138,9 @@ describe('SearchOverlay', () => {
       expect(v.module.id).toBe('01');
     }
 
-    await new Promise((r) => setTimeout(r, 250));
-    expect(onClose).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalled();
+    });
   });
 
   test('removes course filter chip', async () => {

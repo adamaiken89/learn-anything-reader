@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 
 import type { QuizQuestion } from '../../bun/types';
 import { api } from '../api';
 import { logger } from '../logger';
 import { showToast } from '../toast';
+
+type QuizLoader = (courseId: string, moduleId: string) => Promise<QuizQuestion[]>;
 
 type QuizStatus = 'loading' | 'ready' | 'completed';
 
@@ -77,12 +79,18 @@ interface UseQuizEngineReturn {
   retry: () => void;
 }
 
-export function useQuizEngine(courseId: string, moduleId: string): UseQuizEngineReturn {
+export function useQuizEngine(
+  courseId: string,
+  moduleId: string,
+  loader?: QuizLoader,
+): UseQuizEngineReturn {
   const [state, dispatch] = useReducer(quizReducer, INITIAL);
+  const loaderRef = useRef(loader);
+  loaderRef.current = loader;
 
   useEffect(() => {
-    api.quiz
-      .start(courseId, moduleId)
+    const loadFn = loaderRef.current ?? api.quiz.start;
+    loadFn(courseId, moduleId)
       .then((qs) => {
         dispatch({ type: 'LOADED', questions: qs });
       })

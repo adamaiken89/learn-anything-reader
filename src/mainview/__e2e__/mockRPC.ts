@@ -91,6 +91,11 @@ const HANDLERS: Record<string, MockHandler> = {
   setModuleSession: () => ({ ok: true as const }),
   getCourseModuleSessions: () => [],
 
+  // Quiz availability checks
+  hasClozeQuiz: () => false,
+  hasCumulativeQuiz: () => false,
+  setWindowTitle: () => undefined,
+
   // Cloze quiz
   loadClozeQuiz: (params) => {
     const { courseId, moduleId } = p<{ courseId: string; moduleId: string }>(params);

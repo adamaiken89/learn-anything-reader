@@ -1,34 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { SRSCard } from '../../bun/types';
-import { __setRPC } from '../api';
+import { mockResponse, setupRPC } from '../testUtils';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (params: unknown) => Promise<unknown>>, {
-    get(_: object, method: string) {
-      return (params: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        const response = mockResponses.get(method);
-        if (typeof response === 'function')
-          return (response as (p: unknown) => Promise<unknown>)(params);
-        return Promise.resolve(response);
-      };
-    },
-  }) as Record<string, (p: unknown) => Promise<unknown>>,
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 import { useReviewState } from './useReviewState';
 
@@ -51,7 +27,7 @@ function baseCard(id: string): SRSCard {
 }
 
 beforeEach(() => {
-  mockResponses.clear();
+  // mocks cleared by setup.tsx afterEach
 });
 
 describe('useReviewState', () => {

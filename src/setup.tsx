@@ -210,9 +210,9 @@ g.NodeFilter = {
 import './mainview/i18n';
 
 afterEach(() => {
+  cleanup();
   clearMocks();
   resetAllStores();
-  cleanup();
   document.body.innerHTML = '';
   localStorage.clear();
   Object.assign(fsMockImpl, {

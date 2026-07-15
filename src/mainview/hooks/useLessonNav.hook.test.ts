@@ -1,26 +1,14 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { Course, ModuleMeta } from '../../bun/types';
-import { __setRPC } from '../api';
 import { useViewStore } from '../stores/viewStore';
+import { mockResponse, setupRPC } from '../testUtils';
 import { useLessonNav } from './useLessonNav';
 
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-beforeAll(() => __setRPC(mockRPC));
+setupRPC();
 beforeEach(() => {
-  mockResponses.clear();
-  mockResponses.set('getModuleSession', null);
+  mockResponse('getModuleSession', null);
 });
 
 const mockModules: ModuleMeta[] = [

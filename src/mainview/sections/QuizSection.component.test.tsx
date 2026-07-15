@@ -1,25 +1,9 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
 import type { Course, ModuleMeta, QuizQuestion } from '../../bun/types';
-import { __setRPC } from '../api';
-
-const mockResponses = new Map<string, unknown>();
-const mockRPC = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(mockResponses.get(method));
-      };
-    },
-  }),
-};
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
+import { clearMocks, mockResponse, setupRPC } from '../testUtils';
 
 function makeQuestion(id: string, overrides?: Partial<Omit<QuizQuestion, 'id'>>): QuizQuestion {
   return {
@@ -34,11 +18,12 @@ function makeQuestion(id: string, overrides?: Partial<Omit<QuizQuestion, 'id'>>)
   };
 }
 
-beforeAll(() => __setRPC(mockRPC));
+setupRPC();
 beforeEach(() => {
-  mockResponses.clear();
+  clearMocks();
   mockResponse('quizStart', []);
   mockResponse('logSession', undefined);
+  mockResponse('getLastQuizSession', null);
 });
 
 import QuizSection from './QuizSection';

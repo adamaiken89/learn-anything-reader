@@ -1,6 +1,7 @@
 import { describe, expect, test, beforeEach } from 'bun:test';
 
 import { fsMockImpl } from '../testFsShared';
+import { invalidateCache } from './storage';
 
 const mockSyllabi: Record<string, string> = {};
 const mockDirEntries: Array<{ name: string; isDirectory: () => boolean }> = [];
@@ -21,6 +22,7 @@ type Stats = typeof import('./stats');
 let stats: Stats;
 
 beforeEach(() => {
+  invalidateCache();
   for (const k of Object.keys(mockSyllabi)) delete mockSyllabi[k];
   mockDirEntries.length = 0;
   storageData = {

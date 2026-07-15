@@ -124,7 +124,8 @@ export default function QuizOverlay({ onClose }: Props) {
                   <span className="text-gray-300">
                     {(() => {
                       const range = cq.id.match(/^cumulative_quiz_(\d+)-(\d+).yaml$/);
-                      if (range) return `Cumulative (${range[1].padStart(2, '0')}–${range[2].padStart(2, '0')})`;
+                      if (range)
+                        return `Cumulative (${range[1].padStart(2, '0')}–${range[2].padStart(2, '0')})`;
                       const single = cq.id.match(/^cumulative_quiz_(\d+).yaml$/);
                       if (single) return `Cumulative (01–${single[1].padStart(2, '0')})`;
                       return `Cumulative (01–${String(cq.milestone).padStart(2, '0')})`;

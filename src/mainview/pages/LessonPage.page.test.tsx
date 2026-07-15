@@ -50,6 +50,8 @@ describe('LessonPage', () => {
     mockResponse('getCourseModuleSessions', []);
     mockResponse('setLastSession', { ok: true });
     mockResponse('setModuleSession', { ok: true });
+    mockResponse('hasClozeQuiz', false);
+    mockResponse('hasCumulativeQuiz', false);
     useSettingsStore.setState({ focusMode: false });
     useCourseStore.setState({
       courses: [mockCourse],

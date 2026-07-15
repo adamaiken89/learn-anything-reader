@@ -1,7 +1,9 @@
 import { ArrowRight, Target } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { LastSession } from '../../../bun/types';
+import { api } from '../../api';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useViewStore } from '../../stores/viewStore';
 import CourseTags from './CourseTags';
@@ -16,6 +18,20 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
     k.startsWith(`${lastSession.course.id}:`),
   ).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const [hasCloze, setHasCloze] = useState(false);
+  const [hasCumulative, setHasCumulative] = useState(false);
+
+  useEffect(() => {
+    const cid = lastSession.course.id;
+    const mid = lastSession.module.id;
+    void Promise.all([
+      api.quiz.hasCloze(cid, mid).catch(() => false),
+      api.quiz.hasCumulative(cid).catch(() => false),
+    ]).then(([cloze, cumulative]) => {
+      setHasCloze(cloze);
+      setHasCumulative(cumulative);
+    });
+  }, [lastSession.course.id, lastSession.module.id]);
 
   const modules = lastSession.course.modules;
   const currentIdx = modules.findIndex((m) => m.id === lastSession.module.id);
@@ -31,10 +47,7 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
     });
 
   return (
-    <button
-      onClick={handleContinue}
-      className="w-full text-left bg-gray-800 hover:bg-gray-750 border border-indigo-700 rounded-lg p-5 mb-4 transition-colors group cursor-pointer"
-    >
+    <div className="w-full text-left bg-gray-800 hover:bg-gray-750 border border-indigo-700 rounded-lg p-5 mb-4 transition-colors">
       <div className="flex flex-col md:flex-row md:gap-6">
         <div className="md:w-1/2 lg:w-1/3">
           <p className="text-xs font-semibold text-indigo-400 mb-1">{t('dashboard.resume')}</p>
@@ -74,13 +87,52 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
               <p className="text-xs text-gray-500">{t('dashboard.courseComplete')}</p>
             )}
           </div>
-          <div className="mt-3 md:mt-auto">
-            <span className="inline-block bg-white text-gray-900 hover:bg-gray-100 font-medium text-xs px-4 py-2 rounded-lg shadow-sm transition-all duration-200">
+
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                push({ type: 'quiz', course: lastSession.course, module: lastSession.module });
+              }}
+              className="px-2 py-1 text-[10px] font-medium rounded bg-indigo-600/30 text-indigo-300 hover:bg-indigo-500/50 transition-colors"
+            >
+              MCQ
+            </button>
+            {hasCloze && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  push({
+                    type: 'clozeQuiz',
+                    course: lastSession.course,
+                    module: lastSession.module,
+                  });
+                }}
+                className="px-2 py-1 text-[10px] font-medium rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
+              >
+                Cloze
+              </button>
+            )}
+            {hasCumulative && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  push({ type: 'cumulativeQuiz', course: lastSession.course });
+                }}
+                className="px-2 py-1 text-[10px] font-medium rounded bg-indigo-600/30 text-indigo-300 hover:bg-indigo-500/50 transition-colors"
+              >
+                Cumulative
+              </button>
+            )}
+            <button
+              onClick={handleContinue}
+              className="ml-auto bg-white text-gray-900 hover:bg-gray-100 font-medium text-xs px-4 py-2 rounded-lg shadow-sm transition-all duration-200"
+            >
               {t('dashboard.continueLearning')} <ArrowRight size={14} className="inline" />
-            </span>
+            </button>
           </div>
         </div>
       </div>
-    </button>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { ModuleMeta, ModuleSession, Section } from '../../../bun/types';
+import { api } from '../../api';
 import { logger } from '../../logger';
 import { useBookmarksStore } from '../../stores/bookmarksStore';
 import { useCompletionStore } from '../../stores/completionStore';
@@ -52,17 +53,12 @@ export default function NavigationPanel({
   // Pre-fetch sections + module sessions
   useEffect(() => {
     const load = async () => {
-      const { api } = await import('../../api');
       const [entries, sessions] = await Promise.all([
-        Promise.all(
-          modules.map(async (mod) => {
-            const secs = await api.courses.sections(courseId, mod.id);
-            return [mod.id, secs] as const;
-          }),
-        ),
+        Promise.all(modules.map((mod) => api.courses.sections(courseId, mod.id))),
         api.session.getCourseModuleSessions(courseId),
       ]);
-      setAllSections(Object.fromEntries(entries));
+      const sectionEntries = modules.map((mod, i) => [mod.id, entries[i]] as const);
+      setAllSections(Object.fromEntries(sectionEntries));
       const sessionMap: Record<string, ModuleSession> = {};
       for (const s of sessions) {
         sessionMap[`${courseId}:${s.moduleId}`] = s;

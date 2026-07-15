@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 
 import { fsMockImpl, mockExecSyncImpl } from '../testFsShared';
+import { invalidateCache } from './storage';
 import * as utilsModule from './utils';
 
 const mockExistsSync = mock<(p: string) => boolean>();
@@ -23,6 +24,7 @@ function makeDirEntry(name: string, isDir: boolean = true) {
 }
 
 beforeEach(() => {
+  invalidateCache();
   storageData = {};
   mockSubjectsDir = '';
 

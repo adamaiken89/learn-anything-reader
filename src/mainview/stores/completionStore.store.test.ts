@@ -1,35 +1,15 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 
-import { __setRPC } from '../api';
+import { mockResponses } from '../mockState';
+import { clearMocks, mockResponse, setupRPC } from '../testUtils';
 import { countCompleted, useCompletionStore } from './completionStore';
 
-type RPCProxy = { request: Record<string, (p: unknown) => Promise<unknown>> };
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC: RPCProxy = {
-  request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-beforeAll(() => {
-  __setRPC(mockRPC);
-});
+setupRPC();
 
 beforeEach(() => {
   useCompletionStore.setState({ completed: {}, totalModules: {}, loading: {}, loaded: false });
-  mockResponses.clear();
+  clearMocks();
 });
-
-function mockResponse(method: string, data: unknown) {
-  mockResponses.set(method, data);
-}
 
 describe('completionStore', () => {
   test('load sets completed for module', async () => {
@@ -72,14 +52,13 @@ describe('completionStore', () => {
 
   test('loadAll skips if already loaded', async () => {
     useCompletionStore.setState({ loaded: true });
-    mockResponses.set('getCompletedModuleIDs', ['01']);
+    mockResponse('getCompletedModuleIDs', ['01']);
     await useCompletionStore.getState().loadAll(['math']);
     expect(mockResponses.has('getCompletedModuleIDs')).toBe(true);
   });
 
   test('toggle marks completed', async () => {
     mockResponse('toggleModuleCompleted', true);
-    mockResponse('logSession', { ok: true });
     await useCompletionStore.getState().toggle('math', '01');
     expect(useCompletionStore.getState().completed['math:01']).toBe(true);
   });

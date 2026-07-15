@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, spyOn, test } from 'bun:test';
 
@@ -93,7 +93,9 @@ describe('NoteEditor', () => {
   test('typing calls setNoteText', () => {
     setupStore();
     render(<NoteEditor />);
-    useSelectionStore.getState().setNoteText('my note');
+    act(() => {
+      useSelectionStore.getState().setNoteText('my note');
+    });
     expect(useSelectionStore.getState().noteText).toBe('my note');
   });
 
@@ -146,6 +148,7 @@ describe('NoteEditor', () => {
     });
     const { getByText } = render(<NoteEditor />);
     await user.click(getByText('Save Note'));
+    await act(async () => {});
     // Editor should close
     await waitFor(() => {
       expect(useSelectionStore.getState().showNoteEditor).toBe(false);

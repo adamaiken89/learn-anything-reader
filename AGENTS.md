@@ -140,10 +140,23 @@ LessonPage supports 4 styles: none, flip, slide, fade. Stored in `settingsStore.
 
 ### Quiz section architecture
 
-- **QuizSection** (`sections/QuizSection.tsx`): Full quiz with MCQ grid + cloze input. Loads via `api.quiz.start()`.
-- **ClozeQuizSection** (`sections/ClozeQuizSection.tsx`): Cloze-only (text input). Loads via `api.quiz.cloze()`. Reuses completion view pattern from QuizSection.
-- **CumulativeQuizSection** (`sections/CumulativeQuizSection.tsx`): Mixed MCQ + cloze + TF. Loads via `api.quiz.cumulative()`. Handles all question types inline.
+- **QuizSection** (`sections/QuizSection.tsx`): Full quiz with MCQ grid + cloze input. Uses `useQuizEngine()` (default loader → `api.quiz.start()`).
+- **ClozeQuizSection** (`sections/ClozeQuizSection.tsx`): Cloze-only (text input). Uses `useQuizEngine()` (default loader → `api.quiz.cloze()`).
+- **CumulativeQuizSection** (`sections/CumulativeQuizSection.tsx`): Mixed MCQ + cloze + TF. Uses `useQuizEngine(courseId, quizId, loader)` with custom loader → `api.quiz.cumulative()`.
+- **All three** share `QuizCompletionView` for post-quiz summary (confetti, SVG score ring, filter tabs, review cards).
 - **TF questions**: parser auto-fills `options: { True: 'True', False: 'False' }` when type=`tf` and options empty. Rendered as 2-button MCQ grid.
+
+### useQuizEngine custom loader
+
+`useQuizEngine(courseId, moduleId, loader?)` accepts optional `(courseId, moduleId) => Promise<QuizQuestion[]>` as third arg. When omitted, defaults to `api.quiz.start`. Stored in `useRef` to avoid re-fetch on identity change. Example:
+
+```typescript
+const loader = useCallback(
+  (id, qId) => api.quiz.cumulative(id, qId || undefined).then(r => r.questions),
+  [],
+);
+const { status, questions, score, ... } = useQuizEngine(course.id, quizId, loader);
+```
 
 ### Cumulative quiz format
 

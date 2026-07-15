@@ -1,4 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 
@@ -90,10 +90,12 @@ describe('CodeBlockWithCopy (via components.pre)', () => {
     await waitFor(() => {
       expect(btn.textContent).not.toBe(originalText);
     });
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 1600));
-    });
-    expect(btn.textContent).toBe(originalText);
+    await waitFor(
+      () => {
+        expect(btn.textContent).toBe(originalText);
+      },
+      { timeout: 2000 },
+    );
   });
 
   test('copy handles multi-line code blocks', async () => {

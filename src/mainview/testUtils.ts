@@ -2,16 +2,21 @@ import { act, render } from '@testing-library/react';
 import { beforeAll } from 'bun:test';
 
 import { __setRPC } from './api';
-import { clearMocks, mockResponses } from './mockState';
+import { clearMocks, defaultMocks, mockResponses } from './mockState';
 
 export const mockRPC = {
   request: new Proxy({} as Record<string, (p: unknown) => Promise<unknown>>, {
     get(_, method: string) {
-      return (_p: unknown) => {
-        const response = mockResponses.get(method);
-        if (!mockResponses.has(method)) return Promise.reject(new Error(`No mock for ${method}`));
-        if (response instanceof Error) return Promise.reject(response);
-        return Promise.resolve(response);
+      return (params: unknown) => {
+        if (mockResponses.has(method)) {
+          const response = mockResponses.get(method);
+          if (typeof response === 'function')
+            return (response as (p: unknown) => Promise<unknown>)(params);
+          if (response instanceof Error) return Promise.reject(response);
+          return Promise.resolve(response);
+        }
+        if (method in defaultMocks) return Promise.resolve(defaultMocks[method]);
+        return Promise.reject(new Error(`No mock for ${method}`));
       };
     },
   }),
@@ -36,10 +41,10 @@ export function setupRPC(rpc?: { request: Record<string, (p: unknown) => Promise
 }
 
 export async function renderAndSettle(ui: React.ReactElement) {
-  let result!: ReturnType<typeof render>;
+  const result = render(ui);
   await act(async () => {
-    result = render(ui);
     await new Promise((r) => setTimeout(r, 0));
   });
+  await act(async () => {});
   return result;
 }

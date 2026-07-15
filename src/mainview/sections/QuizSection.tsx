@@ -1,15 +1,13 @@
 import clsx from 'clsx';
-import { Check, CornerDownLeft, Lightbulb, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Check, CornerDownLeft, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, ModuleMeta, StudySession } from '../../bun/types';
 import { api } from '../api';
+import QuizCompletionView from '../components/quiz/QuizCompletionView';
 import { useQuizEngine } from '../hooks/useQuizEngine';
 import { useViewStore } from '../stores/viewStore';
-
-const CONFETTI_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#8b5cf6'];
-const CIRCUMFERENCE = 2 * Math.PI * 54;
 
 interface Props {
   courseId: string;
@@ -44,32 +42,16 @@ export default function QuizSection({ courseId, moduleId, course, module }: Prop
   const [previousSession, setPreviousSession] = useState<StudySession | null>(null);
 
   useEffect(() => {
-    api.stats.lastQuizSession(courseId, moduleId).then(setPreviousSession).catch(() => {});
+    api.stats
+      .lastQuizSession(courseId, moduleId)
+      .then(setPreviousSession)
+      .catch(() => {});
   }, [courseId, moduleId]);
 
   useEffect(() => {
     setTextInput('');
     setHighlightedIdx(-1);
   }, [currentIndex]);
-
-  const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
-  const questionResults = useMemo(() => {
-    return questions.map((q) => {
-      const ua = selectedAnswers[q.id];
-      const correct =
-        q.type === 'cloze'
-          ? ua?.trim().toLowerCase() === q.answer.trim().toLowerCase()
-          : ua === q.answer;
-      return { question: q, isCorrect: correct, userAnswer: ua };
-    });
-  }, [questions, selectedAnswers]);
-  const filteredResults = useMemo(() => {
-    if (filter === 'correct') return questionResults.filter((r) => r.isCorrect);
-    if (filter === 'wrong') return questionResults.filter((r) => !r.isCorrect);
-    return questionResults;
-  }, [questionResults, filter]);
-  const correctCount = questionResults.filter((r) => r.isCorrect).length;
-  const wrongCount = questions.length - correctCount;
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -156,184 +138,30 @@ export default function QuizSection({ courseId, moduleId, course, module }: Prop
       </div>
     );
 
-  const isPerfect = percentage === 100;
-
   if (status === 'completed') {
+    const questionResults = questions.map((q) => {
+      const ua = selectedAnswers[q.id];
+      const correct =
+        q.type === 'cloze'
+          ? ua?.trim().toLowerCase() === q.answer.trim().toLowerCase()
+          : ua === q.answer;
+      return { question: q, isCorrect: correct, userAnswer: ua };
+    });
+
     return (
-      <div className="w-full max-w-4xl mx-auto px-4">
-        {isPerfect && (
-          <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="anim-confetti-piece"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: '-10px',
-                  width: `${6 + Math.random() * 6}px`,
-                  height: `${6 + Math.random() * 6}px`,
-                  backgroundColor: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-                  animationDuration: `${0.8 + Math.random() * 0.7}s`,
-                  animationDelay: `${Math.random() * 0.5}s`,
-                  borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-                }}
-              />
-            ))}
-          </div>
-        )}
-        <div className="quiz-container-card p-8 text-center">
-          <h2 className="text-2xl font-bold mb-2">{t('quiz.quizComplete')}!</h2>
-          <div className="flex justify-center mb-2">
-            <svg width="140" height="140" viewBox="0 0 120 120">
-              <circle
-                cx="60"
-                cy="60"
-                r="54"
-                fill="none"
-                stroke="rgba(99,102,241,0.15)"
-                strokeWidth="10"
-              />
-              <circle
-                cx="60"
-                cy="60"
-                r="54"
-                fill="none"
-                stroke="#6366f1"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={CIRCUMFERENCE}
-                strokeDashoffset={CIRCUMFERENCE - (percentage / 100) * CIRCUMFERENCE}
-                className="score-ring"
-                transform="rotate(-90 60 60)"
-              />
-              <text
-                x="60"
-                y="60"
-                textAnchor="middle"
-                dominantBaseline="central"
-                fill="#e0e7ff"
-                fontSize="28"
-                fontWeight="bold"
-                fontFamily="system-ui"
-              >
-                {percentage}%
-              </text>
-            </svg>
-          </div>
-          <p className="text-gray-400 mb-4">
-            {t('quiz.correct', { score, total: questions.length })}
-          </p>
-          {previousSession?.score !== undefined && previousSession.total && (
-            <div className="flex items-center justify-center gap-1.5 mb-5">
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                previousSession.score / previousSession.total >= 0.8
-                  ? 'text-emerald-400 bg-emerald-500/10'
-                  : 'text-rose-400 bg-rose-500/10'
-              }`}>
-                {previousSession.score / previousSession.total >= 0.8 ? `✓ ${t('quiz.previousPassed')}` : `✗ ${t('quiz.previousFailed')}`}
-              </span>
-            </div>
-          )}
-          {/* Filter tabs */}
-          <div className="flex gap-2 mb-6 justify-center">
-            {(['all', 'wrong', 'correct'] as const).map((f) => {
-              const count =
-                f === 'all' ? questions.length : f === 'wrong' ? wrongCount : correctCount;
-              const label =
-                f === 'all'
-                  ? t('quiz.filterAll', { count, defaultValue: `All (${count})` })
-                  : f === 'wrong'
-                    ? t('quiz.filterWrong', { count, defaultValue: `Wrong (${count})` })
-                    : t('quiz.filterCorrect', { count, defaultValue: `Correct (${count})` });
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
-                    filter === f
-                      ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/30'
-                      : 'text-gray-500 hover:text-gray-300 border border-gray-700/50'
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {/* Question cards */}
-          <div className="space-y-3">
-            {filteredResults.map(({ question: q, isCorrect, userAnswer }) => (
-              <div
-                key={q.id}
-                className={`text-left p-4 rounded-[10px] text-sm border ${
-                  isCorrect
-                    ? 'border-emerald-500/20 bg-emerald-500/[0.03]'
-                    : 'border-rose-500/30 bg-rose-500/[0.04]'
-                }`}
-              >
-                {/* Status badge row */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
-                      isCorrect
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : 'bg-rose-500/10 text-rose-400'
-                    }`}
-                  >
-                    {isCorrect ? <Check size={12} /> : <X size={12} />}
-                    {isCorrect
-                      ? t('quiz.correctLabel', 'Correct')
-                      : t('quiz.incorrectLabel', 'Incorrect')}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {t('quiz.yourAnswer')} {userAnswer}. {t('quiz.correctAnswer')} {q.answer}
-                  </span>
-                </div>
-                {/* Question */}
-                <p className="font-medium text-sm text-gray-100 mb-3">{q.question}</p>
-                {/* Explanation */}
-                <div className="pt-3 border-t border-gray-700/50 text-sm text-gray-400 leading-relaxed">
-                  <span className="font-medium text-gray-300 inline-flex items-center gap-1">
-                    <Lightbulb size={14} /> {t('quiz.explanation', 'Explanation')}:
-                  </span>{' '}
-                  {q.explanation}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-3 mt-6 justify-center flex-wrap">
-            <button
-              onClick={retry}
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-[10px] text-sm font-medium transition-colors"
-            >
-              {t('quiz.retry')}
-            </button>
-
-            <button
-              onClick={() => push({ type: 'lesson', course, module })}
-              className="px-5 py-2.5 bg-gray-600 hover:bg-gray-500 rounded-[10px] text-sm font-medium transition-colors"
-            >
-              {t('quiz.backToLesson')}
-            </button>
-
-            {nextModule ? (
-              <button
-                onClick={() => push({ type: 'lesson', course, module: nextModule })}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-[10px] text-sm font-medium transition-colors"
-              >
-                {t('quiz.nextChapter')}
-              </button>
-            ) : (
-              <button
-                onClick={() => push({ type: 'dashboard' })}
-                className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-[10px] text-sm font-medium transition-colors"
-              >
-                {t('quiz.backToDashboard')}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      <QuizCompletionView
+        percentage={percentage}
+        score={score}
+        total={questions.length}
+        previousSession={previousSession}
+        questionResults={questionResults}
+        onRetry={retry}
+        onBackToLesson={() => push({ type: 'lesson', course, module })}
+        onNextChapter={
+          nextModule ? () => push({ type: 'lesson', course, module: nextModule }) : undefined
+        }
+        onBackToDashboard={!nextModule ? () => push({ type: 'dashboard' }) : undefined}
+      />
     );
   }
 

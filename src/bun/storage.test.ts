@@ -1,6 +1,7 @@
 import { describe, expect, test, beforeEach } from 'bun:test';
 
 import { fsMockImpl } from '../testFsShared';
+import { invalidateCache } from './storage';
 
 let state = {
   exists: true,
@@ -15,6 +16,7 @@ let state = {
 };
 
 beforeEach(() => {
+  invalidateCache();
   state = {
     exists: true,
     data: JSON.stringify({
@@ -635,9 +637,10 @@ describe('user cards', () => {
     const c = mod.addUserCard('c1', '01', 'f', 'b');
     mod.reviewUserCard(c.id, true, new Date('2024-06-15T12:00:00Z')); // correct once
     const before = mod.getUserCardById(c.id)!;
+    const prevInterval = before.interval;
     const r = mod.reviewUserCard(c.id, false, new Date('2024-06-16T12:00:00Z'));
     expect(r!.repetitions).toBe(0);
-    expect(r!.interval).toBeLessThan(before.interval);
+    expect(r!.interval).toBeLessThan(prevInterval);
     expect(r!.lapses).toBe(1);
   });
 

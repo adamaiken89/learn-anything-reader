@@ -2,31 +2,15 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 
 import type { SearchResult } from '../bun/search';
 import type { ApiClient } from './api';
+import { mockResponse, setupRPC } from './testUtils';
 
-const mockResponses = new Map<string, unknown>();
-
-const mockRPC = {
-  request: new Proxy({} as Record<string, (params: unknown) => Promise<unknown>>, {
-    get(_, method: string) {
-      return (_params: unknown) => {
-        const response = mockResponses.get(method);
-        if (response === undefined) return Promise.reject(new Error(`No mock for ${method}`));
-        return Promise.resolve(response);
-      };
-    },
-  }),
-};
-
-function mockResponse<T>(method: string, data: T): void {
-  mockResponses.set(method, data);
-}
+setupRPC();
 
 let api: ApiClient;
 
 beforeAll(async () => {
   const mod = await import('./api');
   api = mod.api;
-  mod.__setRPC(mockRPC);
 });
 
 describe('api', () => {

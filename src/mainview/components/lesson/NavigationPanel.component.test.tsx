@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
@@ -41,8 +41,8 @@ setupRPC();
 describe('NavigationPanel', () => {
   const user = userEvent.setup();
 
-  test('renders tab buttons', () => {
-    const { getByText } = render(
+  test('renders tab buttons', async () => {
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -82,8 +82,8 @@ describe('NavigationPanel', () => {
     expect(getByText('Conclusion')).toBeInTheDocument();
   });
 
-  test('renders all modules in tree', () => {
-    const { getByText } = render(
+  test('renders all modules in tree', async () => {
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -122,8 +122,8 @@ describe('NavigationPanel', () => {
     expect(scrollToSection).toHaveBeenCalledWith('intro');
   });
 
-  test('current module has indigo highlight', () => {
-    const { getByText } = render(
+  test('current module has indigo highlight', async () => {
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -140,8 +140,8 @@ describe('NavigationPanel', () => {
     expect(getByText('Module 1').closest('button')?.className).toContain('indigo');
   });
 
-  test('shows module numbers', () => {
-    const { getByText } = render(
+  test('shows module numbers', async () => {
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -161,7 +161,7 @@ describe('NavigationPanel', () => {
 
   test('clicking module calls onModuleSelect', async () => {
     const onModuleSelect = mock(() => {});
-    const { getByText } = render(
+    const { getByText } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -182,7 +182,7 @@ describe('NavigationPanel', () => {
 
   test('clicking close calls onClose', async () => {
     const onClose = mock(() => {});
-    const { container } = render(
+    const { container } = await renderAndSettle(
       <NavigationPanel
         courseId={defaultCourseId}
         moduleId={defaultModuleId}
@@ -252,7 +252,9 @@ describe('NavigationPanel', () => {
     );
     // Handler calls void toggle() — fire-and-forget. Test the store directly.
     const { toggle } = useBookmarksStore.getState();
-    await toggle(defaultCourseId, defaultModuleId, 'Test Module – Introduction', 'intro');
+    await act(async () => {
+      await toggle(defaultCourseId, defaultModuleId, 'Test Module – Introduction', 'intro');
+    });
     const key = `${defaultCourseId}:${defaultModuleId}`;
     expect(useBookmarksStore.getState().byModule[key]).toBeDefined();
   });

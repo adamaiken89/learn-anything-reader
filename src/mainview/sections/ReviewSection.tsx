@@ -71,19 +71,19 @@ export default function ReviewSection({ courseId }: Props) {
 
   if (loading)
     return (
-      <div className="max-w-xl mx-auto space-y-4">
-        <div className="h-10 bg-gray-700/50 rounded-lg animate-pulse" />
-        <div className="h-16 bg-gray-700/50 rounded-xl animate-pulse" />
-        <div className="h-[260px] bg-gray-700/50 rounded-xl animate-pulse" />
+      <div className="w-full max-w-4xl mx-auto px-4 space-y-4">
+        <div className="h-10 bg-gray-700/50 rounded-[10px] animate-pulse" />
+        <div className="h-16 bg-gray-700/50 rounded-[10px] animate-pulse" />
+        <div className="h-[260px] bg-gray-700/50 rounded-[10px] animate-pulse" />
       </div>
     );
 
   const progressPct = cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0;
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto px-4">
       <div className="anim-fade-in-up">
-        <div className="bg-gray-800/30 rounded-lg px-4 py-3 flex items-baseline justify-between mb-4">
+        <div className="bg-gray-800/30 rounded-[10px] px-4 py-3 flex items-baseline justify-between mb-4">
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider">
               {t('review.reviewed')}
@@ -129,8 +129,8 @@ export default function ReviewSection({ courseId }: Props) {
           </div>
         ) : (
           currentCard && (
-            <div>
-              <div className="text-xs text-gray-500 mb-2 text-center">
+            <div className="quiz-container-card p-6">
+              <div className="text-xs text-gray-500 mb-3 text-right tabular-nums">
                 {t('review.cardOf', { current: currentIndex + 1, total: cards.length })}
                 {currentCard.isStarred && (
                   <span className="ml-2 text-yellow-500">
@@ -141,14 +141,16 @@ export default function ReviewSection({ courseId }: Props) {
 
               <div className={`flip-container ${tossClass}`} onAnimationEnd={handleTossEnd}>
                 <div
-                  className={`flip-inner bg-gray-800 rounded-xl min-h-[260px] ${flipped ? 'is-flipped' : ''}`}
+                  className={`flip-inner bg-gray-800 rounded-[10px] min-h-[260px] ${flipped ? 'is-flipped' : ''}`}
                 >
-                  <div className="flip-front absolute inset-0 p-8 flex flex-col items-center justify-center text-center rounded-xl">
-                    <h3 className="text-lg font-medium mb-6">{currentCard.question}</h3>
+                  <div className="flip-front absolute inset-0 p-6 flex flex-col items-center justify-center text-center rounded-[10px]">
+                    <h3 className="text-[24px] font-semibold text-white leading-snug tracking-tight mb-6">
+                      {currentCard.question}
+                    </h3>
                     <button
                       onClick={handleFlip}
                       data-testid="show-answer"
-                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors font-sans"
+                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-[10px] text-sm font-medium transition-colors font-sans"
                     >
                       {t('review.showAnswer')}
                     </button>
@@ -156,31 +158,35 @@ export default function ReviewSection({ courseId }: Props) {
                       {t('review.flipHint')}
                     </p>
                   </div>
-                  <div className="flip-back absolute inset-0 p-8 rounded-xl overflow-y-auto font-sans">
+                  <div className="flip-back absolute inset-0 p-6 rounded-[10px] overflow-y-auto font-sans">
                     <div className="mb-3 pb-3 border-b border-gray-700">
                       <p className="text-sm text-gray-400 mb-1">{t('review.question')}</p>
-                      <p className="text-base font-medium">{currentCard.question}</p>
+                      <p className="text-[15px] font-medium text-gray-100">
+                        {currentCard.question}
+                      </p>
                     </div>
                     <div className="mb-3">
                       <p className="text-sm text-gray-400 mb-1">{t('review.answer')}</p>
-                      <p className="text-base">{currentCard.answer}</p>
+                      <p className="text-[15px] font-medium text-gray-100">{currentCard.answer}</p>
                     </div>
                     <div className="mb-4">
                       <p className="text-sm text-gray-400 mb-1">{t('review.explanation')}</p>
-                      <p className="text-sm text-gray-300">{currentCard.explanation}</p>
+                      <p className="text-sm text-gray-300 leading-relaxed">
+                        {currentCard.explanation}
+                      </p>
                     </div>
                     <div className="flex gap-3 justify-center">
                       <button
                         onClick={() => handleReviewWithToss(false)}
                         data-testid="btn-forgot"
-                        className="px-6 py-2 bg-red-700 hover:bg-red-600 rounded-lg transition-colors"
+                        className="px-5 py-2.5 bg-red-600 hover:bg-red-500 rounded-[10px] text-sm font-medium transition-colors"
                       >
                         {t('review.forgot')}
                       </button>
                       <button
                         onClick={() => handleReviewWithToss(true)}
                         data-testid="btn-remembered"
-                        className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg transition-colors"
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-[10px] text-sm font-medium transition-colors"
                       >
                         {t('review.remembered')}
                       </button>

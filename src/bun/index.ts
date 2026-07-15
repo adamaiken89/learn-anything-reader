@@ -44,8 +44,7 @@ const rpc = BrowserView.defineRPC<AppSchema>({
 
       hasClozeQuiz: ({ courseId, moduleId }) => CourseLoader.hasClozeQuiz(courseId, moduleId),
 
-      loadCumulativeQuiz: ({ courseId, id }) =>
-        CourseLoader.loadCumulativeQuiz(courseId, id),
+      loadCumulativeQuiz: ({ courseId, id }) => CourseLoader.loadCumulativeQuiz(courseId, id),
 
       hasCumulativeQuiz: ({ courseId }) => CourseLoader.hasCumulativeQuiz(courseId),
 

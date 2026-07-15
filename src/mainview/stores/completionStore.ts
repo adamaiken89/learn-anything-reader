@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 import { api } from '../api';
-import { logger } from '../logger';
 import { showToast } from '../toast';
 import { key } from './storageUtils';
 
@@ -114,18 +113,6 @@ export const useCompletionStore = create<CompletionState>((set, get) => ({
     try {
       const result = await api.storage.toggleCompleted(courseId, moduleId);
       set((s) => ({ completed: { ...s.completed, [k]: result.completed } }));
-      if (result.completed) {
-        api.stats
-          .logSession({
-            courseID: courseId,
-            moduleID: moduleId,
-            durationMinutes: 10,
-            type: 'reading',
-          })
-          .catch((err) => {
-            logger.warn({ err }, 'Failed to log reading session');
-          });
-      }
     } catch {
       showToast.error('toast.loadFailed');
     }

@@ -1,6 +1,6 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import type { Course, ModuleMeta } from '../../bun/types';
 import { useCompletionStore } from '../stores/completionStore';
@@ -9,7 +9,7 @@ import { useLessonUIStore } from '../stores/lessonUIStore';
 import { useNotesStore } from '../stores/notesStore';
 import { useSelectionStore } from '../stores/selectionStore';
 import { useSettingsStore } from '../stores/settingsStore';
-import { clearMocks, deleteMock, mockResponse, setupRPC } from '../testUtils';
+import { clearMocks, deleteMock, mockResponse, renderAndSettle, setupRPC } from '../testUtils';
 import LessonSection from './LessonSection';
 
 setupRPC();
@@ -58,6 +58,8 @@ function setupDefaultMocks() {
   mockResponse('getNotes', []);
   mockResponse('getSections', []);
   mockResponse('getCourseModuleSessions', []);
+  mockResponse('hasClozeQuiz', false);
+  mockResponse('hasCumulativeQuiz', false);
 }
 
 beforeEach(() => {
@@ -112,24 +114,9 @@ function installMockSelection(mockSel: ReturnType<typeof makeMockSelection>) {
   };
 }
 
-async function renderAndSettle(ui: React.ReactElement) {
-  let result!: ReturnType<typeof render>;
-  await act(async () => {
-    result = render(ui);
-    await new Promise((r) => setTimeout(r, 0));
-  });
-  return result;
-}
-
 describe('LessonSection', () => {
   const user = userEvent.setup();
   const props = { course: mockCourse, module: mockModuleMeta };
-
-  afterEach(async () => {
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 0));
-    });
-  });
 
   test('renders loading state', async () => {
     deleteMock('loadLesson');
@@ -277,11 +264,9 @@ describe('LessonSection', () => {
       expect(getByTestId('selection-toolbar')).toBeTruthy();
     });
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 500));
+    await waitFor(() => {
+      expect(clipboardText).toBe('auto copied text');
     });
-
-    expect(clipboardText).toBe('auto copied text');
 
     Object.assign(navigator.clipboard, { writeText: originalWriteText });
     restore();
@@ -309,11 +294,9 @@ describe('LessonSection', () => {
 
     await act(async () => fireEvent.mouseUp(contentDiv));
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 500));
+    await waitFor(() => {
+      expect(clipboardText).toBe('');
     });
-
-    expect(clipboardText).toBe('');
 
     Object.assign(navigator.clipboard, { writeText: originalWriteText });
     window.getSelection = origGetSelection;
@@ -337,8 +320,8 @@ describe('LessonSection', () => {
     const restore1 = installMockSelection(mockSel1);
     await act(async () => fireEvent.mouseUp(contentArea));
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100));
+    await waitFor(() => {
+      expect(copyCount).toBe(0);
     });
 
     const mockSel2 = makeMockSelection('second selection', contentArea);
@@ -346,11 +329,10 @@ describe('LessonSection', () => {
     const restore2 = installMockSelection(mockSel2);
     await act(async () => fireEvent.mouseUp(contentArea));
 
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 500));
+    await waitFor(() => {
+      expect(copyCount).toBe(1);
     });
 
-    expect(copyCount).toBe(1);
     expect(lastCopied).toBe('second selection');
 
     Object.assign(navigator.clipboard, { writeText: originalWriteText });

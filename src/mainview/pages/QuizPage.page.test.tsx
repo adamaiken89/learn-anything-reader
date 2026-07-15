@@ -38,6 +38,7 @@ describe('QuizPage', () => {
   beforeEach(() => {
     mockResponse('coursesList', []);
     mockResponse('quizStart', []);
+    mockResponse('getLastQuizSession', null);
     void i18n.changeLanguage('en-US');
     useSettingsStore.setState({ focusMode: false });
   });

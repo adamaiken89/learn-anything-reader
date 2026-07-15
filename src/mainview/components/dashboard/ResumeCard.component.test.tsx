@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import type { LastSession } from '../../../bun/types';
 import { useCompletionStore } from '../../stores/completionStore';
 import { useViewStore } from '../../stores/viewStore';
+import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
 import ResumeCard from './ResumeCard';
+
+setupRPC();
 
 function makeLastSession(overrides?: Partial<LastSession>): LastSession {
   return {
@@ -32,6 +35,9 @@ function makeLastSession(overrides?: Partial<LastSession>): LastSession {
 }
 
 beforeEach(() => {
+  clearMocks();
+  mockResponse('hasClozeQuiz', false);
+  mockResponse('hasCumulativeQuiz', false);
   useCompletionStore.setState({
     completed: {},
     totalModules: {},
@@ -65,8 +71,8 @@ describe('ResumeCard', () => {
 
   test('handleContinue pushes lesson view with sectionID', async () => {
     useViewStore.setState({ views: [] });
-    const { getByRole } = render(<ResumeCard lastSession={makeLastSession()} />);
-    await user.click(getByRole('button'));
+    const { getByText } = render(<ResumeCard lastSession={makeLastSession()} />);
+    await user.click(getByText('Continue'));
     const views = useViewStore.getState().views;
     expect(views).toHaveLength(1);
     expect(views[0]).toEqual({

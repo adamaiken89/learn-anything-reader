@@ -48,12 +48,25 @@ export default function CourseCard({ course }: { course: Course }) {
     });
   }, [course, push]);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleClick();
+      }
+    },
+    [handleClick],
+  );
+
   const quizBtnClass =
     'flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-gray-700/50 text-gray-400 hover:text-gray-200 hover:bg-gray-600/50 transition-colors cursor-pointer';
 
   return (
-    <button
+    <div
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
       className="text-left bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-indigo-500/30 rounded-lg p-5 transition-all duration-200 group cursor-pointer"
     >
       <h2 className="text-lg font-semibold text-white group-hover:text-indigo-400 transition-colors">
@@ -104,6 +117,6 @@ export default function CourseCard({ course }: { course: Course }) {
           </button>
         )}
       </div>
-    </button>
+    </div>
   );
 }

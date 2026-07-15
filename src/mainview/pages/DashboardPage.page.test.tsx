@@ -45,6 +45,8 @@ describe('DashboardPage', () => {
       courseSummaries: [],
     });
     mockResponse('getLastSession', null);
+    mockResponse('hasClozeQuiz', false);
+    mockResponse('hasCumulativeQuiz', false);
   });
 
   test('shows loading skeleton initially', () => {
