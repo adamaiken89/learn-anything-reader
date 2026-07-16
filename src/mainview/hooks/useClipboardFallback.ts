@@ -18,21 +18,10 @@ function selectAll(el: Element): void {
 }
 
 function copySelection(): void {
-  if (navigator.clipboard?.writeText) {
-    const text = window.getSelection()?.toString();
-    if (text) {
-      navigator.clipboard.writeText(text).catch(() => copyFallback());
-      return;
-    }
-  }
-  copyFallback();
-}
-
-function copyFallback(): void {
-  try {
-    document.execCommand('copy');
-  } catch {
-    /* execCommand unavailable */
+  if (!navigator.clipboard?.writeText) throw new Error('Clipboard API not available');
+  const text = window.getSelection()?.toString();
+  if (text) {
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 }
 
