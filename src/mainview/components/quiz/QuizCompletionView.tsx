@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 import clsx from 'clsx';
 import { Check, Lightbulb, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { QuizQuestion, StudySession } from '../../../bun/types';
@@ -55,11 +55,11 @@ export default function QuizCompletionView({
   const correctCount = questionResults.filter((r) => r.isCorrect).length;
   const wrongCount = total - correctCount;
 
-  const filteredResults = useMemo(() => {
+  const filteredResults = (() => {
     if (filter === 'correct') return questionResults.filter((r) => r.isCorrect);
     if (filter === 'wrong') return questionResults.filter((r) => !r.isCorrect);
     return questionResults;
-  }, [questionResults, filter]);
+  })();
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4">

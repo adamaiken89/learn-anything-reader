@@ -1,5 +1,5 @@
 import { Palette } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/shallow';
 
@@ -71,14 +71,14 @@ export default function AppearancePopover() {
 
   const btnRef = useRef<HTMLButtonElement>(null);
 
-  const getDropdownLeft = useCallback((): number => {
+  const getDropdownLeft = (): number => {
     const btn = btnRef.current;
     const wrapper = ref.current;
     if (!btn || !wrapper) return 0;
     const wrapperRect = wrapper.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
     return btnRect.left - wrapperRect.left;
-  }, []);
+  };
 
   useEffect(() => {
     if (!open) return;

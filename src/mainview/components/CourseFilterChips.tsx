@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course } from '../../bun/types';
@@ -22,58 +22,54 @@ export default function CourseFilterChips({
   const [ft, setFt] = useState('');
   const ddRef = useRef<HTMLDivElement>(null);
   const inpRef = useRef<HTMLInputElement>(null);
-  const nameMap = useMemo(() => {
+  const nameMap = (() => {
     const m = new Map<string, string>();
     for (const c of allCourses) m.set(c.id, c.displayName);
     return m;
-  }, [allCourses]);
-  const filtered = useMemo(() => {
+  })();
+  const filtered = (() => {
     if (!open) return [];
     const text = ft.toLowerCase();
     return allCourses.filter(
       (c) => !selectedIDs.includes(c.id) && (!text || c.displayName.toLowerCase().includes(text)),
     );
-  }, [allCourses, selectedIDs, ft, open]);
-  const closeDrop = useCallback(() => {
+  })();
+  const closeDrop = () => {
     setOpen(false);
     setFt('');
-  }, []);
-  const addCourse = useCallback(
-    (id: string) => {
-      if (!selectedIDs.includes(id)) onSelectionChange([...selectedIDs, id]);
-      closeDrop();
-    },
-    [selectedIDs, onSelectionChange, closeDrop],
-  );
-  const removeCourse = useCallback(
-    (id: string) => {
-      onSelectionChange(selectedIDs.filter((c) => c !== id));
-    },
-    [selectedIDs, onSelectionChange],
-  );
+  };
+  const addCourse = (id: string) => {
+    if (!selectedIDs.includes(id)) onSelectionChange([...selectedIDs, id]);
+    closeDrop();
+  };
+  const removeCourse = (id: string) => {
+    onSelectionChange(selectedIDs.filter((c) => c !== id));
+  };
+  const onCloseDrop = useEffectEvent(() => {
+    setOpen(false);
+    setFt('');
+  });
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ddRef.current && !ddRef.current.contains(e.target as Node)) closeDrop();
+      if (ddRef.current && !ddRef.current.contains(e.target as Node)) onCloseDrop();
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [open, closeDrop]);
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeDrop();
-        onEscape?.();
-        return;
-      }
-      if (e.key === 'Enter' && filtered.length > 0) {
-        e.preventDefault();
-        addCourse(filtered[0].id);
-        inpRef.current?.focus();
-      }
-    },
-    [filtered, addCourse, onEscape, closeDrop],
-  );
+  }, [open]);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeDrop();
+      onEscape?.();
+      return;
+    }
+    if (e.key === 'Enter' && filtered.length > 0) {
+      e.preventDefault();
+      addCourse(filtered[0].id);
+      inpRef.current?.focus();
+    }
+  };
   return (
     <div className="px-3 py-1.5 border-b border-gray-700 flex items-center gap-1 flex-wrap relative">
       {selectedIDs.length === 0 && (

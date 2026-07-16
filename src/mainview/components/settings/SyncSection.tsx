@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useCompletionStore } from '../../stores/completionStore';
@@ -25,11 +25,11 @@ export default function SyncSection() {
     if (remoteRepoURL) setRepoURL(remoteRepoURL);
   }, [remoteRepoURL]);
 
-  const handleRepoKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleRepoKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
       repoRef.current?.select();
     }
-  }, []);
+  };
 
   return (
     <section className="bg-gray-800 rounded-xl p-6">

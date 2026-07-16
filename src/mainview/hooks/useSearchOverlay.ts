@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 
 import type { SearchResult } from '../../bun/search';
 import { api } from '../api';
@@ -35,10 +35,10 @@ export function useSearchOverlay({
   const [closing, setClosing] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setClosing(true);
     closeTimerRef.current = setTimeout(() => onClose(), 200);
-  }, [onClose]);
+  };
 
   useEffect(() => {
     return () => {
@@ -50,16 +50,13 @@ export function useSearchOverlay({
   const push = useViewStore((s) => s.push);
   const [, startTransition] = useTransition();
 
-  const navigate = useCallback(
-    (courseID: string, moduleID: string, sectionID?: string) => {
-      const c = courses.find((x) => x.id === courseID);
-      const m = c?.modules.find((x) => x.id === moduleID);
-      if (c && m) {
-        push({ type: 'lesson', course: c, module: m, sectionID });
-      }
-    },
-    [courses, push],
-  );
+  const navigate = (courseID: string, moduleID: string, sectionID?: string) => {
+    const c = courses.find((x) => x.id === courseID);
+    const m = c?.modules.find((x) => x.id === moduleID);
+    if (c && m) {
+      push({ type: 'lesson', course: c, module: m, sectionID });
+    }
+  };
 
   const [query, setQuery] = useState('');
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
@@ -70,10 +67,10 @@ export function useSearchOverlay({
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const results = useMemo(() => {
-    if (courseFilters.length === 0) return allResults;
-    return allResults.filter((r) => courseFilters.includes(r.courseID));
-  }, [allResults, courseFilters]);
+  const results =
+    courseFilters.length === 0
+      ? allResults
+      : allResults.filter((r) => courseFilters.includes(r.courseID));
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -105,42 +102,39 @@ export function useSearchOverlay({
     };
   }, [query]);
 
-  const handleSelectionChange = useCallback((ids: string[]) => {
+  const handleSelectionChange = (ids: string[]) => {
     setCourseFilters(ids);
     setSelectedIdx(-1);
-  }, []);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
-        inputRef.current?.select();
-        return;
-      }
-      if (e.key === 'Escape') {
-        handleClose();
-        return;
-      }
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIdx((i) => Math.min(i + 1, results.length - 1));
-        return;
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIdx((i) => Math.max(i - 1, 0));
-        return;
-      }
-      if (e.key === 'Enter' && selectedIdx >= 0 && selectedIdx < results.length) {
-        e.preventDefault();
-        const r = results[selectedIdx];
-        navigate(r.courseID, r.moduleID, r.sectionID);
-        handleClose();
-      }
-    },
-    [handleClose, results, selectedIdx, navigate],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+      inputRef.current?.select();
+      return;
+    }
+    if (e.key === 'Escape') {
+      handleClose();
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIdx((i) => Math.min(i + 1, results.length - 1));
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIdx((i) => Math.max(i - 1, 0));
+      return;
+    }
+    if (e.key === 'Enter' && selectedIdx >= 0 && selectedIdx < results.length) {
+      e.preventDefault();
+      const r = results[selectedIdx];
+      navigate(r.courseID, r.moduleID, r.sectionID);
+      handleClose();
+    }
+  };
 
-  const groupedResults = useMemo(() => {
+  const groupedResults = (() => {
     const grouped = new Map<
       string,
       { courseName: string; items: { r: SearchResult; idx: number }[] }
@@ -158,12 +152,9 @@ export function useSearchOverlay({
       }
     }
     return grouped;
-  }, [results]);
+  })();
 
-  const querySetter = useCallback(
-    (q: string) => startTransition(() => setQuery(q)),
-    [startTransition],
-  );
+  const querySetter = (q: string) => startTransition(() => setQuery(q));
 
   return {
     query,

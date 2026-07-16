@@ -1,5 +1,5 @@
 import { Check, ChevronDown, ChevronRight, Circle } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { ModuleMeta, ModuleSession, Section } from '../../../bun/types';
@@ -66,14 +66,14 @@ export default function NavigationSectionsTab({
     activeModRef.current?.scrollIntoView({ block: 'nearest' });
   }, [moduleId]);
 
-  const toggleExpand = useCallback((modId: string) => {
+  const toggleExpand = (modId: string) => {
     setExpandedModules((prev) => {
       const next = new Set(prev);
       if (next.has(modId)) next.delete(modId);
       else next.add(modId);
       return next;
     });
-  }, []);
+  };
 
   useEffect(() => {
     if (!visibleSection || !sectionsRef.current) return;

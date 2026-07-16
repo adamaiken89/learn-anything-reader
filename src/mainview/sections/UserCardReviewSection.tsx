@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../bun/types';
@@ -16,21 +15,21 @@ interface Props {
 export default function UserCardReviewSection({ courseId }: Props) {
   const { t } = useTranslation();
 
-  const fetchAll = useCallback(() => api.usercards.list(courseId), [courseId]);
+  const fetchAll = () => api.usercards.list(courseId);
 
-  const filterCards = useCallback((cards: UserCard[], filter: FilterMode) => {
+  const filterCards = (cards: UserCard[], filter: FilterMode) => {
     if (filter === 'due') return cards.filter((c) => new Date(c.nextReviewDate) <= new Date());
     if (filter === 'starred') return cards.filter((c) => c.isStarred);
     return cards;
-  }, []);
+  };
 
-  const reviewCard = useCallback(async (card: UserCard, correct: boolean) => {
+  const reviewCard = async (card: UserCard, correct: boolean) => {
     await api.usercards.review(card.id, correct);
-  }, []);
+  };
 
-  const toggleStar = useCallback(async (card: UserCard) => {
+  const toggleStar = async (card: UserCard) => {
     return (await api.usercards.toggleStar(card.id)) ?? card;
-  }, []);
+  };
 
   const {
     cards,
@@ -48,7 +47,7 @@ export default function UserCardReviewSection({ courseId }: Props) {
     filterCards,
     reviewCard,
     toggleStar,
-    isStarred: useCallback((c: UserCard) => c.isStarred, []),
+    isStarred: (c: UserCard) => c.isStarred,
   });
 
   if (loading) return <div className={loadingIndicator()}>{t('review.loadingCards')}</div>;

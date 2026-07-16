@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 interface BottomSheetProps {
   open: boolean;
@@ -13,30 +13,31 @@ export default function BottomSheet({ open, onClose, title, children }: BottomSh
   const [dragY, setDragY] = useState(0);
   const dragStart = useRef<number | null>(null);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     dragStart.current = e.touches[0].clientY;
-  }, []);
+  };
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (dragStart.current === null) return;
     const delta = e.touches[0].clientY - dragStart.current;
     if (delta > 0) setDragY(delta);
-  }, []);
+  };
 
-  const handleTouchEnd = useCallback(() => {
+  const handleTouchEnd = () => {
     if (dragY > 100) onClose();
     setDragY(0);
     dragStart.current = null;
-  }, [dragY, onClose]);
+  };
+
+  const onEscape = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  });
 
   useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [open, onClose]);
+    document.addEventListener('keydown', onEscape);
+    return () => document.removeEventListener('keydown', onEscape);
+  }, [open]);
 
   if (!open) return null;
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { showToast } from '../toast';
 
@@ -32,7 +32,8 @@ interface UseCardReviewStateReturn<TCard> {
 export function useCardReviewState<TCard>(
   opts: CardReviewOpts<TCard>,
 ): UseCardReviewStateReturn<TCard> {
-  const { fetchAll, filterCards, reviewCard, toggleStar } = opts;
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
   const [cards, setCards] = useState<TCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -41,33 +42,44 @@ export function useCardReviewState<TCard>(
   const [sessionReviewed, setSessionReviewed] = useState(0);
   const [sessionCorrect, setSessionCorrect] = useState(0);
 
-  const loadCards = useCallback(
-    (f: FilterMode) => {
-      setLoading(true);
-      fetchAll()
-        .then((all) => {
-          const filtered = filterCards(all, f);
-          setCards(filtered);
-          setLoading(false);
-          setCurrentIndex(0);
-          setShowAnswer(false);
-        })
-        .catch(() => {
-          showToast.error('toast.loadFailed');
-          setLoading(false);
-        });
-    },
-    [fetchAll, filterCards],
-  );
+  const loadCards = (f: FilterMode) => {
+    const { fetchAll, filterCards } = optsRef.current;
+    setLoading(true);
+    fetchAll()
+      .then((all: TCard[]) => {
+        const filtered = filterCards(all, f);
+        setCards(filtered);
+        setLoading(false);
+        setCurrentIndex(0);
+        setShowAnswer(false);
+      })
+      .catch(() => {
+        showToast.error('toast.loadFailed');
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    loadCards('due');
-  }, [loadCards]);
+    const { fetchAll, filterCards } = optsRef.current;
+    setLoading(true);
+    fetchAll()
+      .then((all: TCard[]) => {
+        const filtered = filterCards(all, 'due');
+        setCards(filtered);
+        setLoading(false);
+        setCurrentIndex(0);
+        setShowAnswer(false);
+      })
+      .catch(() => {
+        showToast.error('toast.loadFailed');
+        setLoading(false);
+      });
+  }, []);
 
   const handleReview = async (correct: boolean) => {
     const card = cards[currentIndex];
     if (!card) return;
-    await reviewCard(card, correct);
+    await optsRef.current.reviewCard(card, correct);
     setSessionReviewed((r) => r + 1);
     if (correct) setSessionCorrect((c) => c + 1);
     setShowAnswer(false);
@@ -81,7 +93,7 @@ export function useCardReviewState<TCard>(
   const handleToggleStar = async () => {
     const card = cards[currentIndex];
     if (!card) return;
-    const updated = await toggleStar(card);
+    const updated = await optsRef.current.toggleStar(card);
     setCards((prev) => prev.map((c) => (c === card ? updated : c)));
   };
 

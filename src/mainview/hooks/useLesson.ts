@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { Section } from '../../bun/types';
 import { api } from '../api';
@@ -53,7 +53,7 @@ export function useLesson(
   const contentRef = useRef<HTMLDivElement>(null) as DivRef;
   const sectionsRef = useRef<Section[]>([]);
 
-  const scrollToSection = useCallback((sectionId: string) => {
+  const scrollToSection = (sectionId: string) => {
     const container = contentRef.current;
     if (!container) {
       logger.debug({ sectionId }, 'scrollToSection: no container');
@@ -73,15 +73,15 @@ export function useLesson(
     logger.debug({ sectionId, offset }, 'scrollToSection: scrolling');
     container.scrollTo({ top: offset, behavior: 'smooth' });
     container.focus();
-  }, []);
+  };
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = () => {
     const el = contentRef.current;
     if (!el) return;
     const id = findVisibleHeading(el, sectionsRef.current);
     useLessonUIStore.getState().setVisibleSection(id);
     logger.debug({ id, sectionsCount: sectionsRef.current.length }, 'handleScroll');
-  }, []);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -113,7 +113,7 @@ export function useLesson(
         useLessonViewStore.getState().setLoading(false);
         setLoading(false);
       });
-  }, [courseId, moduleId, handleScroll, scrollToSection]);
+  }, [courseId, moduleId]);
 
   useEffect(() => {
     if (initialSectionID) {
@@ -134,7 +134,7 @@ export function useLesson(
       }
       return () => unsubscribe();
     }
-  }, [initialSectionID, scrollToSection]);
+  }, [initialSectionID]);
 
   return {
     loading,

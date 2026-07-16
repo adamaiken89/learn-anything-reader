@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ProgressBar from '../components/dashboard/ProgressBar';
@@ -30,44 +30,45 @@ export default function ReviewSection({ courseId }: Props) {
   const [flipped, setFlipped] = useState(false);
   const pendingReviewRef = useRef<boolean | null>(null);
 
-  const handleFlip = useCallback(() => {
+  const handleFlip = () => {
     setFlipped(true);
     setShowAnswer(true);
-  }, [setShowAnswer]);
+  };
 
-  const handleReviewWithToss = useCallback((correct: boolean) => {
+  const handleReviewWithToss = (correct: boolean) => {
     pendingReviewRef.current = correct;
     setTossClass(correct ? 'anim-card-toss-right' : 'anim-card-toss-left');
-  }, []);
+  };
 
-  const handleTossEnd = useCallback(() => {
+  const handleTossEnd = () => {
     const correct = pendingReviewRef.current;
     pendingReviewRef.current = null;
     setTossClass('');
     setFlipped(false);
     if (correct !== null) void handleReview(correct);
-  }, [handleReview]);
+  };
+
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!currentCard || tossClass) return;
+    if (e.key === ' ' && !flipped) {
+      e.preventDefault();
+      handleFlip();
+    } else if ((e.key === '1' || e.key === 'f') && flipped) {
+      e.preventDefault();
+      handleReviewWithToss(false);
+    } else if ((e.key === '2' || e.key === 'r') && flipped) {
+      e.preventDefault();
+      handleReviewWithToss(true);
+    } else if (e.key === 's') {
+      e.preventDefault();
+      void handleToggleStar();
+    }
+  });
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!currentCard || tossClass) return;
-      if (e.key === ' ' && !flipped) {
-        e.preventDefault();
-        handleFlip();
-      } else if ((e.key === '1' || e.key === 'f') && flipped) {
-        e.preventDefault();
-        handleReviewWithToss(false);
-      } else if ((e.key === '2' || e.key === 'r') && flipped) {
-        e.preventDefault();
-        handleReviewWithToss(true);
-      } else if (e.key === 's') {
-        e.preventDefault();
-        void handleToggleStar();
-      }
-    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [currentCard, flipped, tossClass, handleFlip, handleReviewWithToss, handleToggleStar]);
+  }, []);
 
   if (loading)
     return (

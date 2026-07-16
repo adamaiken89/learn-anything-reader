@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import type { Course, ModuleMeta } from '../../bun/types';
 import { api } from '../api';
 import { useViewStore } from '../stores/viewStore';
@@ -18,17 +16,17 @@ export function useLessonNav(course: Course, module: ModuleMeta): UseLessonNavRe
   const hasPrev = currentIdx > 0;
   const hasNext = currentIdx < course.modules.length - 1;
 
-  const goPrev = useCallback(() => {
+  const goPrev = () => {
     if (!hasPrev) return;
     const prevMod = course.modules[currentIdx - 1];
     void api.session.getModuleSession(course.id, prevMod.id).then((session) => {
       push({ type: 'lesson', course, module: prevMod, sectionID: session?.sectionId || undefined });
     });
-  }, [hasPrev, course, currentIdx, push]);
+  };
 
-  const goNext = useCallback(() => {
+  const goNext = () => {
     if (hasNext) push({ type: 'lesson', course, module: course.modules[currentIdx + 1] });
-  }, [hasNext, course, currentIdx, push]);
+  };
 
   return { hasPrev, hasNext, goPrev, goNext };
 }

@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function useAutoCopy(handleTextSelection: () => void) {
   const [copied, setCopied] = useState(false);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCopyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const setCopiedWithTimer = useCallback((v: boolean) => {
+  const setCopiedWithTimer = (v: boolean) => {
     if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
     setCopied(v);
     if (v) {
       copiedTimerRef.current = setTimeout(() => setCopied(false), 700);
     }
-  }, []);
+  };
 
-  const triggerAutoCopy = useCallback(() => {
+  const triggerAutoCopy = () => {
     if (autoCopyTimerRef.current) clearTimeout(autoCopyTimerRef.current);
     autoCopyTimerRef.current = setTimeout(() => {
       const sel = window.getSelection();
@@ -25,12 +25,12 @@ export function useAutoCopy(handleTextSelection: () => void) {
         }
       }
     }, 500);
-  }, [setCopiedWithTimer]);
+  };
 
-  const handleTextSelectionWithAutoCopy = useCallback(() => {
+  const handleTextSelectionWithAutoCopy = () => {
     handleTextSelection();
     triggerAutoCopy();
-  }, [handleTextSelection, triggerAutoCopy]);
+  };
 
   useEffect(() => {
     return () => {

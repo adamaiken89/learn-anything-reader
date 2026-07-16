@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import type { Highlight } from '../../bun/types';
 import { useHighlightsStore } from '../stores/highlightsStore';
@@ -28,19 +28,18 @@ export function useHighlights(courseId: string, moduleId: string): UseHighlights
   const k = `${courseId}:${moduleId}`;
   const highlights = useHighlightsStore((s) => s.byModule[k]) ?? [];
 
-  const addHighlight = useCallback(
-    async (text: string, color: string, startOffset?: number, endOffset?: number) => {
-      await add(courseId, moduleId, text, color, startOffset, endOffset);
-    },
-    [add, courseId, moduleId],
-  );
+  const addHighlight = async (
+    text: string,
+    color: string,
+    startOffset?: number,
+    endOffset?: number,
+  ) => {
+    await add(courseId, moduleId, text, color, startOffset, endOffset);
+  };
 
-  const deleteHighlight = useCallback(
-    async (id: string) => {
-      await remove(id);
-    },
-    [remove],
-  );
+  const deleteHighlight = async (id: string) => {
+    await remove(id);
+  };
 
   return { highlights, loading, addHighlight, deleteHighlight };
 }

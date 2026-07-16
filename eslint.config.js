@@ -46,7 +46,7 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
-      'react-compiler/react-compiler': 'warn',
+      'react-compiler/react-compiler': 'error',
       'simple-import-sort/imports': 'warn',
       'import/no-duplicates': 'error',
     },

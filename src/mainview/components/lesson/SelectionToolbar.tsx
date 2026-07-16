@@ -1,5 +1,4 @@
 import { Layers, Pencil } from 'lucide-react';
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -43,40 +42,37 @@ export default function SelectionToolbar() {
       return s.byModule[`${courseId}:${moduleId}`];
     }) ?? [];
 
-  const handleAddHighlight = useCallback(
-    async (color: string) => {
-      const sel = useSelectionStore.getState().selection;
-      if (!sel) return;
-      const root = markdownRef.current ?? contentRef.current;
-      if (!root) return;
-      const offsets = getTextOffset(root, sel.range);
-      if (!offsets) return;
-      await useHighlightsStore
-        .getState()
-        .add(courseId, moduleId, sel.text, color, offsets.start, offsets.end);
-      void navigator.clipboard.writeText(sel.text);
-      setTimeout(() => closeToolbar(), 700);
-      requestAnimationFrame(() => {
-        const marks = contentRef.current?.querySelectorAll('mark');
-        marks?.forEach((mark) => {
-          if (mark.textContent?.trim() === sel.text.trim() && !mark.dataset.flashApplied) {
-            mark.dataset.flashApplied = 'true';
-            mark.classList.add('anim-highlight-flash');
-            setTimeout(() => mark.classList.remove('anim-highlight-flash'), 600);
-          }
-        });
+  const handleAddHighlight = async (color: string) => {
+    const sel = useSelectionStore.getState().selection;
+    if (!sel) return;
+    const root = markdownRef.current ?? contentRef.current;
+    if (!root) return;
+    const offsets = getTextOffset(root, sel.range);
+    if (!offsets) return;
+    await useHighlightsStore
+      .getState()
+      .add(courseId, moduleId, sel.text, color, offsets.start, offsets.end);
+    void navigator.clipboard.writeText(sel.text);
+    setTimeout(() => closeToolbar(), 700);
+    requestAnimationFrame(() => {
+      const marks = contentRef.current?.querySelectorAll('mark');
+      marks?.forEach((mark) => {
+        if (mark.textContent?.trim() === sel.text.trim() && !mark.dataset.flashApplied) {
+          mark.dataset.flashApplied = 'true';
+          mark.classList.add('anim-highlight-flash');
+          setTimeout(() => mark.classList.remove('anim-highlight-flash'), 600);
+        }
       });
-    },
-    [contentRef, markdownRef, courseId, moduleId, closeToolbar],
-  );
+    });
+  };
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = () => {
     const id = useSelectionStore.getState().selectedHighlightId;
     if (id) {
       void useHighlightsStore.getState().remove(id);
       closeToolbar();
     }
-  }, [closeToolbar]);
+  };
 
   const { menuRef, position } = useFloatingPosition(
     store.pickerPos.x,

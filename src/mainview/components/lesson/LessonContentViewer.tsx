@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -106,7 +106,7 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
     selectionState.handleTextSelection,
   );
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = () => {
     const el = contentRef.current;
     if (!el) return;
     const id = findVisibleHeading(el, sections);
@@ -116,7 +116,7 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
         ? Math.min(100, Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100))
         : 0;
     setScrollPct(pct);
-  }, [contentRef, sections]);
+  };
 
   const highlights = useHighlightsStore((s) => s.byModule[`${courseId}:${moduleId}`]);
   const markdownRef = useRef<HTMLDivElement>(null);
@@ -124,18 +124,14 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
     setMarkdownRef(markdownRef);
   }, [setMarkdownRef]);
 
-  const rehypePlugins = useMemo(
-    () =>
-      [
-        rehypeHighlight,
-        rehypeCloze,
-        [rehypeHighlightText, highlights ?? []],
-        ...(search.searchActive && search.searchQuery
-          ? [[rehypeSearchText, search.searchQuery, search.caseSensitive]]
-          : []),
-      ] as PluggableList,
-    [highlights, search.searchActive, search.searchQuery, search.caseSensitive],
-  );
+  const rehypePlugins = [
+    rehypeHighlight,
+    rehypeCloze,
+    [rehypeHighlightText, highlights ?? []],
+    ...(search.searchActive && search.searchQuery
+      ? [[rehypeSearchText, search.searchQuery, search.caseSensitive]]
+      : []),
+  ] as PluggableList;
 
   return (
     <>

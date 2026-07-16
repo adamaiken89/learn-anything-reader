@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Highlight } from '../../../bun/types';
@@ -78,15 +78,12 @@ export default function NotesHighlightsTab() {
     showToast.success('toast.deleted');
   };
 
-  const handleDeleteHighlight = useCallback(
-    async (id: string) => {
-      await removeHighlight(id);
-      showToast.success('toast.deleted');
-    },
-    [removeHighlight],
-  );
+  const handleDeleteHighlight = async (id: string) => {
+    await removeHighlight(id);
+    showToast.success('toast.deleted');
+  };
 
-  const mergedItems = useMemo<MergedItem[]>(() => {
+  const mergedItems: MergedItem[] = (() => {
     const notes = notesByModule[k] ?? [];
     const highlights = highlightsByModule[k] ?? [];
     const items: MergedItem[] = [];
@@ -101,7 +98,7 @@ export default function NotesHighlightsTab() {
       return new Date(aTime).getTime() - new Date(bTime).getTime();
     });
     return items;
-  }, [notesByModule, highlightsByModule, k]);
+  })();
 
   const handleNavigate = (item: MergedItem) => {
     if (item.kind === 'highlight') {

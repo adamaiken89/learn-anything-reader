@@ -1,5 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, spyOn, test } from 'bun:test';
 
 import * as helpersModule from '../../sections/lessonHelpers';
@@ -66,8 +65,6 @@ beforeEach(() => {
 });
 
 describe('NoteEditor', () => {
-  const user = userEvent.setup();
-
   test('renders selected text and textarea', () => {
     setupStore();
     const { getByTestId, getByText } = render(<NoteEditor />);
@@ -118,18 +115,20 @@ describe('NoteEditor', () => {
     setupStore();
     const { getByText, getByTestId } = render(<NoteEditor />);
     expect(getByTestId('note-editor')).toBeInTheDocument();
-    await user.click(getByText('Cancel'));
-    expect(useSelectionStore.getState().showNoteEditor).toBe(false);
+    fireEvent.click(getByText('Cancel'));
+    await waitFor(() => {
+      expect(useSelectionStore.getState().showNoteEditor).toBe(false);
+    });
   });
 
-  test('calls addAnnotation on save', async () => {
+  test('calls addAnnotation on save', () => {
     setupStore();
     useSelectionStore.setState({
       noteText: 'my note',
       selection: { text: 'some highlighted text', range: mockRange as unknown as Range },
     });
     const { getByText } = render(<NoteEditor />);
-    await user.click(getByText('Save Note'));
+    fireEvent.click(getByText('Save Note'));
   });
 
   test('full save flow — addAnnotation + close + load highlights', async () => {
@@ -147,7 +146,7 @@ describe('NoteEditor', () => {
       selection: { text: 'some highlighted text', range: mockRange as unknown as Range },
     });
     const { getByText } = render(<NoteEditor />);
-    await user.click(getByText('Save Note'));
+    fireEvent.click(getByText('Save Note'));
     await waitFor(() => {
       expect(useSelectionStore.getState().showNoteEditor).toBe(false);
     });

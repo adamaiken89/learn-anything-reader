@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSearchOverlay } from '../hooks/useSearchOverlay';
@@ -34,19 +34,16 @@ export default function SearchOverlay({ initialCourseIDs, onClose }: SearchOverl
     groupedResults,
   } = useSearchOverlay({ initialCourseIDs, onClose });
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     dragStartY.current = e.touches[0].clientY;
-  }, []);
+  };
 
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (dragStartY.current === null) return;
-      const delta = e.changedTouches[0].clientY - dragStartY.current;
-      dragStartY.current = null;
-      if (delta > 80) handleClose();
-    },
-    [handleClose],
-  );
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (dragStartY.current === null) return;
+    const delta = e.changedTouches[0].clientY - dragStartY.current;
+    dragStartY.current = null;
+    if (delta > 80) handleClose();
+  };
 
   return (
     <div

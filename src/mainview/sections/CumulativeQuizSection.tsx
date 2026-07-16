@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, QuizQuestion } from '../../bun/types';
@@ -43,94 +43,82 @@ export default function CumulativeQuizSection({ course, cumulativeQuizId }: Prop
 
   const [highlightedIdx, setHighlightedIdx] = useState(-1);
 
-  const handleRetry = useCallback(() => {
+  const handleRetry = () => {
     retry();
-  }, [retry]);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (status !== 'ready' || !currentQuestion) return;
+  const handleKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    if (status !== 'ready' || !currentQuestion) return;
 
-      if (currentQuestion.type !== 'cloze') {
-        const optionKeys = Object.keys(currentQuestion.options);
-        const GRID_COLS = 2;
+    if (currentQuestion.type !== 'cloze') {
+      const optionKeys = Object.keys(currentQuestion.options);
+      const GRID_COLS = 2;
 
-        const isForward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-        const isBackward = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
+      const isForward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+      const isBackward = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
 
-        if (isForward) {
-          e.preventDefault();
-          setHighlightedIdx((i) => {
-            if (i < 0) return 0;
-            if (e.key === 'ArrowRight') {
-              const col = i % GRID_COLS;
-              if (col + 1 >= GRID_COLS || i + 1 >= optionKeys.length) return i;
-              return i + 1;
-            }
-            return i + GRID_COLS < optionKeys.length ? i + GRID_COLS : i;
-          });
-          return;
-        }
-
-        if (isBackward) {
-          e.preventDefault();
-          setHighlightedIdx((i) => {
-            if (i < 0) return e.key === 'ArrowLeft' ? GRID_COLS - 1 : optionKeys.length - 1;
-            if (e.key === 'ArrowLeft') {
-              const col = i % GRID_COLS;
-              if (col === 0) return i;
-              return i - 1;
-            }
-            return i - GRID_COLS >= 0 ? i - GRID_COLS : i;
-          });
-          return;
-        }
-
-        if ((e.key === 'Enter' || e.key === ' ') && !hasAnswer && highlightedIdx >= 0) {
-          e.preventDefault();
-          selectAnswer(optionKeys[highlightedIdx]);
-          return;
-        }
-
-        if (e.key.length === 1 && /^[A-D a-d]$/i.test(e.key)) {
-          e.preventDefault();
-          const key = e.key.toUpperCase();
-          const idx = optionKeys.indexOf(key);
-          if (idx >= 0) {
-            setHighlightedIdx(idx);
-            selectAnswer(key);
-          }
-          return;
-        }
-      }
-
-      if ((e.key === 'Enter' || e.key === ' ') && hasAnswer) {
+      if (isForward) {
         e.preventDefault();
-        nextQuestion();
+        setHighlightedIdx((i) => {
+          if (i < 0) return 0;
+          if (e.key === 'ArrowRight') {
+            const col = i % GRID_COLS;
+            if (col + 1 >= GRID_COLS || i + 1 >= optionKeys.length) return i;
+            return i + 1;
+          }
+          return i + GRID_COLS < optionKeys.length ? i + GRID_COLS : i;
+        });
         return;
       }
 
-      if (e.key === 'Escape') {
+      if (isBackward) {
         e.preventDefault();
-        skipQuestion();
+        setHighlightedIdx((i) => {
+          if (i < 0) return e.key === 'ArrowLeft' ? GRID_COLS - 1 : optionKeys.length - 1;
+          if (e.key === 'ArrowLeft') {
+            const col = i % GRID_COLS;
+            if (col === 0) return i;
+            return i - 1;
+          }
+          return i - GRID_COLS >= 0 ? i - GRID_COLS : i;
+        });
+        return;
       }
-    },
-    [
-      status,
-      currentQuestion,
-      hasAnswer,
-      highlightedIdx,
-      selectAnswer,
-      nextQuestion,
-      skipQuestion,
-      setHighlightedIdx,
-    ],
-  );
+
+      if ((e.key === 'Enter' || e.key === ' ') && !hasAnswer && highlightedIdx >= 0) {
+        e.preventDefault();
+        selectAnswer(optionKeys[highlightedIdx]);
+        return;
+      }
+
+      if (e.key.length === 1 && /^[A-D a-d]$/i.test(e.key)) {
+        e.preventDefault();
+        const key = e.key.toUpperCase();
+        const idx = optionKeys.indexOf(key);
+        if (idx >= 0) {
+          setHighlightedIdx(idx);
+          selectAnswer(key);
+        }
+        return;
+      }
+    }
+
+    if ((e.key === 'Enter' || e.key === ' ') && hasAnswer) {
+      e.preventDefault();
+      nextQuestion();
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      skipQuestion();
+    }
+  });
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, []);
 
   if (status === 'loading') {
     return <div className={loadingIndicator()}>{t('quiz.loadingQuiz')}</div>;

@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { UseLessonSearchReturn } from '../../hooks/useLessonSearch';
@@ -16,26 +16,23 @@ export default function ViewerSearch({ search }: ViewerSearchProps) {
     inputRef.current?.focus();
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
-        inputRef.current?.select();
-        return;
-      }
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (e.shiftKey) search.handleSearchPrev();
-        else search.handleSearchNext();
-        return;
-      }
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        search.handleSearchClose();
-        return;
-      }
-    },
-    [search],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+      inputRef.current?.select();
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (e.shiftKey) search.handleSearchPrev();
+      else search.handleSearchNext();
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      search.handleSearchClose();
+      return;
+    }
+  };
 
   return (
     <div

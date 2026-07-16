@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface UseLessonSearchReturn {
   searchActive: boolean;
@@ -58,30 +58,30 @@ export function useLessonSearch(
     }
   }, [searchQuery, searchActive, currentMatchIndex, caseSensitive, contentRef]);
 
-  const handleSearchQueryChange = useCallback((q: string) => {
+  const handleSearchQueryChange = (q: string) => {
     setSearchQuery(q);
     setCurrentMatchIndex(0);
-  }, []);
+  };
 
-  const handleSearchPrev = useCallback(() => {
+  const handleSearchPrev = () => {
     setCurrentMatchIndex((i) => (i > 0 ? i - 1 : totalMatches - 1));
-  }, [totalMatches]);
+  };
 
-  const handleSearchNext = useCallback(() => {
+  const handleSearchNext = () => {
     setCurrentMatchIndex((i) => (i < totalMatches - 1 ? i + 1 : 0));
-  }, [totalMatches]);
+  };
 
-  const handleSearchClose = useCallback(() => {
+  const handleSearchClose = () => {
     setSearchActive(false);
     setSearchQuery('');
     setCurrentMatchIndex(0);
     setTotalMatches(0);
     setCaseSensitive(false);
-  }, []);
+  };
 
-  const toggleCaseSensitive = useCallback(() => {
+  const toggleCaseSensitive = () => {
     setCaseSensitive((c) => !c);
-  }, []);
+  };
 
   return {
     searchActive,

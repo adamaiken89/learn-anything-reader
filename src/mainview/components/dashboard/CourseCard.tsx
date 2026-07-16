@@ -1,5 +1,5 @@
 import { CheckSquare, Layers, Type } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course } from '../../../bun/types';
@@ -34,7 +34,7 @@ export default function CourseCard({ course }: { course: Course }) {
       .catch(() => {});
   }, [course.id, course.modules]);
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     void api.session.getCourseModuleSessions(course.id).then((sessions) => {
       if (sessions.length > 0) {
         const last = sessions[0];
@@ -46,17 +46,14 @@ export default function CourseCard({ course }: { course: Course }) {
       }
       push({ type: 'lesson', course, module: course.modules[0] });
     });
-  }, [course, push]);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleClick();
-      }
-    },
-    [handleClick],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   const quizBtnClass =
     'flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-gray-700/50 text-gray-400 hover:text-gray-200 hover:bg-gray-600/50 transition-colors cursor-pointer';

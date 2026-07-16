@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const TOOLBAR_BTN = 'px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer';
@@ -18,13 +18,14 @@ export default function MermaidOverlay({ svg, bg, onClose }: Props) {
   const [isPanning, setIsPanning] = useState(false);
   const dragStart = useRef({ startX: 0, startY: 0, panX: 0, panY: 0 });
 
+  const onEscape = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  });
+
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose]);
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, []);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -50,46 +51,37 @@ export default function MermaidOverlay({ svg, bg, onClose }: Props) {
     };
   }, [isPanning]);
 
-  const applyZoomWithCenterAnchor = useCallback(
-    (newZoom: number) => {
-      const rect = contentRef.current?.getBoundingClientRect();
-      const cx = rect ? rect.width / 2 : window.innerWidth / 2;
-      const cy = rect ? rect.height / 2 : window.innerHeight / 2;
-      setPan({
-        x: cx - (cx - pan.x) * (newZoom / zoom),
-        y: cy - (cy - pan.y) * (newZoom / zoom),
-      });
-      setZoom(newZoom);
-    },
-    [zoom, pan.x, pan.y],
-  );
+  const applyZoomWithCenterAnchor = (newZoom: number) => {
+    const rect = contentRef.current?.getBoundingClientRect();
+    const cx = rect ? rect.width / 2 : window.innerWidth / 2;
+    const cy = rect ? rect.height / 2 : window.innerHeight / 2;
+    setPan({
+      x: cx - (cx - pan.x) * (newZoom / zoom),
+      y: cy - (cy - pan.y) * (newZoom / zoom),
+    });
+    setZoom(newZoom);
+  };
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button')) return;
-      e.preventDefault();
-      setIsPanning(true);
-      dragStart.current = { startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y };
-    },
-    [pan.x, pan.y],
-  );
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    e.preventDefault();
+    setIsPanning(true);
+    dragStart.current = { startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y };
+  };
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      const newZoom = Math.max(0.5, Math.min(5, zoom * Math.exp(-e.deltaY * 0.002)));
-      const rect = contentRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      setPan({
-        x: mx - (mx - pan.x) * (newZoom / zoom),
-        y: my - (my - pan.y) * (newZoom / zoom),
-      });
-      setZoom(newZoom);
-    },
-    [zoom, pan.x, pan.y],
-  );
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const newZoom = Math.max(0.5, Math.min(5, zoom * Math.exp(-e.deltaY * 0.002)));
+    const rect = contentRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    setPan({
+      x: mx - (mx - pan.x) * (newZoom / zoom),
+      y: my - (my - pan.y) * (newZoom / zoom),
+    });
+    setZoom(newZoom);
+  };
 
   const handleDownload = async () => {
     const blob = new Blob([svg], { type: 'image/svg+xml' });

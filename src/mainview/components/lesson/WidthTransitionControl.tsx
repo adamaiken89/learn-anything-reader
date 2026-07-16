@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { TransitionStyle } from '../../stores/settingsStore';
@@ -12,11 +11,11 @@ function WidthTransitionControl() {
   const transitionStyle = useSettingsStore((s) => s.transitionStyle);
   const setTransitionStyle = useSettingsStore((s) => s.setTransitionStyle);
 
-  const cycleTransition = useCallback(() => {
+  const cycleTransition = () => {
     const order: TransitionStyle[] = ['none', 'flip', 'slide', 'fade'];
     const next = order[(order.indexOf(transitionStyle) + 1) % order.length];
     setTransitionStyle(next);
-  }, [transitionStyle, setTransitionStyle]);
+  };
 
   return (
     <>

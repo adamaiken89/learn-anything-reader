@@ -2,7 +2,7 @@ import type { DragEndEvent } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/react';
 import clsx from 'clsx';
 import { CornerDownLeft } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Course, ModuleMeta, QuizQuestion, StudySession } from '../../bun/types';
@@ -140,52 +140,47 @@ export default function ClozeQuizSection({ course, module }: Props) {
 
   const currentQuestion = questions[currentIndex];
 
-  const { segments, answers: inlineAnswers } = useMemo(
-    () =>
-      currentQuestion ? parseClozeText(currentQuestion.question) : { segments: [], answers: [] },
-    [currentQuestion],
-  );
+  const { segments, answers: inlineAnswers } = currentQuestion
+    ? parseClozeText(currentQuestion.question)
+    : { segments: [], answers: [] };
 
-  const questionAnswers = useMemo(() => {
+  const questionAnswers = (() => {
     if (inlineAnswers.length > 0) return inlineAnswers;
     if (currentQuestion?.answer) return [currentQuestion.answer];
     return [];
-  }, [inlineAnswers, currentQuestion]);
+  })();
 
-  const tokenPool = useMemo(() => {
+  const tokenPool = (() => {
     if (!currentQuestion || questionAnswers.length === 0) return [];
     const distractors = questions.map((q) => q.answer).filter((a) => !questionAnswers.includes(a));
     const pool = [...questionAnswers, ...distractors.slice(0, 3)];
     return pool.sort(() => Math.random() - 0.5);
-  }, [questions, currentQuestion, questionAnswers]);
+  })();
 
   const allBlanksFilled = questionAnswers.every((_, i) => filledBlanks[i] !== undefined);
   const hasAnswer = allBlanksFilled;
 
-  const selectAnswer = useCallback(
-    (answer: string) => {
-      const q = questions[currentIndex];
-      if (!q) return;
-      setSelectedAnswers((prev) => ({ ...prev, [q.id]: answer }));
-    },
-    [questions, currentIndex],
-  );
+  const selectAnswer = (answer: string) => {
+    const q = questions[currentIndex];
+    if (!q) return;
+    setSelectedAnswers((prev) => ({ ...prev, [q.id]: answer }));
+  };
 
-  const nextQuestion = useCallback(() => {
+  const nextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
     } else {
       setStatus('completed');
     }
-  }, [currentIndex, questions.length]);
+  };
 
-  const retry = useCallback(() => {
+  const retry = () => {
     setStatus('ready');
     setCurrentIndex(0);
     setSelectedAnswers({});
     setFilledBlanks({});
     setWrongBlankIdx(null);
-  }, []);
+  };
 
   const score = questions.filter((q) => {
     const ua = selectedAnswers[q.id];
@@ -193,61 +188,55 @@ export default function ClozeQuizSection({ course, module }: Props) {
     return ua.trim().toLowerCase() === q.answer.trim().toLowerCase();
   }).length;
 
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { source, target } = event.operation;
-      if (!source || !target || !currentQuestion) return;
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { source, target } = event.operation;
+    if (!source || !target || !currentQuestion) return;
 
-      const draggedToken = String(source.id);
-      const targetId = String(target.id);
+    const draggedToken = String(source.id);
+    const targetId = String(target.id);
 
-      const blankIdxMatch = targetId.match(/^blank-(\d+)$/);
-      if (!blankIdxMatch) return;
-      const blankIdx = Number(blankIdxMatch[1]);
+    const blankIdxMatch = targetId.match(/^blank-(\d+)$/);
+    if (!blankIdxMatch) return;
+    const blankIdx = Number(blankIdxMatch[1]);
 
-      const expectedAnswer = questionAnswers[blankIdx];
-      if (expectedAnswer === undefined) return;
+    const expectedAnswer = questionAnswers[blankIdx];
+    if (expectedAnswer === undefined) return;
 
-      if (draggedToken === expectedAnswer) {
-        const newFilled = { ...filledBlanks, [blankIdx]: draggedToken };
-        setFilledBlanks(newFilled);
+    if (draggedToken === expectedAnswer) {
+      const newFilled = { ...filledBlanks, [blankIdx]: draggedToken };
+      setFilledBlanks(newFilled);
 
-        const fullAnswer = questionAnswers.map((a, i) => newFilled[i] || a).join(', ');
-        selectAnswer(fullAnswer);
+      const fullAnswer = questionAnswers.map((a, i) => newFilled[i] || a).join(', ');
+      selectAnswer(fullAnswer);
+    } else {
+      setWrongBlankIdx(blankIdx);
+      setTimeout(() => setWrongBlankIdx(null), 600);
+    }
+  };
+
+  const handleKeyDown = useEffectEvent((e: KeyboardEvent) => {
+    if (status !== 'ready' || !currentQuestion) return;
+
+    if ((e.key === 'Enter' || e.key === ' ') && hasAnswer) {
+      e.preventDefault();
+      nextQuestion();
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex((i) => i + 1);
       } else {
-        setWrongBlankIdx(blankIdx);
-        setTimeout(() => setWrongBlankIdx(null), 600);
+        setStatus('completed');
       }
-    },
-    [currentQuestion, questionAnswers, filledBlanks, selectAnswer],
-  );
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (status !== 'ready' || !currentQuestion) return;
-
-      if ((e.key === 'Enter' || e.key === ' ') && hasAnswer) {
-        e.preventDefault();
-        nextQuestion();
-        return;
-      }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        if (currentIndex < questions.length - 1) {
-          setCurrentIndex((i) => i + 1);
-        } else {
-          setStatus('completed');
-        }
-      }
-    },
-    [status, currentQuestion, hasAnswer, nextQuestion, currentIndex, questions.length],
-  );
+    }
+  });
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, []);
 
   if (status === 'loading') {
     return <div className={loadingIndicator()}>{t('quiz.loadingQuiz')}</div>;

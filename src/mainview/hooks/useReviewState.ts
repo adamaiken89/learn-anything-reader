@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import type { SRSCard, SRSDeck } from '../../bun/types';
 import { api } from '../api';
@@ -26,47 +26,38 @@ interface UseReviewStateReturn {
 export function useReviewState(courseId: string): UseReviewStateReturn {
   const [deck, setDeck] = useState<SRSDeck>({ cards: {} });
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = async () => {
     const d = await api.courses.srs.get(courseId);
     setDeck(d);
     return Object.values(d.cards);
-  }, [courseId]);
+  };
 
-  const filterCards = useCallback((cards: SRSCard[], filter: FilterMode) => {
+  const filterCards = (cards: SRSCard[], filter: FilterMode) => {
     if (filter === 'due') return cards.filter((c) => new Date(c.nextReviewDate) <= new Date());
     if (filter === 'starred') return cards.filter((c) => c.isStarred);
     return cards;
-  }, []);
+  };
 
-  const reviewCard = useCallback(
-    async (card: SRSCard, correct: boolean) => {
-      const result = await api.courses.srs.review(courseId, card.id, correct, deck);
-      setDeck((d) => ({ ...d, cards: { ...d.cards, [card.id]: result } }));
-    },
-    [courseId, deck],
-  );
+  const reviewCard = async (card: SRSCard, correct: boolean) => {
+    const result = await api.courses.srs.review(courseId, card.id, correct, deck);
+    setDeck((d) => ({ ...d, cards: { ...d.cards, [card.id]: result } }));
+  };
 
-  const toggleStar = useCallback(
-    async (card: SRSCard) => {
-      await api.courses.srs.toggleStar(courseId, card.id);
-      return { ...card, isStarred: !card.isStarred };
-    },
-    [courseId],
-  );
+  const toggleStar = async (card: SRSCard) => {
+    await api.courses.srs.toggleStar(courseId, card.id);
+    return { ...card, isStarred: !card.isStarred };
+  };
 
   const state = useCardReviewState<SRSCard>({
     fetchAll,
     filterCards,
     reviewCard,
     toggleStar,
-    isStarred: useCallback((c: SRSCard) => c.isStarred, []),
+    isStarred: (c: SRSCard) => c.isStarred,
   });
 
-  return useMemo(
-    () => ({
-      ...state,
-      deck,
-    }),
-    [state, deck],
-  );
+  return {
+    ...state,
+    deck,
+  };
 }

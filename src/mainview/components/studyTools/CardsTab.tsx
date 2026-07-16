@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { UserCard } from '../../../bun/types';
@@ -17,17 +17,14 @@ export default function CardsTab() {
   const courseId = lastView?.type === 'lesson' ? lastView.course.id : '';
   const moduleId = lastView?.type === 'lesson' ? lastView.module.id : '';
 
-  const loadCards = useCallback(() => {
+  useEffect(() => {
+    if (!courseId || !moduleId) return;
     setLoading(true);
     void api.usercards
       .list(courseId, moduleId)
       .then(setCards)
       .finally(() => setLoading(false));
   }, [courseId, moduleId]);
-
-  useEffect(() => {
-    if (courseId && moduleId) loadCards();
-  }, [loadCards, courseId, moduleId]);
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
