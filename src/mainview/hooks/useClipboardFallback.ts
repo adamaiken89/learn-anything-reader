@@ -11,15 +11,28 @@ function isEditable(el: Element | null): boolean {
   );
 }
 
-function exec(cmd: string, el: Element): void {
-  try {
-    const ok = document.execCommand(cmd);
-    if (ok) return;
-  } catch {
-    /* execCommand threw */
-  }
-  if (cmd === 'selectAll' && 'select' in el) {
+function selectAll(el: Element): void {
+  if ('select' in el) {
     (el as HTMLInputElement | HTMLTextAreaElement).select();
+  }
+}
+
+function copySelection(): void {
+  if (navigator.clipboard?.writeText) {
+    const text = window.getSelection()?.toString();
+    if (text) {
+      navigator.clipboard.writeText(text).catch(() => copyFallback());
+      return;
+    }
+  }
+  copyFallback();
+}
+
+function copyFallback(): void {
+  try {
+    document.execCommand('copy');
+  } catch {
+    /* execCommand unavailable */
   }
 }
 
@@ -34,13 +47,13 @@ export function useClipboardFallback(): void {
 
       if (key === 'a') {
         e.preventDefault();
-        exec('selectAll', el);
+        selectAll(el);
         return;
       }
 
       if (key === 'c') {
         e.preventDefault();
-        exec('copy', el);
+        copySelection();
       }
     };
 
