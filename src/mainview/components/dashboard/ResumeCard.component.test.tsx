@@ -36,6 +36,7 @@ function makeLastSession(overrides?: Partial<LastSession>): LastSession {
 
 beforeEach(() => {
   clearMocks();
+  mockResponse('quizIndex', { modules: {}, cumulativeQuizzes: [] });
   mockResponse('hasClozeQuiz', false);
   mockResponse('hasCumulativeQuiz', false);
   useCompletionStore.setState({
