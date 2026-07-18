@@ -38,24 +38,44 @@ import SelectionToolbar from './SelectionToolbar';
 
 const PERPLEXITY_PLACEHOLDER = '%%PERPLEXITY%%:';
 
+function matchSectionUntilEnd(content: string, heading: string): string {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const middle = content.match(new RegExp(`^## ${escaped}[\\s\\S]*?(?=\\n## )`, 'm'));
+  if (middle) return middle[0];
+  const last = content.match(new RegExp(`^## ${escaped}[\\s\\S]*$`, 'm'));
+  return last?.[0] ?? '';
+}
+
 function extractSkillSection(content: string, label: string): string | undefined {
-  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(`^## ${escaped}\\s*[\\s\\S]*?(?=^## |$)`, 'm');
-  const match = content.match(regex);
-  if (!match) return undefined;
-  return match[0].replace(`## ${label}`, '').trim();
+  const section = matchSectionUntilEnd(content, label);
+  if (!section) return undefined;
+  return section.replace(`## ${label}`, '').trim();
+}
+
+function removeSection(content: string, heading: string): string {
+  let r = content.replace(new RegExp(`^## ${heading}[\\s\\S]*?(?=\\n## )`, 'm'), '');
+  r = r.replace(new RegExp(`^## ${heading}[\\s\\S]*$`, 'm'), '');
+  return r;
+}
+
+function replaceSectionWithPlaceholder(
+  content: string,
+  heading: string,
+  placeholder: string,
+): string {
+  const section = matchSectionUntilEnd(content, heading);
+  if (!section) return content;
+  return content.replace(section, section.trimEnd() + '\n\n' + placeholder + '\n');
 }
 
 function processLessonContent(content: string): string {
-  let result = content.replace(/^## Drill[\s\S]*?(?=^## |$)/m, '');
-  result = result.replace(
-    /^## Feynman Explain\s*\n[\s\S]*?(?=^## |$)/m,
-    (match) => match.trimEnd() + '\n\n' + PERPLEXITY_PLACEHOLDER + 'feynman\n',
+  let result = removeSection(content, 'Drill');
+  result = replaceSectionWithPlaceholder(
+    result,
+    'Feynman Explain',
+    PERPLEXITY_PLACEHOLDER + 'feynman',
   );
-  result = result.replace(
-    /^## Reframe\s*\n[\s\S]*?(?=^## |$)/m,
-    (match) => match.trimEnd() + '\n\n' + PERPLEXITY_PLACEHOLDER + 'reframe\n',
-  );
+  result = replaceSectionWithPlaceholder(result, 'Reframe', PERPLEXITY_PLACEHOLDER + 'reframe');
   return result;
 }
 

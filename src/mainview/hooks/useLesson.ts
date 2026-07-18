@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 import type { Section } from '../../bun/types';
 import { api } from '../api';
@@ -6,6 +6,7 @@ import { logger } from '../logger';
 import { useLessonUIStore } from '../stores/lessonUIStore';
 import { useLessonViewStore } from '../stores/lessonViewStore';
 import { showToast } from '../toast';
+import { useScrollToSection } from './useScrollToSection';
 
 type DivRef = React.RefObject<HTMLDivElement>;
 
@@ -53,27 +54,8 @@ export function useLesson(
   const contentRef = useRef<HTMLDivElement>(null) as DivRef;
   const sectionsRef = useRef<Section[]>([]);
 
-  const scrollToSection = (sectionId: string) => {
-    const container = contentRef.current;
-    if (!container) {
-      logger.debug({ sectionId }, 'scrollToSection: no container');
-      return;
-    }
-    const el = container.querySelector(`[id="${sectionId}"]`);
-    if (!el) {
-      const ids = Array.from(container.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((h) => h.id);
-      logger.debug({ sectionId, ids }, 'scrollToSection: element not found');
-      return;
-    }
-    const offset =
-      el.getBoundingClientRect().top -
-      container.getBoundingClientRect().top +
-      container.scrollTop -
-      20;
-    logger.debug({ sectionId, offset }, 'scrollToSection: scrolling');
-    container.scrollTo({ top: offset, behavior: 'smooth' });
-    container.focus();
-  };
+  const scrollToSection = useScrollToSection(contentRef);
+  const scrollTo = useEffectEvent(scrollToSection);
 
   const handleScroll = () => {
     const el = contentRef.current;
@@ -97,7 +79,7 @@ export function useLesson(
         vs.setBodyContent(lesson.bodyContent);
         vs.setSections(lesson.sections);
         vs.setContentRef(contentRef);
-        vs.setScrollToSection(scrollToSection);
+        vs.setScrollToSection(scrollTo);
         vs.setCourseId(courseId);
         vs.setModuleId(moduleId);
         vs.setLoading(false);
@@ -120,15 +102,14 @@ export function useLesson(
       const unsubscribe = useLessonViewStore.subscribe((state) => {
         if (state.content) {
           requestAnimationFrame(() => {
-            scrollToSection(initialSectionID);
+            scrollTo(initialSectionID);
           });
           unsubscribe();
         }
       });
-      // If content already loaded, scroll immediately
       if (useLessonViewStore.getState().content) {
         requestAnimationFrame(() => {
-          scrollToSection(initialSectionID);
+          scrollTo(initialSectionID);
         });
         unsubscribe();
       }

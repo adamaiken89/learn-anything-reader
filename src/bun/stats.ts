@@ -1,5 +1,5 @@
 import * as CourseLoader from './courseLoader';
-import * as Storage from './storage';
+import * as StorageProgress from './persistence-progress';
 import * as SRS from './srs';
 
 export interface CourseStats {
@@ -42,8 +42,8 @@ export function getCourseStats(courseID: string): CourseStats {
   if (!course) throw new Error(`Course ${courseID} not found`);
 
   const totalModules = course.modules.length;
-  const completedModules = Storage.getCompletedModuleCount(courseID);
-  const sessions = Storage.getStudySessions(courseID, 90);
+  const completedModules = StorageProgress.getCompletedModuleCount(courseID);
+  const sessions = StorageProgress.getStudySessions(courseID, 90);
   const totalStudyMinutes = sessions.reduce((sum, s) => sum + s.durationMinutes, 0);
 
   const quizSessions = sessions.filter(
@@ -70,7 +70,7 @@ export function getCourseStats(courseID: string): CourseStats {
     srsDueCount: dueCards.length,
     srsTotalCards: allCards.length,
     totalStudyMinutes,
-    streak: Storage.getDailyStreak(),
+    streak: StorageProgress.getDailyStreak(),
     recentSessions: sessions.slice(0, 20).map((s) => ({
       date: s.date,
       type: s.type,
@@ -83,16 +83,16 @@ export function getCourseStats(courseID: string): CourseStats {
 
 export function getGlobalStats(): GlobalStats {
   const courses = CourseLoader.loadCourses();
-  const allSessions = Storage.getGlobalStudySessions(90);
+  const allSessions = StorageProgress.getGlobalStudySessions(90);
   const totalStudyMinutes = allSessions.reduce((sum, s) => sum + s.durationMinutes, 0);
 
   let totalCompletedModules = 0;
   const courseSummaries: GlobalStats['courseSummaries'] = [];
 
   for (const course of courses) {
-    const completed = Storage.getCompletedModuleCount(course.id);
+    const completed = StorageProgress.getCompletedModuleCount(course.id);
     totalCompletedModules += completed;
-    const sessions = Storage.getStudySessions(course.id, 90);
+    const sessions = StorageProgress.getStudySessions(course.id, 90);
     const lastStudied = sessions.length > 0 ? sessions[0].date : null;
     courseSummaries.push({
       courseID: course.id,
@@ -108,7 +108,7 @@ export function getGlobalStats(): GlobalStats {
     totalModules: courses.reduce((sum, c) => sum + c.modules.length, 0),
     totalCompletedModules,
     totalStudyMinutes,
-    streak: Storage.getDailyStreak(),
+    streak: StorageProgress.getDailyStreak(),
     courseSummaries,
   };
 }
