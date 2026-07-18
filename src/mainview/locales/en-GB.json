@@ -147,15 +147,8 @@
     "cardCounter": "{{current}} / {{total}}"
   },
   "settings": {
-    "integration": "Integration",
     "preferences": "Preferences",
-    "geminiApiKey": "Gemini API Key",
-    "geminiApiKeyDesc": "Required for the Ask AI feature. Get a free key at",
-    "aiStudioLink": "Google AI Studio",
-    "apiKeySet": "API key set (enter new key to change)",
-    "apiKeyPlaceholder": "Enter your Gemini API key",
     "saved": "Saved!",
-    "apiKeyConfigured": "✓ API key is configured",
     "readingTheme": "Reading Theme",
     "fontSize": "Font Size",
     "layout": "Layout",
@@ -268,9 +261,10 @@
     "removeBookmark": "Remove Bookmark",
     "addBookmark": "Add Bookmark",
     "askQuestion": "Ask a question about this lesson...",
-    "thinking": "Thinking...",
     "ask": "Ask",
-    "aiError": "Error: Check Gemini API key in Settings.",
+    "aiPowerups": "AI Power-ups",
+    "askAnything": "Ask anything",
+    "promptCopied": "Prompt copied! Opening browser...",
     "cardBack": "Answer / explanation",
     "cardDue": "Due",
     "cardFront": "Question / prompt",
@@ -364,7 +358,6 @@
     "loadFailed": "Failed to load",
     "syncComplete": "Sync complete",
     "syncFailed": "Sync failed",
-    "aiFailed": "AI request failed",
     "clipboardFailed": "Clipboard access denied"
   },
   "mermaid": {

@@ -147,15 +147,8 @@
     "cardCounter": "第 {{current}} 张，共 {{total}} 张"
   },
   "settings": {
-    "integration": "整合",
     "preferences": "偏好设置",
-    "geminiApiKey": "Gemini API 密钥",
-    "geminiApiKeyDesc": "Ask AI 功能需要此密钥。前往以下网站免费获取密钥",
-    "aiStudioLink": "Google AI Studio",
-    "apiKeySet": "API 密钥已设置（输入新密钥以更改）",
-    "apiKeyPlaceholder": "输入你的 Gemini API 密钥",
     "saved": "已保存！",
-    "apiKeyConfigured": "✓ API 密钥已设置完成",
     "readingTheme": "阅读主题",
     "fontSize": "字体大小",
     "layout": "布局",
@@ -268,9 +261,10 @@
     "removeBookmark": "移除书签",
     "addBookmark": "添加书签",
     "askQuestion": "询问关于此课程的问题...",
-    "thinking": "思考中...",
     "ask": "发送",
-    "aiError": "错误：请在设置中检查 Gemini API 密钥。",
+    "aiPowerups": "AI 强化工具",
+    "askAnything": "询问任何问题",
+    "promptCopied": "提示已复制！正在打开浏览器...",
     "cardBack": "答案 / 解释",
     "cardDue": "到期",
     "cardFront": "问题 / 提示",
@@ -364,7 +358,6 @@
     "loadFailed": "加载失败",
     "syncComplete": "同步完成",
     "syncFailed": "同步失败",
-    "aiFailed": "AI 请求失败",
     "clipboardFailed": "剪贴板访问被拒绝"
   },
   "mermaid": {

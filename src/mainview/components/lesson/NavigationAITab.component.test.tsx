@@ -1,27 +1,34 @@
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 
 import { useLessonViewStore } from '../../stores/lessonViewStore';
-import { clearMocks, mockResponse, setupRPC } from '../../testUtils';
+import { clearMocks, setupRPC } from '../../testUtils';
 import NavigationAITab from './NavigationAITab';
 
 setupRPC();
 
-beforeEach(() => {
-  clearMocks();
-  useLessonViewStore.setState({ content: 'Lesson content about physics' });
-  mockResponse('geminiAsk', 'AI response text');
-});
-
 describe('NavigationAITab', () => {
   const user = userEvent.setup();
+  let originalWriteText: typeof navigator.clipboard.writeText;
 
-  test('renders three skill buttons', () => {
+  beforeAll(() => {
+    originalWriteText = navigator.clipboard.writeText;
+  });
+
+  beforeEach(() => {
+    clearMocks();
+    useLessonViewStore.setState({ content: 'Lesson content about physics' });
+  });
+
+  afterAll(() => {
+    // nothing to restore
+  });
+
+  test('renders two skill buttons', () => {
     const { getByText } = render(<NavigationAITab />);
     expect(getByText('Feynman Explain')).toBeInTheDocument();
     expect(getByText('Reframe')).toBeInTheDocument();
-    expect(getByText('Drill')).toBeInTheDocument();
   });
 
   test('renders textarea', () => {
@@ -29,49 +36,18 @@ describe('NavigationAITab', () => {
     expect(getByPlaceholderText('Ask a question about this lesson...')).toBeInTheDocument();
   });
 
-  test('happy path — click skill shows response', async () => {
+  test('click skill copies prompt and opens browser', async () => {
+    let copiedText = '';
+    Object.assign(navigator.clipboard, {
+      writeText: (t: string) => {
+        copiedText = t;
+        return Promise.resolve();
+      },
+    });
     const { getByText } = render(<NavigationAITab />);
     await user.click(getByText('Feynman Explain'));
-    await waitFor(() => {
-      expect(getByText('AI response text')).toBeInTheDocument();
-    });
-  });
-
-  test('error path — shows error on failure', async () => {
-    mockResponse('geminiAsk', new Error('Network error'));
-    const { getByText } = render(<NavigationAITab />);
-    await user.click(getByText('Feynman Explain'));
-    await waitFor(() => {
-      expect(getByText(/aiError|error/i)).toBeInTheDocument();
-    });
-  });
-
-  test('toggle off — click same skill clears response', async () => {
-    const { getByText, queryByText } = render(<NavigationAITab />);
-    await user.click(getByText('Feynman Explain'));
-    await waitFor(() => {
-      expect(getByText('AI response text')).toBeInTheDocument();
-    });
-    await user.click(getByText('Feynman Explain'));
-    expect(queryByText('AI response text')).not.toBeInTheDocument();
-  });
-
-  test('loading state shown while waiting', async () => {
-    let resolvePromise!: (value: unknown) => void;
-    mockResponse(
-      'geminiAsk',
-      new Promise((r) => {
-        resolvePromise = r;
-      }),
-    );
-    const { getByText } = render(<NavigationAITab />);
-    await user.click(getByText('Feynman Explain'));
-    await waitFor(() => {
-      expect(getByText(/thinking/i)).toBeInTheDocument();
-    });
-    resolvePromise('done');
-    await waitFor(() => {
-      expect(getByText('done')).toBeInTheDocument();
-    });
+    expect(copiedText).toContain('curious 12-year-old');
+    expect(copiedText).toContain('clarifying questions');
+    Object.assign(navigator.clipboard, { writeText: originalWriteText });
   });
 });

@@ -1,31 +1,31 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { api } from '../../api';
+import { copyPrompt } from '../../ai/utils';
 import { useLessonViewStore } from '../../stores/lessonViewStore';
-import { showToast } from '../../toast';
 import { textareaVariants } from '../ui/variants/textarea';
+
+const ASK_PROMPT = (question: string, context: string) =>
+  [
+    'You are a helpful tutor. Answer the question based on the lesson content provided.',
+    '',
+    'Lesson content:',
+    context,
+    '',
+    'Question:',
+    question,
+  ].join('\n');
 
 export default function AITab() {
   const { t } = useTranslation();
   const content = useLessonViewStore((s) => s.content);
   const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleAsk = async () => {
     if (!question.trim()) return;
-    setLoading(true);
-    setResponse('');
-    try {
-      const res = await api.gemini.ask(question.trim(), content);
-      setResponse(res.response);
-    } catch {
-      showToast.error('toast.aiFailed');
-      setResponse(t('studyTools.aiError'));
-    } finally {
-      setLoading(false);
-    }
+    const prompt = ASK_PROMPT(question.trim(), content);
+    void copyPrompt(prompt);
+    setQuestion('');
   };
 
   return (
@@ -40,16 +40,11 @@ export default function AITab() {
         onClick={() => {
           void handleAsk();
         }}
-        disabled={!question.trim() || loading}
+        disabled={!question.trim()}
         className="w-full py-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded disabled:opacity-40"
       >
-        {loading ? t('studyTools.thinking') : t('studyTools.ask')}
+        {t('studyTools.ask')}
       </button>
-      {response && (
-        <div className="bg-gray-800 border border-gray-700 rounded p-2">
-          <p className="text-xs text-gray-300 whitespace-pre-wrap">{response}</p>
-        </div>
-      )}
     </div>
   );
 }

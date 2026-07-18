@@ -21,7 +21,6 @@ describe('settingsStore', () => {
     expect(s.rightPanel).toBe('sections');
     expect(s.focusMode).toBe(false);
     expect(s.locale).toBe('en-US');
-    expect(s.hasApiKey).toBe(false);
   });
 
   test('incFontSize increases by 2, max 28', () => {
@@ -75,11 +74,6 @@ describe('settingsStore', () => {
     useSettingsStore.getState().toggleFocusMode();
     expect(useSettingsStore.getState().focusMode).toBe(true);
     expect(JSON.parse(localStorage.getItem('coursereader-focus')!)).toBe(true);
-  });
-
-  test('setHasApiKey sets key status', () => {
-    useSettingsStore.getState().setHasApiKey(true);
-    expect(useSettingsStore.getState().hasApiKey).toBe(true);
   });
 
   test('setLocale changes locale and persists', () => {

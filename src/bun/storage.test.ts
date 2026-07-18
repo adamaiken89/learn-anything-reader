@@ -308,26 +308,6 @@ describe('module completion', () => {
   });
 });
 
-describe('gemini key', () => {
-  test('getGeminiKey returns null when not set', async () => {
-    mod = await import('./storage');
-    expect(mod.getGeminiKey()).toBeNull();
-  });
-
-  test('setGeminiKey stores key', async () => {
-    mod = await import('./storage');
-    mod.setGeminiKey('test-key-123');
-    expect(mod.getGeminiKey()).toBe('test-key-123');
-  });
-
-  test('setGeminiKey overwrites existing key', async () => {
-    mod = await import('./storage');
-    mod.setGeminiKey('old');
-    mod.setGeminiKey('new');
-    expect(mod.getGeminiKey()).toBe('new');
-  });
-});
-
 describe('study sessions', () => {
   function daysAgo(n: number): string {
     const d = new Date();

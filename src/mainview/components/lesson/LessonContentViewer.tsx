@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { ExternalLink } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
@@ -8,6 +9,8 @@ import remarkGfm from 'remark-gfm';
 import type { PluggableList } from 'unified';
 import { useShallow } from 'zustand/react/shallow';
 
+import { AI_SKILLS } from '../../ai/skills';
+import { copyPrompt } from '../../ai/utils';
 import { api } from '../../api';
 import { useAutoCopy } from '../../hooks/useAutoCopy';
 import { useCurrentLesson } from '../../hooks/useCurrentLesson';
@@ -32,6 +35,51 @@ import LessonContentCompletionButton from './LessonContentCompletionButton';
 import LessonContentHeader from './LessonContentHeader';
 import NotePopover from './NotePopover';
 import SelectionToolbar from './SelectionToolbar';
+
+const PERPLEXITY_PLACEHOLDER = '%%PERPLEXITY%%:';
+
+function extractSkillSection(content: string, label: string): string | undefined {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`^## ${escaped}\\s*[\\s\\S]*?(?=^## |$)`, 'm');
+  const match = content.match(regex);
+  if (!match) return undefined;
+  return match[0].replace(`## ${label}`, '').trim();
+}
+
+function processLessonContent(content: string): string {
+  let result = content.replace(/^## Drill[\s\S]*?(?=^## |$)/m, '');
+  result = result.replace(
+    /^## Feynman Explain\s*\n[\s\S]*?(?=^## |$)/m,
+    (match) => match.trimEnd() + '\n\n' + PERPLEXITY_PLACEHOLDER + 'feynman\n',
+  );
+  result = result.replace(
+    /^## Reframe\s*\n[\s\S]*?(?=^## |$)/m,
+    (match) => match.trimEnd() + '\n\n' + PERPLEXITY_PLACEHOLDER + 'reframe\n',
+  );
+  return result;
+}
+
+function PerplexityButton({ skillId }: { skillId: string }) {
+  const content = useLessonViewStore((s) => s.content);
+
+  const handleClick = async () => {
+    const skill = AI_SKILLS.find((s) => s.id === skillId);
+    if (!skill) return;
+    const hint = content ? extractSkillSection(content, skill.label) : undefined;
+    const prompt = skill.buildPrompt(content || '', hint);
+    void copyPrompt(prompt);
+  };
+
+  return (
+    <button
+      onClick={() => void handleClick()}
+      className="font-sans inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors bg-gray-800/60 border-gray-600/50 text-gray-400 hover:bg-gray-700 hover:text-gray-200 cursor-pointer"
+    >
+      Open in Perplexity
+      <ExternalLink size={12} />
+    </button>
+  );
+}
 
 interface LessonContentViewerProps {
   search: UseLessonSearchReturn;
@@ -124,6 +172,8 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
     setMarkdownRef(markdownRef);
   }, [setMarkdownRef]);
 
+  const displayedContent = processLessonContent(bodyContent);
+
   const rehypePlugins = [
     rehypeHighlight,
     rehypeCloze,
@@ -177,9 +227,23 @@ export default function LessonContentViewer({ search }: LessonContentViewerProps
                     }
                     return <span className={className} {...props} />;
                   },
+                  p: ({ children }) => {
+                    const text =
+                      typeof children === 'string'
+                        ? children
+                        : Array.isArray(children) && typeof children[0] === 'string'
+                          ? children[0]
+                          : '';
+                    if (text.startsWith(PERPLEXITY_PLACEHOLDER)) {
+                      return (
+                        <PerplexityButton skillId={text.replace(PERPLEXITY_PLACEHOLDER, '')} />
+                      );
+                    }
+                    return <p>{children}</p>;
+                  },
                 }}
               >
-                {bodyContent}
+                {displayedContent}
               </ReactMarkdown>
             </div>
 

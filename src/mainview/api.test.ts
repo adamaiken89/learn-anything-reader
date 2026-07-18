@@ -152,12 +152,6 @@ describe('api', () => {
     expect(result.color).toBe('green');
   });
 
-  test('gemini.hasKey', async () => {
-    mockResponse('geminiHasKey', true);
-    const result = await api.gemini.hasKey();
-    expect(result.hasKey).toBe(true);
-  });
-
   test('usercards.list', async () => {
     const data = [
       {

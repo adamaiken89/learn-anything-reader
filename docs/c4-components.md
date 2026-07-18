@@ -14,7 +14,7 @@ C4Component
       Component(quizPage, "QuizPage", "React component", "QuizSection wrapper with course/module context")
       Component(reviewPage, "ReviewPage", "React component", "ReviewSection wrapper for SRS review")
       Component(ucrPage, "UserCardReviewPage", "React component", "UserCardReviewSection wrapper for flash card review")
-      Component(settingsPage, "SettingsPage", "React component", "Gemini API key, theme grid, font size, page transitions, sync, locale")
+      Component(settingsPage, "SettingsPage", "React component", "Theme grid, font size, page transitions, sync, locale")
       Component(bookmarksPage, "BookmarksPage", "React component", "Bookmark list grouped by course, navigate/delete")
       Component(dashboardPage, "DashboardPage", "React component", "Per-course and global study stats, recent activity")
     }
@@ -77,7 +77,7 @@ C4Component
       Component(notesHighlights, "NotesHighlightsTab", "React component", "List of notes + highlights for current module")
       Component(bookmarksTab, "BookmarksTab", "React component", "Bookmark list for current module")
       Component(cardsTab, "CardsTab", "React component", "SRS card list for current module")
-      Component(aiTab, "AITab", "React component", "Gemini Q&A sidebar with context from selection")
+      Component(aiTab, "AITab", "React component", "AI Q&A sidebar: copies persona prompt + lesson context to clipboard, opens Google AI Mode")
     }
 
     Boundary(components, "Components (src/mainview/components/)") {
@@ -108,7 +108,7 @@ C4Component
   Container_Boundary(be, "Backend (Bun Electrobun RPC handlers — src/bun/)") {
 
     Boundary(handlers, "RPC Handler (src/bun/index.ts)") {
-      Component(router, "index.ts (Router)", "Electrobun RPC handler", "BrowserView.defineRPC handlers: all course, quiz, SRS, storage, search, stats, gemini, sync requests")
+      Component(router, "index.ts (Router)", "Electrobun RPC handler", "BrowserView.defineRPC handlers: all course, quiz, SRS, storage, search, stats, sync requests")
     }
 
     Boundary(services, "Backend Services") {
@@ -119,7 +119,6 @@ C4Component
       Component(sync, "sync.ts", "Bun module", "Git-based remote content sync (clone, pull, status)")
       Component(srs, "srs.ts", "Bun module", "SM-2 helpers: getDueCards, reviewCard, toggleStar, createSRSCard")
       Component(storage, "storage.ts", "Bun module", "JSON persistence: ~/.coursereader/data.json (highlights, notes, bookmarks, user cards, completion)")
-      Component(gemini, "gemini.ts", "Bun module", "HTTP client for gemini-2.0-flash. API key from ~/.coursereader/prefs.json")
       Component(yaml, "yaml.ts", "Bun module", "Custom YAML parser (no external dep)")
       Component(utils, "utils.ts", "Bun module", "Utility functions (moduleID normalization, etc.)")
       Component(logger, "logger.ts", "Bun module", "Bun file logger: ~/.coursereader/logs/ — daily rotation by date")
@@ -132,7 +131,6 @@ C4Component
   }
 
   System_Ext(fs, "File System", "subjects/ directory tree + ~/.coursereader/ + ~/.coursereader/logs/")
-  System_Ext(geminiExt, "Google Gemini API", "generativelanguage.googleapis.com")
 
   Rel(student, courseList, "Browses courses")
   Rel(student, moduleList, "Selects module from course")
@@ -140,7 +138,7 @@ C4Component
   Rel(student, quizSection, "Takes MCQ quizzes")
   Rel(student, reviewSection, "Reviews SRS cards")
   Rel(student, ucrSection, "Reviews custom flash cards")
-  Rel(student, settingsPage, "Configures API key, theme, font, transitions, sync, locale")
+  Rel(student, settingsPage, "Configures theme, font, transitions, sync, locale")
   Rel(student, bookmarksPage, "Views saved bookmarks")
   Rel(student, dashboardPage, "Views study stats")
 
@@ -162,11 +160,11 @@ C4Component
 
   Rel(courseList, apiClient, "courses.list()")
   Rel(moduleList, apiClient, "reads course data (passed via viewStore)")
-  Rel(lessonSection, apiClient, "courses.lesson(), storage.highlights/notes/bookmarks, gemini.ask()")
+  Rel(lessonSection, apiClient, "courses.lesson(), storage.highlights/notes/bookmarks")
   Rel(quizSection, apiClient, "quiz.start()")
   Rel(reviewSection, apiClient, "courses.srs.*")
   Rel(ucrSection, apiClient, "usercards.*")
-  Rel(settingsPage, apiClient, "gemini.*, sync.*")
+  Rel(settingsPage, apiClient, "sync.*")
   Rel(bookmarksPage, apiClient, "storage.bookmarks(), storage.deleteBookmark()")
   Rel(dashboardPage, apiClient, "stats.course() / stats.global()")
 
@@ -178,13 +176,11 @@ C4Component
   Rel(router, sync, "syncStart, getSyncStatus, setURL")
   Rel(router, srs, "getDueCards, reviewCard, toggleStar, createSRSCard")
   Rel(router, storage, "saveHighlight, getNotes, bookmark ops, user card ops, completion")
-  Rel(router, gemini, "askAboutHighlight, hasKey, setKey")
   Rel(router, yaml, "parseYAML")
 
   Rel(courseLoader, fs, "Reads subjects/<id>/syllabus.yaml, modules/<NN-*>/lesson.md, modules/<NN-*>/quiz.yaml, subjects/<id>/srs/deck.json")
   Rel(storage, fs, "Reads/writes ~/.coursereader/data.json, ~/.coursereader/prefs.json")
   Rel(logger, fs, "Writes ~/.coursereader/logs/<date>.log")
-  Rel(gemini, geminiExt, "POST /v1beta/models/gemini-2.0-flash:generateContent")
 
   Rel(lessonSection, bookContent, "Applies .book-content CSS class with theme CSS vars")
 ```
@@ -200,7 +196,7 @@ C4Component
 | QuizPage | `src/mainview/pages/QuizPage.tsx` | QuizSection wrapper, passes course/module context |
 | ReviewPage | `src/mainview/pages/ReviewPage.tsx` | ReviewSection wrapper for SRS review |
 | UserCardReviewPage | `src/mainview/pages/UserCardReviewPage.tsx` | UserCardReviewSection wrapper for custom flash card review |
-| SettingsPage | `src/mainview/pages/SettingsPage.tsx` | Gemini API key, theme grid (18), font size, page transitions, content width, focus mode, remote sync, locale |
+| SettingsPage | `src/mainview/pages/SettingsPage.tsx` | Theme grid (18), font size, page transitions, content width, focus mode, remote sync, locale |
 | BookmarksPage | `src/mainview/pages/BookmarksPage.tsx` | Bookmark list grouped by course, open/delete |
 | DashboardPage | `src/mainview/pages/DashboardPage.tsx` | Per-course + global stats, recent sessions, streak |
 
@@ -242,7 +238,15 @@ C4Component
 | NotesHighlightsTab | `src/mainview/components/study-tools/NotesHighlightsTab.tsx` | List of notes + highlights for current module |
 | BookmarksTab | `src/mainview/components/study-tools/BookmarksTab.tsx` | Bookmark list for current module |
 | CardsTab | `src/mainview/components/study-tools/CardsTab.tsx` | SRS card list for current module |
-| AITab | `src/mainview/components/study-tools/AITab.tsx` | Gemini Q&A sidebar with context-aware prompting |
+| AITab | `src/mainview/components/study-tools/AITab.tsx` | AI Q&A sidebar: copies persona prompt + lesson context to clipboard, opens Google AI Mode |
+| NavigationAITab | `src/mainview/components/lesson/NavigationAITab.tsx` | AI skill buttons (Feynman/Reframe/Drill) + free-form ask, same clipboard+browser flow |
+
+### AI Layer (2 modules, src/mainview/ai/)
+
+| Module | File | Responsibility |
+|--------|------|----------------|
+| skills.ts | `src/mainview/ai/skills.ts` | AI_SKILLS config: 3 persona-based study skills (Feynman/Reframe/Drill) + prompt builders |
+| utils.ts | `src/mainview/ai/utils.ts` | copyPrompt(): clipboard write + toast + open Google AI Mode (udm=50) |
 
 ### Other Components (9, src/mainview/components/)
 
@@ -292,7 +296,7 @@ C4Component
 | useLessonSection | `src/mainview/hooks/useLessonSection.ts` | Orchestrates lessonUIStore + notesStore + highlightsStore |
 | useSettingsPage | `src/mainview/hooks/useSettingsPage.ts` | Orchestrates settingsStore + courseStore |
 
-### Backend (12 modules, src/bun/)
+### Backend (11 modules, src/bun/)
 
 | Module | File | Responsibility |
 |--------|------|----------------|
@@ -305,7 +309,6 @@ C4Component
 | sync.ts | `src/bun/sync.ts` | Git-based remote content sync |
 | srs.ts | `src/bun/srs.ts` | SM-2 helpers: getDueCards, reviewCard, toggleStar, createSRSCard |
 | storage.ts | `src/bun/storage.ts` | JSON persistence: ~/.coursereader/data.json |
-| gemini.ts | `src/bun/gemini.ts` | Gemini 2.0 Flash API client |
 | logger.ts | `src/bun/logger.ts` | Bun file logger with daily rotation |
 | yaml.ts | `src/bun/yaml.ts` | Custom YAML parser |
 | utils.ts | `src/bun/utils.ts` | Utility functions |
@@ -371,13 +374,13 @@ LessonPage supports 4 transition styles between modules (stored in settingsStore
 ## Data Flow
 
 ```
-Student → Page Component → api.ts (RPC wrapper) → rpc.ts (Electrobun IPC) → Bun RPC handlers → Services → File System / Gemini API
+Student → Page Component → api.ts (RPC wrapper) → rpc.ts (Electrobun IPC) → Bun RPC handlers → Services → File System
                                ↑                                                                      ↓
                                └───────────────────── JSON response ──────────────────────────────────┘
 ```
 
 - **View → Store**: Read/write Zustand state (view stack, settings, bookmarks, highlights, notes, completion, pomodoro, sync)
 - **View → RPC**: api.ts calls rpc.ts with typed methods (typed via rpc-schema.ts AppRequests)
-- **Backend → Services**: RPC handler calls course-loader, lesson-markdown, search, stats, sync, srs, storage, gemini, yaml
+- **Backend → Services**: RPC handler calls course-loader, lesson-markdown, search, stats, sync, srs, storage, yaml
 - **Services → File System**: read/write subjects/ directory tree, ~/.coursereader/data.json, ~/.coursereader/logs/
 - **Response → View**: JSON returned, React re-renders

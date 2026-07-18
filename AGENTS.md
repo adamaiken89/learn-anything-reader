@@ -27,6 +27,9 @@ src/
 │   │   ├── study-tools/  # NotesHighlightsTab, BookmarksTab, CardsTab, AITab
 │   │   ├── ui/           # Button, StatCard
 │   │   └── ...           # CourseSwitcher, ErrorBoundary, MermaidDiagram, MermaidOverlay, SearchOverlay, StudyTools, PomodoroTimer
+│   ├── ai/               # AI skill configs, prompt builders, clipboard utils
+│   │   ├── skills.ts     # AI_SKILLS definitions + prompt builders
+│   │   └── utils.ts      # copyPrompt(): clipboard + toast + open browser
 │   ├── hooks/            # 22+ domain hooks (useLesson, useBookmarks, useHighlights, useQuizEngine, useReviewState, useCardReviewState, useLessonNav, useLessonSearch, useLessonSection, useLessonAnimations, useLessonKeyboardShortcuts, useNotes, useSelection, useShortcuts, useSettingsPage, useDashboard, useWheelNavigation, useSearchOverlay, useCurrentLesson, useAppInit, useAutoCopy, useCountUp, useClipboardFallback, etc.)
 │   └── stores/           # Zustand (13): viewStore, lessonViewStore, courseStore, settingsStore, pomodoroStore, bookmarksStore, completionStore, highlightsStore, lessonUIStore, notesStore, syncStore, selectionStore, quizStore
 ├── types/                # Ambient declarations (js-yaml, three, jest-dom)
@@ -41,7 +44,6 @@ src/
     ├── sync.ts           # Sync operations
     ├── srs.ts            # SM-2 filter helpers
     ├── storage.ts        # JSON persistence (~/.coursereader/data.json)
-    ├── gemini.ts         # Gemini API client
     ├── logger.ts         # Backend logger
     ├── utils.ts          # Utility functions
     └── yaml.ts           # YAML parsing utilities
@@ -88,7 +90,7 @@ Subjects path resolution (`src/bun/utils.ts` `findSubjectsDir`):
 - Subjects/lessons/quizzes: file I/O from `.coursereader/subjects/` tree
 - SRS decks: `.coursereader/subjects/<id>/srs/deck.json`
 - Highlights, notes, bookmarks, user cards, completion: `~/.coursereader/data.json`
-- Gemini API key: `~/.coursereader/prefs.json`
+- Gemini API key: `~/.coursereader/prefs.json` _(legacy — Tier 1 AI uses clipboard+browser, no key needed)_
 - Logs: `~/.coursereader/logs/<YYYY-MM-DD>.log`
 
 ## Scroll layout invariant
@@ -126,6 +128,66 @@ LessonPage supports 4 styles: none, flip, slide, fade. Stored in `settingsStore.
 ## Clipboard fallback
 
 `useClipboardFallback` (mounted in `App.tsx`) listens for window-level `copy`/`cut` events. When `clipboard-write` permission unavailable (Electrobun), uses `document.execCommand('copy')` fallback. Also overrides Ctrl+A in lesson content viewer to select all text in `contentRef`.
+
+## AI Integration
+
+Two tiers: clipboard-forwarding (no setup) vs deep API (Gemini key).
+
+### Tier 1: Clipboard + Browser (default, no API key)
+
+Opens Perplexity (`perplexity.ai/search?q=`). Stable URL, intended search API. Previously used Google AI Mode (`udm=50` undocumented param) — migrated to Perplexity for reliability.
+
+Why clipboard+browser over in-app chat:
+- Zero friction (no API key, no account linking)
+- User brings own AI (ChatGPT/Claude/Gemini/Perplexity — paste anywhere)
+- No credential storage, no backend AI costs
+
+Costs accepted:
+- Output silo (AI answers never auto-save to notes/highlights)
+- 4-step UX chain: click → copy → switch tab → paste
+- No measurement/analytics for v1 (`logSession` type union doesn't include `'ai_skill'`)
+
+### Privacy
+
+Consent required before first clipboard copy. `settingsStore.aiShareConsent` (localStorage `coursereader-ai-consent`, default false). First click shows confirm dialog. Subsequent clicks skip.
+
+### Interaction design — single-turn output generators
+
+All 3 skills are single-turn output generators (not dialogues). Clip-browser delivery cannot sustain multi-turn — AI response lands in browser tab app cannot control.
+
+| Skill | AI persona | Output |
+|-------|-----------|--------|
+| Feynman Explain | Curious 12-year-old | 2-3 clarifying questions targeting jargon/assumptions/leaps |
+| Reframe | Socratic coach | Alternative reframe + strength/weakness analysis (3 sections) |
+| Drill | Quizmaster | 5 practice questions (2 recall, 2 application, 1 analysis) |
+
+Each builds: `[concise persona + output format] + [hint from lesson section] + [full lesson content]`. Calls `copyPrompt()`. No "First, say..." preamble — output is the deliverable.
+
+### Lesson content section handling (AI skill sections)
+
+Lesson markdown can include `## Feynman Explain`, `## Reframe`, `## Drill` headings with seed analogy/framing for AI prompts.
+
+**Lesson viewer** (`LessonContentViewer.tsx`): `processLessonContent()` pre-processes `bodyContent` before ReactMarkdown render.
+- `## Drill` section — removed entirely (hidden from viewer)
+- `## Feynman Explain` / `## Reframe` — section content replaced with "Open in Perplexity" button (`PerplexityButton` component). Click builds prompt via `AI_SKILLS.buildPrompt()` + `extractSkillSection()` hint, then calls `copyPrompt()` (clipboard + Perplexity open).
+
+**AI tab** (`NavigationAITab.tsx`): parses lesson content for hint extraction, passed to `buildPrompt(context, hint?)`. If section missing, hint undefined (falls back to content-only prompt). Drill button hidden from skill list. Feynman/Reframe buttons show `ExternalLink` icon.
+
+`extractSkillSection(content, label)` function (duplicated in both files): uses regex `/^## <label>[\s\S]*?(?=^## |\z)/m` to extract hint text between the heading and next section. `processLessonContent()` uses same pattern for removal/replacement.
+
+### System browser (Utils.openExternal)
+
+`copyPrompt()` (`ai/utils.ts`) copies prompt to clipboard, opens Perplexity in system browser via RPC (`api.shell.openExternal`). Backend calls `Utils.openExternal(url)` from `electrobun/bun`. Prompt appended as `?q=` URL param (sliced 15000 chars) for auto-fill. Full prompt on clipboard for long prompts.
+
+### Pedagogical notes
+
+- **Feynman text vs speech**: Text-Feynman loses oral feedback loop. Acceptable because: forces precise written explanation, AI can quote exact passages back, many users study in public. Research basis: Fiorella & Mayer (2015) — written explanatory still > restudy.
+- **Drill vs built-in quiz/SRS**: Differentiator is dynamic adaptation. Quiz is static pre-authored questions. AI drill generates novel synthesis questions. Single-turn limitation means questions generated upfront with answers — user self-tests.
+- **Scope ceiling**: Clipboard approach self-limits — cannot auto-inject AI output into app (notes, highlights, cards). Write-back requires Tier 2 (API key + in-app chat). Two tiers coexist in same AITab: clipboard by default, deep integration when user provides key.
+
+### Prompt maintenance
+
+Prompts in `ai/skills.ts` are English-only (AI persona instructions stay English regardless of user locale). UI labels use existing i18n. Prompts may degrade as AI models change — single file to update. Prompts trimmed to 50-80 words instruction + hint slot + lesson content. Each skill self-contained (no shared instructions).
 
 ## Animations & timing
 

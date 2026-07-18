@@ -15,11 +15,11 @@ interface SettingsState {
   theme: Theme;
   contentWidth: ContentWidth;
   rightPanel: RightPanel;
-  hasApiKey: boolean;
   focusMode: boolean;
   locale: string;
   transitionStyle: TransitionStyle;
   readingMode: ReadingMode;
+  aiShareConsent: boolean;
   incFontSize: () => void;
   decFontSize: () => void;
   setFontSize: (v: number) => void;
@@ -27,11 +27,11 @@ interface SettingsState {
   setTheme: (t: Theme) => void;
   setContentWidth: (v: ContentWidth) => void;
   setRightPanel: (v: RightPanel) => void;
-  setHasApiKey: (v: boolean) => void;
   toggleFocusMode: () => void;
   setLocale: (l: string) => void;
   setTransitionStyle: (v: TransitionStyle) => void;
   setReadingMode: (v: ReadingMode) => void;
+  setAiShareConsent: (v: boolean) => void;
 }
 
 const migrateWidth = (): ContentWidth => {
@@ -62,8 +62,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   locale: localStorage.getItem('coursereader-locale') || 'en-US',
   transitionStyle: getStored<TransitionStyle>('coursereader-transition', 'none'),
   readingMode: getStored<ReadingMode>('coursereader-reading-mode', 'normal'),
-  hasApiKey: false,
-
+  aiShareConsent: getStored<boolean>('coursereader-ai-consent', false),
   incFontSize: () =>
     set((s) => {
       const next = Math.min(28, s.fontSize + 2);
@@ -106,8 +105,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     set({ rightPanel: v });
   },
 
-  setHasApiKey: (v) => set({ hasApiKey: v }),
-
   toggleFocusMode: () =>
     set((s) => {
       const next = !s.focusMode;
@@ -129,5 +126,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setReadingMode: (v) => {
     store('coursereader-reading-mode', v);
     set({ readingMode: v });
+  },
+  setAiShareConsent: (v) => {
+    store('coursereader-ai-consent', v);
+    set({ aiShareConsent: v });
   },
 }));

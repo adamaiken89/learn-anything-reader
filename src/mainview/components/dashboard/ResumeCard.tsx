@@ -26,10 +26,13 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
     const mid = lastSession.module.id;
     void Promise.all([
       api.quiz.hasCloze(cid, mid).catch(() => false),
-      api.quiz.hasCumulative(cid).catch(() => false),
-    ]).then(([cloze, cumulative]) => {
+      api.quiz.index(cid).catch(null),
+    ]).then(([cloze, quizIndex]) => {
       setHasCloze(cloze);
-      setHasCumulative(cumulative);
+      const moduleNum = parseInt(mid, 10);
+      setHasCumulative(
+        quizIndex?.cumulativeQuizzes.some((cq) => cq.milestone === moduleNum) ?? false,
+      );
     });
   }, [lastSession.course.id, lastSession.module.id]);
 
@@ -94,7 +97,7 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
                 e.stopPropagation();
                 push({ type: 'quiz', course: lastSession.course, module: lastSession.module });
               }}
-              className="px-2 py-1 text-[10px] font-medium rounded bg-indigo-600/30 text-indigo-300 hover:bg-indigo-500/50 transition-colors"
+              className="px-2 py-1 text-[10px] font-medium rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
             >
               MCQ
             </button>
@@ -119,7 +122,7 @@ export default function ResumeCard({ lastSession }: { lastSession: LastSession }
                   e.stopPropagation();
                   push({ type: 'cumulativeQuiz', course: lastSession.course });
                 }}
-                className="px-2 py-1 text-[10px] font-medium rounded bg-indigo-600/30 text-indigo-300 hover:bg-indigo-500/50 transition-colors"
+                className="px-2 py-1 text-[10px] font-medium rounded bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
               >
                 Cumulative
               </button>

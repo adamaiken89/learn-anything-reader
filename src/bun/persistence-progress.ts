@@ -99,17 +99,6 @@ export function getDailyStreak(): number {
   return streak;
 }
 
-export function getGeminiKey(): string | null {
-  const data = load();
-  return data.geminiAPIKey || null;
-}
-
-export function setGeminiKey(key: string): void {
-  const data = load();
-  data.geminiAPIKey = key;
-  save(data);
-}
-
 export function getSyncConfig(): {
   remoteRepoURL: string;
   lastSyncedCommit: string | null;

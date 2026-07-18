@@ -22,7 +22,6 @@ export interface StorageData {
   completedModules: CompletedModule[];
   studySessions: StudySession[];
   userCards: UserCard[];
-  geminiAPIKey?: string;
   remoteRepoURL?: string;
   lastSyncedCommit?: string | null;
   lastSyncTime?: string | null;

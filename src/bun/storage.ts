@@ -31,8 +31,6 @@ export {
   getStudySessions,
   getGlobalStudySessions,
   getDailyStreak,
-  getGeminiKey,
-  setGeminiKey,
   getSyncConfig,
   saveSyncConfig,
   getLastSession,

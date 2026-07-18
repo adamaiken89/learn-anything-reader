@@ -1,8 +1,7 @@
-import { BrowserView, BrowserWindow, Updater } from 'electrobun/bun';
+import { BrowserView, BrowserWindow, Updater, Utils } from 'electrobun/bun';
 import type { AppSchema } from './rpcSchema';
 import * as CourseLoader from './courseLoader';
 import * as Storage from './storage';
-import * as Gemini from './gemini';
 import { processLessonMarkdown } from './lessonMarkdown';
 import {
   getDueCardsForCourse,
@@ -161,18 +160,6 @@ const rpc = BrowserView.defineRPC<AppSchema>({
         return { ok: true as const };
       },
 
-      geminiHasKey: () => Gemini.hasAPIKey(),
-
-      geminiSetKey: async ({ key }) => {
-        Gemini.setAPIKey(key);
-        return { ok: true as const };
-      },
-
-      geminiAsk: async ({ question, context }) => {
-        const response = await Gemini.askGemini(question, context);
-        return response;
-      },
-
       logSession: async ({ courseID, moduleID, durationMinutes, type, score, total }) => {
         Storage.addStudySession({ courseID, moduleID, durationMinutes, type, score, total });
         return { ok: true as const };
@@ -239,6 +226,11 @@ const rpc = BrowserView.defineRPC<AppSchema>({
 
       setWindowTitle: async ({ title }) => {
         mainWindow?.setTitle(title);
+        return { ok: true as const };
+      },
+
+      openExternal: ({ url }) => {
+        Utils.openExternal(url);
         return { ok: true as const };
       },
     },

@@ -63,9 +63,6 @@ const HANDLERS: Record<string, MockHandler> = {
   getCourseStats: (params) => mockData.getCourseStats(p<{ courseId: string }>(params).courseId),
   getGlobalStats: () => mockData.getGlobalStats(),
   getLastQuizSession: () => null,
-  geminiHasKey: () => false,
-  geminiSetKey: () => ({ ok: true as const }),
-  geminiAsk: () => 'This is a mock response from the E2E test suite.',
   // Sync
   getSyncStatus: () => ({
     lastSyncTime: null,
@@ -95,6 +92,7 @@ const HANDLERS: Record<string, MockHandler> = {
   hasClozeQuiz: () => false,
   hasCumulativeQuiz: () => false,
   setWindowTitle: () => undefined,
+  openExternal: () => ({ ok: true }),
 
   // Cloze quiz
   loadClozeQuiz: (params) => {

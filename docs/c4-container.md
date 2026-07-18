@@ -8,17 +8,15 @@ C4Container
 
   System_Boundary(cr, "CourseReader") {
     Container(frontend, "Frontend", "React 19 + TypeScript + Vite", "Renders UI, manages view stack via Zustand, communicates with backend via Electrobun RPC")
-    Container(backend, "Backend", "Bun (Electrobun RPC handlers)", "Serves course data, quiz engine, SRS logic, Gemini proxy, persistence, search, stats, sync")
+    Container(backend, "Backend", "Bun (Electrobun RPC handlers)", "Serves course data, quiz engine, SRS logic, persistence, search, stats, sync")
   }
 
   Rel(student, frontend, "Uses")
 
   System_Ext(fs, "File System", "subjects/ directory + ~/.coursereader/")
-  System_Ext(gemini, "Google Gemini API", "REST API")
 
   Rel(frontend, backend, "BrowserView.defineRPC()", "Electrobun IPC (no network)")
   Rel(backend, fs, "Reads subjects YAML/MD/JSON, writes SRS deck + data.json + logs")
-  Rel(backend, gemini, "POST /v1beta/models/gemini-2.0-flash:generateContent", "HTTPS")
 ```
 
 ## Elements
@@ -28,7 +26,6 @@ C4Container
 | Frontend | Container | React 19, TypeScript, Vite, Zustand | Renders UI in Electrobun webview. View stack routing, Tailwind CSS, react-markdown |
 | Backend | Container | Bun, Electrobun RPC handlers | All API handlers: subjects, lessons, quizzes, SRS, storage, Gemini proxy, search, stats, sync |
 | File System | External | Local disk | Course data in `subjects/<id>/`, prefs + annotations in `~/.coursereader/`, logs in `~/.coursereader/logs/` |
-| Google Gemini API | External | REST/HTTPS | AI-powered Q&A on course content |
 
 ## Notes
 

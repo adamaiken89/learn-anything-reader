@@ -156,12 +156,6 @@ export const api = {
       request(() => _rpcRequest.reviewUserCard({ id, correct })),
     toggleStar: (id: string) => request(() => _rpcRequest.toggleUserCardStar({ id })),
   },
-  gemini: {
-    hasKey: () => request(() => _rpcRequest.geminiHasKey().then((v) => ({ hasKey: v }))),
-    setKey: (key: string) => request(() => _rpcRequest.geminiSetKey({ key })),
-    ask: (question: string, context: string) =>
-      request(() => _rpcRequest.geminiAsk({ question, context }).then((v) => ({ response: v }))),
-  },
   sync: {
     status: () => request(() => _rpcRequest.getSyncStatus()),
     start: (force?: boolean) => request(() => _rpcRequest.syncStart({ force })),
@@ -180,5 +174,8 @@ export const api = {
   },
   window: {
     setTitle: (title: string) => request(() => _rpcRequest.setWindowTitle({ title })),
+  },
+  shell: {
+    openExternal: (url: string) => request(() => _rpcRequest.openExternal({ url })),
   },
 };

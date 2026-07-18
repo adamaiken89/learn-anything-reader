@@ -152,9 +152,6 @@ type ProgressRequests = {
     params: { courseID: string; moduleID: string };
     response: StudySession | null;
   };
-  geminiHasKey: { params: void; response: boolean };
-  geminiSetKey: { params: { key: string }; response: { ok: true } };
-  geminiAsk: { params: { question: string; context: string }; response: string };
 };
 
 type SyncRequests = {
@@ -183,6 +180,7 @@ export type AppRequests = CourseRequests &
     clearAllData: { params: void; response: { ok: true } };
     clearLogs: { params: void; response: { ok: true } };
     setWindowTitle: { params: { title: string }; response: { ok: true } };
+    openExternal: { params: { url: string }; response: { ok: boolean } };
     getLastSession: { params: void; response: LastSession | null };
     setLastSession: { params: LastSession; response: { ok: true } };
     clearLastSession: { params: void; response: { ok: true } };
